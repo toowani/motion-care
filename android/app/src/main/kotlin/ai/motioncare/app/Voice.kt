@@ -36,6 +36,7 @@ class Voice(private val context: Context, private val log: (String) -> Unit) {
     private var fallback: PlatformTts? = null
     private var stt: SpeechToText? = null
     private var onHeard: ((String) -> Unit)? = null
+    private var onNoVoice: (() -> Unit)? = null
 
     fun start() {
         runCatching {
@@ -84,12 +85,13 @@ class Voice(private val context: Context, private val log: (String) -> Unit) {
                 log("들은 말: \"$text\"")
                 onHeard?.invoke(text)
                 onHeard = null
+                onNoVoice = null
             }
         }
         override fun onUpdatedEpdData(start: Long, end: Long) = Unit
         override fun onStartedRecognition() = Unit
         override fun onEndedRecognition() = Unit
-        override fun onError(errorType: SttError) { main.post { log("음성 인식 오류($errorType)") } }
+        override fun onError(errorType: SttError) { main.post { log("음성 인식 오류($errorType)"); giveUpListening() } }
         override fun onReady() = Unit
         override fun onUpdatedRms(rms: Double) = Unit
     }
@@ -114,11 +116,23 @@ class Voice(private val context: Context, private val log: (String) -> Unit) {
         fallback?.speak(text, PlatformTts.QUEUE_ADD, null, text.hashCode().toString())
     }
 
-    /** Asks a question and hands the recognized answer to [onAnswer] (once). */
-    fun ask(question: String, onAnswer: (String) -> Unit) {
+    /**
+     * Asks a question and hands the recognized answer to [onAnswer] (once). If recognition fails
+     * or nothing is heard within a few seconds, [noVoice] runs instead (e.g. on-screen buttons).
+     */
+    fun ask(question: String, noVoice: (() -> Unit)? = null, onAnswer: (String) -> Unit) {
         say(question)
         onHeard = onAnswer
-        main.postDelayed({ runCatching { stt?.request() } }, 2500)
+        onNoVoice = noVoice
+        main.postDelayed({ runCatching { stt!!.request() }.onFailure { giveUpListening() } }, 2500)
+        main.postDelayed({ giveUpListening() }, 10_000)
+    }
+
+    private fun giveUpListening() {
+        val f = onNoVoice ?: return
+        onHeard = null
+        onNoVoice = null
+        f()
     }
 
     fun release() {

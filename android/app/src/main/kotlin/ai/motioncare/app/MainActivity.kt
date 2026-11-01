@@ -17,6 +17,7 @@ import android.os.Bundle
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.Button
+import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 
 /**
@@ -44,6 +45,7 @@ class MainActivity : Activity() {
     private var lastDose = 0.0
     private val reportedDose = mutableMapOf<String, Double>()
     private var tripRan = false
+    private var lastFreshAt = Double.NEGATIVE_INFINITY
 
     private val scenarios = listOf(
         "B 굽은 길 · 거칠게" to "B_winding_rough.csv",
@@ -71,10 +73,16 @@ class MainActivity : Activity() {
         bar.addView(button("멀미 났어") { reportSick() })
         bar.addView(button("정지") { stopTrip() })
 
+        // debug/QA: adb shell am start -n ai.motioncare.app/.MainActivity --es route_to "37.3947,127.1112,판교역"
+        if (BuildConfig.DEBUG) intent.getStringExtra("route_to")?.split(",")?.takeIf { it.size == 3 }?.let { (lat, lon, name) ->
+            dashboard.postDelayed({ navi.routeTo(lat.toDouble(), lon.toDouble(), name) }, 3000)
+        }
+
         setContentView(LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundColor(Color.WHITE)
-            addView(bar, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
+            // the Pleos home shows apps in a narrower side panel too, so the buttons must scroll rather than clip
+            addView(HorizontalScrollView(this@MainActivity).apply { addView(bar) }, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
             addView(dashboard, LinearLayout.LayoutParams(MATCH_PARENT, 0, 1f))
         })
     }
@@ -91,6 +99,7 @@ class MainActivity : Activity() {
         familyMode = !familyMode
         familyButton.text = familyLabel()
         dashboard.note(if (familyMode) "가족 모드: 가장 약한 탑승자 기준으로 미리 대응" else "가족 모드 끔")
+        if (familyMode && live != null) navi.preferComfortableRoute()
     }
 
     private fun startReplay(file: String) {
@@ -104,7 +113,7 @@ class MainActivity : Activity() {
 
     private fun startLive() {
         // location, vehicle speed and microphone are runtime ("dangerous") permissions on AAOS
-        val needed = arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, "android.car.permission.CAR_SPEED", android.Manifest.permission.RECORD_AUDIO)
+        val needed = arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION, "android.car.permission.CAR_SPEED", android.Manifest.permission.RECORD_AUDIO)
             .filter { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }
         if (needed.isNotEmpty()) requestPermissions(needed.toTypedArray(), 1)
         stopSource()
@@ -117,9 +126,20 @@ class MainActivity : Activity() {
     private fun suggestFamilyMode() {
         if (familyMode || familySuggested) return
         familySuggested = true
-        voice.ask("뒷좌석에 탑승자가 있어요. 가족 모드를 켤까요?") { answer ->
-            if (Voice.isYes(answer) && !familyMode) toggleFamily()
+        askYesNo("뒷좌석에 탑승자가 있어요. 가족 모드를 켤까요?") { if (!familyMode) toggleFamily() }
+    }
+
+    /** Voice yes/no; falls back to on-screen buttons when speech recognition is unavailable. */
+    private fun askYesNo(question: String, onYes: () -> Unit) {
+        val noVoice = {
+            AlertDialog.Builder(this)
+                .setTitle(question)
+                .setPositiveButton("응") { _, _ -> dashboard.note("답: 응 (화면)"); onYes() }
+                .setNegativeButton("아니") { _, _ -> dashboard.note("답: 아니 (화면)") }
+                .show()
+            Unit
         }
+        voice.ask(question, noVoice) { answer -> if (Voice.isYes(answer)) onYes() }
     }
 
     private fun run(src: SignalSource, cabin: SimulatedCabin?) {
@@ -130,6 +150,7 @@ class MainActivity : Activity() {
         lastDose = 0.0
         reportedDose.clear()
         tripRan = true
+        lastFreshAt = Double.NEGATIVE_INFINITY
         source = src
         src.start { sample ->
             val out = engine.step(sample)
@@ -142,11 +163,13 @@ class MainActivity : Activity() {
                 dashboard.note("t=${sample.t.toInt()}s 가족 모드: ${family.weakest} 기준선 도달 (확률 %.2f)".format(it.probability))
                 if (Action.HVAC_FRESH !in actions) actions += Action.HVAC_FRESH
             }
+            // the engine re-sends fresh air on every escalation; the cabin is already being aired, so don't repeat it
+            if (Action.HVAC_FRESH in actions) {
+                if (sample.t - lastFreshAt < params.ttsCooldownS) actions -= Action.HVAC_FRESH else lastFreshAt = sample.t
+            }
             for (a in actions) {
                 when (a) {
-                    Action.SUGGEST_REST_STOP -> voice.ask(Voice.phrase(a)) { answer ->
-                        if (Voice.isYes(answer)) navi.addRestStop(live?.lat, live?.lon)
-                    }
+                    Action.SUGGEST_REST_STOP -> askYesNo(Voice.phrase(a)) { navi.addRestStop(live?.lat, live?.lon) }
                     else -> voice.say(Voice.phrase(a))
                 }
                 dashboard.note("t=${sample.t.toInt()}s  ${Voice.phrase(a)}")

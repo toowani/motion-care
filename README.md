@@ -83,6 +83,6 @@ apk.teamName=팀명            # → apk/팀명_MotionCare_release.apk
 
 ## 아직 남은 것
 
-- 에뮬레이터 그래픽 크래시(ColorBuffer) 원인 확인 후 가족 모드·휴게소 흐름 실기 확인
-- 속도(`PERF_VEHICLE_SPEED`)와 GPX 위치 재생 확인
+- NaviHelper 경로 주행 중 회전 예고 음성 확인 (다음 회전 수신까지는 확인, `docs/qa.md`)
+- 가족 모드 "편안한 길" 경로 옵션 에뮬레이터 확인
 - 기획서, 시연 영상, 팀명 확정 후 APK 이름

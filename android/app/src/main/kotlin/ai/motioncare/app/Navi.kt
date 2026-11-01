@@ -1,8 +1,10 @@
 package ai.motioncare.app
 
 import ai.pleos.playground.navi.constants.NaviErrorCode
+import ai.pleos.playground.navi.constants.RouteOption
 import ai.pleos.playground.navi.constants.WaypointIndex
 import ai.pleos.playground.navi.data.RequestWaypointInfo
+import ai.pleos.playground.navi.data.RouteInfo
 import ai.pleos.playground.navi.data.TBTInfo
 import ai.pleos.playground.navi.helper.NaviHelper
 import ai.pleos.playground.navi.helper.listener.NaviHelperEventListener
@@ -41,7 +43,13 @@ class NaviGuide(context: Context, private val log: (String) -> Unit) {
     private val listener = object : NaviHelperEventListener {
         override fun onTBTInfo(list: List<TBTInfo>) {
             val first = list.firstOrNull { it.type.name.contains("_L") || it.type.name.contains("_R") || it.type.name.endsWith("LEFT") || it.type.name.endsWith("RIGHT") }
-            nextTurn = first?.let { NextTurn(it.distance, isLeft(it.type.name)) }
+            val turn = first?.let { NextTurn(it.distance, isLeft(it.type.name)) }
+            val prev = nextTurn
+            // log once per turn: a new turn shows up as the distance jumping back up
+            if (turn != null && (prev == null || turn.distanceM > prev.distanceM + 50)) {
+                main.post { log("내비 다음 회전: ${if (turn.left) "왼쪽" else "오른쪽"} %.0f m".format(turn.distanceM)) }
+            }
+            nextTurn = turn
         }
         override fun onRouteEnded() { nextTurn = null }
         override fun onError(error: NaviErrorCode) { Log.w(TAG, "navi error $error") }
@@ -61,6 +69,23 @@ class NaviGuide(context: Context, private val log: (String) -> Unit) {
                 { e -> main.post { log("NaviHelper 연결 실패: ${e.message}") } })
             main.post(poll)
         }.onFailure { Log.w(TAG, "navi", it) }
+    }
+
+    /** Starts route guidance to a destination (demo and QA: the emulator cannot type a Korean search). */
+    fun routeTo(lat: Double, lon: Double, name: String) {
+        runCatching {
+            navi.requestRoute(RouteInfo(lat, lon, null, null, name, "", "", "", RouteOption.RECOMMENDED, "", false))
+            log("경로 요청: $name")
+        }.onFailure { log("경로 요청 실패: ${it.message}") }
+    }
+
+    /** Family mode on the road: ask the navigation for its "comfortable" route (fewer sharp turns). */
+    fun preferComfortableRoute() {
+        if (!ready) return
+        runCatching {
+            navi.changeRouteOption(RouteOption.COMFORTABLE)
+            log("경로 옵션: 편안한 길")
+        }.onFailure { log("경로 옵션 변경 실패: ${it.message}") }
     }
 
     /** Adds the closest demo rest stop as the first waypoint. */

@@ -10,7 +10,10 @@ import android.graphics.Color
 import android.graphics.DashPathEffect
 import android.graphics.Paint
 import android.graphics.Path
+import android.util.Log
 import android.view.View
+
+private const val TAG = "MotionCare"
 
 /**
  * Left: the only thing a driver needs (one colour dot + a word).
@@ -42,6 +45,7 @@ class DashboardView(context: Context) : View(context) {
     }
 
     fun note(msg: String) {
+        Log.i(TAG, "note: $msg")
         log.addFirst(msg)
         while (log.size > 6) log.removeLast()
         invalidate()

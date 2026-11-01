@@ -96,7 +96,9 @@ class PleosSignalSource(
     private var car: Car? = null
     private var t = 0.0
 
-    @Volatile private var speed = 0.0
+    @Volatile private var carSpeed = 0.0
+    @Volatile private var gpsSpeed = 0.0
+    private var lastFix: Location? = null
     @Volatile private var bearing = 0.0
     @Volatile private var signal = TurnSignal.OFF
     @Volatile private var cabinTemp = 22.0
@@ -105,10 +107,12 @@ class PleosSignalSource(
         private set
     @Volatile var lon: Double? = null
         private set
-    private val rearSeats = listOf(SeatArea(SeatValue.ROW_2_LEFT), SeatArea(SeatValue.ROW_2_RIGHT))
-    private val rearListener = object : SeatOccupancyListener {
-        override fun onSeatOccupancyUpdated(value: Boolean?) { if (value == true) handler.post { onRearOccupied(true) } }
-        override fun onFailed(e: Exception) { Log.w(TAG, "seat occupancy", e) }
+    // one listener per seat: the SDK keeps only the last area registered for a given listener object
+    private val rearSeats = listOf(SeatArea(SeatValue.ROW_2_LEFT), SeatArea(SeatValue.ROW_2_RIGHT)).associateWith {
+        object : SeatOccupancyListener {
+            override fun onSeatOccupancyUpdated(value: Boolean?) { if (value == true) handler.post { onRearOccupied(true) } }
+            override fun onFailed(e: Exception) { Log.w(TAG, "seat occupancy", e) }
+        }
     }
 
     private val turnListener = object : TurnSignalStateListener {
@@ -130,15 +134,37 @@ class PleosSignalSource(
         override fun onFailed(e: Exception) { Log.w(TAG, "recirculation", e) }
     }
     private val speedCallback = object : CarPropertyManager.CarPropertyEventCallback {
-        override fun onChangeEvent(value: CarPropertyValue<*>) { (value.value as? Float)?.let { speed = it.toDouble() } }
+        override fun onChangeEvent(value: CarPropertyValue<*>) { (value.value as? Float)?.let { carSpeed = it.toDouble() } }
         override fun onErrorEvent(propId: Int, zone: Int) { Log.w(TAG, "speed error $propId") }
     }
     private val locationListener = LocationListener { loc: Location ->
         lat = loc.latitude
         lon = loc.longitude
-        if (loc.hasBearing()) bearing = loc.bearing.toDouble()
-        if (speed == 0.0 && loc.hasSpeed()) speed = loc.speed.toDouble()
+        // GPX playback / geo fix may omit bearing and speed, so derive them from consecutive fixes
+        val prev = lastFix
+        val moved = prev?.distanceTo(loc)?.toDouble() ?: 0.0
+        val dtS = prev?.let { (loc.elapsedRealtimeNanos - it.elapsedRealtimeNanos) / 1e9 } ?: 0.0
+        if (dtS > 0.2 && moved / dtS > 70.0) {   // > 250 km/h: a GPS jump (re-acquired fix), not motion
+            lastFix = loc
+            return@LocationListener
+        }
+        // (the emulator's geo fix reports speed 0 / bearing 0 explicitly, so only trust them while moving)
+        val reportsMotion = loc.hasSpeed() && loc.speed > 0.1f
+        bearing = when {
+            reportsMotion && loc.hasBearing() -> loc.bearing.toDouble()
+            moved > 2.0 -> ((prev!!.bearingTo(loc) + 360f) % 360f).toDouble()
+            else -> bearing
+        }
+        gpsSpeed = when {
+            reportsMotion -> loc.speed.toDouble()
+            dtS > 0.2 -> moved / dtS
+            else -> gpsSpeed
+        }
+        lastFix = loc
     }
+
+    /** Vehicle speed when the car reports motion, otherwise the location provider's. */
+    private val speed get() = if (carSpeed > 0.1) carSpeed else gpsSpeed
 
     @SuppressLint("MissingPermission")
     override fun start(onSample: (Sample) -> Unit) {
@@ -147,7 +173,7 @@ class PleosSignalSource(
             val hvac = vehicle.getHVAC()
             hvac.registerHvacTemperatureCurrent(driverSeat, tempListener)
             // a rear passenger on board is the cue to suggest family mode
-            rearSeats.forEach { vehicle.getSeat().registerSeatOccupancy(it, rearListener) }
+            rearSeats.forEach { (seat, l) -> vehicle.getSeat().registerSeatOccupancy(seat, l) }
             hvac.checkHvacRecirculationCapabilities({ areas: List<SeatArea> ->
                 val a = areas.firstOrNull() ?: driverSeat
                 recircArea = a
@@ -181,7 +207,7 @@ class PleosSignalSource(
         handler.removeCallbacksAndMessages(null)
         runCatching {
             vehicle.getTurnSignal().unregisterTurnSignalState(turnListener)
-            rearSeats.forEach { vehicle.getSeat().unregisterSeatOccupancy(it, rearListener) }
+            rearSeats.forEach { (seat, l) -> vehicle.getSeat().unregisterSeatOccupancy(seat, l) }
             vehicle.getHVAC().unregisterHvacTemperatureCurrent(driverSeat, tempListener)
             vehicle.getHVAC().unregisterHvacRecirculationState(recircArea, recircListener)
         }
