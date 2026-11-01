@@ -1,0 +1,74 @@
+[
+  {
+    "name": "A_city_smooth",
+    "style": "smooth",
+    "duration_s": 486,
+    "distance_m": 3053,
+    "turns": 4,
+    "stops": 6,
+    "cabin": {
+      "temp": 22.0,
+      "recirc": false
+    }
+  },
+  {
+    "name": "A_city_rough",
+    "style": "rough",
+    "duration_s": 450,
+    "distance_m": 3053,
+    "turns": 4,
+    "stops": 6,
+    "cabin": {
+      "temp": 22.0,
+      "recirc": false
+    }
+  },
+  {
+    "name": "B_winding_smooth",
+    "style": "smooth",
+    "duration_s": 486,
+    "distance_m": 5439,
+    "turns": 0,
+    "stops": 0,
+    "cabin": {
+      "temp": 26.0,
+      "recirc": true
+    }
+  },
+  {
+    "name": "B_winding_rough",
+    "style": "rough",
+    "duration_s": 372,
+    "distance_m": 5439,
+    "turns": 0,
+    "stops": 0,
+    "cabin": {
+      "temp": 26.0,
+      "recirc": true
+    }
+  },
+  {
+    "name": "C_highway",
+    "style": "normal",
+    "duration_s": 674,
+    "distance_m": 18368,
+    "turns": 0,
+    "stops": 0,
+    "cabin": {
+      "temp": 22.0,
+      "recirc": false
+    }
+  },
+  {
+    "name": "D_family",
+    "style": "normal",
+    "duration_s": 1505,
+    "distance_m": 37388,
+    "turns": 0,
+    "stops": 1,
+    "cabin": {
+      "temp": 25.0,
+      "recirc": true
+    }
+  }
+]
