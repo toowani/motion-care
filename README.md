@@ -58,9 +58,31 @@ export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 4. 계산 로직을 바꿀 때는 `sim/engine.py`를 먼저 고치고 `python3 sim/prototype.py`로 점검(G2)과 `test_vectors.csv`를 갱신한 뒤, `android/core`의 Kotlin을 같은 숫자가 나오게 고칩니다 (`./gradlew :core:test`).
 5. Pleos 음성 SDK의 클라이언트 ID·시크릿 같은 키는 커밋하지 말고 각자 `android/local.properties`에 둡니다.
 
+## 키와 서명 (각자 `android/local.properties`, 커밋 금지)
+
+```
+pleos.clientId=...          # Pleos Playground › My Project
+pleos.clientSecret=...
+release.storeFile=keystore/motioncare-release.jks
+release.storePassword=...
+release.keyAlias=motioncare
+release.keyPassword=...
+apk.teamName=팀명            # → apk/팀명_MotionCare_release.apk
+```
+
+`./gradlew :app:assembleRelease`가 서명된 APK를 `apk/`로 복사합니다. 이 APK에는 클라이언트 키가 들어 있어 평소에는 git에서 제외하고, 제출할 때만 `git add -f apk/...`로 올립니다. 키스토어(`android/keystore/`)는 잃어버리면 같은 서명으로 다시 낼 수 없으니 따로 백업하세요.
+
+## 구현된 것
+
+- 재생 모드(시나리오 4배속), 실차 신호(방향지시등·공조·뒷좌석 탑승·NaviHelper 다음 회전)
+- 예고 음성, 공조 닫힌 고리(외기·22°C, 내기순환은 차가 알려 주는 영역으로 설정)
+- Pleos TTS/STT (HYBRID, 클라이언트 키로 서버 음성 연결, 실패 시 안드로이드 기본 TTS)
+- 휴게소 경유지: 음성으로 묻고 "응"이면 NaviHelper `addWaypoint` (휴게소 좌표는 데모용, POI 검색 API 필요)
+- 가족 모드: 가장 약한 탑승자 기준 경보, "멀미 났어" 기록, 정차 후 한 질문으로 기준선 학습 (기기 저장)
+- 서명된 release APK
+
 ## 아직 남은 것
 
-- 음성: 지금은 안드로이드 기본 TTS. Pleos TextToSpeech SDK 사용 승인 후 교체
-- 휴게소 경유지: NaviHelper 연동
-- 가족 모드 화면 (엔진의 `personalThreshold`, `familyThreshold`는 구현됨)
-- release 서명 → `apk/팀명_앱이름_release.apk`
+- 에뮬레이터 그래픽 크래시(ColorBuffer) 원인 확인 후 가족 모드·휴게소 흐름 실기 확인
+- 속도(`PERF_VEHICLE_SPEED`)와 GPX 위치 재생 확인
+- 기획서, 시연 영상, 팀명 확정 후 APK 이름

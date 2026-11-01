@@ -8,6 +8,7 @@ import ai.pleos.playground.vehicle.constant.area.SeatValue
 import ai.pleos.playground.vehicle.constant.area.TurnSignalValue
 import ai.pleos.playground.vehicle.listener.HvacRecirculationStateListener
 import ai.pleos.playground.vehicle.listener.HvacTemperatureListener
+import ai.pleos.playground.vehicle.listener.SeatOccupancyListener
 import ai.pleos.playground.vehicle.listener.TurnSignalStateListener
 import android.annotation.SuppressLint
 import android.car.Car
@@ -80,11 +81,15 @@ class ReplaySignalSource(
 
 /**
  * Live signals on the Pleos Connect emulator or a car:
- * turn signal + HVAC from the Pleos Vehicle SDK, speed from CarPropertyManager,
- * heading from the platform location provider (GPX playback on the emulator).
- * Turn-by-turn distance needs NaviHelper and is left at -1 for now.
+ * turn signal, HVAC and rear-seat occupancy from the Pleos Vehicle SDK, next turn from NaviHelper,
+ * speed from CarPropertyManager, heading from the platform location provider (GPX playback on the emulator).
  */
-class PleosSignalSource(private val context: Context, private val vehicle: Vehicle) : SignalSource {
+class PleosSignalSource(
+    private val context: Context,
+    private val vehicle: Vehicle,
+    private val nextTurn: () -> NaviGuide.NextTurn?,
+    private val onRearOccupied: (Boolean) -> Unit,
+) : SignalSource {
     private val handler = Handler(Looper.getMainLooper())
     private val driverSeat = SeatArea(SeatValue.ROW_1_LEFT)
     private var recircArea = driverSeat
@@ -96,6 +101,15 @@ class PleosSignalSource(private val context: Context, private val vehicle: Vehic
     @Volatile private var signal = TurnSignal.OFF
     @Volatile private var cabinTemp = 22.0
     @Volatile private var recirc = false
+    @Volatile var lat: Double? = null
+        private set
+    @Volatile var lon: Double? = null
+        private set
+    private val rearSeats = listOf(SeatArea(SeatValue.ROW_2_LEFT), SeatArea(SeatValue.ROW_2_RIGHT))
+    private val rearListener = object : SeatOccupancyListener {
+        override fun onSeatOccupancyUpdated(value: Boolean?) { if (value == true) handler.post { onRearOccupied(true) } }
+        override fun onFailed(e: Exception) { Log.w(TAG, "seat occupancy", e) }
+    }
 
     private val turnListener = object : TurnSignalStateListener {
         override fun onTurnSignalStateUpdated(state: TurnSignalValue?) {
@@ -120,6 +134,8 @@ class PleosSignalSource(private val context: Context, private val vehicle: Vehic
         override fun onErrorEvent(propId: Int, zone: Int) { Log.w(TAG, "speed error $propId") }
     }
     private val locationListener = LocationListener { loc: Location ->
+        lat = loc.latitude
+        lon = loc.longitude
         if (loc.hasBearing()) bearing = loc.bearing.toDouble()
         if (speed == 0.0 && loc.hasSpeed()) speed = loc.speed.toDouble()
     }
@@ -130,6 +146,8 @@ class PleosSignalSource(private val context: Context, private val vehicle: Vehic
             vehicle.getTurnSignal().registerTurnSignalState(turnListener)
             val hvac = vehicle.getHVAC()
             hvac.registerHvacTemperatureCurrent(driverSeat, tempListener)
+            // a rear passenger on board is the cue to suggest family mode
+            rearSeats.forEach { vehicle.getSeat().registerSeatOccupancy(it, rearListener) }
             hvac.checkHvacRecirculationCapabilities({ areas: List<SeatArea> ->
                 val a = areas.firstOrNull() ?: driverSeat
                 recircArea = a
@@ -150,7 +168,8 @@ class PleosSignalSource(private val context: Context, private val vehicle: Vehic
 
         val tick = object : Runnable {
             override fun run() {
-                onSample(Sample(t, speed, bearing, signal, -1.0, false, cabinTemp, recirc, false))
+                val turn = nextTurn()
+                onSample(Sample(t, speed, bearing, signal, turn?.distanceM ?: -1.0, turn?.left ?: false, cabinTemp, recirc, false))
                 t += 1.0
                 handler.postDelayed(this, 1000L)
             }
@@ -162,6 +181,7 @@ class PleosSignalSource(private val context: Context, private val vehicle: Vehic
         handler.removeCallbacksAndMessages(null)
         runCatching {
             vehicle.getTurnSignal().unregisterTurnSignalState(turnListener)
+            rearSeats.forEach { vehicle.getSeat().unregisterSeatOccupancy(it, rearListener) }
             vehicle.getHVAC().unregisterHvacTemperatureCurrent(driverSeat, tempListener)
             vehicle.getHVAC().unregisterHvacRecirculationState(recircArea, recircListener)
         }
