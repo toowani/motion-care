@@ -1,0 +1,2 @@
+comma2k19 example segment (Example_1, segment 40), from https://github.com/commaai/comma2k19 (MIT License, Copyright comma.ai).
+Only global_pose and CAN speed arrays are included, used by sim/public_check.py.

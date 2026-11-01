@@ -196,12 +196,18 @@ def winding(seed, n=40):
 
 
 def highway(seed, km=15):
+    """Long straights and gentle curves. Traffic makes the speed drift between about 60 and 105 km/h
+    every few hundred metres (calibrated against the comma2k19 real highway sample, sim/public_check.py)."""
     rng = random.Random(seed)
-    segs, vlim, dist = [], 100 / 3.6, 0.0
+    segs, dist = [], 0.0
     while dist < km * 1000:
         L = rng.uniform(2000, 3000)
-        segs.append(straight(L, vlim))
-        segs.append(arc(rng.uniform(800, 1500), rng.uniform(8, 15), rng.choice([1, -1]), vlim))
+        left = L
+        while left > 0:
+            chunk = min(left, rng.uniform(300, 700))
+            segs.append(straight(chunk, rng.uniform(60, 105) / 3.6))
+            left -= chunk
+        segs.append(arc(rng.uniform(800, 1500), rng.uniform(8, 15), rng.choice([1, -1]), 100 / 3.6))
         dist += L
     return segs
 

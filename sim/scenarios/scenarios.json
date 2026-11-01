@@ -50,8 +50,8 @@
   {
     "name": "C_highway",
     "style": "normal",
-    "duration_s": 674,
-    "distance_m": 18368,
+    "duration_s": 854,
+    "distance_m": 18202,
     "turns": 0,
     "stops": 0,
     "cabin": {
@@ -62,8 +62,8 @@
   {
     "name": "D_family",
     "style": "normal",
-    "duration_s": 1505,
-    "distance_m": 37388,
+    "duration_s": 1778,
+    "distance_m": 36331,
     "turns": 0,
     "stops": 1,
     "cabin": {
