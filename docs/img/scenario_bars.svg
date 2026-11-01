@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 360" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="13">
+<rect width="960" height="360" fill="#fff"/>
+<text x="30.0" y="30.0" font-size="15" fill="#1F2340" text-anchor="start" font-weight="700">같은 엔진, 다섯 가지 도로 · 평균 흔들림 지수와 알림이 켜진 시간</text>
+<line x1="200.0" y1="54.0" x2="200.0" y2="310.0" stroke="#E3E4EE" stroke-width="1"/>
+<text x="200.0" y="328.0" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">0</text>
+<line x1="356.0" y1="54.0" x2="356.0" y2="310.0" stroke="#D97706" stroke-width="1" stroke-dasharray="5 4"/>
+<text x="356.0" y="328.0" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">0.9</text>
+<line x1="460.0" y1="54.0" x2="460.0" y2="310.0" stroke="#C2410C" stroke-width="1" stroke-dasharray="5 4"/>
+<text x="460.0" y="328.0" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">1.5</text>
+<line x1="720.0" y1="54.0" x2="720.0" y2="310.0" stroke="#E3E4EE" stroke-width="1"/>
+<text x="720.0" y="328.0" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">3</text>
+<text x="360.0" y="344.0" font-size="12" fill="#D97706" text-anchor="start" font-weight="400">주의 0.9</text>
+<text x="464.0" y="344.0" font-size="12" fill="#C2410C" text-anchor="start" font-weight="400">높음 1.5</text>
+<text x="188.0" y="95.0" font-size="13" fill="#1F2340" text-anchor="end" font-weight="400">고속도로</text>
+<rect x="200.0" y="76.0" width="84.2" height="20.0" rx="4" fill="#0F766E"/>
+<line x1="343.7" y1="72.0" x2="343.7" y2="100.0" stroke="#1F2340" stroke-width="2"/>
+<text x="290.2" y="93.0" font-size="12" fill="#1F2340" text-anchor="start" font-weight="400">0.49</text>
+<text x="760.0" y="93.0" font-size="13" fill="#6B6E86" text-anchor="start" font-weight="400">알림 0초 / 14.2분</text>
+<text x="188.0" y="145.0" font-size="13" fill="#1F2340" text-anchor="end" font-weight="400">도심 · 부드럽게</text>
+<rect x="200.0" y="126.0" width="122.4" height="20.0" rx="4" fill="#0F766E"/>
+<line x1="375.4" y1="122.0" x2="375.4" y2="150.0" stroke="#1F2340" stroke-width="2"/>
+<text x="328.4" y="143.0" font-size="12" fill="#1F2340" text-anchor="start" font-weight="400">0.71</text>
+<text x="760.0" y="143.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">알림 43초 / 8.1분</text>
+<text x="188.0" y="195.0" font-size="13" fill="#1F2340" text-anchor="end" font-weight="400">도심 · 거칠게</text>
+<rect x="200.0" y="176.0" width="170.6" height="20.0" rx="4" fill="#D97706"/>
+<line x1="423.4" y1="172.0" x2="423.4" y2="200.0" stroke="#1F2340" stroke-width="2"/>
+<text x="376.6" y="193.0" font-size="12" fill="#1F2340" text-anchor="start" font-weight="400">0.98</text>
+<text x="760.0" y="193.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">알림 365초 / 7.5분</text>
+<text x="188.0" y="245.0" font-size="13" fill="#1F2340" text-anchor="end" font-weight="400">굽은 길 · 부드럽게</text>
+<rect x="200.0" y="226.0" width="255.3" height="20.0" rx="4" fill="#D97706"/>
+<line x1="488.4" y1="222.0" x2="488.4" y2="250.0" stroke="#1F2340" stroke-width="2"/>
+<text x="461.3" y="243.0" font-size="12" fill="#1F2340" text-anchor="start" font-weight="400">1.47</text>
+<text x="760.0" y="243.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">알림 465초 / 8.1분</text>
+<text x="188.0" y="295.0" font-size="13" fill="#1F2340" text-anchor="end" font-weight="400">굽은 길 · 거칠게</text>
+<rect x="200.0" y="276.0" width="458.3" height="20.0" rx="4" fill="#C2410C"/>
+<line x1="709.9" y1="272.0" x2="709.9" y2="300.0" stroke="#1F2340" stroke-width="2"/>
+<text x="664.3" y="293.0" font-size="12" fill="#1F2340" text-anchor="start" font-weight="400">2.64</text>
+<text x="760.0" y="293.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">알림 360초 / 6.2분</text>
+<text x="760.0" y="50.0" font-size="12" fill="#6B6E86" text-anchor="start" font-weight="400">알림이 켜진 시간</text>
+<text x="200.0" y="50.0" font-size="12" fill="#6B6E86" text-anchor="start" font-weight="400">막대: 평균 지수 I · 세로선: 최댓값 (m/s²)</text>
+</svg>

@@ -35,8 +35,12 @@ python3 -I sim/feed_geo.py ~/Library/Android/sdk/platform-tools/adb sim/scenario
 
 (`route_to`는 디버그 빌드에서만 동작합니다.)
 
-## 알려진 문제: 에뮬레이터가 꺼짐
+## 알려진 문제: 에뮬레이터가 꺼짐 (원인 확인, 11.2)
 
-- 로그에 `Failed to find ColorBuffer`가 보이지만 이는 매 부팅 때 나오는 경고이고, 실제로는 `Wait for emulator ... to shutdown gracefully` → 스냅샷 저장 → 종료 순서로 **정상 종료 요청**을 받고 꺼집니다.
-- 의심 원인: 에뮬레이터 창을 닫음, Android Studio의 Running Devices가 기기를 넘겨받음, 맥 잠자기. GPU 모드(auto/host/swiftshader)와 데이터 초기화로는 해결되지 않았습니다.
-- 재시작: Android Studio › Device Manager › `Pleos_Connect_v2_1` › Cold Boot Now. 터미널로 켰다면 그 창은 닫지 마세요.
+- 로그에 `Failed to find ColorBuffer`가 보이지만 이는 매 부팅 때 나오는 경고입니다. 실제로는 `Wait for emulator ... to shutdown gracefully` → 스냅샷 저장 → 종료 순서로 **바깥에서 종료 요청**을 받고 꺼집니다. 차 안(logcat)에는 종료 기록이 없습니다.
+- 원인: 에뮬레이터를 띄운 셸(터미널 탭, 도구의 백그라운드 작업)이 끝나면 그 자식 프로세스인 에뮬레이터도 종료 신호를 받습니다. Virtual Console을 닫아도 똑같이 꺼졌고, `nohup ... &`로 띄우자 계속 켜져 있었습니다.
+- 해결: 아래처럼 `nohup`으로 띄우거나, Android Studio › Device Manager › `Pleos_Connect_v2_1` › Cold Boot Now로 켭니다.
+
+```bash
+nohup ~/Library/Android/sdk/emulator/emulator -avd Pleos_Connect_v2_1 -no-snapshot-load > /tmp/emu.log 2>&1 &
+```

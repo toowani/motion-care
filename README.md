@@ -1,64 +1,299 @@
-# 멀미 케어 (가칭) · 동승자 멀미 예방 앱
+# 멀미 케어 (가칭) · 뒷좌석 멀미를 차가 먼저 막는 앱
 
-Pleos 공모전 출품안 ④. 운전자만 아는 다음 움직임(방향지시등·경로)을 동승자에게 미리 알리고, 실내 공기(온도·환기)를 차가 바꿔 멀미를 막습니다. 실차 없이 시뮬레이션으로 검증합니다.
+> Pleos Connect 차량앱 공모전 출품작 ④ · 1인 개발 (팀원)
 
-## 폴더
+**운전자는 왜 멀미를 덜 할까요?** 다음 움직임을 알고 있기 때문입니다. 동승자는 예고 없이 흔들리고, 몸이 느끼는 움직임과 예상이 어긋나면서 멀미가 납니다.
+
+멀미 케어는 **차가 이미 알고 있는 신호**(방향지시등, 내비 경로, 속도, 실내 온도·환기)로 흔들림을 계산하고, **차가 직접** 세 가지를 합니다.
+
+1. **움직이기 전에 알린다**: 회전 몇 초 전에 "곧 왼쪽으로 돌아요"라고 말합니다.
+2. **실내 공기를 바꾼다**: 덥고 내기순환이 길면 외기로 바꾸고 22°C로 낮춥니다. 바뀐 온도·환기는 다시 계산에 들어갑니다.
+3. **가족 중 가장 약한 아이 기준으로 대응한다**: 아이마다 멀미 기준을 학습해 그 아이가 위험해지기 전에 움직입니다.
+
+![흔들림이 커지자 앱이 공조를 외기·22°C로 바꾼 화면](docs/img/app_2_fresh_air.jpg)
+
+*Pleos Connect 에뮬레이터에서 실제로 실행한 화면입니다. 왼쪽은 차량 화면, 오른쪽이 멀미 케어입니다. 굽은 길에서 흔들림 지수(보라 선)가 기준(점선)을 넘자, 앱이 Pleos Vehicle SDK로 차의 공조를 26°C·내기순환에서 **22°C·외기**로 바꿨습니다 (아래 공조 바 왼쪽 22.0°).*
+
+---
+
+## 목차
+
+1. [어떻게 동작하나](#1-어떻게-동작하나)
+2. [실제 화면](#2-실제-화면-pleos-connect-에뮬레이터)
+3. [왜 폰이 아니라 차여야 하나](#3-왜-폰이-아니라-차여야-하나)
+4. [검증: 실차 없이 어떻게 확인했나](#4-검증-실차-없이-어떻게-확인했나)
+5. [계산 방법](#5-계산-방법)
+6. [한계](#6-한계)
+7. [폴더 구조와 실행 방법](#7-폴더-구조와-실행-방법)
+8. [개발 과정과 남은 일](#8-개발-과정과-남은-일)
+
+---
+
+## 1. 어떻게 동작하나
+
+![차 신호 → 앱 계산 → 차가 하는 일, 그리고 공조 닫힌 고리](docs/img/how_it_works.svg)
+
+| 단계 | 쓰는 Pleos SDK | 하는 일 |
+|---|---|---|
+| 읽기 | Vehicle (방향지시등·공조·좌석), NaviHelper, CarPropertyManager, 위치 | 1초마다 속도·진행 방향·방향지시등·다음 회전 거리·실내 온도·내기순환·뒷좌석 탑승을 받음 |
+| 계산 | (SDK와 분리된 순수 Kotlin 엔진) | 앞뒤·옆 가속도 → 느린 흔들림만 남김 → 흔들림 지수 I와 누적량 D → 환경 계수 m과 아이별 기준선으로 판단 |
+| 행동 | TextToSpeech, Vehicle HVAC, NaviHelper | 예고·안내 음성, 외기 전환·온도 설정, 휴게소 경유지 추가 |
+| 묻기 | SpeechToText (안 되면 화면 버튼) | "휴게소에 들를까요?", "가족 모드를 켤까요?", 정차 후 "오늘 민준 괜찮았어요?" |
+
+운전 중 화면에는 **색 점 하나와 한 단어**(편안함 · 주의 · 멀미 위험)만 둡니다. 오른쪽 그래프와 이벤트 기록은 시연용입니다.
+
+---
+
+## 2. 실제 화면 (Pleos Connect 에뮬레이터)
+
+모든 화면은 Pleos Connect Emulator v2.1(Android Automotive, API 34)에서 앱을 실제로 실행해 찍었습니다. 차의 신호는 브라우저의 **Virtual Console**로 바꿨습니다.
+
+![Pleos Virtual Console: 페달, 기어, 공조, 좌석, 방향지시등을 조작하는 가상 차량](docs/img/virtual_console.jpg)
+
+*Virtual Console. 실차 대신 여기서 방향지시등, 실내 온도, 내기순환, 뒷좌석 탑승을 바꿉니다.*
+
+### ① 출발: 덥고 탁한 실내
+
+![출발 화면: 편안함, 공조 26°C·내기순환](docs/img/app_1_before.jpg)
+
+Virtual Console에서 실내를 **26°C, 내기순환**으로 맞춘 상태입니다 (아래 공조 바 왼쪽 26.0°). 앱은 "편안함"(초록 점)입니다.
+
+### ② 흔들림이 커지면 차가 공기를 바꿈
+
+![12초: 운전자 안내와 공조 외기·22°C 전환](docs/img/app_2_fresh_air.jpg)
+
+굽은 길을 거칠게 달리는 시나리오입니다. 12초에 지수가 기준을 넘자 두 가지가 일어났습니다.
+
+- 운전자에게: "뒷좌석이 흔들리고 있어요. 조금만 부드럽게 가 볼까요?"
+- 차에게: 내기순환 끔, 설정 온도 22.0°C (공조 바가 26.0° → **22.0°**)
+
+그래프의 주황 점선(기준선)이 오른쪽으로 갈수록 올라가는 것이 **닫힌 고리**입니다. 실내가 시원해지고 환기되면 같은 흔들림에도 멀미가 덜 나므로, 기준이 다시 높아집니다.
+
+### ③ 움직이기 전에 예고
+
+![방향지시등을 켜자 "곧 왼쪽으로 돌아요"](docs/img/app_8_turn_cue.jpg)
+
+실차 신호 모드에서 Virtual Console로 **왼쪽 방향지시등**을 켜자, 이벤트 기록에 "곧 왼쪽으로 돌아요."가 뜨고 음성이 나옵니다 (그래프 위 ● 표시). 화면 위의 카메라 창은 방향지시등에 반응한 **차량 자체의 사각지대 카메라**입니다. 내비 경로가 있으면 다음 회전까지 거리와 속도로 같은 예고를 합니다 (회전까지 약 5초 남았을 때).
+
+### ④ 뒷좌석에 아이가 타면 가족 모드 제안
+
+![뒷좌석 탑승 감지: "가족 모드를 켤까요?"](docs/img/app_7_rear_seat.jpg)
+
+Virtual Console에서 **뒷좌석 왼쪽 = 탑승**으로 바꾸자 앱이 먼저 묻습니다. 음성으로 답하거나, 음성 인식이 안 되면 화면 버튼으로 답합니다.
+
+### ⑤ 가족 모드: 가장 약한 아이 기준으로 먼저
+
+![가족 모드: 민준 기준선 도달](docs/img/app_3_family.jpg)
+
+가족 모드에서는 탑승한 아이 중 **기준선이 가장 낮은 아이**(민준)를 기준으로 판단합니다. 이벤트 기록의 "가족 모드: 민준 기준선 도달 (확률 0.50)"과 함께 "민준에게는 벌써 흔들림이 많아요. 바람 넣고 천천히 갈게요."라고 말합니다.
+
+### ⑥ 흔들림이 계속되면 휴게소 제안
+
+![휴게소 제안 대화상자](docs/img/app_4_rest_stop.jpg)
+
+높음 상태가 3분 이어지면 "가까운 휴게소에 들를까요?"라고 묻습니다. "응"이면 NaviHelper로 **차량 내비에 휴게소를 경유지로 추가**합니다. 에뮬레이터에서 내비 앱이 경유지 요청(서울만남의광장휴게소)을 받는 것까지 확인했습니다.
+
+### ⑦ 정차 후 한 질문으로 아이별 기준 학습
+
+| 정지하면 아이마다 한 번 묻고 | 답에 따라 기준선이 바뀜 |
+|---|---|
+| ![오늘 민준 괜찮았어요?](docs/img/app_5_post_trip.jpg) | ![기준선 갱신: 민준 27.3, 서연 39.5](docs/img/app_6_learned.jpg) |
+
+"오늘 민준 괜찮았어요?" → 괜찮음 · 살짝 · 심함. 답과 이번 주행의 누적 흔들림으로 아이별 기준선을 고칩니다 (이벤트 기록 맨 위 "기준선 갱신: 민준 27.3, 서연 39.5"). 프로필은 차량 기기에만 저장합니다.
+
+---
+
+## 3. 왜 폰이 아니라 차여야 하나
+
+흔들림 계산만이라면 폰 가속도 센서로도 됩니다. 차라서 되는 것은 **미리 아는 것**과 **직접 바꾸는 것**입니다.
+
+| 기능 | 폰 앱 | 멀미 케어 |
+|---|---|---|
+| 흔들림 계산 | 가능 | 가능 |
+| 움직이기 전에 예고 | 폰 내비를 쓸 때만 일부 | 방향지시등이 켜지는 순간, 내비 다음 회전 거리로 |
+| 실내 온도·환기 읽기 | 불가 | HVAC 온도·내기순환 |
+| 온도·환기 바꾸기 | 불가 | 외기 전환·22°C → 결과가 다시 계산으로 |
+| 휴게소 경유지 | 폰 내비 안에서만 | 차량 내비에 바로 추가 |
+| 덜 흔들리는 길 | 폰 내비 안에서만 | 가족 모드에서 차량 내비 경로 옵션을 "편안한 길"로 |
+| 매 주행 실행 | 사람이 켜야 함 | 시동과 함께, 뒷좌석 탑승으로 가족 모드 제안 |
+
+비슷한 서비스(Apple Vehicle Motion Cues, 현대차 스무스 모드 등)와의 비교는 [기획서 4절](docs/proposal.md)과 [research/market.md](research/market.md)에 있습니다.
+
+---
+
+## 4. 검증: 실차 없이 어떻게 확인했나
+
+실차가 없어서 세 단계로 검증했습니다.
+
+1. **시나리오 시뮬레이션**: 도로 모양(곡률)에서 속도·가속도를 만들어 6가지 주행을 생성하고, 같은 엔진에 넣어 결과가 상식과 맞는지 10가지 점검 (모두 통과)
+2. **실제 주행 데이터와 비교**: 공개 데이터(comma2k19)의 실제 고속도로 1분과 비교
+3. **Pleos 에뮬레이터**: 실제 SDK로 신호를 받고 차를 움직이는 것까지 확인 (2절 화면)
+
+### 도로와 운전 방식에 따라 지수가 달라지나
+
+![다섯 가지 도로의 평균 지수와 알림 시간](docs/img/scenario_bars.svg)
+
+- **고속도로 < 도심 < 굽은 길** 순서로 흔들림이 큽니다. 고속도로에서는 14분 동안 알림이 한 번도 없습니다.
+- 같은 길을 **거칠게** 몰면 분당 누적 흔들림이 도심 1.4배, 굽은 길 1.8배가 됩니다.
+
+### 한 번의 주행에서 언제 무엇을 하나
+
+![굽은 길 거칠게: 지수, 기준선, 안내·공조·휴게소 시점](docs/img/timeline_winding.svg)
+
+![도심 거칠게: 회전 4곳마다 예고 한 번씩](docs/img/timeline_city.svg)
+
+- 굽은 길: 12초에 운전자 안내(◆)와 공조 외기 전환(■), 높음이 3분 이어진 3분 18초에 휴게소 제안(▲).
+- 도심: 회전 4곳에서 **정확히 한 번씩** 예고(●). 같은 회전에 두 번 말하지 않습니다.
+
+### 공조를 바꾸면 정말 달라지나 (닫힌 고리)
+
+![공조를 바꿨을 때와 안 바꿨을 때의 환경 계수와 실내 온도](docs/img/closed_loop.svg)
+
+26°C·내기순환으로 출발한 굽은 길에서, 앱이 외기·22°C로 바꾸면 환경 계수가 **0.84 → 0.99**로 회복됩니다. 앱이 없으면 0.83에 머뭅니다. 환경 계수가 낮을수록 멀미 기준이 낮아져 같은 흔들림에도 더 일찍 위험해집니다.
+
+### 가족 모드: 아이마다 다른 기준
+
+![같은 귀성길에서 두 아이의 기준선과 도달 시점](docs/img/family.svg)
+
+30분 귀성길에 두 아이가 탔을 때입니다. 멀미 기록이 많은 민준의 기준선은 24.9, 서연은 35.9입니다. 누적 흔들림이 민준 기준에 먼저 닿아(26.1분), 가족 모드는 서연(28.6분)보다 **2분 반 먼저** 대응합니다.
+
+### 시뮬레이션이 현실과 비슷한가
+
+![실제 고속도로와 시뮬레이션 고속도로 비교](docs/img/real_vs_sim.svg)
+
+처음 만든 고속도로 시나리오는 시속 100 km 정속이라 앞뒤 가속도가 실제의 0.22배였습니다. 차량 흐름에 따른 속도 변화(60–105 km/h)를 넣어 1.5배로 맞췄습니다 (기준 0.5–2배). 자세한 표는 [docs/validation.md](docs/validation.md)에 있습니다.
+
+### 에뮬레이터에서 확인한 것과 그 과정에서 고친 버그
+
+| 확인한 것 | 결과 |
+|---|---|
+| 방향지시등 → 예고 | "곧 왼쪽으로 돌아요" |
+| 공조 닫힌 고리 | 차량 공조 바 26.0° → 22.0°, 내기순환 끔 |
+| Pleos 음성 | TTS·STT 서버 연결 (클라이언트 키) |
+| 뒷좌석 탑승 → 가족 모드 제안 | 확인 |
+| 가족 모드 대응, 정차 후 학습 | 확인 |
+| 휴게소 경유지 | 내비 앱에 경유지 요청 도착 |
+| 위치 기반 속도 | 시나리오 좌표를 GPS로 넣어 42 km/h 표시, 지수 상승 |
+| 내비 다음 회전 | 경로 요청 후 "왼쪽 80 m" 수신 |
+
+확인하면서 버그 6개를 고쳤습니다. 내비 권한 누락, 좌석 리스너가 마지막 좌석만 받던 문제, 에뮬레이터 GPS가 속도·방향을 0으로 보내는 문제, GPS 점프, 공조 안내 반복, 화면 밖으로 밀린 버튼입니다. 자세한 기록은 [docs/qa.md](docs/qa.md)에 있습니다.
+
+---
+
+## 5. 계산 방법
+
+앱과 파이썬 시뮬레이터는 **같은 계산**을 하고, 300개 샘플에서 결과가 일치하는지 단위 테스트로 확인합니다. 모든 상수는 [`shared/params.json`](shared/params.json)에 있고 근거는 [research/literature.md](research/literature.md)에 정리했습니다.
+
+**① 가속도.** 1초마다 들어오는 속도 $v$와 진행 방향의 변화율 $\omega$로 앞뒤 가속도 $a_x$와 옆 가속도 $a_y$를 구합니다.
+
+$$
+a_x = \frac{\Delta v}{\Delta t}, \qquad a_y = v \omega
+$$
+
+**② 느린 흔들림만 남기기.** 최근 10초 평균을 빼서 0.1 Hz보다 느린 성분(꾸준한 가속, 긴 커브)을 지웁니다. 멀미는 0.5 Hz 아래의 느린 흔들림과 가장 관련이 깊습니다 (Turner & Griffin, 1999).
+
+**③ 흔들림 지수와 누적량.** 지수 $I$는 최근 60초의 제곱평균제곱근, 누적량 $D$는 ISO 2631-1의 멀미 노출량과 같은 형태입니다.
+
+$$
+D = \left( \sum_t \left( w_X a_x^2 + w_Y a_y^2 \right) \Delta t \right)^{1/2}
+$$
+
+**④ 환경 계수.** 실내가 덥고($T \gt T_0 = 22$°C) 내기순환이 길수록($t_{\mathrm{recirc}}$) 작아집니다. 최솟값은 0.6입니다.
+
+$$
+m = 1 - \gamma_T \max(0, T - T_0) - \gamma_V \min\left(1, \frac{t_{\mathrm{recirc}}}{3600}\right)
+$$
+
+알림 기준선은 주의 $0.9 \cdot m$, 높음 $1.5 \cdot m$입니다. 공조를 바꾸면 $m$이 1에 가까워져 기준이 다시 올라갑니다.
+
+**⑤ 아이별 기준선.** 멀미가 난 시점의 누적량 기록 $n$개의 평균을, 기록이 적을 때는 출발값 $\tau_0 = 30$ 쪽으로 당깁니다 ($n_0 = 5$).
+
+$$
+\tau = \frac{n \bar{D} + n_0 \tau_0}{n + n_0}
+$$
+
+**⑥ 멀미 확률.** 가족 모드는 탑승한 아이마다 이 확률을 계산하고, 0.5를 넘는 아이가 생기면 대응합니다.
+
+$$
+P = \frac{1}{1 + e^{-(D - \tau m)/s}}
+$$
+
+**⑦ 예고 시점.** 회전까지 남은 거리가 "말하는 시간 2초 + 몸이 대비할 시간 3초" 동안 갈 거리 안에 들어오면 예고합니다.
+
+$$
+d_{\mathrm{cue}} = v (t_{\mathrm{say}} + t_{\mathrm{prepare}})
+$$
+
+---
+
+## 6. 한계
+
+- 사람이 실제로 멀미했는지(정답 데이터)는 시뮬레이션으로 알 수 없습니다. 기준선과 환경 계수 크기는 문헌값과 가정에서 시작하고, 정차 후 한 질문으로 사용자마다 보정합니다.
+- 실제 주행 비교는 고속도로 1분 한 구간뿐이고, 직선이라 옆 흔들림은 비교하지 못했습니다.
+- 휴게소 좌표는 데모용 3곳입니다. NaviHelper에 POI 검색이 없어 실제 서비스에서는 별도 POI API가 필요합니다.
+- 에뮬레이터에서 지도 타일이 표시되지 않아, 경유지 추가는 내비 앱의 요청 수신 로그로 확인했습니다.
+
+---
+
+## 7. 폴더 구조와 실행 방법
 
 ```
-research/        STEP 2 문헌 정리 (literature.md, 작성 예정)
+android/
+  core/            순수 Kotlin 판단 엔진 + 단위 테스트 (파이썬과 숫자 일치)
+  app/             Android Automotive 앱: 신호 읽기, 공조·음성·내비, 화면
 sim/
-  generator.py   STEP 3 시나리오 생성기: 도로 곡률 → 속도 → 가속도 → CSV
-  engine.py      판단 엔진 (기준 구현, Kotlin과 숫자가 같아야 함)
-  prototype.py   STEP 4 전 시나리오 실행 + 합리성 점검(G2) + 그래프
-  scenarios/     생성된 시나리오 CSV
-  out/           summary.csv, 시나리오별 그래프(SVG)
+  generator.py     시나리오 생성: 도로 곡률 → 속도 → 가속도 → CSV
+  engine.py        기준 엔진 (Kotlin과 숫자가 같아야 함)
+  prototype.py     전 시나리오 실행 + 합리성 점검 10개 + test_vectors.csv
+  public_check.py  실제 주행 데이터(comma2k19) 비교
+  readme_figures.py  이 README의 그래프 (docs/img/*.svg)
+  feed_geo.py      시나리오 좌표를 에뮬레이터 GPS로 재생
+  to_gpx.py        시나리오 → GPX
 shared/
-  params.json        가중치·기준선·환경 계수 (파이썬과 앱이 같이 읽음)
-  test_vectors.csv   파이썬이 계산한 정답 → Kotlin 단위 테스트
-android/         Android 프로젝트 (Android Studio로 열기)
-  core/          순수 Kotlin 엔진 + 테스트 (STEP 5)
-  app/           앱: 재생 모드, Pleos 신호, 공조 제어, 음성, 화면 (STEP 6–7)
-docs/            feasibility.md (STEP 1 신호 확인 체크리스트)
+  params.json      가중치·기준선·환경 계수 (파이썬과 앱이 같이 읽음)
+  test_vectors.csv 파이썬이 계산한 정답 → Kotlin 테스트
+docs/              기획서 초안, 검증, 에뮬레이터 확인 기록, 시연 콘티, 이미지
+research/          문헌 근거, 경쟁 서비스 조사
 ```
 
-## 실행
-
-시뮬레이션과 점검 (파이썬 3, 외부 라이브러리 없음)
+### 시뮬레이션과 그래프 (파이썬 3, 외부 라이브러리 없음)
 
 ```bash
 python3 sim/generator.py
+```
+
+```bash
 python3 sim/prototype.py
 ```
 
-Kotlin 엔진 테스트와 APK 빌드 (Android Studio에 들어 있는 JDK 사용)
-
 ```bash
-cd android
-export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
-./gradlew :core:test :app:assembleDebug
+python3 sim/readme_figures.py
 ```
 
-`app:preBuild`가 `sim/scenarios/*.csv`와 `shared/params.json`을 앱 assets로 복사합니다. 시나리오나 파라미터를 바꾸면 `prototype.py`를 다시 돌려 `test_vectors.csv`를 갱신한 뒤 빌드하세요.
+### 엔진 테스트와 앱 빌드
 
-## 테스트 환경
+Android Studio에 들어 있는 JDK를 씁니다. `app:preBuild`가 `sim/scenarios/*.csv`와 `shared/params.json`을 앱 assets로 복사합니다.
 
-- Android Studio 2026.2, Android SDK 34, AGP 9.4.1, Gradle 9.8.2, Kotlin 2.4
-- Pleos Connect Emulator v2.1.0 (API 34, Automotive), Virtual Console
-- Pleos Vehicle SDK 2.3.2 (`ai.pleos.playground:Vehicle:2.3.2`)
+```bash
+cd android && JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home" ./gradlew :core:test :app:assembleDebug
+```
 
-## 앱 사용
+계산을 바꿀 때는 `sim/engine.py`를 먼저 고치고 `prototype.py`로 점검과 `test_vectors.csv`를 갱신한 뒤, `android/core`의 Kotlin을 같은 숫자가 나오게 고칩니다.
 
-상단 버튼으로 시나리오를 고르면 4배속으로 재생됩니다. 왼쪽은 운전자용 색 점, 오른쪽은 시연용 그래프와 이벤트 기록입니다. "실차 신호 (Pleos)"는 에뮬레이터의 방향지시등·공조·속도·위치를 받습니다.
+### 에뮬레이터
 
-## 같이 작업하기
+1. Android Studio SDK Manager에 Pleos 이미지 주소를 추가하고 Pleos Connect v2.1.0(API 34)을 설치합니다 (Pleos 개발 문서 "Pleos Connect Emulator 설치 및 실행").
+2. 에뮬레이터는 터미널을 닫아도 꺼지지 않게 `nohup`으로 켭니다.
+3. 에뮬레이터 설정 › 연결 › Wi-Fi에서 `AndroidWifi`에 연결해야 Pleos 음성 서버와 내비 경로 탐색이 됩니다.
+4. Virtual Console: `adb forward tcp:8088 tcp:8088` 후 브라우저에서 http://127.0.0.1:8088/
 
-1. 저장소를 받고 Android Studio에서 `android/` 폴더를 엽니다. `local.properties`(SDK 경로)는 Android Studio가 자동으로 만듭니다.
-2. 에뮬레이터: SDK Manager › SDK Update Sites에 Pleos 이미지 주소를 추가하고 Pleos Connect v2.1.0(API 34)을 설치합니다. 주소와 AVD 설정은 Pleos 개발 문서 "Pleos Connect Emulator 설치 및 실행"을 따릅니다.
-3. Virtual Console: 에뮬레이터를 켠 뒤 `adb forward tcp:8088 tcp:8088`, 브라우저에서 http://127.0.0.1:8088/
-4. 계산 로직을 바꿀 때는 `sim/engine.py`를 먼저 고치고 `python3 sim/prototype.py`로 점검(G2)과 `test_vectors.csv`를 갱신한 뒤, `android/core`의 Kotlin을 같은 숫자가 나오게 고칩니다 (`./gradlew :core:test`).
-5. Pleos 음성 SDK의 클라이언트 ID·시크릿 같은 키는 커밋하지 말고 각자 `android/local.properties`에 둡니다.
+```bash
+nohup ~/Library/Android/sdk/emulator/emulator -avd Pleos_Connect_v2_1 -no-snapshot-load > /tmp/emu.log 2>&1 &
+```
 
-## 키와 서명 (각자 `android/local.properties`, 커밋 금지)
+앱 상단 버튼: 시나리오(4배속 재생), "실차 신호 (Pleos)"(에뮬레이터 신호), "가족 모드", "멀미 났어"(지금 누적량 기록), "정지"(정차 후 질문).
+
+### 키와 서명 (각자 `android/local.properties`, 커밋 금지)
 
 ```
 pleos.clientId=...          # Pleos Playground › My Project
@@ -70,19 +305,32 @@ release.keyPassword=...
 apk.teamName=팀명            # → apk/팀명_MotionCare_release.apk
 ```
 
-`./gradlew :app:assembleRelease`가 서명된 APK를 `apk/`로 복사합니다. 이 APK에는 클라이언트 키가 들어 있어 평소에는 git에서 제외하고, 제출할 때만 `git add -f apk/...`로 올립니다. 키스토어(`android/keystore/`)는 잃어버리면 같은 서명으로 다시 낼 수 없으니 따로 백업하세요.
+`./gradlew :app:assembleRelease`가 서명된 APK를 `apk/`로 복사합니다. 이 APK에는 클라이언트 키가 들어 있어 평소에는 git에서 빼고, 제출할 때만 `git add -f apk/...`로 올립니다. 키스토어(`android/keystore/`)는 잃어버리면 같은 서명으로 다시 낼 수 없으니 따로 백업하세요.
 
-## 구현된 것
+### 개발 환경
 
-- 재생 모드(시나리오 4배속), 실차 신호(방향지시등·공조·뒷좌석 탑승·NaviHelper 다음 회전)
-- 예고 음성, 공조 닫힌 고리(외기·22°C, 내기순환은 차가 알려 주는 영역으로 설정)
-- Pleos TTS/STT (HYBRID, 클라이언트 키로 서버 음성 연결, 실패 시 안드로이드 기본 TTS)
-- 휴게소 경유지: 음성으로 묻고 "응"이면 NaviHelper `addWaypoint` (휴게소 좌표는 데모용, POI 검색 API 필요)
-- 가족 모드: 가장 약한 탑승자 기준 경보, "멀미 났어" 기록, 정차 후 한 질문으로 기준선 학습 (기기 저장)
-- 서명된 release APK
+Android Studio 2026.2 · AGP 9.4.1 · Gradle 9.8.2 · Kotlin 2.4 · compileSdk 34 · Pleos Vehicle 2.3.2 · NaviHelper 3.0.5 · TextToSpeech/SpeechToText 3.3.1
 
-## 아직 남은 것
+---
 
-- NaviHelper 경로 주행 중 회전 예고 음성 확인 (다음 회전 수신까지는 확인, `docs/qa.md`)
+## 8. 개발 과정과 남은 일
+
+![1인 구현 순서: 준비 → 시뮬레이션·검증 → 앱 구현 → 시연·제출](docs/img/pipeline.png)
+
+*처음에 세운 구현 순서입니다. 실차 없이 시뮬레이션으로 계산을 먼저 검증하고, 같은 계산을 앱으로 옮긴 뒤 에뮬레이터에서 실제 SDK로 확인했습니다.*
+
+| 문서 | 내용 |
+|---|---|
+| [docs/proposal.md](docs/proposal.md) | 기획서 초안 (심사 기준별) |
+| [docs/validation.md](docs/validation.md) | 시뮬레이션 점검과 실제 데이터 비교 숫자 |
+| [docs/qa.md](docs/qa.md) | 에뮬레이터 확인 기록, 고친 버그, QA 명령 |
+| [docs/feasibility.md](docs/feasibility.md) | Pleos 신호 확인 체크리스트 |
+| [docs/demo-script.md](docs/demo-script.md) | 75초 시연 영상 콘티 |
+| [research/literature.md](research/literature.md) | 공식과 상수의 문헌 근거 (DOI 포함) |
+| [research/market.md](research/market.md) | 경쟁 서비스 조사 |
+
+**남은 일**
+
+- 내비 경로를 따라 주행할 때 회전 예고 음성 확인 (다음 회전 수신까지는 확인)
 - 가족 모드 "편안한 길" 경로 옵션 에뮬레이터 확인
-- 기획서, 시연 영상, 팀명 확정 후 APK 이름
+- 시연 영상 녹화, 팀명 확정(APK 이름), 기획서를 접수 양식으로 옮기기
