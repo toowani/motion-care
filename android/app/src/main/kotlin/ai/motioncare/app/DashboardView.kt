@@ -15,10 +15,7 @@ import android.view.View
 
 private const val TAG = "MotionCare"
 
-/**
- * Left: the only thing a driver needs (one colour dot + a word).
- * Right: the demo panel — index, thresholds × cabin factor, cues and HVAC actions over time.
- */
+/** Demo panel: index, thresholds × cabin factor, cues and HVAC actions over time, and the event log. */
 class DashboardView(context: Context) : View(context) {
     private data class Point(val s: Sample, val o: Output)
 
@@ -32,7 +29,7 @@ class DashboardView(context: Context) : View(context) {
     private val line = Color.parseColor("#DADAEA")
     private val stroke = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE; strokeWidth = 4f }
     private val fill = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val text = Paint(Paint.ANTI_ALIAS_FLAG).apply { textSize = 30f; color = navy }
+    private val text = Paint(Paint.ANTI_ALIAS_FLAG).apply { textSize = 36f; color = navy }
 
     fun reset() {
         points.clear(); log.clear(); invalidate()
@@ -55,31 +52,13 @@ class DashboardView(context: Context) : View(context) {
         c.drawColor(Color.WHITE)
         val w = width.toFloat()
         val h = height.toFloat()
-        val split = w * 0.28f
-        val last = points.lastOrNull()
-
-        // driver panel
-        val state = last?.o?.state ?: AlertState.NORMAL
-        fill.color = when (state) {
-            AlertState.NORMAL -> Color.parseColor("#15803D")
-            AlertState.CAUTION -> amber
-            AlertState.HIGH -> warn
-        }
-        val r = minOf(split, h) * 0.22f
-        c.drawCircle(split / 2, h * 0.36f, r, fill)
-        text.textSize = 44f; text.textAlign = Paint.Align.CENTER; text.color = navy
-        c.drawText(when (state) { AlertState.NORMAL -> "편안함"; AlertState.CAUTION -> "흔들림 주의"; AlertState.HIGH -> "멀미 위험" }, split / 2, h * 0.36f + r + 60f, text)
-        text.textSize = 26f; text.color = muted
-        last?.let {
-            c.drawText("%.0f km/h · 실내 %.1f°C · %s".format(it.s.speed * 3.6, it.s.cabinTemp, if (it.s.recirc) "내기" else "외기"), split / 2, h * 0.36f + r + 110f, text)
-            c.drawText("환경 계수 m = %.2f".format(it.o.m), split / 2, h * 0.36f + r + 150f, text)
-        }
+        val split = 0f
 
         // demo graph
-        val left = split + 40f
-        val right = w - 30f
-        val top = 40f
-        val bottom = h * 0.68f
+        val left = split + 20f
+        val right = w - 20f
+        val top = 54f
+        val bottom = h * 0.62f
         stroke.color = line; stroke.strokeWidth = 2f; stroke.pathEffect = null
         c.drawRect(left, top, right, bottom, stroke)
         if (points.size > 1) {
@@ -107,11 +86,11 @@ class DashboardView(context: Context) : View(context) {
                 }
             }
         }
-        text.textAlign = Paint.Align.LEFT; text.textSize = 26f; text.color = navy
-        c.drawText("멀미 지수 I (보라) · 주의/높음 기준선 × 환경 계수 (점선) · ● 예고  ■ 공조", left, top - 10f, text)
+        text.textAlign = Paint.Align.LEFT; text.textSize = 32f; text.color = navy
+        c.drawText("흔들림 지수 (보라) · 주의/높음 기준선 (점선) · ● 예고  ■ 공조", left, top - 14f, text)
 
         // event log
-        text.color = muted; text.textSize = 26f
-        log.forEachIndexed { i, msg -> c.drawText(msg, left, bottom + 50f + i * 36f, text) }
+        text.color = muted; text.textSize = 30f
+        log.forEachIndexed { i, msg -> if (bottom + 50f + i * 40f < h) c.drawText(msg, left, bottom + 50f + i * 40f, text) }
     }
 }

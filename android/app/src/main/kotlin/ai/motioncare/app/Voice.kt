@@ -37,6 +37,7 @@ class Voice(private val context: Context, private val log: (String) -> Unit) {
     private var stt: SpeechToText? = null
     private var onHeard: ((String) -> Unit)? = null
     private var onNoVoice: (() -> Unit)? = null
+    private var askSeq = 0
 
     fun start() {
         runCatching {
@@ -121,11 +122,13 @@ class Voice(private val context: Context, private val log: (String) -> Unit) {
      * or nothing is heard within a few seconds, [noVoice] runs instead (e.g. on-screen buttons).
      */
     fun ask(question: String, noVoice: (() -> Unit)? = null, onAnswer: (String) -> Unit) {
+        // a newer question replaces an unanswered one; its timers check the sequence number
+        val id = ++askSeq
         say(question)
         onHeard = onAnswer
         onNoVoice = noVoice
-        main.postDelayed({ runCatching { stt!!.request() }.onFailure { giveUpListening() } }, 2500)
-        main.postDelayed({ giveUpListening() }, 10_000)
+        main.postDelayed({ if (id == askSeq) runCatching { stt!!.request() }.onFailure { giveUpListening() } }, 2500)
+        main.postDelayed({ if (id == askSeq) giveUpListening() }, 10_000)
     }
 
     private fun giveUpListening() {
@@ -136,6 +139,9 @@ class Voice(private val context: Context, private val log: (String) -> Unit) {
     }
 
     fun release() {
+        main.removeCallbacksAndMessages(null)
+        onHeard = null
+        onNoVoice = null
         runCatching { pleosTts?.release() }
         runCatching { stt?.release() }
         runCatching { fallback?.shutdown() }
