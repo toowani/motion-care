@@ -148,9 +148,12 @@ class Voice(private val context: Context, private val log: (String) -> Unit) {
     }
 
     companion object {
-        private val yes = Regex("응|어|네|예|좋아|그래|들러|가자|오케이")
+        // whole answers only: a bare syllable like 어 inside "싫어" must not count as yes
+        private val yes = Regex("^(응|어|네|예|좋아|그래|들러|가자|오케이|그러자|켜 ?줘)")
+        private val no = Regex("^(아니|아뇨|싫어|안 ?돼|괜찮아|됐어|그냥 가)")
 
-        fun isYes(answer: String) = yes.containsMatchIn(answer) && !answer.contains("아니")
+        fun isYes(answer: String) = answer.trim().let { yes.containsMatchIn(it) && !no.containsMatchIn(it) }
+        fun isNo(answer: String) = no.containsMatchIn(answer.trim())
 
         fun phrase(a: Action): String = when (a) {
             Action.CUE_LEFT -> "곧 왼쪽으로 돌아요."

@@ -55,6 +55,10 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
     private val graphCard: LinearLayout
     private val summary = context.text("", 21f, Ui.INK).apply { setLineSpacing(0f, 1.35f) }
     private val summaryCard: LinearLayout
+    private val tabDrive: TextView
+    private val tabAnalysis: TextView
+    private var familyOn = false
+    private var analysisShown = false
     private val demoBar: HorizontalScrollView
     private val promptText = context.text("", 24f, bold = true).apply { gravity = Gravity.CENTER }
     private val promptButtons = LinearLayout(context).apply { orientation = HORIZONTAL; gravity = Gravity.CENTER }
@@ -109,6 +113,14 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
         body.addView(left, lp(0, MATCH_PARENT, 0.4f).apply { setMargins(0, context.dp(14), context.dp(14), context.dp(10)) })
 
         val right = LinearLayout(context).apply { orientation = VERTICAL }
+        // two tabs: 주행 (family + trip summary, for passengers) and 분석 (index graph and event log)
+        val tabs = LinearLayout(context).apply { orientation = HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
+        tabDrive = context.pill("주행", filled = true) { showTab(analysis = false) }
+        tabAnalysis = context.pill("분석") { showTab(analysis = true) }
+        tabs.addView(tabDrive, lp(WRAP_CONTENT, WRAP_CONTENT).apply { marginEnd = context.dp(10) })
+        tabs.addView(tabAnalysis, lp(WRAP_CONTENT, WRAP_CONTENT))
+        tabs.addView(context.text("  흔들림 그래프와 이벤트 기록은 '분석'에서 볼 수 있어요", 15f, Ui.MUTED), lp(0, WRAP_CONTENT, 1f))
+        right.addView(tabs, lp(MATCH_PARENT, WRAP_CONTENT).apply { bottomMargin = context.dp(10) })
         familyCard = context.card().apply {
             addView(context.text("가족 · 아이별 멀미 가능성", 17f, Ui.MUTED, bold = true))
             addView(familyBars, lp(MATCH_PARENT, context.dp(96)).apply { topMargin = context.dp(6) })
@@ -145,6 +157,7 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
 
         showMood(Mood.CALM, 0f)
         updateSummary(0, 0, 0, 0f)
+        showTab(analysis = false)
     }
 
     private fun chip(title: String, value: String) = LinearLayout(context).apply {
@@ -196,17 +209,28 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
 
     fun hidePrompt() { promptBox.visibility = GONE }
 
+    /** Demo panel = scenario replay buttons for judges; the graph lives in the 분석 tab either way. */
     fun setDemoPanel(on: Boolean) {
         demoBar.gone(!on)
-        graphCard.gone(!on)
-        summaryCard.gone(on)
+    }
+
+    fun showTab(analysis: Boolean) {
+        analysisShown = analysis
+        graphCard.gone(!analysis)
+        summaryCard.gone(analysis)
+        familyCard.gone(analysis || !familyOn)
+        listOf(tabDrive to !analysis, tabAnalysis to analysis).forEach { (v, on) ->
+            v.setTextColor(if (on) Color.WHITE else Ui.PRIMARY)
+            v.background = Ui.rounded(if (on) Ui.PRIMARY else Ui.CARD, context.dpf(28f), context.dp(2), Ui.PRIMARY)
+        }
     }
 
     fun setFamily(on: Boolean, names: List<String>) {
         familyChip.text = if (on) "가족 모드 · " + names.joinToString(", ") else "가족 모드 끔"
         familyChip.setTextColor(if (on) Color.WHITE else Ui.PRIMARY)
         familyChip.background = Ui.rounded(if (on) Ui.PRIMARY else Ui.CARD, context.dpf(28f), context.dp(2), Ui.PRIMARY)
-        familyCard.gone(!on)
+        familyOn = on
+        familyCard.gone(!on || analysisShown)
         // only reset the bars when the family itself changed, not on every settings change mid-trip
         val key = "$on:" + names.joinToString(",")
         if (key != familyKey) { familyKey = key; familyBars.set(names.map { it to 0.0 }) }
