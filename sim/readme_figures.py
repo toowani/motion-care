@@ -91,11 +91,11 @@ def how_it_works():
     s = Svg(960, 450)
     cols = [
         (30, "차가 아는 것", "#EEF2FF", "#3730A3",
-         ["방향지시등", "내비 다음 회전 거리", "속도 · 진행 방향", "실내 온도 · 내기순환", "뒷좌석 탑승"]),
+         ["방향지시등 · 핸들 각도", "내비 다음 회전 거리", "속도 · 진행 방향", "실내 온도 · 내기순환", "뒷좌석 탑승"]),
         (350, "앱이 계산하는 것", "#F5F3FF", "#5B21B6",
          ["흔들림 지수 I (최근 1분)", "누적 흔들림 D", "환경 계수 m (덥고 탁하면 ↓)", "아이별 기준선 τ", "회전까지 남은 시간"]),
         (670, "차가 하는 일", "#ECFDF5", "#065F46",
-         ["음성 예고 + 무드등 깜빡임", "외기 전환 · 22°C", "휴게소 경유지 추가", "가족 모드: 약한 아이 기준", "정차 후 한 질문으로 학습"]),
+         ["예고: 알림음 · 목소리 · 무드등", "외기 전환 · 22°C", "휴게소 경유지 추가", "가족 모드: 약한 아이 기준", "정차 후 한 질문으로 학습"]),
     ]
     for x, title, fill, ink, items in cols:
         s.rect(x, 40, 260, 300, fill, 14)
@@ -111,8 +111,80 @@ def how_it_works():
           f'<path d="M152 350 L160 338 L168 350" fill="{APP}"/>')
     s.text(480, 378, "닫힌 고리: 공조를 바꾸면 실내 온도·환기가 바뀌고, 그 값이 다시 계산에 들어갑니다", 13, APP, "middle")
     s.text(480, 24, "멀미 케어가 하는 일 · Pleos SDK로 차 신호를 읽고 차를 움직입니다", 15, INK, "middle", 700)
-    s.text(480, 432, "판단은 백그라운드 서비스에서 계속 돕니다 · 내비가 앞 화면이어도 음성·무드등·공조로 안내", 13, MUTED, "middle")
+    s.text(480, 432, "판단은 백그라운드 서비스에서 계속 돕니다 · 내비가 앞 화면이어도 소리·무드등·공조로 안내", 13, MUTED, "middle")
     s.save("how_it_works.svg")
+
+
+def arrow(s, pts, color=MUTED, width=2.5, dash=None):
+    """Polyline with an arrowhead at the last point."""
+    s.poly(pts, color, width, dash)
+    (x1, y1), (x2, y2) = pts[-2], pts[-1]
+    import math
+    a = math.atan2(y2 - y1, x2 - x1)
+    h = [(x2, y2), (x2 - 11 * math.cos(a - 0.45), y2 - 11 * math.sin(a - 0.45)),
+         (x2 - 11 * math.cos(a + 0.45), y2 - 11 * math.sin(a + 0.45))]
+    s.add('<path d="M' + " L".join(f"{x:.1f} {y:.1f}" for x, y in h) + f' Z" fill="{color}"/>')
+
+
+def box(s, x, y, w, h, title, sub=None, fill="#F5F3FF", ink="#5B21B6", size=14):
+    s.rect(x, y, w, h, fill, 12)
+    if sub:
+        s.text(x + w / 2, y + h / 2 - 3, title, size, ink, "middle", 700)
+        s.text(x + w / 2, y + h / 2 + 16, sub, 12, MUTED, "middle")
+    else:
+        s.text(x + w / 2, y + h / 2 + 5, title, size, ink, "middle", 700)
+
+
+def index_flow():
+    """How the sickness index is computed, left to right (replaces a mermaid chart)."""
+    s = Svg(960, 330)
+    s.text(480, 26, "멀미 지수 계산 · 1초마다", 15, INK, "middle", 700)
+    car, calc, out = ("#EEF2FF", "#3730A3"), ("#F5F3FF", "#5B21B6"), ("#ECFDF5", "#065F46")
+    y, h = 120, 64
+    row = [(20, 130, "속도 · 진행 방향", "차 신호", car), (180, 130, "가속도", "앞뒤 aₓ · 옆 aᵧ", calc),
+           (340, 140, "느린 흔들림만", "10초 평균 제거", calc), (510, 140, "지수 I · 누적 D", "최근 60초 · 주행 전체", calc),
+           (680, 100, "판단", None, calc), (810, 130, "편안 · 주의 · 위험", "아이별 확률 P", out)]
+    for x, w, t, sub, (f, ink) in row:
+        box(s, x, y, w, h, t, sub, f, ink, 13 if len(t) > 7 else 14)
+    for (x, w, *_), (nx, *_) in zip(row, row[1:]):
+        arrow(s, [(x + w + 4, y + h / 2), (nx - 4, y + h / 2)])
+    box(s, 20, 44, 130, 44, "핸들 각도", None, *car, size=13)
+    arrow(s, [(85, 90), (85, y - 4)], "#3730A3", 2, "6 4")
+    s.text(96, 108, "방향을 1–2초 앞당김", 11, "#3730A3")
+    box(s, 470, 236, 150, 52, "실내 온도 · 내기순환", None, *car, size=13)
+    box(s, 650, 236, 120, 52, "환경 계수 m", "덥고 탁하면 ↓", *calc, size=13)
+    box(s, 800, 236, 140, 52, "아이별 기준선 τ", "정차 후 질문으로 학습", *calc, size=13)
+    arrow(s, [(624, 262), (646, 262)])
+    arrow(s, [(710, 234), (725, y + h + 4)])
+    arrow(s, [(870, 234), (750, y + h + 4)])
+    s.text(480, 318, "기준선 × m을 넘으면 주의·위험 · 가족 모드는 확률 P가 0.5를 넘는 아이가 생기면 대응", 13, MUTED, "middle")
+    s.save("index_flow.svg")
+
+
+def architecture():
+    """Where things run: car signals → TripService → car actions; the screen only attaches (replaces a mermaid chart)."""
+    s = Svg(960, 400)
+    s.text(480, 26, "앱 구조 · 판단은 백그라운드 서비스, 화면은 보일 때만 붙음", 15, INK, "middle", 700)
+    car, calc, ui = ("#EEF2FF", "#3730A3"), ("#F5F3FF", "#5B21B6"), ("#ECFDF5", "#065F46")
+    s.rect(20, 50, 230, 320, "#F8FAFC", 16, GRID)
+    s.text(135, 78, "Pleos 차량", 15, INK, "middle", 700)
+    box(s, 40, 100, 190, 100, "읽기", "Vehicle · NaviHelper · 위치", *car)
+    box(s, 40, 250, 190, 100, "행동", "공조 · 무드등 · TTS · 내비", *car)
+    s.rect(300, 50, 640, 320, "#FBFAFF", 16, GRID)
+    s.text(620, 78, "멀미 케어", 15, INK, "middle", 700)
+    box(s, 330, 160, 220, 110, "TripService", "포그라운드 서비스 · 내비가 앞이어도 계속", *calc, size=16)
+    box(s, 330, 300, 220, 52, "core 엔진", "순수 Kotlin · 파이썬과 숫자 일치", *calc)
+    box(s, 640, 110, 270, 80, "화면 (주행 · 분석 · 지도)", "앱이 보일 때만 붙어서 그림", *ui)
+    box(s, 640, 240, 270, 80, "알림 카드", "앱이 안 보일 때 질문 · 응/아니", *ui)
+    arrow(s, [(234, 150), (326, 200)], "#3730A3")
+    arrow(s, [(326, 240), (234, 295)], "#3730A3")
+    arrow(s, [(420, 274), (420, 296)], "#5B21B6")
+    arrow(s, [(460, 296), (460, 274)], "#5B21B6")
+    arrow(s, [(554, 195), (636, 150)], APP)
+    arrow(s, [(554, 235), (636, 280)], APP)
+    s.text(262, 146, "1초마다", 12, MUTED, "middle")
+    s.text(300, 298, "예고 · 공조", 12, MUTED, "middle")
+    s.save("architecture.svg")
 
 
 def scenario_bars():
@@ -244,6 +316,8 @@ def real_vs_sim():
 
 def main():
     how_it_works()
+    index_flow()
+    architecture()
     scenario_bars()
     index_timeline("B_winding_rough", "굽은 길(북악스카이웨이) · 거칠게 {min}분 · 지수가 기준을 넘자 안내 → 공조 → 휴게소 제안",
                    "timeline_winding.svg")

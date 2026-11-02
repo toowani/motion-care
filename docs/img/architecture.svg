@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="13">
+<rect width="960" height="400" fill="#fff"/>
+<text x="480.0" y="26.0" font-size="15" fill="#1F2340" text-anchor="middle" font-weight="700">앱 구조 · 판단은 백그라운드 서비스, 화면은 보일 때만 붙음</text>
+<rect x="20.0" y="50.0" width="230.0" height="320.0" rx="16" fill="#F8FAFC" stroke="#E3E4EE"/>
+<text x="135.0" y="78.0" font-size="15" fill="#1F2340" text-anchor="middle" font-weight="700">Pleos 차량</text>
+<rect x="40.0" y="100.0" width="190.0" height="100.0" rx="12" fill="#EEF2FF"/>
+<text x="135.0" y="147.0" font-size="14" fill="#3730A3" text-anchor="middle" font-weight="700">읽기</text>
+<text x="135.0" y="166.0" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">Vehicle · NaviHelper · 위치</text>
+<rect x="40.0" y="250.0" width="190.0" height="100.0" rx="12" fill="#EEF2FF"/>
+<text x="135.0" y="297.0" font-size="14" fill="#3730A3" text-anchor="middle" font-weight="700">행동</text>
+<text x="135.0" y="316.0" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">공조 · 무드등 · TTS · 내비</text>
+<rect x="300.0" y="50.0" width="640.0" height="320.0" rx="16" fill="#FBFAFF" stroke="#E3E4EE"/>
+<text x="620.0" y="78.0" font-size="15" fill="#1F2340" text-anchor="middle" font-weight="700">멀미 케어</text>
+<rect x="330.0" y="160.0" width="220.0" height="110.0" rx="12" fill="#F5F3FF"/>
+<text x="440.0" y="212.0" font-size="16" fill="#5B21B6" text-anchor="middle" font-weight="700">TripService</text>
+<text x="440.0" y="231.0" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">포그라운드 서비스 · 내비가 앞이어도 계속</text>
+<rect x="330.0" y="300.0" width="220.0" height="52.0" rx="12" fill="#F5F3FF"/>
+<text x="440.0" y="323.0" font-size="14" fill="#5B21B6" text-anchor="middle" font-weight="700">core 엔진</text>
+<text x="440.0" y="342.0" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">순수 Kotlin · 파이썬과 숫자 일치</text>
+<rect x="640.0" y="110.0" width="270.0" height="80.0" rx="12" fill="#ECFDF5"/>
+<text x="775.0" y="147.0" font-size="14" fill="#065F46" text-anchor="middle" font-weight="700">화면 (주행 · 분석 · 지도)</text>
+<text x="775.0" y="166.0" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">앱이 보일 때만 붙어서 그림</text>
+<rect x="640.0" y="240.0" width="270.0" height="80.0" rx="12" fill="#ECFDF5"/>
+<text x="775.0" y="277.0" font-size="14" fill="#065F46" text-anchor="middle" font-weight="700">알림 카드</text>
+<text x="775.0" y="296.0" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">앱이 안 보일 때 질문 · 응/아니</text>
+<polyline points="234.0,150.0 326.0,200.0" fill="none" stroke="#3730A3" stroke-width="2.5" stroke-linejoin="round"/>
+<path d="M326.0 200.0 L315.0 199.5 L319.6 191.1 Z" fill="#3730A3"/>
+<polyline points="326.0,240.0 234.0,295.0" fill="none" stroke="#3730A3" stroke-width="2.5" stroke-linejoin="round"/>
+<path d="M234.0 295.0 L240.0 285.8 L245.0 294.0 Z" fill="#3730A3"/>
+<polyline points="420.0,274.0 420.0,296.0" fill="none" stroke="#5B21B6" stroke-width="2.5" stroke-linejoin="round"/>
+<path d="M420.0 296.0 L415.2 286.1 L424.8 286.1 Z" fill="#5B21B6"/>
+<polyline points="460.0,296.0 460.0,274.0" fill="none" stroke="#5B21B6" stroke-width="2.5" stroke-linejoin="round"/>
+<path d="M460.0 274.0 L464.8 283.9 L455.2 283.9 Z" fill="#5B21B6"/>
+<polyline points="554.0,195.0 636.0,150.0" fill="none" stroke="#0F766E" stroke-width="2.5" stroke-linejoin="round"/>
+<path d="M636.0 150.0 L629.6 159.0 L625.0 150.6 Z" fill="#0F766E"/>
+<polyline points="554.0,235.0 636.0,280.0" fill="none" stroke="#0F766E" stroke-width="2.5" stroke-linejoin="round"/>
+<path d="M636.0 280.0 L625.0 279.4 L629.6 271.0 Z" fill="#0F766E"/>
+<text x="262.0" y="146.0" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">1초마다</text>
+<text x="300.0" y="298.0" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">예고 · 공조</text>
+</svg>

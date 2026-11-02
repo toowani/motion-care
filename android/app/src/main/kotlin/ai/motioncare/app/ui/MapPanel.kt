@@ -65,7 +65,7 @@ class MapPanel(context: Context) : FrameLayout(context) {
     private val icon = MoodIconView(context)
     private val ring = FrameLayout(context)
     private val moodLabel = context.text("편안해요", 14f, Ui.INK, bold = true)
-    private val indexChip = context.text("멀미 지수 0", 13f, Color.WHITE, bold = true)
+    private val indexChip = context.text("지금 흔들림 0", 13f, Color.WHITE, bold = true)
     private val bubble = context.text("", 18f, Ui.INK, bold = true)
 
     // bottom: speed, arrival bar, 2D/3D, attribution
@@ -320,7 +320,8 @@ class MapPanel(context: Context) : FrameLayout(context) {
         val c = moodColor(mood)
         (ring.background as GradientDrawable).setStroke(context.dp(5), c)
         moodLabel.setTextColor(c)
-        indexChip.text = "멀미 지수 ${(level * 100).roundToInt().coerceIn(0, 100)}"
+        // the instant shake; the mood above changes only once it lasts, so call it what it is
+        indexChip.text = "지금 흔들림 ${(level * 100).roundToInt().coerceIn(0, 100)}"
         indexChip.background = Ui.rounded(c, context.dpf(14f))
     }
 
