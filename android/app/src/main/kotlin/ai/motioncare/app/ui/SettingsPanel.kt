@@ -98,7 +98,17 @@ class SettingsPanel(
         content.addView(family, lp(MATCH_PARENT, WRAP_CONTENT, 0f, context.dp(6)))
 
         content.addView(context.text("운전 중에는 화면을 조작하지 마세요", 16f, Ui.MUTED),
-            lp(MATCH_PARENT, WRAP_CONTENT).apply { setMargins(context.dp(6), context.dp(16), context.dp(6), context.dp(24)) })
+            lp(MATCH_PARENT, WRAP_CONTENT).apply { setMargins(context.dp(6), context.dp(16), context.dp(6), 0) })
+
+        // credits: the team logo lives here and in the README, not on the launcher icon
+        val credits = LinearLayout(context).apply {
+            orientation = HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            addView(android.widget.ImageView(context).apply { setImageResource(ai.motioncare.app.R.drawable.crave_logo) },
+                lp(context.dp(28), context.dp(28)).apply { marginEnd = context.dp(10) })
+            addView(context.text("만든 팀 CRAVE · Pleos Connect 공모전", 16f, Ui.MUTED))
+        }
+        content.addView(credits, lp(MATCH_PARENT, WRAP_CONTENT).apply { setMargins(context.dp(6), context.dp(14), context.dp(6), context.dp(24)) })
 
         addView(ScrollView(context).apply { addView(content) }, lp(MATCH_PARENT, 0, 1f).apply { topMargin = context.dp(8) })
         refreshProfiles()
