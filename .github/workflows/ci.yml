@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  sim:
+    name: Python simulator
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      # standard library only: no pip install
+      - name: Generate scenarios
+        run: python3 sim/generator.py
+      - name: Prototype sanity checks (10 checks, exit 1 on failure)
+        run: python3 sim/prototype.py
+      - name: Compare against public driving data
+        run: python3 sim/public_check.py
+      # the Kotlin engine tests read shared/test_vectors.csv, so the committed file must match what the simulator writes
+      - name: Committed test vectors are up to date
+        run: git diff --exit-code -- shared/test_vectors.csv sim/scenarios/
+
+  android:
+    name: Android (core tests, debug build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: android
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Kotlin engine tests (matches Python test vectors)
+        run: ./gradlew :core:test --console=plain
+      # local.properties is not committed: Pleos client ID/secret are empty in BuildConfig, which is fine for a debug build
+      - name: Debug APK build (no keys)
+        run: ./gradlew :app:assembleDebug --console=plain

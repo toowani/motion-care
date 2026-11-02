@@ -31,6 +31,7 @@ class MainActivity : Activity() {
     private lateinit var voice: Voice
     private lateinit var vehicle: Vehicle
     private lateinit var hvac: HvacController
+    private lateinit var lightCue: LightCue
     private lateinit var navi: NaviGuide
     private lateinit var profiles: ProfileStore
     private lateinit var familyButton: Button
@@ -62,6 +63,7 @@ class MainActivity : Activity() {
         voice = Voice(this, note).also { it.start() }
         vehicle = Vehicle(this).also { runCatching { it.initialize() } }
         hvac = HvacController(vehicle, note)
+        lightCue = LightCue(vehicle, note).also { it.start() }
         navi = NaviGuide(this, note).also { it.start() }
         profiles = ProfileStore(this)
 
@@ -172,6 +174,7 @@ class MainActivity : Activity() {
                     Action.SUGGEST_REST_STOP -> askYesNo(Voice.phrase(a)) { navi.addRestStop(live?.lat, live?.lon) }
                     else -> voice.say(Voice.phrase(a))
                 }
+                if (a == Action.CUE_LEFT || a == Action.CUE_RIGHT) lightCue.cue(left = a == Action.CUE_LEFT)
                 dashboard.note("t=${sample.t.toInt()}s  ${Voice.phrase(a)}")
                 if (a == Action.HVAC_FRESH) {
                     cabin?.freshAir(sample)

@@ -1,0 +1,4 @@
+ride_id,date,nickname,age_group,seat,road,style,activity,baseline_misc,score,misc,onset_min,start_s,end_s,notes
+R01,2026-11-07,별,adult,rear_right,winding,rough,look_out,0,7,6,12,40,,예시 행: 형식 확인용 가짜 값
+R02,2026-11-07,별,adult,rear_right,city,normal,look_out,0,3,2,,25,,예시
+R03,2026-11-08,달,minor,rear_left,highway,smooth,phone,0,1,1,,,,예시: 보호자 동의 받음

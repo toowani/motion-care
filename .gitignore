@@ -4,3 +4,7 @@ __pycache__/
 
 # release APK embeds the Pleos client ID/secret: add it only at submission time
 apk/*.apk
+
+# ride study: raw location logs stay local (docs/ride-study.md)
+data/rides/*
+!data/rides/.gitkeep

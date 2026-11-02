@@ -30,3 +30,73 @@ class HvacController(private val vehicle: Vehicle, private val log: (String) -> 
         }.onFailure { Log.w(TAG, "hvac", it); onDenied() }
     }
 }
+
+/**
+ * Turn cue by light: the ambient light on the turning side glows amber and the other side dims
+ * for a few seconds, then everything returns to how the driver had it. Cars that expose the whole
+ * cabin as one ambient zone (the Pleos emulator does) get two amber pulses instead. Light reaches children
+ * who cannot follow a spoken cue yet (Diels et al. 2023: predictive ambient lighting helped as
+ * part of a combined package). Areas and brightness range come from the car's capabilities.
+ */
+class LightCue(private val vehicle: Vehicle, private val log: (String) -> Unit) {
+    private val main = android.os.Handler(android.os.Looper.getMainLooper())
+    private var areas: List<SeatArea> = emptyList()
+    private val bounds = mutableMapOf<SeatArea, IntRange>()
+    private val saved = mutableMapOf<SeatArea, Pair<Int?, Int?>>()
+    private var busy = false
+
+    fun start() {
+        runCatching {
+            val light = vehicle.getLight()
+            light.checkAmbientLightBrightnessColorCapabilities({ _, list: List<SeatArea> ->
+                areas = list
+                main.post { log("무드등 영역: " + list.joinToString { a -> a.values.joinToString("+") }) }
+            }, { e -> main.post { log("무드등 색 지원 확인 실패: ${e.message}") } })
+            light.checkAmbientLightBrightnessCapabilities({ _, map ->
+                map.forEach { (a, b) -> bounds[a] = (b.minValue ?: 0)..(b.maxValue ?: 100) }
+            }, { e -> Log.w(TAG, "ambient brightness caps", e) })
+        }.onFailure { Log.w(TAG, "light", it) }
+    }
+
+    fun cue(left: Boolean, holdMs: Long = 3000) {
+        if (busy || areas.isEmpty()) return
+        busy = true
+        val light = vehicle.getLight()
+        val side = if (left) "LEFT" else "RIGHT"
+        val split = areas.partition { a -> a.values.all { v -> v.name.endsWith(side) } }
+        val directional = split.first.isNotEmpty() && split.second.isNotEmpty()
+        val (turning, other) = if (directional) split else areas to emptyList()
+        // remember the driver's setting first, then light the turning side and dim the other
+        for (a in areas) {
+            light.getAmbientLightBrightnessColor(a, { c -> saved[a] = c to saved[a]?.second }, { })
+            light.getAmbientLightBrightness(a, { b -> saved[a] = saved[a]?.first to b }, { })
+        }
+        val glow = {
+            turning.forEach { a ->
+                light.setAmbientLightSwitch(a, ai.pleos.playground.vehicle.constant.control.LightSwitch.ON, { _, _ -> }, { })
+                light.setAmbientLightBrightnessColor(a, CUE_COLOR, { _, _ -> }, { e -> log("무드등 색 실패: ${e.message}") })
+                light.setAmbientLightBrightness(a, bounds[a]?.last ?: 100, { _, _ -> }, { e -> log("무드등 밝기 실패: ${e.message}") })
+            }
+            other.forEach { a -> light.setAmbientLightBrightness(a, bounds[a]?.first ?: 0, { _, _ -> }, { }) }
+        }
+        main.postDelayed({ glow(); log(if (directional) "무드등: ${if (left) "왼쪽" else "오른쪽"} 켬" else "무드등: 호박색 두 번 깜빡임") }, 200)
+        if (!directional) {
+            main.postDelayed({ turning.forEach { a -> light.setAmbientLightBrightness(a, bounds[a]?.first ?: 0, { _, _ -> }, { }) } }, 900)
+            main.postDelayed(glow, 1600)
+        }
+        main.postDelayed({ restore(); busy = false }, holdMs)
+    }
+
+    private fun restore() {
+        val light = vehicle.getLight()
+        saved.forEach { (a, s) ->
+            s.first?.let { light.setAmbientLightBrightnessColor(a, it, { _, _ -> }, { }) }
+            s.second?.let { light.setAmbientLightBrightness(a, it, { _, _ -> }, { }) }
+        }
+        log("무드등: 원래대로")
+    }
+
+    companion object {
+        const val CUE_COLOR = 0xFFFFA000.toInt()   // amber
+    }
+}
