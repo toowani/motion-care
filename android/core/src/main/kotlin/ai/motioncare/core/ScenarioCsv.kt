@@ -10,6 +10,7 @@ object ScenarioCsv {
             val f = line.split(',')
             fun s(name: String) = f[col.getValue(name)]
             fun d(name: String) = s(name).toDouble()
+            fun opt(name: String) = col[name]?.let { f.getOrNull(it)?.toDoubleOrNull() } ?: Double.NaN
             Sample(
                 t = d("t"),
                 speed = d("speed"),
@@ -20,6 +21,8 @@ object ScenarioCsv {
                 cabinTemp = d("cabin_temp"),
                 recirc = s("recirc") == "1",
                 windowOpen = s("window_open") == "1",
+                lat = opt("lat"),
+                lon = opt("lon"),
             )
         }
     }

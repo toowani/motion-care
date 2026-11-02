@@ -74,7 +74,8 @@ class SettingsPanel(
 
         section(content, "차가 도와주는 방법", null)
         val toggles = context.card()
-        toggles.addView(toggle("음성 안내", "회전 예고와 안내를 말로 알려요", settings.voiceOn) { settings.voiceOn = it })
+        toggles.addView(toggle("소리 안내", "휴게소·가족 모드 질문과 멀미 위험 안내를 소리로 알려요", settings.voiceOn) { settings.voiceOn = it })
+        toggles.addView(cueStylePicker())
         toggles.addView(toggle("무드등 예고", "회전 직전 실내 무드등을 깜빡여요 (어린아이용)", settings.lightCueOn) { settings.lightCueOn = it })
         toggles.addView(toggle("공조 자동 조절", "멀미 위험이 높으면 바깥 공기·22°C로 바꿔요", settings.autoClimateOn) { settings.autoClimateOn = it })
         toggles.addView(toggle("시연 패널", "그래프와 시나리오 재생 버튼을 보여요 (심사·시연용)", settings.demoPanelOn) { settings.demoPanelOn = it })
@@ -157,6 +158,29 @@ class SettingsPanel(
             val on = id == settings.themeId
             v.background = Ui.rounded(if (on) Ui.PRIMARY_SOFT else Ui.CARD, context.dpf(20f), context.dp(if (on) 3 else 1), if (on) Ui.PRIMARY else Ui.LINE)
         }
+    }
+
+    /** Turn cue: short tone (default), the theme's sentence, or light only. Navigation turns are never spoken twice. */
+    private fun cueStylePicker() = LinearLayout(context).apply {
+        orientation = VERTICAL
+        setPadding(0, context.dp(6), 0, context.dp(10))
+        addView(context.text("회전 예고 방식", 18f, bold = true))
+        addView(context.text("말로 하는 예고는 금방 피곤해져요. 기본은 짧은 알림음이고, 내비가 회전을 안내할 때는 겹쳐 말하지 않아요.", 14f, Ui.MUTED))
+        val row = LinearLayout(context).apply { orientation = HORIZONTAL }
+        val options = listOf("chime" to "알림음", "voice" to "캐릭터 목소리", "silent" to "무드등만")
+        val pills = mutableListOf<android.widget.TextView>()
+        fun paint() = pills.forEachIndexed { i, v ->
+            val on = options[i].first == settings.cueStyle
+            v.setTextColor(if (on) android.graphics.Color.WHITE else Ui.PRIMARY)
+            v.background = Ui.rounded(if (on) Ui.PRIMARY else Ui.CARD, context.dpf(28f), context.dp(2), Ui.PRIMARY)
+        }
+        options.forEach { (id, label) ->
+            val p = context.pill(label) { settings.cueStyle = id; paint(); onChanged() }
+            pills += p
+            row.addView(p, lp(WRAP_CONTENT, WRAP_CONTENT).apply { marginEnd = context.dp(10) })
+        }
+        paint()
+        addView(row, lp(MATCH_PARENT, WRAP_CONTENT).apply { topMargin = context.dp(8) })
     }
 
     private fun toggle(title: String, sub: String, value: Boolean, onSet: (Boolean) -> Unit) = LinearLayout(context).apply {

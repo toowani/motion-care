@@ -34,7 +34,9 @@ class HvacController(private val vehicle: Vehicle, private val log: (String) -> 
 /**
  * Turn cue by light: the ambient light on the turning side glows amber and the other side dims
  * for a few seconds, then everything returns to how the driver had it. Cars that expose the whole
- * cabin as one ambient zone (the Pleos emulator does) get two amber pulses instead. Light reaches children
+ * cabin as one ambient zone (the Pleos emulator does) get two amber pulses instead.
+ * Kept soft on purpose: a bright cabin at night makes the road outside harder to see, so the cue
+ * stays at about 60 % brightness and the "off" beat only falls back to the driver's own level. Light reaches children
  * who cannot follow a spoken cue yet (Diels et al. 2023: predictive ambient lighting helped as
  * part of a combined package). Areas and brightness range come from the car's capabilities.
  */
@@ -75,16 +77,22 @@ class LightCue(private val vehicle: Vehicle, private val log: (String) -> Unit) 
             turning.forEach { a ->
                 light.setAmbientLightSwitch(a, ai.pleos.playground.vehicle.constant.control.LightSwitch.ON, { _, _ -> }, { })
                 light.setAmbientLightBrightnessColor(a, CUE_COLOR, { _, _ -> }, { e -> log("무드등 색 실패: ${e.message}") })
-                light.setAmbientLightBrightness(a, bounds[a]?.last ?: 100, { _, _ -> }, { e -> log("무드등 밝기 실패: ${e.message}") })
+                light.setAmbientLightBrightness(a, soft(a), { _, _ -> }, { e -> log("무드등 밝기 실패: ${e.message}") })
             }
-            other.forEach { a -> light.setAmbientLightBrightness(a, bounds[a]?.first ?: 0, { _, _ -> }, { }) }
+            other.forEach { a -> light.setAmbientLightBrightness(a, (saved[a]?.second ?: soft(a)) / 2, { _, _ -> }, { }) }
         }
         main.postDelayed({ glow(); log(if (directional) "무드등: ${if (left) "왼쪽" else "오른쪽"} 켬" else "무드등: 호박색 두 번 깜빡임") }, 200)
         if (!directional) {
-            main.postDelayed({ turning.forEach { a -> light.setAmbientLightBrightness(a, bounds[a]?.first ?: 0, { _, _ -> }, { }) } }, 900)
+            main.postDelayed({ turning.forEach { a -> light.setAmbientLightBrightness(a, saved[a]?.second ?: (bounds[a]?.first ?: 0), { _, _ -> }, { }) } }, 900)
             main.postDelayed(glow, 1600)
         }
         main.postDelayed({ restore(); busy = false }, holdMs)
+    }
+
+    /** About 60 % of the car's range: visible to a child in the back, not glaring for the driver. */
+    private fun soft(a: SeatArea): Int {
+        val r = bounds[a] ?: 0..100
+        return r.first + (r.last - r.first) * SOFT_PERCENT / 100
     }
 
     private fun restore() {
@@ -98,5 +106,6 @@ class LightCue(private val vehicle: Vehicle, private val log: (String) -> Unit) 
 
     companion object {
         const val CUE_COLOR = 0xFFFFA000.toInt()   // amber
+        const val SOFT_PERCENT = 60
     }
 }

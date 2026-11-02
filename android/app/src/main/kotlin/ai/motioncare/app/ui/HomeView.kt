@@ -31,6 +31,11 @@ import android.widget.TextView
  * what the car is doing, three facts). Right: family bars and, for demos, the index graph.
  * Bottom: demo controls (scenario replay / live signals), hidden when the demo panel is off.
  */
+private const val COMPACT_BELOW_DP = 900
+private const val TAB_DRIVE = 0
+private const val TAB_ANALYSIS = 1
+private const val TAB_MAP = 2
+
 class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayout(context) {
     interface Callbacks {
         fun onFamilyToggle()
@@ -50,6 +55,12 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
     private val chipTurn = chip("다음 회전", "—")
     private val themeName = context.text("", 15f, Ui.MUTED)
     private val familyChip: TextView
+    private lateinit var rightColumn: LinearLayout
+    private lateinit var leftCard: LinearLayout
+    private var demoOn = true
+    private var familyNames: List<String> = emptyList()
+    /** One app pane next to the navigation (Pleos lets an app take one of two panes): character only. */
+    private var compact = false
     private val familyBars = FamilyBars(context)
     private val familyCard: LinearLayout
     private val graphCard: LinearLayout
@@ -57,8 +68,12 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
     private val summaryCard: LinearLayout
     private val tabDrive: TextView
     private val tabAnalysis: TextView
+    private val tabMap: TextView
+    private val map = MapPanel(context)
+    private val mapCard: LinearLayout
     private var familyOn = false
     private var analysisShown = false
+    private var tab = TAB_DRIVE
     private val demoBar: HorizontalScrollView
     private val promptText = context.text("", 24f, bold = true).apply { gravity = Gravity.CENTER }
     private val promptButtons = LinearLayout(context).apply { orientation = HORIZONTAL; gravity = Gravity.CENTER }
@@ -113,12 +128,16 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
         body.addView(left, lp(0, MATCH_PARENT, 0.4f).apply { setMargins(0, context.dp(14), context.dp(14), context.dp(10)) })
 
         val right = LinearLayout(context).apply { orientation = VERTICAL }
+        rightColumn = right
+        leftCard = left
         // two tabs: 주행 (family + trip summary, for passengers) and 분석 (index graph and event log)
         val tabs = LinearLayout(context).apply { orientation = HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
-        tabDrive = context.pill("주행", filled = true) { showTab(analysis = false) }
-        tabAnalysis = context.pill("분석") { showTab(analysis = true) }
+        tabDrive = context.pill("주행", filled = true) { showTab(TAB_DRIVE) }
+        tabAnalysis = context.pill("분석") { showTab(TAB_ANALYSIS) }
+        tabMap = context.pill("지도") { showTab(TAB_MAP) }
         tabs.addView(tabDrive, lp(WRAP_CONTENT, WRAP_CONTENT).apply { marginEnd = context.dp(10) })
-        tabs.addView(tabAnalysis, lp(WRAP_CONTENT, WRAP_CONTENT))
+        tabs.addView(tabAnalysis, lp(WRAP_CONTENT, WRAP_CONTENT).apply { marginEnd = context.dp(10) })
+        tabs.addView(tabMap, lp(WRAP_CONTENT, WRAP_CONTENT))
         tabs.addView(context.text("  흔들림 그래프와 이벤트 기록은 '분석'에서 볼 수 있어요", 15f, Ui.MUTED), lp(0, WRAP_CONTENT, 1f))
         right.addView(tabs, lp(MATCH_PARENT, WRAP_CONTENT).apply { bottomMargin = context.dp(10) })
         familyCard = context.card().apply {
@@ -131,6 +150,12 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
             addView(dashboard, lp(MATCH_PARENT, MATCH_PARENT))
         }
         right.addView(graphCard, lp(MATCH_PARENT, 0, 1f))
+        // 지도 tab: our own map with the character badge on top, like a speed-camera icon (prototype)
+        mapCard = context.card().apply {
+            setPadding(context.dp(6), context.dp(6), context.dp(6), context.dp(6))
+            addView(map, lp(MATCH_PARENT, MATCH_PARENT))
+        }
+        right.addView(mapCard, lp(MATCH_PARENT, 0, 1f))
         summaryCard = context.card().apply {
             addView(context.text("이번 주행", 17f, Ui.MUTED, bold = true))
             addView(summary, lp(MATCH_PARENT, WRAP_CONTENT).apply { topMargin = context.dp(8) })
@@ -157,7 +182,7 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
 
         showMood(Mood.CALM, 0f)
         updateSummary(0, 0, 0, 0f)
-        showTab(analysis = false)
+        showTab(TAB_DRIVE)
     }
 
     private fun chip(title: String, value: String) = LinearLayout(context).apply {
@@ -190,6 +215,7 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
         showMood(Mood.CALM, 0f)
         listOf(chipSpeed, chipAir, chipTurn).forEach { it.setChip("—") }
         familyBars.set(familyBars.names().map { it to 0.0 })
+        map.reset()
         hidePrompt()
     }
 
@@ -211,22 +237,26 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
 
     /** Demo panel = scenario replay buttons for judges; the graph lives in the 분석 tab either way. */
     fun setDemoPanel(on: Boolean) {
-        demoBar.gone(!on)
+        demoOn = on
+        demoBar.gone(!on || compact)
     }
 
-    fun showTab(analysis: Boolean) {
-        analysisShown = analysis
-        graphCard.gone(!analysis)
-        summaryCard.gone(analysis)
-        familyCard.gone(analysis || !familyOn)
-        listOf(tabDrive to !analysis, tabAnalysis to analysis).forEach { (v, on) ->
+    fun showTab(which: Int) {
+        tab = which
+        analysisShown = which != TAB_DRIVE
+        graphCard.gone(which != TAB_ANALYSIS)
+        mapCard.gone(which != TAB_MAP)
+        summaryCard.gone(which != TAB_DRIVE)
+        familyCard.gone(which != TAB_DRIVE || !familyOn)
+        listOf(tabDrive to (which == TAB_DRIVE), tabAnalysis to (which == TAB_ANALYSIS), tabMap to (which == TAB_MAP)).forEach { (v, on) ->
             v.setTextColor(if (on) Color.WHITE else Ui.PRIMARY)
             v.background = Ui.rounded(if (on) Ui.PRIMARY else Ui.CARD, context.dpf(28f), context.dp(2), Ui.PRIMARY)
         }
     }
 
     fun setFamily(on: Boolean, names: List<String>) {
-        familyChip.text = if (on) "가족 모드 · " + names.joinToString(", ") else "가족 모드 끔"
+        familyNames = names
+        familyChip.text = familyLabel(on)
         familyChip.setTextColor(if (on) Color.WHITE else Ui.PRIMARY)
         familyChip.background = Ui.rounded(if (on) Ui.PRIMARY else Ui.CARD, context.dpf(28f), context.dp(2), Ui.PRIMARY)
         familyOn = on
@@ -234,6 +264,30 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
         // only reset the bars when the family itself changed, not on every settings change mid-trip
         val key = "$on:" + names.joinToString(",")
         if (key != familyKey) { familyKey = key; familyBars.set(names.map { it to 0.0 }) }
+    }
+
+    private fun familyLabel(on: Boolean) = when {
+        compact -> if (on) "가족 켬" else "가족 끔"
+        on -> "가족 모드 · " + familyNames.joinToString(", ")
+        else -> "가족 모드 끔"
+    }
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        val c = w < context.dp(COMPACT_BELOW_DP)
+        if (c != compact) { compact = c; post { applyCompact() } }
+    }
+
+    /**
+     * Narrow pane beside the navigation: only the big character, its level word and what the car
+     * just did. The family bars, graph and demo buttons come back when the app is widened.
+     */
+    private fun applyCompact() {
+        rightColumn.gone(compact)
+        demoBar.gone(compact || !demoOn)
+        (leftCard.layoutParams as LayoutParams).apply { weight = if (compact) 1f else 0.4f; marginEnd = if (compact) 0 else context.dp(14) }
+        leftCard.requestLayout()
+        familyChip.text = familyLabel(familyOn)
     }
 
     fun setFamilyProbabilities(values: List<Pair<String, Double>>) = familyBars.set(values)
@@ -251,7 +305,11 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
         showMood(Mood.of(o.state), level)
         chipSpeed.setChip("%.0f km/h".format(s.speed * 3.6))
         chipAir.setChip("%.1f° · %s".format(s.cabinTemp, if (s.recirc) "내기" else "외기"))
-        chipTurn.setChip(nextTurnM?.takeIf { it >= 0 }?.let { if (it >= 1000) "%.1f km".format(it / 1000) else "%.0f m".format(it) } ?: "—")
+        val turnText = nextTurnM?.takeIf { it >= 0 }?.let { if (it >= 1000) "%.1f km".format(it / 1000) else "%.0f m".format(it) }
+        chipTurn.setChip(turnText ?: "—")
+        if (!s.lat.isNaN() && !s.lon.isNaN()) map.setPosition(s.lat, s.lon, s.bearing)
+        theme?.let { map.setMood(it, mood, level, labelFor(it, mood)) }
+        map.setNextTurn(turnText?.let { "다음 회전 ${if (s.nextTurnLeft) "왼쪽" else "오른쪽"} $it" })
     }
 
     private fun showMood(m: Mood, level: Float) {

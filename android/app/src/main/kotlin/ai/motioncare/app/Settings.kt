@@ -18,6 +18,13 @@ class Settings(context: Context) {
     var autoClimateOn: Boolean
         get() = prefs.getBoolean("climate", true)
         set(v) = prefs.edit().putBoolean("climate", v).apply()
+    /**
+     * How a turn cue sounds: "chime" (short tone, default — the team found spoken cues tiring),
+     * "voice" (the theme's sentence) or "silent" (ambient light only).
+     */
+    var cueStyle: String
+        get() = prefs.getString("cue", "chime") ?: "chime"
+        set(v) = prefs.edit().putString("cue", v).apply()
     var demoPanelOn: Boolean
         get() = prefs.getBoolean("demo", true)
         set(v) = prefs.edit().putBoolean("demo", v).apply()

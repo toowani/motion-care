@@ -1,6 +1,7 @@
 package ai.motioncare.app
 
 import ai.motioncare.core.Sample
+import ai.motioncare.core.SteeringYaw
 import ai.motioncare.core.TurnSignal
 import ai.pleos.playground.vehicle.Vehicle
 import ai.pleos.playground.vehicle.api.model.area.SeatArea
@@ -9,6 +10,7 @@ import ai.pleos.playground.vehicle.constant.area.TurnSignalValue
 import ai.pleos.playground.vehicle.listener.HvacRecirculationStateListener
 import ai.pleos.playground.vehicle.listener.HvacTemperatureListener
 import ai.pleos.playground.vehicle.listener.SeatOccupancyListener
+import ai.pleos.playground.vehicle.listener.SteeringWheelAngleListener
 import ai.pleos.playground.vehicle.listener.TurnSignalStateListener
 import android.annotation.SuppressLint
 import android.car.Car
@@ -24,6 +26,7 @@ import android.os.Looper
 import android.util.Log
 
 private const val TAG = "MotionCare"
+private const val STEERING_STALE_MS = 3_000L
 
 /** Where 1 Hz samples come from: the car (Pleos SDK) or a recorded/simulated scenario. */
 interface SignalSource {
@@ -82,7 +85,8 @@ class ReplaySignalSource(
 /**
  * Live signals on the Pleos Connect emulator or a car:
  * turn signal, HVAC and rear-seat occupancy from the Pleos Vehicle SDK, next turn from NaviHelper,
- * speed from CarPropertyManager, heading from the platform location provider (GPX playback on the emulator).
+ * speed from CarPropertyManager, heading from the platform location provider (GPX playback on the emulator)
+ * sharpened by the steering wheel angle (read only), which leads the GPS bearing into a turn.
  */
 class PleosSignalSource(
     private val context: Context,
@@ -100,6 +104,10 @@ class PleosSignalSource(
     @Volatile private var gpsSpeed = 0.0
     private var lastFix: Location? = null
     @Volatile private var bearing = 0.0
+    // null until the SDK reports one (no steering sensor → SteeringYaw passes the GPS bearing through)
+    @Volatile private var steeringDeg: Double? = null
+    @Volatile private var steeringAt = 0L
+    private var yaw = SteeringYaw()
     @Volatile private var signal = TurnSignal.OFF
     @Volatile private var cabinTemp = 22.0
     @Volatile private var recirc = false
@@ -124,6 +132,12 @@ class PleosSignalSource(
             }
         }
         override fun onFailed(e: Exception) { Log.w(TAG, "turn signal", e) }
+    }
+    private val steeringListener = object : SteeringWheelAngleListener {
+        // Pleos reports a right turn as negative (Virtual Console +540° right arrives as -540), while
+        // SteeringYaw expects right = positive (bearing increases), so flip the sign here
+        override fun onSteeringWheelAngleUpdated(value: Float?) { value?.let { if (steeringDeg == null) Log.i(TAG, "steering angle received: $it"); steeringDeg = -it.toDouble(); steeringAt = android.os.SystemClock.elapsedRealtime() } }
+        override fun onFailed(e: Exception) { Log.w(TAG, "steering angle", e) }
     }
     private val tempListener = object : HvacTemperatureListener {
         override fun onHvacTemperatureUpdated(value: Float?) { value?.let { cabinTemp = it.toDouble() } }
@@ -181,8 +195,13 @@ class PleosSignalSource(
                 hvac.getHvacRecirculationState(a, { recirc = it == true }, { Log.w(TAG, "recirc get", it) })
             }, { Log.w(TAG, "recirc capability", it) })
         }.onFailure { Log.w(TAG, "Pleos listeners", it) }
+        // separate block: a car without the steering property must not lose the listeners above
+        yaw = SteeringYaw()
+        steeringDeg = null
+        runCatching { vehicle.getSteeringWheel().registerSteeringWheelAngle(steeringListener) }
+            .onFailure { Log.w(TAG, "steering listener", it) }
         runCatching {
-            car = Car.createCar(context).also { c ->
+            car =Car.createCar(context).also { c ->
                 val mgr = c.getCarManager(Car.PROPERTY_SERVICE) as CarPropertyManager
                 mgr.registerCallback(speedCallback, VehiclePropertyIds.PERF_VEHICLE_SPEED, CarPropertyManager.SENSOR_RATE_NORMAL)
             }
@@ -195,7 +214,12 @@ class PleosSignalSource(
         val tick = object : Runnable {
             override fun run() {
                 val turn = nextTurn()
-                onSample(Sample(t, speed, bearing, signal, turn?.distanceM ?: -1.0, turn?.left ?: false, cabinTemp, recirc, false))
+                val v = speed
+                // a steering value older than a few seconds means the sensor went quiet: fall back to GPS
+                val steer = steeringDeg?.takeIf { android.os.SystemClock.elapsedRealtime() - steeringAt < STEERING_STALE_MS }
+                val heading = yaw.step(v, bearing, steer, dt = 1.0)
+                onSample(Sample(t, v, heading, signal, turn?.distanceM ?: -1.0, turn?.left ?: false, cabinTemp, recirc, false,
+                    lat = lat ?: Double.NaN, lon = lon ?: Double.NaN))
                 t += 1.0
                 handler.postDelayed(this, 1000L)
             }
@@ -211,6 +235,7 @@ class PleosSignalSource(
             vehicle.getHVAC().unregisterHvacTemperatureCurrent(driverSeat, tempListener)
             vehicle.getHVAC().unregisterHvacRecirculationState(recircArea, recircListener)
         }
+        runCatching { vehicle.getSteeringWheel().unregisterSteeringWheelAngle(steeringListener) }
         runCatching { car?.disconnect() }
         runCatching { context.getSystemService(LocationManager::class.java).removeUpdates(locationListener) }
     }

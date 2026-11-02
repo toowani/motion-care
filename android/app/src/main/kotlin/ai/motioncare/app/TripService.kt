@@ -28,6 +28,8 @@ private const val TRIP_END_STILL_S = 60.0
 /** Below this cumulative dose a "멀미 났어" report is not used to learn a child's threshold. */
 private const val MIN_LEARN_DOSE = 5.0
 private const val HISTORY = 900
+/** The navigation announces a turn itself within roughly this distance. */
+private const val NAVI_GUIDES_WITHIN_M = 300.0
 
 /**
  * Runs the trip in the background so the car keeps getting cues, fresh air and family care while
@@ -132,6 +134,7 @@ class TripService : Service() {
     override fun onDestroy() {
         stopSource()
         if (ready) {
+            runCatching { tone?.release() }
             voice.release()
             navi.release()
             runCatching { vehicle.release() }
@@ -326,6 +329,28 @@ class TripService : Service() {
         notifier.updateOngoing(if (src === live) "주행을 지켜보고 있어요" else "시연 시나리오 재생 중")
     }
 
+    /**
+     * Turn cues should not talk over the navigation or wear people out: while the navigation is
+     * guiding a turn it already announces it, so only the light (and a tone) remain; otherwise the
+     * chosen style decides between a short tone, the theme's sentence or silence.
+     */
+    private fun soundCue(line: String) {
+        val naviSpeaks = navi.nextTurn?.let { it.distanceM in 0.0..NAVI_GUIDES_WITHIN_M } == true
+        when {
+            settings.cueStyle == "silent" -> Unit
+            settings.cueStyle == "voice" && !naviSpeaks -> say(line)
+            else -> chime()
+        }
+    }
+
+    private val tone by lazy { runCatching { android.media.ToneGenerator(android.media.AudioManager.STREAM_NOTIFICATION, 70) }.getOrNull() }
+
+    private fun chime() {
+        if (!settings.voiceOn) return
+        val played = runCatching { tone?.startTone(android.media.ToneGenerator.TONE_PROP_BEEP2, 180) }.getOrNull() == true
+        Log.i(TAG, "turn cue tone played=$played")
+    }
+
     /** What the car says for an action; turn cues use the theme's voice when it has one. */
     private fun spoken(a: Action) = when (a) {
         Action.CUE_LEFT -> theme().cueLine(true)
@@ -334,11 +359,13 @@ class TripService : Service() {
     } ?: Voice.phrase(a)
 
     private fun act(a: Action, sample: Sample, cabin: SimulatedCabin?) {
-        when (a) {
-            Action.SUGGEST_REST_STOP -> askYesNo(Voice.phrase(a)) { navi.addRestStop(live?.lat, live?.lon); action("휴게소를 경유지로 넣었어요") }
+        val cue = a == Action.CUE_LEFT || a == Action.CUE_RIGHT
+        when {
+            a == Action.SUGGEST_REST_STOP -> askYesNo(Voice.phrase(a)) { navi.addRestStop(live?.lat, live?.lon); action("휴게소를 경유지로 넣었어요") }
+            cue -> soundCue(spoken(a))
             else -> say(spoken(a))
         }
-        if (a == Action.CUE_LEFT || a == Action.CUE_RIGHT) {
+        if (cue) {
             cueCount++
             action(spoken(a))
             if (settings.lightCueOn) lightCue.cue(left = a == Action.CUE_LEFT)

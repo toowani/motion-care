@@ -11,6 +11,8 @@
     <uses-permission android:name="pleos.car.permission.CAR_WINDOWS" />
     <uses-permission android:name="pleos.car.permission.CAR_DOORS" />
     <uses-permission android:name="pleos.car.permission.CAR_SEATS" />
+    <!-- steering wheel angle (read only) feeds the heading estimate -->
+    <uses-permission android:name="pleos.car.permission.CAR_DRIVE" />
     <!-- Pleos TTS/STT (server voice) and microphone for "멀미 났어" / yes-no answers -->
     <uses-permission android:name="pleos.car.permission.NAVI_ROUTE" />
     <uses-permission android:name="pleos.car.permission.NAVI_ROUTE_SEARCH" />
@@ -36,13 +38,15 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:screenOrientation="landscape"
+            android:resizeableActivity="true"
             android:configChanges="uiMode|density|screenSize|smallestScreenSize|screenLayout|orientation|keyboard|keyboardHidden|navigation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <meta-data android:name="distractionOptimized" android:value="true" />
+            <!-- no fixed orientation: Pleos then opens the app in one pane beside the navigation (compact
+                 character view); widening it with the window bar brings back family bars and the graph -->
         </activity>
         <service
             android:name=".TripService"

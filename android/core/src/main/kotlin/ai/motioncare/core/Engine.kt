@@ -35,6 +35,9 @@ data class Sample(
     val cabinTemp: Double,        // °C
     val recirc: Boolean,
     val windowOpen: Boolean,
+    // position only feeds the map screen; NaN when unknown (the engine never reads it)
+    val lat: Double = Double.NaN,
+    val lon: Double = Double.NaN,
 )
 
 data class Output(
