@@ -71,9 +71,11 @@ dependencies {
 }
 
 // contest naming: apk/팀명_앱이름_release.apk (set apk.teamName in local.properties)
+val teamName = localProps.getProperty("apk.teamName") ?: "Team"
 val copyReleaseApk = tasks.register<Copy>("copyReleaseApk") {
+    inputs.property("teamName", teamName)   // a new team name must re-run the copy
     from(layout.buildDirectory.dir("outputs/apk/release")) { include("*.apk") }
     into(rootDir.resolve("../apk"))
-    rename { "${localProps.getProperty("apk.teamName") ?: "Team"}_MotionCare_release.apk" }
+    rename { "${teamName}_MotionCare_release.apk" }
 }
 tasks.matching { it.name == "assembleRelease" }.configureEach { finalizedBy(copyReleaseApk) }
