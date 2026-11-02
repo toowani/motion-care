@@ -1,5 +1,7 @@
-# 시연 영상 콘티 (75초, 에뮬레이터 화면 녹화)
+# 시연 영상 콘티 v3 (72초, 에뮬레이터 화면 녹화)
 
+> **v3 (11.3, 다음 촬영)**: 지금 앱 화면 기준. 아래 "준비"와 "장면".
+>
 > **v2 (11.2 저녁, 제출용)**: 72초, 자막 포함, 소리 없음. 저장소 밖 `../멀미케어_시연_v2.mp4`. 장면: 첫 실행 테마 선택 → 뒷좌석 감지 → 루미 음성 예고·무드등 → 공조 26.5°C·내기 → 22°C·외기 → 가족 모드 위험 → 정차 후 질문 → 설정.
 >
 > **v1 (11.2)**: 52초, 자막 포함, 소리 없음. 저장소 밖 `../멀미케어_시연_v1.mp4`. 장면: 뒷좌석 감지 → 회전 예고·무드등 → 공조 26.5°C·내기 → 22°C·외기 → 가족 모드 → 정차 후 질문. 다음 판에서는 내레이션과 앱 음성(호스트에서 녹음)을 입힙니다.
@@ -8,28 +10,57 @@
 
 ## 준비
 
+에뮬레이터는 셸이 끝나도 꺼지지 않게 `nohup`으로 켭니다. 설정 › 연결 › Wi-Fi › `AndroidWifi` 연결 (지도 · 음성에 필요).
+
 ```bash
-~/Library/Android/sdk/emulator/emulator -avd Pleos_Connect_v2_1 -no-snapshot-load
-adb forward tcp:8088 tcp:8088          # Virtual Console: http://127.0.0.1:8088/
-adb shell screenrecord --size 1920x1080 --bit-rate 8000000 /sdcard/demo.mp4
-adb pull /sdcard/demo.mp4               # 녹화 종료는 Ctrl+C (최대 3분)
+nohup ~/Library/Android/sdk/emulator/emulator -avd Pleos_Connect_v2_1 -no-snapshot-load -no-boot-anim -gpu host > /tmp/emu.log 2>&1 < /dev/null & disown
 ```
 
-- 앱 설치: `cd android && ./gradlew :app:installDebug`
-- Virtual Console에서 Target Temperature 26°C, Air Recirculation = Recirculate 로 시작 (덥고 탁한 실내)
-- 화면 녹화와 별도로 노트북 화면 녹화로 Virtual Console 창을 함께 담으면 "차가 바뀌는 것"이 잘 보임
+```bash
+adb forward tcp:8088 tcp:8088
+```
+
+- Virtual Console: http://127.0.0.1:8088/
+  - 시작 값: Target Temperature 26°C, Air Recirculation = Recirculate (덥고 탁한 실내)
+- 앱 설치: `cd android && ./gradlew :app:installDebug` (디버그 빌드라야 아래 재생 옵션이 동작)
+- 앱 설정 › 예고 방식 = **캐릭터 목소리** (목소리 장면용)
+- 앱 소리: 에뮬레이터 화면 녹화에는 소리가 안 담김 → 호스트(Mac)에서 시스템 소리를 함께 녹음
+- 장면마다 원하는 순간으로 바로 가기 (디버그 재생 옵션, 모두 `--user 10`)
+
+```bash
+adb shell am force-stop --user 10 ai.motioncare.app
+```
+
+```bash
+adb shell am start --user 10 -n ai.motioncare.app/.MainActivity --ez skip_welcome true --es replay A_city_rough --ei replay_from 30 --ef replay_speed 2
+```
+
+| 장면 | `replay` | `replay_from` | `replay_speed` | 화면에 나오는 때 |
+|---|---|---|---|---|
+| 회전 말풍선 · 목소리 | `A_city_rough` | 30 | 2 | 약 8초 뒤 첫 회전 예고 (오른쪽) |
+| 공기 바꿈 | `B_winding_rough` | 0 | 2 | 약 10초 뒤 안내 · 공조 (시나리오 21초) |
+| 가족 모드 | `D_family` | 1730 | 2 | 약 14초 뒤 민준 알림 (시나리오 1758초) |
+
+- 가족 모드 장면은 먼저 위쪽 "가족 모드"를 켜 둠
+- 화면 녹화: `adb shell screenrecord --size 1920x1080 --bit-rate 8000000 /sdcard/demo.mp4` (최대 3분, Ctrl+C로 끝내고 `adb pull /sdcard/demo.mp4`)
 
 ## 장면
 
 | 시간 | 화면 | 내레이션/자막 |
 |---|---|---|
-| 0–8초 | 검은 화면에 질문 | "운전자는 왜 멀미를 안 할까?" → "다음 움직임을 알기 때문입니다." |
-| 8–20초 | 앱 "실차 신호" → Virtual Console Turn Signal "Blink left" | 차가 먼저 말함: "곧 왼쪽으로 돌아요." 자막: 방향지시등 → 동승자에게 예고 |
-| 20–40초 | "B 굽은 길 · 거칠게" 재생, 그래프 상승 | 자막: 차의 가감속·코너링으로 흔들림 누적량 계산 |
-| 40–52초 | "멀미 위험" → 음성 안내 → 공조 바 22.0°, 외기 | "바깥 공기로 바꾸고 온도를 조금 낮출게요." 자막: 실내 공기를 차가 바꾸면 기준선 회복 (점선이 올라감) |
-| 52–65초 | "가족 모드" → "D 가족 귀성" | "민준에게는 벌써 흔들림이 많아요. 바람 넣고 천천히 갈게요." 자막: 가장 약한 아이 기준으로 먼저 |
-| 65–75초 | 정지 → "오늘 민준 괜찮았어요?" → 구조도 한 장 | 자막: 탈수록 우리 가족에게 맞춰집니다 · Pleos Vehicle · NaviHelper · TTS · STT |
+| 0–6초 | 검은 화면에 질문 | "운전자는 왜 멀미를 안 할까?" → "다음 움직임을 알기 때문입니다." |
+| 6–16초 | 주행 탭: 표정 카드 "지금 흔들림", 멀미 가능성 게이지가 오름 | 자막: 표정 = 지금 흔들림, 숫자 = 멀미 가능성 |
+| 16–30초 | 도심 · 거칠게, 지도 탭: 회전 안내 카드, 말풍선 ↱ 70m → 곧, 캐릭터 목소리 "곧 오른쪽으로 돌아요" | 자막: 움직이기 전에 차가 먼저 알림 |
+| 30–42초 | 굽은 길 · 거칠게: 아래 공조 바 26°C · 내기 → 22°C · 외기, 공기 바꿈 1 | "바깥 공기로 바꾸고 온도를 조금 낮출게요." 자막: 실내 공기를 차가 바꿈 |
+| 42–52초 | 가족 모드 + 가족 나들이: 민준 막대가 먼저 오름 | 자막: 가장 약한 아이 기준으로 먼저 |
+| 52–62초 | Pleos 화면 나누기 손잡이: 왼쪽 표정 카드 + "민준 N%" 알약, 오른쪽 Pleos 내비 | 자막: 내비 옆에는 표정과 %만 |
+| 62–72초 | 정지 → "오늘 민준 괜찮았어요?" (타일에 이번 주행 숫자) → 구조도 한 장 | 자막: 탈수록 우리 가족에게 맞춰집니다 · Pleos Vehicle · NaviHelper · TTS · STT |
+
+- 화면 나누기: `adb shell input swipe 2545 717 1700 717 1500`, 되돌리기 `adb shell input swipe 1705 717 2545 717 1500`
+- 손잡이를 끄는 동안 Pleos가 앱을 흐리게 그림 → 빠르게 끌거나 그 부분을 짧게 자름
 
 ## 숏폼(선택, 30초)
 
 "뒷좌석 아이가 멀미하는 순간" 실사 한 컷 → 앱이 회전 전에 말하고 바람을 바꾸는 장면 → "#HMG차량용앱개발공모전". 차량 내외부 이미지 노출은 최소화.
+
+- 해시태그: 공모전 공식 이름은 "현대자동차그룹 차량용 앱 개발 공모전", 숏폼 안내의 필수 해시태그는 `#HMG차량용앱개발공모전` (10.28 설명회 정리 기준, 접수 전 공지 다시 확인)

@@ -31,7 +31,7 @@
     "style": "smooth",
     "duration_s": 473,
     "distance_m": 5208,
-    "turns": 0,
+    "turns": 25,
     "stops": 0,
     "cabin": {
       "temp": 26.0,
@@ -44,7 +44,7 @@
     "style": "rough",
     "duration_s": 372,
     "distance_m": 5208,
-    "turns": 0,
+    "turns": 25,
     "stops": 0,
     "cabin": {
       "temp": 26.0,

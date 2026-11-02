@@ -115,13 +115,14 @@ class NaviGuide(context: Context, private val log: (String) -> Unit) {
     }
 
     /** Adds the closest demo rest stop as the first waypoint. */
-    fun addRestStop(lat: Double?, lon: Double?) {
-        val here = if (lat != null && lon != null) lat to lon else 37.5 to 127.0
-        val stop = restStops.minBy { distanceKm(here.first, here.second, it.lat, it.lon) }
-        runCatching {
+    /** Adds the rest stop nearest to the car; false when the position is unknown or the navigation refuses. */
+    fun addRestStop(lat: Double?, lon: Double?): Boolean {
+        if (lat == null || lon == null || !lat.isFinite() || !lon.isFinite()) { log("위치를 몰라 휴게소를 넣지 못했어요"); return false }
+        val stop = restStops.minBy { distanceKm(lat, lon, it.lat, it.lon) }
+        return runCatching {
             navi.addWaypoint(RequestWaypointInfo(stop.lat, stop.lon, stop.name, WaypointIndex.FIRST, "", "", "", ""))
             log("경유지 추가 요청: ${stop.name}")
-        }.onFailure { log("경유지 추가 실패: ${it.message}") }
+        }.onFailure { log("경유지 추가 실패: ${it.message}") }.isSuccess
     }
 
     /**

@@ -67,12 +67,41 @@ def summarize(name, rows):
         "scenario": name, "minutes": round(n / 60, 1),
         "mean_index": round(sum(idx) / n, 3), "max_index": round(max(idx), 3),
         "dose": round(rows[-1][1]["dose"], 1),
-        "dose_per_min": round(rows[-1][1]["dose"] / (n / 60) ** 0.5, 2),
+        # D grows like sqrt(time) at a steady motion level, so compare D / sqrt(minutes)
+        "dose_per_sqrt_min": round(rows[-1][1]["dose"] / (n / 60) ** 0.5, 2),
         "caution_s": states.count("CAUTION"), "high_s": states.count("HIGH"),
         "cues": sum(a.startswith("CUE_") for a in acts), "hvac": acts.count("HVAC_FRESH"),
         "tts": acts.count("TTS_DRIVER"), "rest_stop": acts.count("SUGGEST_REST_STOP"),
         "min_m": round(min(o["m"] for _, o in rows), 3), "end_m": round(rows[-1][1]["m"], 3),
     }
+
+
+def cue_timing(rows):
+    """Per guidance point (turn or bend): the cues it got and how many seconds before the car
+    passed it (next_turn_m reaches 0, jumps to the next point, or guidance ends)."""
+    passes, prev = [], -1
+    for s, _ in rows:
+        m = s["next_turn_m"]
+        if prev >= 0 and (m < 0 or m > prev + 20 or (m == 0 and prev != 0)):
+            passes.append(s["t"])
+        prev = m
+    per_turn = {}
+    for s, o in rows:
+        if any(a.startswith("CUE_") for a in o["actions"]):
+            tp = next((p for p in passes if p >= s["t"]), None)
+            per_turn.setdefault(tp, []).append(None if tp is None else tp - s["t"])
+    return per_turn
+
+
+def red_light_stops(rows):
+    """Guidance points where the car waited >= 3 s with the turn < 40 m ahead."""
+    n, stopped, prev = 0, 0, False
+    for s, _ in rows:
+        stopped = stopped + 1 if s["speed"] < 0.5 else 0
+        hit = stopped >= 3 and 0 <= s["next_turn_m"] < 40
+        n += hit and not prev
+        prev = hit if s["speed"] < 0.5 else False
+    return n
 
 
 def chart(name, rows, path):
@@ -109,21 +138,27 @@ def chart(name, rows, path):
     path.write_text("\n".join(svg))
 
 
-def write_test_vectors(name, rows, limit=300):
+def write_test_vectors(segments):
+    """Parity vectors for the Kotlin engine (EngineTest). Each segment starts at t=0 of its
+    scenario (the engine is reset per scenario) and covers different code paths:
+    alerts + closed-loop cabin, red-light stops + turn signals + cues, and the
+    HIGH -> CAUTION -> NORMAL exits."""
     with open(ROOT / "shared" / "test_vectors.csv", "w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["scenario", "t", "speed", "bearing", "turn_signal", "next_turn_m", "next_turn_dir",
                     "cabin_temp", "recirc", "window_open", "ax", "ay", "index", "dose", "m", "state", "actions"])
-        for s, o in rows[:limit]:
-            w.writerow([name, int(s["t"]), s["speed"], s["bearing"], s["turn_signal"], int(s["next_turn_m"]),
-                        s["next_turn_dir"], f"{s['cabin_temp']:.4f}", s["recirc"], s["window_open"],
-                        f"{o['ax']:.6f}", f"{o['ay']:.6f}", f"{o['index']:.6f}", f"{o['dose']:.6f}",
-                        f"{o['m']:.6f}", o["state"], "|".join(o["actions"])])
+        for name, rows, limit in segments:
+            for s, o in rows[:limit]:
+                w.writerow([name, int(s["t"]), s["speed"], s["bearing"], s["turn_signal"], int(s["next_turn_m"]),
+                            s["next_turn_dir"], f"{s['cabin_temp']:.4f}", s["recirc"], s["window_open"],
+                            f"{o['ax']:.6f}", f"{o['ay']:.6f}", f"{o['index']:.6f}", f"{o['dose']:.6f}",
+                            f"{o['m']:.6f}", o["state"], "|".join(o["actions"])])
 
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    names = [m["name"] for m in json.loads((SCN / "scenarios.json").read_text())]
+    meta = {m["name"]: m for m in json.loads((SCN / "scenarios.json").read_text())}
+    names = list(meta)
     results, summaries = {}, []
     for name in names:
         rows = run(name)
@@ -141,7 +176,7 @@ def main():
         print(f"{s['scenario']:26} {s['minutes']:5} min  I mean {s['mean_index']:.2f} max {s['max_index']:.2f}  "
               f"D {s['dose']:6.1f}  caution {s['caution_s']:4d}s high {s['high_s']:4d}s  cues {s['cues']}  hvac {s['hvac']}  m {s['min_m']}→{s['end_m']}")
 
-    # family mode on scenario D: same ride, two passengers
+    # family mode on scenario D: same ride, two passengers (illustrative profiles)
     tau_minjun = personal_threshold(P, [20, 22, 24, 21, 23, 22, 25, 20, 24, 23])
     tau_seoyeon = personal_threshold(P, [45, 48, 44])
     first = {}
@@ -150,22 +185,52 @@ def main():
             if sickness_probability(P, o["dose"], tau, o["m"]) >= 0.5:
                 first[who] = int(s["t"])
                 break
-    print(f"family D: tau 민준 {tau_minjun:.1f}, 서연 {tau_seoyeon:.1f}; P>=0.5 at {first or 'never'} (s)")
+    print(f"family D (예시 프로필): tau 민준 {tau_minjun:.1f}, 서연 {tau_seoyeon:.1f}; P>=0.5 at {first or 'never'} (s)"
+          " — 기준선이 낮은 아이가 먼저인 것은 정의상 당연, 검증 아님")
+    # behaviour check, mirrors core FamilyMonitor: follows the weakest passenger, fires once at P >= 0.5
+    tau_family = min(tau_minjun, tau_seoyeon)
+    fired, fam_alerts = False, []
+    for s, o in results["D_family"]:
+        if not fired and sickness_probability(P, o["dose"], tau_family, o["m"]) >= 0.5:
+            fired = True
+            fam_alerts.append(int(s["t"]))
+    first_high = next((int(s["t"]) for s, o in results["D_family"] if o["state"] == "HIGH"), None)
+    print(f"family D: FamilyMonitor alert at {fam_alerts} s, index-only HIGH at {first_high} s")
 
-    write_test_vectors("B_winding_rough", results["B_winding_rough"])
+    # cue timing: every guidance point gets a cue 2-15 s before the car passes it; the only extra
+    # cue allowed is the one after a red light right before the turn
+    cue_ok, cue_lines = {}, []
+    for name in names:
+        turns = meta[name]["turns"]
+        if not turns:
+            continue
+        per_turn = cue_timing(results[name])
+        last = [leads[-1] for leads in per_turn.values()]
+        extra = sum(len(v) - 1 for v in per_turn.values())
+        stops = red_light_stops(results[name])
+        cue_ok[name] = (len(per_turn) == turns and all(x is not None and 2 <= x <= 15 for x in last)
+                        and extra <= stops)
+        cue_lines.append(f"  {name:18} turns {turns:2d} cued {len(per_turn):2d}  lead {min(last)}–{max(last)} s"
+                         f"  red-light re-cues {extra} (stops at a turn {stops})")
+    print("cue timing (s before passing the turn):")
+    print("\n".join(cue_lines))
+
+    write_test_vectors([("B_winding_rough", results["B_winding_rough"], 300),
+                        ("A_city_rough", results["A_city_rough"], 261),
+                        ("D_family_no_app", run("D_family", react=False), 1601)])
 
     # gate G2: sanity checks
     checks = [
         ("order C < A < B (smooth)", S["C_highway"]["mean_index"] < S["A_city_smooth"]["mean_index"] < S["B_winding_smooth"]["mean_index"]),
         ("order C < A < B (rough)", S["C_highway"]["mean_index"] < S["A_city_rough"]["mean_index"] < S["B_winding_rough"]["mean_index"]),
-        ("rough > smooth (city)", S["A_city_rough"]["dose_per_min"] > S["A_city_smooth"]["dose_per_min"]),
-        ("rough > smooth (winding)", S["B_winding_rough"]["dose_per_min"] > S["B_winding_smooth"]["dose_per_min"]),
+        ("rough > smooth (city)", S["A_city_rough"]["dose_per_sqrt_min"] > S["A_city_smooth"]["dose_per_sqrt_min"]),
+        ("rough > smooth (winding)", S["B_winding_rough"]["dose_per_sqrt_min"] > S["B_winding_smooth"]["dose_per_sqrt_min"]),
         ("highway never alerts", S["C_highway"]["caution_s"] + S["C_highway"]["high_s"] == 0),
         ("winding rough reaches HIGH", S["B_winding_rough"]["high_s"] > 0),
         ("closed loop: m recovers after fresh air", S["B_winding_rough"]["end_m"] >= 0.95 and S["B_winding_rough"]["hvac"] >= 1),
         ("no app: m stays low", no_app["end_m"] < 0.85),
-        ("every city turn gets one cue", S["A_city_rough"]["cues"] == 4 and S["A_city_smooth"]["cues"] == 4),
-        ("family: 민준 before 서연", "민준" in first and ("서연" not in first or first["민준"] < first["서연"])),
+        ("every turn and bend cued 2–15 s ahead", bool(cue_ok) and all(cue_ok.values())),
+        ("family alert once, before index HIGH", len(fam_alerts) == 1 and (first_high is None or fam_alerts[0] < first_high)),
     ]
     ok = True
     print("\nG2 checks")

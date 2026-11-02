@@ -16,8 +16,8 @@
 <rect x="680.0" y="120.0" width="100.0" height="64.0" rx="12" fill="#F5F3FF"/>
 <text x="730.0" y="157.0" font-size="14" fill="#5B21B6" text-anchor="middle" font-weight="700">판단</text>
 <rect x="810.0" y="120.0" width="130.0" height="64.0" rx="12" fill="#ECFDF5"/>
-<text x="875.0" y="149.0" font-size="13" fill="#065F46" text-anchor="middle" font-weight="700">편안 · 주의 · 위험</text>
-<text x="875.0" y="168.0" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">아이별 확률 P</text>
+<text x="875.0" y="149.0" font-size="14" fill="#065F46" text-anchor="middle" font-weight="700">흔들림 단계</text>
+<text x="875.0" y="168.0" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">멀미 가능성 P (아이별)</text>
 <polyline points="154.0,152.0 176.0,152.0" fill="none" stroke="#6B6E86" stroke-width="2.5" stroke-linejoin="round"/>
 <path d="M176.0 152.0 L166.1 156.8 L166.1 147.2 Z" fill="#6B6E86"/>
 <polyline points="314.0,152.0 336.0,152.0" fill="none" stroke="#6B6E86" stroke-width="2.5" stroke-linejoin="round"/>

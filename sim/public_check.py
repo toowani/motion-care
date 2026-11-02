@@ -95,10 +95,15 @@ def stats(label, samples, skip=15):
             "alert_s": sum(x["state"] != "NORMAL" for x in o)}
 
 
+REAL = "comma2k19 실제 고속도로 (45초)"
+SIM_SAME = "시뮬 C 고속도로 (같은 45초)"
+
+
 def main():
     real = real_samples()
-    rows = [stats("comma2k19 실제 고속도로 (1분)", real),
-            stats("시뮬 C 고속도로 (같은 길이)", sim_samples("C_highway")[200:200 + len(real)]),
+    # the clip is 60 s; the first 15 s settle the filters, so 45 s are scored on both sides
+    rows = [stats(REAL, real),
+            stats(SIM_SAME, sim_samples("C_highway")[200:200 + len(real)]),
             stats("시뮬 C 고속도로 (전체)", sim_samples("C_highway")),
             stats("시뮬 A 도심 거칠게", sim_samples("A_city_rough")),
             stats("시뮬 B 굽은 길 거칠게", sim_samples("B_winding_rough"))]
@@ -111,9 +116,16 @@ def main():
         print(f"{r['source']:28} {r['seconds']:4d}s  {r['mean_speed_kmh']:6.1f} km/h  P95 |ax| {r['p95_ax']:.2f}  "
               f"P95 |ay| {r['p95_ay']:.2f}  I mean {r['mean_index']:.2f} max {r['max_index']:.2f}  alert {r['alert_s']}s")
     real_r, sim_r = rows[0], rows[1]
-    for k in ("p95_ax", "p95_ay"):
-        ratio = sim_r[k] / real_r[k] if real_r[k] else float("inf")
-        print(f"{k}: sim/real = {ratio:.2f}  ({'PASS' if 0.5 <= ratio <= 2 else 'CHECK'}: 0.5–2 범위)")
+    # same length on both sides: the index of a short clip is lower (zero-padded 60 s window),
+    # so the real clip is compared with an equally long sim clip, not with the whole sim ride
+    n = real_r["seconds"]
+    ax = sim_r["p95_ax"] / real_r["p95_ax"]
+    print(f"같은 길이 {n}초 비교 (시뮬/실제):")
+    print(f"  P95 |ax|  {real_r['p95_ax']:.2f} vs {sim_r['p95_ax']:.2f}  = {ax:.2f}배  "
+          f"({'PASS' if 0.5 <= ax <= 2 else 'FAIL'}: 0.5–2배)")
+    print(f"  I 평균    {real_r['mean_index']:.2f} vs {sim_r['mean_index']:.2f}  = "
+          f"{sim_r['mean_index'] / real_r['mean_index']:.2f}배  (둘 다 주의 기준 {P['thetaCaution']} 아래)")
+    print(f"  P95 |ay|  {real_r['p95_ay']:.2f} vs {sim_r['p95_ay']:.2f}  비교 불가: 직선 구간")
 
 
 if __name__ == "__main__":

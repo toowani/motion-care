@@ -40,6 +40,8 @@ class MainActivity : Activity(), HomeView.Callbacks {
     private var resumed = false
     private var bound = false
     private var pendingRoute: Triple<Double, Double, String>? = null
+    /** Debug: scenario to replay once the service is up (name, from second, speed). */
+    private var pendingReplay: Triple<String, Double, Float>? = null
     private var askedPermissions = false
     /** Last region reported to the Pleos navigation; empty = none. */
     private var region = Rect()
@@ -52,7 +54,7 @@ class MainActivity : Activity(), HomeView.Callbacks {
             home.update(s, o, s.nextTurnM, risk.p)
         }
         override fun onRoute(name: String?, track: DoubleArray?) = home.setRoute(name, track)
-        override fun onCue(left: Boolean, line: String) = home.showCue(line)
+        override fun onCue(left: Boolean, line: String) = home.showCue(left)
         override fun onFamily(on: Boolean, names: List<String>) = home.setFamily(on, names)
         override fun onFamilyProbabilities(values: List<Pair<String, Double>>) = home.setFamilyProbabilities(values)
         override fun onAction(msg: String) = home.showAction(msg)
@@ -60,7 +62,7 @@ class MainActivity : Activity(), HomeView.Callbacks {
         override fun onPrompt(question: String, answers: List<String>, answer: (Int) -> Unit) =
             home.prompt(question, answers.mapIndexed { i, label -> label to { answer(i) } })
         override fun onHidePrompt() = home.hidePrompt()
-        override fun onSummary(minutes: Int, cues: Int, airs: Int, peak: Float) = home.updateSummary(minutes, cues, airs, peak)
+        override fun onSummary(minutes: Int, cues: Int, airs: Int, peak: ai.motioncare.app.theme.Mood) = home.updateSummary(minutes, cues, airs, peak)
     }
 
     private val connection = object : ServiceConnection {
@@ -76,6 +78,8 @@ class MainActivity : Activity(), HomeView.Callbacks {
             if (resumed && panel.visibility != View.VISIBLE) s.attach(screen)
             pendingRoute?.let { (lat, lon, n) -> home.postDelayed({ s.routeTo(lat, lon, n) }, 3000) }
             pendingRoute = null
+            pendingReplay?.let { (f, from, speed) -> s.startScenario(f, from, speed) }
+            pendingReplay = null
             reportRegion()
         }
         override fun onServiceDisconnected(name: ComponentName?) { service = null }
@@ -100,13 +104,31 @@ class MainActivity : Activity(), HomeView.Callbacks {
         if (settings.onboarded) panel.visibility = View.GONE else onSettingsShown(first = true)
         watchDrivingRestrictions()
 
-        // debug/QA: --es route_to "lat,lon,name" requests a route; --es theme toon; --ez skip_welcome true
+        // debug/QA: --es route_to "lat,lon,name" requests a route; --es theme toon; --ez skip_welcome true;
+        // --es replay D_family [--ei replay_from 880] [--ef replay_speed 2] starts a scenario replay
         if (BuildConfig.DEBUG) {
+            readReplay(intent)
             intent.getStringExtra("route_to")?.split(",")?.takeIf { it.size == 3 }?.let { (lat, lon, n) -> pendingRoute = Triple(lat.toDouble(), lon.toDouble(), n) }
             intent.getStringExtra("theme")?.let { id -> settings.themeId = id; home.setTheme(MoodThemes.byId(id)) }
             if (intent.getBooleanExtra("skip_welcome", false)) closeSettings()
         }
         startTrip()
+    }
+
+    /** Debug: a replay request also reaches an already running screen. */
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (!BuildConfig.DEBUG) return
+        readReplay(intent)
+        val s = service ?: return
+        pendingReplay?.let { (f, from, speed) -> s.startScenario(f, from, speed) }
+        pendingReplay = null
+    }
+
+    private fun readReplay(intent: Intent) {
+        val f = intent.getStringExtra("replay") ?: return
+        pendingReplay = Triple(f, intent.getIntExtra("replay_from", 0).toDouble(), intent.getFloatExtra("replay_speed", 4f).coerceIn(0.25f, 32f))
     }
 
     override fun onResume() {

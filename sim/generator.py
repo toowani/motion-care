@@ -50,7 +50,8 @@ VLIM_KMH = {"city": 50, "arterial": 60, "winding": 60, "ramp": 60}
 # of 고속도로; unnamed steps on an expressway route are ramps), with per-name overrides.
 ROADS = {
     "city": {"title": "강남 테헤란로", "dest": "선릉역", "default": "city", "seed": 1, "stops": 6},
-    "winding": {"title": "북악스카이웨이", "dest": "성북동 대사관로", "default": "winding", "seed": 2, "stops": 0},
+    "winding": {"title": "북악스카이웨이", "dest": "성북동 대사관로", "default": "winding", "seed": 2, "stops": 0,
+                "bends": True},
     "highway": {"title": "경부고속도로", "dest": "수원신갈IC", "default": "expressway", "seed": 3, "stops": 0},
     "family": {"title": "경부고속도로 → 남한산성로", "dest": "남한산성", "default": "expressway", "seed": 4, "stops": 3,
                "names": {"헌릉로": "arterial", "수정로": "city", "남한산성로": "winding"}},
@@ -60,7 +61,14 @@ TURN_TEXT = {
     "TURN_LEFT": "좌회전", "TURN_RIGHT": "우회전", "TURN_STRAIGHT": "직진", "TURN_KEEP_L": "왼쪽 방향",
     "TURN_KEEP_R": "오른쪽 방향", "TURN_UTURN": "유턴", "TURN_ENTER_IC_R": "고속도로 진입",
     "TURN_EXIT_IC_R": "오른쪽 출구", "TURN_ARRIVE": "도착",
+    "TURN_CURVE_L": "왼쪽 커브", "TURN_CURVE_R": "오른쪽 커브",
 }
+
+# bend cues on winding roads: heading change above BEND_DEG within BEND_SPAN_M; a bend that
+# starts within BEND_GAP_M of the previous one belongs to the same S-sequence and gets no cue
+BEND_DEG = 45.0
+BEND_SPAN_M = 150.0
+BEND_GAP_M = 60.0
 
 
 # ---------- geometry ----------
@@ -180,9 +188,9 @@ def turn_type(m_type, modifier):
 
 
 def turn_dir(ttype):
-    if ttype in ("TURN_LEFT", "TURN_KEEP_L", "TURN_UTURN"):
+    if ttype in ("TURN_LEFT", "TURN_KEEP_L", "TURN_UTURN", "TURN_CURVE_L"):
         return "L"
-    if ttype in ("TURN_RIGHT", "TURN_KEEP_R", "TURN_ENTER_IC_R", "TURN_EXIT_IC_R"):
+    if ttype in ("TURN_RIGHT", "TURN_KEEP_R", "TURN_ENTER_IC_R", "TURN_EXIT_IC_R", "TURN_CURVE_R"):
         return "R"
     return ""
 
@@ -212,6 +220,36 @@ def step_kind(road, st):
     if road["default"] == "expressway":
         return "ramp" if not st["name"] else "city"
     return road["default"]
+
+
+def find_bends(hdg, curv):
+    """Bends (not junctions) worth a cue: the heading turns more than BEND_DEG within
+    BEND_SPAN_M. Returns (entry index, 'L'/'R'); the entry is where the curvature first
+    reaches 30 % of the bend's peak, so the cue comes before the car starts to turn."""
+    n, half = len(hdg), int(BEND_SPAN_M / DS / 2)
+    cum = [0.0]
+    for i in range(1, n):
+        cum.append(cum[-1] + wrap_pi(hdg[i] - hdg[i - 1]))
+    delta = [cum[min(n - 1, i + half)] - cum[max(0, i - half)] for i in range(n)]
+    th = math.radians(BEND_DEG)
+    bends, i = [], 0
+    while i < n:
+        if abs(delta[i]) <= th:
+            i += 1
+            continue
+        sign = 1 if delta[i] > 0 else -1
+        j = i
+        while j < n and delta[j] * sign > th:
+            j += 1
+        apex = max(range(i, j), key=lambda k: abs(delta[k]))
+        lo, hi = max(0, apex - half), min(n - 1, apex + half)
+        peak = max(curv[k] * sign for k in range(lo, hi + 1))
+        entry = next(k for k in range(lo, hi + 1) if curv[k] * sign >= 0.3 * peak)
+        # math heading grows counter-clockwise: a positive change is a left bend
+        if not bends or entry - bends[-1][0] > BEND_GAP_M / DS:
+            bends.append((entry, "L" if sign > 0 else "R"))
+        i = j
+    return bends
 
 
 # ---------- one road: geometry, speed limits, maneuvers, stops ----------
@@ -306,6 +344,12 @@ def load_road(key):
         ttype = turn_type(m["type"], m.get("modifier"))
         maneuvers.append({"i": to_s[j], "type": ttype, "dir": turn_dir(ttype), "osrm": m["type"],
                           "road": "" if ttype == "TURN_ARRIVE" else step_road([x[1] for x in located], n)})
+    if road.get("bends"):
+        for bi, d in find_bends(hdg, curv):
+            if all(abs(bi - m["i"]) > BEND_GAP_M / DS for m in maneuvers):
+                ttype = "TURN_CURVE_L" if d == "L" else "TURN_CURVE_R"
+                maneuvers.append({"i": bi, "type": ttype, "dir": d, "osrm": "bend", "road": "", "bend": True})
+        maneuvers.sort(key=lambda m: m["i"])
 
     # traffic-light stops: a seeded subset of real signalised-looking intersections
     # (4+ ways) on surface streets, about 12 m before the junction, at least 100 m apart
@@ -397,8 +441,11 @@ def build(name, R, style_name, cabin, seed):
     v = speed_profile(R["curv"], R["vlim"], stops, style)
     knots = timeline(v, stops)
     total = knots[-1][0]
-    # turns the driver signals for: a short window around each real maneuver
-    turns = [(max(0, m["i"] - 8), m["i"] + 8, m["dir"], m["i"]) for m in R["maneuvers"] if m["dir"]]
+    # guidance points: a short window around each real maneuver (the driver signals for it)
+    # and each bend on a winding road (navigation announces it, but bends are not junctions:
+    # nobody uses the indicator)
+    turns = [(max(0, m["i"] - 8), m["i"] + 8, m["dir"], m["i"], not m.get("bend"))
+             for m in R["maneuvers"] if m["dir"]]
     rows = []
     prev_s = None
     for sec in range(int(total) + 1):
@@ -408,14 +455,14 @@ def build(name, R, style_name, cabin, seed):
         speed = 0.0 if prev_s is not None and abs(s - prev_s) < 1e-6 else v[i]
         prev_s = s
         # navigation guidance and turn signal
-        nxt = next(((a, b, d, mi) for a, b, d, mi in turns if b > i), None)
+        nxt = next((tn for tn in turns if tn[1] > i), None)
         next_m, next_dir, signal = -1, "", "OFF"
         if nxt:
-            a, b, d, mi = nxt
+            a, b, d, mi, signals = nxt
             dist = max(0.0, (mi - i) * DS)      # to the maneuver itself, as route.json steps measure it
             if dist <= 1000:
                 next_m, next_dir = round(dist), d
-            if i >= a or (a - i) * DS <= max(30.0, speed * 4.0):
+            if signals and (i >= a or (a - i) * DS <= max(30.0, speed * 4.0)):
                 signal = "LEFT" if d == "L" else "RIGHT"
         # GPS-like noise (small: the map shows the car on the road)
         noisy_speed = max(0.0, speed + rng.gauss(0, 0.15)) if speed > 0 else 0.0

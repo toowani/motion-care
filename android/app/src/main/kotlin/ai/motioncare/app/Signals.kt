@@ -27,6 +27,16 @@ import android.util.Log
 
 private const val TAG = "MotionCare"
 private const val STEERING_STALE_MS = 3_000L
+/** VHAL SEAT_OCCUPANCY: 0 unknown, 1 vacant, 2 occupied. */
+private const val SEAT_OCCUPIED = 2
+private const val SEAT_VACANT = 1
+
+/**
+ * The Vehicle 2.3.2 SDK reports seat occupancy as `parseInt(v) == 1` (javap of SeatOccupancyListener's
+ * caller), but VHAL 1 means VACANT, so its Boolean is inverted: true = empty seat. Checked in the
+ * Virtual Console: "Occupied" publishes 2 (SDK false), "Empty" publishes 1 (SDK true).
+ */
+fun isOccupiedFromSdk(value: Boolean?): Boolean? = value?.let { !it }
 
 /** Where 1 Hz samples come from: the car (Pleos SDK) or a recorded/simulated scenario. */
 interface SignalSource {
@@ -54,23 +64,36 @@ class SimulatedCabin(private val setPoint: Double = 22.0) {
     }
 }
 
-/** Replays a scenario CSV in real time ([speedup] = 4 plays a 6-minute drive in 90 s). */
+/**
+ * Replays a scenario CSV ([speedup] = 4 plays a 6-minute drive in 90 s). Samples before [fromS]
+ * are not played but kept in [warmup] so the engine can catch up silently; all times are rebased
+ * so playback starts at t = 0.
+ */
 class ReplaySignalSource(
-    private val samples: List<Sample>,
-    private val speedup: Int,
+    samples: List<Sample>,
+    speedup: Float,
     private val cabin: SimulatedCabin,
+    fromS: Double = 0.0,
 ) : SignalSource {
     private val handler = Handler(Looper.getMainLooper())
+    private val periodMs = 1000.0 / speedup
+    private val rebased = samples.map { it.copy(t = it.t - fromS) }
+    val warmup: List<Sample> = rebased.filter { it.t < 0 }
+    private val play = rebased.filter { it.t >= 0 }
     private var i = 0
     private var running = false
 
     override fun start(onSample: (Sample) -> Unit) {
         running = true
+        val t0 = android.os.SystemClock.uptimeMillis()
         val tick = object : Runnable {
             override fun run() {
-                if (!running || i >= samples.size) return
-                onSample(cabin.apply(samples[i++]))
-                handler.postDelayed(this, 1000L / speedup)
+                if (!running || i >= play.size) return
+                val s = cabin.apply(play[i++])
+                if (BuildConfig.DEBUG) Log.d(TAG, "replay t=%.0f v=%.1f".format(s.t, s.speed))
+                onSample(s)
+                // fixed timetable instead of chained delays: no drift, so the map sees an even beat
+                handler.postAtTime(this, t0 + (i * periodMs).toLong())
             }
         }
         handler.post(tick)
@@ -92,6 +115,7 @@ class PleosSignalSource(
     private val context: Context,
     private val vehicle: Vehicle,
     private val nextTurn: () -> NaviGuide.NextTurn?,
+    /** true: someone sat down in the back (or was there from the start); false: the back seats emptied. */
     private val onRearOccupied: (Boolean) -> Unit,
 ) : SignalSource {
     private val handler = Handler(Looper.getMainLooper())
@@ -115,11 +139,55 @@ class PleosSignalSource(
         private set
     @Volatile var lon: Double? = null
         private set
+    private var props: CarPropertyManager? = null
+    // rear seats: raw VHAL reads every 2 s; the SDK listener is the fallback when they are not allowed
+    private val rearAreas = intArrayOf(android.car.VehicleAreaSeat.SEAT_ROW_2_LEFT, android.car.VehicleAreaSeat.SEAT_ROW_2_CENTER, android.car.VehicleAreaSeat.SEAT_ROW_2_RIGHT)
+    private var rawSeats = true
+    private val seatLast = mutableMapOf<Int, Boolean>()
+    private val seatRun = mutableMapOf<Int, Int>()
+    private val boarded = mutableSetOf<Int>()
     // one listener per seat: the SDK keeps only the last area registered for a given listener object
-    private val rearSeats = listOf(SeatArea(SeatValue.ROW_2_LEFT), SeatArea(SeatValue.ROW_2_RIGHT)).associateWith {
-        object : SeatOccupancyListener {
-            override fun onSeatOccupancyUpdated(value: Boolean?) { if (value == true) handler.post { onRearOccupied(true) } }
+    private val rearSeats = listOf(SeatValue.ROW_2_LEFT to rearAreas[0], SeatValue.ROW_2_RIGHT to rearAreas[2]).associate { (v, area) ->
+        SeatArea(v) to object : SeatOccupancyListener {
+            override fun onSeatOccupancyUpdated(value: Boolean?) {
+                Log.i(TAG, "seat $area SDK value=$value")
+                handler.post { seatRead(area, isOccupiedFromSdk(value)) }
+            }
             override fun onFailed(e: Exception) { Log.w(TAG, "seat occupancy", e) }
+        }
+    }
+
+    /**
+     * Debounced boarding: the first read after registration only sets a baseline; vacant → occupied
+     * counts at once, an occupant already there needs a second occupied read in a row.
+     */
+    private fun seatRead(area: Int, occupied: Boolean?) {
+        if (occupied == null) return
+        val prev = seatLast.put(area, occupied)
+        seatRun[area] = if (occupied) (seatRun[area] ?: 0) + 1 else 0
+        if (!occupied && prev == true && boarded.remove(area) && boarded.isEmpty()) onRearOccupied(false)
+        if (occupied && area !in boarded && (prev == false || (seatRun[area] ?: 0) >= 2)) {
+            val first = boarded.isEmpty()
+            boarded += area
+            if (first) onRearOccupied(true)
+        }
+    }
+
+    private fun pollSeats() {
+        val mgr = props ?: return
+        if (!rawSeats) return
+        for (area in rearAreas) {
+            if (!rawSeats) return
+            val raw = runCatching { mgr.getIntProperty(VehiclePropertyIds.SEAT_OCCUPANCY, area) }
+                .onFailure { e ->
+                    if (e is SecurityException) {
+                        Log.w(TAG, "raw seat occupancy not allowed (${e.message}), using the SDK listener")
+                        rawSeats = false
+                        runCatching { rearSeats.forEach { (seat, l) -> vehicle.getSeat().registerSeatOccupancy(seat, l) } }
+                    }
+                }.getOrNull() ?: continue
+            if (seatLast[area] == null || seatLast[area] != (raw == SEAT_OCCUPIED)) Log.i(TAG, "seat $area raw=$raw")
+            seatRead(area, when (raw) { SEAT_OCCUPIED -> true; SEAT_VACANT -> false; else -> null })
         }
     }
 
@@ -186,8 +254,6 @@ class PleosSignalSource(
             vehicle.getTurnSignal().registerTurnSignalState(turnListener)
             val hvac = vehicle.getHVAC()
             hvac.registerHvacTemperatureCurrent(driverSeat, tempListener)
-            // a rear passenger on board is the cue to suggest family mode
-            rearSeats.forEach { (seat, l) -> vehicle.getSeat().registerSeatOccupancy(seat, l) }
             hvac.checkHvacRecirculationCapabilities({ areas: List<SeatArea> ->
                 val a = areas.firstOrNull() ?: driverSeat
                 recircArea = a
@@ -201,11 +267,15 @@ class PleosSignalSource(
         runCatching { vehicle.getSteeringWheel().registerSteeringWheelAngle(steeringListener) }
             .onFailure { Log.w(TAG, "steering listener", it) }
         runCatching {
-            car =Car.createCar(context).also { c ->
+            car = Car.createCar(context).also { c ->
                 val mgr = c.getCarManager(Car.PROPERTY_SERVICE) as CarPropertyManager
+                props = mgr
                 mgr.registerCallback(speedCallback, VehiclePropertyIds.PERF_VEHICLE_SPEED, CarPropertyManager.SENSOR_RATE_NORMAL)
             }
         }.onFailure { Log.w(TAG, "CarPropertyManager", it) }
+        // a rear passenger on board is the cue to suggest family mode
+        seatLast.clear(); seatRun.clear(); boarded.clear()
+        if (props == null) { rawSeats = false; runCatching { rearSeats.forEach { (seat, l) -> vehicle.getSeat().registerSeatOccupancy(seat, l) } } }
         runCatching {
             val lm = context.getSystemService(LocationManager::class.java)
             lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 0f, locationListener, Looper.getMainLooper())
@@ -220,6 +290,7 @@ class PleosSignalSource(
                 val heading = yaw.step(v, bearing, steer, dt = 1.0)
                 onSample(Sample(t, v, heading, signal, turn?.distanceM ?: -1.0, turn?.left ?: false, cabinTemp, recirc, false,
                     lat = lat ?: Double.NaN, lon = lon ?: Double.NaN))
+                if (t.toInt() % 2 == 0) pollSeats()
                 t += 1.0
                 handler.postDelayed(this, 1000L)
             }

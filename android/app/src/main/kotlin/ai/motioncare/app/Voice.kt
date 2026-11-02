@@ -131,6 +131,14 @@ class Voice(private val context: Context, private val log: (String) -> Unit) {
         main.postDelayed({ if (id == askSeq) giveUpListening() }, 10_000)
     }
 
+    /** Withdraws an unanswered question: its timers stop, a late answer is ignored and the microphone closes. */
+    fun cancelAsk() {
+        askSeq++
+        onHeard = null
+        onNoVoice = null
+        runCatching { stt?.stop() }
+    }
+
     private fun giveUpListening() {
         val f = onNoVoice ?: return
         onHeard = null

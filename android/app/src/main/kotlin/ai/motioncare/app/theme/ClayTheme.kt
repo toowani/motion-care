@@ -34,7 +34,7 @@ object ClayTheme : MoodTheme {
     override val animated = true
 
     override fun label(mood: Mood): String = when (mood) {
-        Mood.CALM -> "몽글몽글 좋아"
+        Mood.CALM -> "몽글몽글"
         Mood.UNEASY -> "살짝 울렁"
         Mood.SICK -> "어질어질"
     }
@@ -182,11 +182,27 @@ object ClayTheme : MoodTheme {
     /** Canvas 2D shadowBlur (in box units) to a setShadowLayer radius with the same Gaussian sigma. */
     private fun blurR(b: Float): Float = max(0.05f, (b * 0.5f - 0.5f) / 0.57735f)
 
-    private fun radial(x: Float, y: Float, r: Float, colors: IntArray, stops: FloatArray?): Shader =
-        RadialGradient(x, y, max(r, 0.01f), colors, stops, CLAMP)
+    // shaders depend on mood colours and a few animated values only: reuse them instead of allocating per frame
+    private val shaders = object : LinkedHashMap<Long, Shader>(64, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<Long, Shader>?) = size > 96
+    }
 
-    private fun radial2(x: Float, y: Float, r: Float, c0: Int, c1: Int): Shader =
-        RadialGradient(x, y, max(r, 0.01f), c0, c1, CLAMP)
+    private fun key(kind: Int, a: Float, b: Float, c: Float, d: Float, colors: IntArray, stops: FloatArray?): Long {
+        var h = kind.toLong()
+        h = h * 1_000_003L + a.toRawBits(); h = h * 1_000_003L + b.toRawBits()
+        h = h * 1_000_003L + c.toRawBits(); h = h * 1_000_003L + d.toRawBits()
+        for (col in colors) h = h * 1_000_003L + col
+        if (stops != null) for (f in stops) h = h * 1_000_003L + f.toRawBits()
+        return h
+    }
+
+    private fun radial(x: Float, y: Float, r: Float, colors: IntArray, stops: FloatArray?): Shader =
+        shaders.getOrPut(key(1, x, y, r, 0f, colors, stops)) { RadialGradient(x, y, max(r, 0.01f), colors, stops, CLAMP) }
+
+    private fun radial2(x: Float, y: Float, r: Float, c0: Int, c1: Int): Shader = radial(x, y, r, intArrayOf(c0, c1), null)
+
+    private fun linear(x0: Float, y0: Float, x1: Float, y1: Float, colors: IntArray, stops: FloatArray? = null): Shader =
+        shaders.getOrPut(key(2, x0, y0, x1, y1, colors, stops)) { LinearGradient(x0, y0, x1, y1, colors, stops, CLAMP) }
 
     private fun shaded(sh: Shader): Paint {
         fill.color = Color.BLACK
@@ -306,7 +322,7 @@ object ClayTheme : MoodTheme {
         if (mood != Mood.SICK) press(c, 20f, -49f, 5.4f, 3.6f, 0.6f)
         // ambient occlusion at the base
         c.drawRect(-40f, -17f, 40f, 2f,
-            shaded(LinearGradient(0f, -16f, 0f, 1f, rgba(deep, 0f), rgba(deep, 0.38f), CLAMP)))
+            shaded(linear(0f, -16f, 0f, 1f, intArrayOf(rgba(deep, 0f), rgba(deep, 0.38f)))))
         // inner occlusion: only the ring's blurred shadow lands inside the clip
         shadowFill.color = opaque(deep)
         shadowFill.setShadowLayer(blurR(6f), 0f, -0.8f, rgba(deep, 0.30f))
@@ -390,7 +406,7 @@ object ClayTheme : MoodTheme {
             c.translate(29f, -43f + dy)
             c.scale(0.95f, 0.95f)
             c.drawPath(dropPath,
-                shaded(LinearGradient(0f, -6f, 0f, 6.6f, opaque(0xEEF4F6), opaque(0x9DB6C2), CLAMP)))
+                shaded(linear(0f, -6f, 0f, 6.6f, intArrayOf(opaque(0xEEF4F6), opaque(0x9DB6C2)))))
             oval(c, 0.8f, 4.2f, 2.6f, 1.6f, solid(rgba(0x7896A5, 0.35f)))
             oval(c, -1.3f, 1.4f, 0.9f, 1.4f, solid(rgba(WHITE, 0.85f)))
             c.restore()
@@ -495,8 +511,8 @@ object ClayTheme : MoodTheme {
             c.save()
             c.clipPath(bodyPath)
             stroke.color = Color.BLACK
-            stroke.shader = LinearGradient(0f, -55f, 0f, -44f,
-                rgba(0x5E7488, 0.45f + 0.15f * k), rgba(0x5E7488, 0f), CLAMP)
+            stroke.shader = linear(0f, -55f, 0f, -44f,
+                intArrayOf(rgba(0x5E7488, 0.45f + 0.15f * k), rgba(0x5E7488, 0f)))
             stroke.strokeWidth = 1.2f
             for (dx in floatArrayOf(-4f, 0f, 4f)) {
                 c.drawLine(dx - 6f, -54f + abs(dx) * 0.25f, dx - 6f, -44.5f, stroke)
@@ -573,9 +589,9 @@ object ClayTheme : MoodTheme {
         val sn = sin(-rot)
         val lx = -0.6f * cs + 0.8f * sn
         val ly = -0.6f * sn - 0.8f * cs
-        oval(c, 0f, 0f, rx, ry, shaded(LinearGradient(lx * rx, ly * ry, -lx * rx, -ly * ry,
+        oval(c, 0f, 0f, rx, ry, shaded(linear(lx * rx, ly * ry, -lx * rx, -ly * ry,
             intArrayOf(rgba(deep, 0.20f), rgba(deep, 0.07f), rgba(LIP, 0f), rgba(LIP, 0.34f)),
-            floatArrayOf(0f, 0.35f, 0.6f, 1f), CLAMP)))
+            floatArrayOf(0f, 0.35f, 0.6f, 1f))))
         // raised lip pushed out on the lit outer side
         val hx = lx * rx * 1.05f
         val hy = ly * ry * 1.05f

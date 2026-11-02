@@ -11,6 +11,12 @@ enum class Mood { CALM, UNEASY, SICK;
             AlertState.CAUTION -> UNEASY
             AlertState.HIGH -> SICK
         }
+
+        /**
+         * The face as shown: the shake now, but never red while the chance of sickness is still low
+         * (a red face next to a green "낮음" gauge read as a contradiction).
+         */
+        fun shown(state: AlertState, p: Double) = of(state).let { if (it == SICK && p < 0.25) UNEASY else it }
     }
 }
 

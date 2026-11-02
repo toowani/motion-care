@@ -31,9 +31,9 @@ object IdolTheme : MoodTheme {
     override val animated: Boolean = true
 
     override fun label(mood: Mood): String = when (mood) {
-        Mood.CALM -> "루미랑 신나게"
-        Mood.UNEASY -> "루미가 걱정해"
-        Mood.SICK -> "같이 쉬어 가요"
+        Mood.CALM -> "신나게"
+        Mood.UNEASY -> "걱정해"
+        Mood.SICK -> "쉬어 가요"
     }
 
     override fun cueLine(left: Boolean): String =

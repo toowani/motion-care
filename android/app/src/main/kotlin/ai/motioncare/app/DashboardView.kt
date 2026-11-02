@@ -12,7 +12,6 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.util.Log
 import android.view.View
-import kotlin.math.roundToInt
 
 private const val TAG = "MotionCare"
 
@@ -38,6 +37,8 @@ class DashboardView(context: Context) : View(context) {
     private val stroke = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE; strokeWidth = 4f }
     private val fill = Paint(Paint.ANTI_ALIAS_FLAG)
     private val text = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = navy }
+    private val bigText = Paint(text).apply { textSize = context.dpf(24f); isFakeBoldText = true; textAlign = Paint.Align.LEFT }
+    private val linePath = Path()
     private val dash = DashPathEffect(floatArrayOf(14f, 10f), 0f)
 
     var mode: Mode = lastMode
@@ -138,7 +139,7 @@ class DashboardView(context: Context) : View(context) {
             else names.mapIndexed { k, name -> Triple(name, childColors[k % childColors.size], k) }
         legend(c, left, top - label * 0.8f, series.map { Triple(it.first, it.second, false) })
         if (points.size < 2) return
-        val big = Paint(text).apply { textSize = context.dpf(24f); isFakeBoldText = true; textAlign = Paint.Align.LEFT }
+        val big = bigText
         for ((name, color, k) in series) {
             fun p(i: Int): Double {
                 val r = points[i].r
@@ -148,12 +149,13 @@ class DashboardView(context: Context) : View(context) {
             // current value at the end of each line, large enough to read at a glance
             val v = p(points.size - 1)
             big.color = color
-            if (series.size == 1 || v >= 0.02) c.drawText("${(v * 100).roundToInt()}%", right + context.dpf(8f), y(v) + big.textSize / 3, big)
+            if (series.size == 1 || v >= 0.02) c.drawText("${ai.motioncare.app.ui.Ui.pct(v)}%", right + context.dpf(8f), y(v) + big.textSize / 3, big)
         }
     }
 
     private fun plot(c: Canvas, color: Int, width: Float, effect: DashPathEffect?, at: (Int) -> Pair<Float, Float>) {
-        val p = Path()
+        val p = linePath
+        p.rewind()
         for (i in points.indices) { val (px, py) = at(i); if (i == 0) p.moveTo(px, py) else p.lineTo(px, py) }
         stroke.color = color; stroke.strokeWidth = width; stroke.pathEffect = effect
         c.drawPath(p, stroke)

@@ -1,8 +1,9 @@
 """Reference engine (STEP 4). The Kotlin app/core must reproduce these numbers.
 
 Formulas (team page numbering):
-  1  a_x = dv/dt, a_y = v * dtheta/dt (EMA on v and yaw rate), low-frequency = a - mean(last 10 s)
-  2  dose D = sqrt(sum (wX ax^2 + wY ay^2) dt), index I = RMS over last 60 s
+  1  a_x = dv/dt, a_y = v * dtheta/dt (EMA on v and yaw rate), low-frequency = a - mean(last 10 s):
+     1 Hz samples hold up to 0.5 Hz, the 10 s mean removes below 0.1 Hz, so only 0.1-0.5 Hz sway is accumulated
+  2  dose D = sqrt(sum (wX ax^2 + wY ay^2) dt), index I = RMS over last 60 s (zero-padded window)
   3  cabin factor m = 1 - gT*max(0, T - T0) - gV*min(1, t_recirc/3600), floor 0.6
   4  cue distance = v * (say + prepare)
   5  personal threshold tau = (n*meanD + n0*tau0) / (n + n0), P = sigmoid((D - tau)/s)
@@ -61,7 +62,9 @@ class SicknessIndex:
         e = self.wx * ax * ax + self.wy * ay * ay
         self.win.append(e)
         self.dose_sq += e * dt
-        return math.sqrt(sum(self.win) / len(self.win)), math.sqrt(self.dose_sq)
+        # fixed denominator (the window is zero-padded at start-up): dividing by len(win)
+        # let the first few samples of a ride inflate I into a false early alert
+        return math.sqrt(sum(self.win) / self.win.maxlen), math.sqrt(self.dose_sq)
 
 
 class CabinFactor:
@@ -120,18 +123,35 @@ class AlertMachine:
 
 
 class CueScheduler:
-    """Speak once per upcoming turn: on turn-signal rising edge or when the turn is within v*(say+prepare)."""
+    """Speak once per upcoming turn: on turn-signal rising edge or when the turn is within v*(say+prepare).
+    A red light right before the turn (stopped >= 3 s with the turn < 40 m ahead) allows one more
+    cue on departure, so the passenger hears it a few seconds before the turn, not 40 s early."""
+
+    STOP_SPEED = 0.5      # m/s
+    STOP_HOLD_S = 3.0
+    STOP_NEAR_M = 40.0
 
     def __init__(self, p):
         self.lead = p["cueSayS"] + p["cuePrepareS"]
         self.prev_signal = "OFF"
         self.prev_next_m = -1
         self.armed = True
+        self.stopped_s = 0.0
+        self.recued = False
 
-    def step(self, speed, signal, next_m, next_dir):
-        # a new turn ahead (distance jumped up or guidance ended) re-arms the cue
-        if signal == "OFF" and (next_m < 0 or next_m > self.prev_next_m + 20):
+    def step(self, speed, signal, next_m, next_dir, dt=1.0):
+        # a new turn ahead (distance jumped up or guidance ended) re-arms the cue,
+        # whatever the indicator is doing (a lingering signal must not swallow the next cue)
+        if next_m < 0 or next_m > self.prev_next_m + 20:
             self.armed = True
+            self.recued = False
+        if speed < self.STOP_SPEED:
+            self.stopped_s += dt
+        else:
+            if self.stopped_s >= self.STOP_HOLD_S and 0 <= next_m < self.STOP_NEAR_M and not self.recued:
+                self.armed = True
+                self.recued = True
+            self.stopped_s = 0.0
         cue = None
         rising = signal != "OFF" and self.prev_signal == "OFF"
         near = 0 <= next_m <= max(15.0, speed * self.lead)
@@ -167,15 +187,28 @@ class Engine:
         self.alerts = AlertMachine(p)
         self.cues = CueScheduler(p)
         self.dt = 1.0 / p["sampleHz"]
+        self.last = {"speed": 0.0, "bearing": 0.0, "cabin_temp": p["cabinT0"]}
+
+    def _finite(self, s, key):
+        v = s[key]
+        if isinstance(v, float) and not math.isfinite(v):
+            return self.last[key]
+        self.last[key] = v
+        return v
 
     def step(self, s):
         dt = self.dt
+        # sensor dropouts arrive as NaN: hold the last finite value (cabin falls back to T0)
+        nm = s["next_turn_m"]
+        s = dict(s, speed=self._finite(s, "speed"), bearing=self._finite(s, "bearing"),
+                 cabin_temp=self._finite(s, "cabin_temp"),
+                 next_turn_m=-1 if isinstance(nm, float) and not math.isfinite(nm) else nm)
         ax, ay = self.motion.step(s["speed"], s["bearing"], dt)
         ax, ay = self.lfx.step(ax), self.lfy.step(ay)
         idx, dose = self.index.step(ax, ay, dt)
         m = self.cabin.step(s["cabin_temp"], s["recirc"], s["window_open"], dt)
         state, actions, th_c, th_h = self.alerts.step(s["t"], idx, m, dt)
-        cue = self.cues.step(s["speed"], s["turn_signal"], s["next_turn_m"], s["next_turn_dir"])
+        cue = self.cues.step(s["speed"], s["turn_signal"], s["next_turn_m"], s["next_turn_dir"], dt)
         stale_air = s["recirc"] or s["cabin_temp"] > self.p["cabinT0"] + 0.5
         actions = [a for a in actions if a != "HVAC_FRESH" or stale_air]
         if cue:

@@ -3,6 +3,7 @@
     python3 sim/readme_figures.py      # writes docs/img/*.svg
 """
 import csv
+import json
 from pathlib import Path
 
 from engine import personal_threshold, sickness_probability
@@ -143,7 +144,7 @@ def index_flow():
     y, h = 120, 64
     row = [(20, 130, "속도 · 진행 방향", "차 신호", car), (180, 130, "가속도", "앞뒤 aₓ · 옆 aᵧ", calc),
            (340, 140, "느린 흔들림만", "10초 평균 제거", calc), (510, 140, "지수 I · 누적 D", "최근 60초 · 주행 전체", calc),
-           (680, 100, "판단", None, calc), (810, 130, "편안 · 주의 · 위험", "아이별 확률 P", out)]
+           (680, 100, "판단", None, calc), (810, 130, "흔들림 단계", "멀미 가능성 P (아이별)", out)]
     for x, w, t, sub, (f, ink) in row:
         box(s, x, y, w, h, t, sub, f, ink, 13 if len(t) > 7 else 14)
     for (x, w, *_), (nx, *_) in zip(row, row[1:]):
@@ -223,8 +224,10 @@ def index_timeline(name, title, out):
     rows = run(name)
     ts = [r[0]["t"] for r in rows]
     s = Svg(960, 370)
-    cues = sum(a.startswith("CUE_") for _, o in rows for a in o["actions"])
-    s.text(30, 28, title.format(min=round(len(rows) / 60), turns=cues), 15, INK, weight=700)
+    # guidance points (turns, bends), not cue count: a red light at a turn earns one extra cue
+    turns = next(m["turns"] for m in json.loads((ROOT / "sim" / "scenarios" / "scenarios.json").read_text())
+                 if m["name"] == name)
+    s.text(30, 28, title.format(min=round(len(rows) / 60), turns=turns), 15, INK, weight=700)
     pl = Plot(s, 70, 100, 860, 220, ts[-1], 0, 3.4, (0, 1, 2, 3), "흔들림 지수 I (m/s²)")
     bands = {"CAUTION": "#FEF3C7", "HIGH": "#FDE2D3"}
     for (smp, o) in rows:
@@ -242,7 +245,7 @@ def index_timeline(name, title, out):
                 g, c, row = marks[key]
                 s.text(pl.X(smp["t"]), pl.y0 + 14 + row * 14, g, 12, c, "middle")
     legend(s, 70, 56, [("지수 I", INDEX, None), ("주의 기준 × m", CAUTION, "6 4"), ("높음 기준 × m", HIGH, "6 4")])
-    s.text(930, 56, "● 회전 예고  ◆ 운전자 안내  ■ 공조 외기 전환  ▲ 휴게소 제안 · 배경: 주의/높음", 12, MUTED, "end")
+    s.text(930, 56, "● 회전·커브 예고  ◆ 운전자 안내  ■ 공조 외기 전환  ▲ 휴게소 제안 · 배경: 주의/높음", 12, MUTED, "end")
     s.save(out)
 
 
@@ -294,10 +297,11 @@ def family():
 
 def real_vs_sim():
     rows = {r["source"]: r for r in csv.DictReader(open(ROOT / "sim" / "out" / "public_check.csv"))}
-    real = rows["comma2k19 실제 고속도로 (1분)"]
-    sim = rows["시뮬 C 고속도로 (전체)"]
+    real = rows["comma2k19 실제 고속도로 (45초)"]
+    sim = rows["시뮬 C 고속도로 (같은 45초)"]
+    n = int(real["seconds"])
     s = Svg(960, 280)
-    s.text(30, 28, "현실성 점검 · 실제 고속도로 주행(comma2k19, 공개 데이터)과 시뮬레이션 고속도로", 15, INK, weight=700)
+    s.text(30, 28, f"현실성 점검 · 실제 고속도로(comma2k19, 공개 데이터)와 시뮬 고속도로, 같은 {n}초", 15, INK, weight=700)
     metrics = [("상위 5% 앞뒤 가속도 (m/s²)", "p95_ax", 1.5), ("평균 흔들림 지수 I", "mean_index", 1.0), ("평균 속도 (km/h)", "mean_speed_kmh", 100)]
     for i, (label, key, vmax) in enumerate(metrics):
         x = 40 + i * 310
@@ -308,9 +312,10 @@ def real_vs_sim():
             s.text(x, y + 22, name, 13, MUTED)
             s.rect(x + 44, y + 6, 220 * v / vmax, 26, color, 4)
             s.text(x + 50 + 220 * v / vmax, y + 25, f"{v:g}", 13, INK)
-    s.text(40, 230, f"실제 1분 구간과 시뮬 {round(int(sim['seconds']) / 60)}분 전체의 평균 지수가 비슷하고"
-           f"({float(real['mean_index']):.2f} vs {float(sim['mean_index']):.2f}) 둘 다 주의 기준(0.9) 아래입니다.", 13, MUTED)
-    s.text(40, 252, "실제 구간이 직선이라 옆 가속도는 비교하지 못했습니다.", 13, MUTED)
+    ax = float(sim["p95_ax"]) / float(real["p95_ax"])
+    s.text(40, 230, f"같은 {n}초: 앞뒤 가속도 시뮬 {ax:.2f}배, 평균 지수 {float(real['mean_index']):.2f} vs "
+           f"{float(sim['mean_index']):.2f} · 둘 다 주의 기준({P['thetaCaution']}) 아래", 13, MUTED)
+    s.text(40, 252, "옆 가속도: 비교 불가 (실제 구간이 직선)", 13, MUTED)
     s.save("real_vs_sim.svg")
 
 
@@ -321,7 +326,7 @@ def main():
     scenario_bars()
     index_timeline("B_winding_rough", "굽은 길(북악스카이웨이) · 거칠게 {min}분 · 지수가 기준을 넘자 안내 → 공조 → 휴게소 제안",
                    "timeline_winding.svg")
-    index_timeline("A_city_rough", "도심(강남 테헤란로) · 거칠게 {min}분 · 회전 {turns}곳마다 미리 한 번씩 예고", "timeline_city.svg")
+    index_timeline("A_city_rough", "도심(강남 테헤란로) · 거칠게 {min}분 · 회전 {turns}곳마다 미리 예고, 신호 대기 뒤 한 번 더", "timeline_city.svg")
     closed_loop()
     family()
     real_vs_sim()

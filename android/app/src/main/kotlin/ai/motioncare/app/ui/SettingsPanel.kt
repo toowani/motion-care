@@ -44,6 +44,8 @@ class SettingsPanel(
     private val welcome = context.text("", 19f, Ui.PRIMARY, bold = true)
     private val drivingNote = context.text("주행 중에는 테마·프로필 잠김", 18f, Ui.ALERT, bold = true)
     private val parkedOnly = mutableListOf<android.view.View>()
+    private val themeRows = mutableListOf<LinearLayout>()
+    private var oneColumn = false
     private var restricted = false
 
     init {
@@ -68,6 +70,7 @@ class SettingsPanel(
             val row = LinearLayout(context).apply { orientation = HORIZONTAL }
             pair.forEach { t -> row.addView(themeCard(t), lp(0, WRAP_CONTENT, 1f, context.dp(6))) }
             grid.addView(row, lp(MATCH_PARENT, WRAP_CONTENT))
+            themeRows += row
         }
         content.addView(grid, lp(MATCH_PARENT, WRAP_CONTENT))
         parkedOnly += grid
@@ -119,6 +122,21 @@ class SettingsPanel(
      * Driving UX restrictions (no setup / no keyboard while moving): theme and profile editing are
      * locked; the guidance toggles stay usable because they only reduce what the car does.
      */
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        // the narrow pane beside the navigation: one theme card per row, so captions never wrap
+        val one = w < context.dp(900)
+        if (one == oneColumn) return
+        oneColumn = one
+        post {
+            themeRows.forEach { row ->
+                row.orientation = if (one) VERTICAL else HORIZONTAL
+                for (i in 0 until row.childCount) row.getChildAt(i).layoutParams =
+                    if (one) lp(MATCH_PARENT, WRAP_CONTENT, 0f, context.dp(6)) else lp(0, WRAP_CONTENT, 1f, context.dp(6))
+            }
+        }
+    }
+
     fun setRestricted(on: Boolean) {
         restricted = on
         drivingNote.visibility = if (on) VISIBLE else GONE
@@ -150,7 +168,10 @@ class SettingsPanel(
             val col = LinearLayout(context).apply { orientation = VERTICAL; gravity = Gravity.CENTER_HORIZONTAL }
             col.addView(MoodIconView(context).apply { theme = t; mood = m; level = when (m) { Mood.CALM -> 0.2f; Mood.UNEASY -> 0.75f; Mood.SICK -> 1.2f } },
                 lp(MATCH_PARENT, context.dp(120)))
-            col.addView(context.text(t.label(m), 16f, Ui.MUTED, bold = true).apply { gravity = Gravity.CENTER })
+            col.addView(context.text(t.label(m), 16f, Ui.MUTED, bold = true).apply {
+                gravity = Gravity.CENTER; maxLines = 1
+                setAutoSizeTextTypeUniformWithConfiguration((11 * Ui.SCALE).toInt(), (16 * Ui.SCALE).toInt(), 1, android.util.TypedValue.COMPLEX_UNIT_SP)
+            }, lp(MATCH_PARENT, context.dp(26)))
             faces.addView(col, lp(0, WRAP_CONTENT, 1f))
         }
         addView(faces, lp(MATCH_PARENT, WRAP_CONTENT).apply { topMargin = context.dp(8) })
@@ -205,6 +226,9 @@ class SettingsPanel(
         addView(texts, lp(0, WRAP_CONTENT, 1f))
         val sw = Switch(context).apply {
             isChecked = value
+            val states = arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf())
+            thumbTintList = android.content.res.ColorStateList(states, intArrayOf(Ui.PRIMARY, android.graphics.Color.WHITE))
+            trackTintList = android.content.res.ColorStateList(states, intArrayOf(Ui.PRIMARY_SOFT, Ui.LINE))
             setOnCheckedChangeListener { _, on -> onSet(on); onChanged() }
         }
         addView(sw)

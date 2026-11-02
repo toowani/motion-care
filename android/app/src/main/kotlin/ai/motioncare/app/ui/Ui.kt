@@ -1,5 +1,6 @@
 package ai.motioncare.app.ui
 
+import kotlin.math.roundToInt
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
@@ -66,6 +67,12 @@ object Ui {
     }
 
     fun lp(w: Int, h: Int, weight: Float = 0f, margin: Int = 0) = LinearLayout.LayoutParams(w, h, weight).apply { setMargins(margin, margin, margin, margin) }
+
+    /** Green / amber / red for a chance of sickness (same bands as the gauge). */
+    fun riskColor(p: Double) = RiskGauge.color(p)
+
+    /** Probability 0..1 as a whole percent; NaN or out-of-range values never reach the screen. */
+    fun pct(p: Double): Int = if (p.isFinite()) (p.coerceIn(0.0, 1.0) * 100).roundToInt() else 0
 
     fun View.gone(hide: Boolean) { visibility = if (hide) View.GONE else View.VISIBLE }
 }

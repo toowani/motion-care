@@ -26,7 +26,6 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.TextView
-import kotlin.math.roundToInt
 
 /**
  * Home screen, built for a glance (people in a car do not read): big numbers, pictograms and
@@ -62,8 +61,19 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
     private val chipSpeed = chip("속도 km/h", "—")
     private val chipAir = chip("실내", "—")
     private val chipTurn = chip("다음 회전", "—")
-    private val themeName = context.text("", 15f, Ui.MUTED)
     private val familyChip: TextView
+    /** Compact pane: the chance of sickness as one big coloured pill (the weakest child in family mode). */
+    private val riskPill = context.text("", 26f, Color.WHITE, bold = true).apply {
+        gravity = Gravity.CENTER; maxLines = 1
+        setAutoSizeTextTypeUniformWithConfiguration((16 * Ui.SCALE).toInt(), (26 * Ui.SCALE).toInt(), 1, TypedValue.COMPLEX_UNIT_SP)
+        setPadding(context.dp(16), context.dp(6), context.dp(16), context.dp(6))
+    }
+    private var lastRisk = 0.0
+    private var familyValues: List<Pair<String, Double>> = emptyList()
+    private val demoPills = mutableMapOf<String?, TextView>()
+    private lateinit var tabs: LinearLayout
+    private lateinit var body: LinearLayout
+    private val mapFrame = android.widget.FrameLayout(context)
     private lateinit var rightColumn: LinearLayout
     private lateinit var leftCard: LinearLayout
     private var demoOn = true
@@ -113,15 +123,15 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
         val pad = context.dp(20)
         setPadding(pad, context.dp(14), pad, context.dp(10))
 
-        // top bar
+        // top bar: title, the tabs (same place on every tab), then the actions
         val top = LinearLayout(context).apply { orientation = HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
-        val titles = LinearLayout(context).apply {
-            orientation = VERTICAL
-            addView(context.text("멀미 케어", 26f, bold = true))
-            addView(themeName)
+        top.addView(context.text("멀미 케어", 26f, bold = true).apply { maxLines = 1 }, lp(WRAP_CONTENT, WRAP_CONTENT).apply { marginEnd = context.dp(24) })
+        tabs = LinearLayout(context).apply { orientation = HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
+        top.addView(tabs, lp(0, WRAP_CONTENT, 1f))
+        familyChip = context.pill("가족 모드") { callbacks.onFamilyToggle() }.apply {
+            compoundDrawablePadding = context.dp(8)
+            maxLines = 1
         }
-        top.addView(titles, lp(0, WRAP_CONTENT, 1f))
-        familyChip = context.pill("가족 모드 끔") { callbacks.onFamilyToggle() }
         top.addView(familyChip, lp(WRAP_CONTENT, WRAP_CONTENT).apply { marginEnd = context.dp(12) })
         top.addView(context.pill("멀미 났어", filled = true, color = Ui.ALERT) { callbacks.onReportSick() },
             lp(WRAP_CONTENT, WRAP_CONTENT).apply { marginEnd = context.dp(12) })
@@ -129,12 +139,15 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
         addView(top, lp(MATCH_PARENT, WRAP_CONTENT))
 
         // body
-        val body = LinearLayout(context).apply { orientation = HORIZONTAL }
+        body = LinearLayout(context).apply { orientation = HORIZONTAL }
         val left = context.card().apply {
             gravity = Gravity.CENTER_HORIZONTAL
+            // the face is the shake right now; the gauge on the right is the chance of sickness
+            addView(context.text("지금 흔들림", 16f, Ui.MUTED, bold = true).apply { maxLines = 1 }, lp(MATCH_PARENT, WRAP_CONTENT))
             addView(icon, lp(MATCH_PARENT, 0, 1f))
             // fixed height: auto-size never grows back with WRAP_CONTENT (stayed small after compact mode)
             addView(moodLabel, lp(MATCH_PARENT, context.dp(48)))
+            addView(riskPill, lp(WRAP_CONTENT, WRAP_CONTENT).apply { gravity = Gravity.CENTER_HORIZONTAL; topMargin = context.dp(6) })
             addView(advice, lp(MATCH_PARENT, WRAP_CONTENT).apply { topMargin = context.dp(6) })
             addView(promptBox, lp(MATCH_PARENT, WRAP_CONTENT).apply { topMargin = context.dp(10) })
             val chips = LinearLayout(context).apply { orientation = HORIZONTAL }
@@ -146,15 +159,13 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
         val right = LinearLayout(context).apply { orientation = VERTICAL }
         rightColumn = right
         leftCard = left
-        // two tabs: 주행 (family + trip summary, for passengers) and 분석 (index graph and event log)
-        val tabs = LinearLayout(context).apply { orientation = HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
+        // 주행 (family + trip summary, for passengers), 분석 (graphs and event log), 지도 (map); in the top bar
         tabDrive = context.pill("주행", filled = true) { showTab(TAB_DRIVE) }
         tabAnalysis = context.pill("분석") { showTab(TAB_ANALYSIS) }
         tabMap = context.pill("지도") { showTab(TAB_MAP) }
         tabs.addView(tabDrive, lp(WRAP_CONTENT, WRAP_CONTENT).apply { marginEnd = context.dp(10) })
         tabs.addView(tabAnalysis, lp(WRAP_CONTENT, WRAP_CONTENT).apply { marginEnd = context.dp(10) })
         tabs.addView(tabMap, lp(WRAP_CONTENT, WRAP_CONTENT))
-        right.addView(tabs, lp(MATCH_PARENT, WRAP_CONTENT).apply { bottomMargin = context.dp(10) })
         familyCard = context.card().apply {
             setPadding(context.dp(20), context.dp(12), context.dp(20), context.dp(12))
             addView(context.text("아이별 멀미 가능성", 16f, Ui.MUTED, bold = true))
@@ -170,7 +181,9 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
         mapCard = context.card().apply {
             setPadding(0, 0, 0, 0)
             clipToOutline = true
-            addView(map, lp(MATCH_PARENT, MATCH_PARENT))
+            // questions sit on the map as a card, so the map never changes size
+            mapFrame.addView(map, android.widget.FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
+            addView(mapFrame, lp(MATCH_PARENT, MATCH_PARENT))
         }
         right.addView(mapCard, lp(MATCH_PARENT, 0, 1f))
         // 주행 tab: gauge + trip tiles on top, family bars (family mode), habit pictograms below
@@ -206,18 +219,31 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
             "굽은 길 · 거칠게" to "B_winding_rough.csv",
             "굽은 길 · 부드럽게" to "B_winding_smooth.csv",
             "도심 · 거칠게" to "A_city_rough.csv",
-            "가족 귀성" to "D_family.csv",
+            "가족 나들이" to "D_family.csv",
         ).forEach { (label, file) ->
-            demo.addView(context.pill(label) { callbacks.onScenario(file) }, lp(WRAP_CONTENT, WRAP_CONTENT).apply { marginEnd = context.dp(10) })
+            val pill = context.pill(label) { callbacks.onScenario(file) }
+            demoPills[file.removeSuffix(".csv")] = pill
+            demo.addView(pill, lp(WRAP_CONTENT, WRAP_CONTENT).apply { marginEnd = context.dp(10) })
         }
-        demo.addView(context.pill("실차 신호", filled = true) { callbacks.onLive() }, lp(WRAP_CONTENT, WRAP_CONTENT).apply { marginEnd = context.dp(10) })
+        val livePill = context.pill("실차 신호") { callbacks.onLive() }
+        demoPills[null] = livePill
+        demo.addView(livePill, lp(WRAP_CONTENT, WRAP_CONTENT).apply { marginEnd = context.dp(10) })
         demo.addView(context.pill("정지", color = Ui.INK) { callbacks.onStopTrip() }, lp(WRAP_CONTENT, WRAP_CONTENT))
         demoBar = HorizontalScrollView(context).apply { isHorizontalScrollBarEnabled = false; addView(demo) }
         addView(demoBar, lp(MATCH_PARENT, WRAP_CONTENT))
 
         showMood(Mood.CALM, 0f)
-        updateSummary(0, 0, 0, 0f)
+        updateSummary(0, 0, 0, Mood.CALM)
         showTab(TAB_DRIVE)
+        markSource(null)
+        riskPill.gone(true)
+    }
+
+    /** Filled pill = what is feeding the screen now (a scenario, or the car when [name] is null). */
+    private fun markSource(name: String?) = demoPills.forEach { (k, v) ->
+        val on = k == name
+        v.setTextColor(if (on) Color.WHITE else Ui.PRIMARY)
+        v.background = Ui.rounded(if (on) Ui.PRIMARY else Ui.CARD, context.dpf(28f), context.dp(2), Ui.PRIMARY)
     }
 
     /** 분석 tab: one graph at a time, switched by a two-way segmented pill. */
@@ -302,13 +328,12 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
     fun setTheme(t: MoodTheme) {
         theme = t
         icon.theme = t
-        themeName.text = "아이콘: ${t.title}"
         moodLabel.text = labelFor(t, mood)
     }
 
-    /** Every theme shows the same level word first, so a parent can read the risk in any theme. */
+    /** Every theme shows the same shake word first, so a parent can read the face in any theme. */
     private fun labelFor(t: MoodTheme, m: Mood): String {
-        val word = when (m) { Mood.CALM -> "편안"; Mood.UNEASY -> "주의"; Mood.SICK -> "위험" }
+        val word = shakeWord(m)
         val own = t.label(m)
         return if (own.contains(word)) own else "$word · $own"
     }
@@ -316,6 +341,9 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
     /** Clears the mood, chips and bars when a trip ends or the signal source changes. */
     fun resetTrip() {
         actionUntil = 0L
+        lastRisk = 0.0
+        familyValues = emptyList()
+        updateRiskPill()
         showMood(Mood.CALM, 0f)
         listOf(chipSpeed, chipAir, chipTurn).forEach { it.setChip("—") }
         chipAir.setChip("—", "실내")
@@ -337,19 +365,42 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
             promptButtons.addView(context.pill(label, filled = i == 0) { hidePrompt(); action() },
                 lp(0, WRAP_CONTENT, 1f).apply { setMargins(context.dp(5), 0, context.dp(5), 0) })
         }
+        placePrompt()
         promptBox.visibility = VISIBLE
-        layoutLeft()
     }
 
-    fun hidePrompt() { promptBox.visibility = GONE; layoutLeft() }
+    fun hidePrompt() { promptBox.visibility = GONE }
 
-    /**
-     * The 지도 tab is a full-width navigation screen (the character rides on the map), so the big
-     * character card steps aside, except while it holds a question.
-     */
+    /** On the 지도 tab the question is a card over the map (bottom-left); elsewhere it sits under the face. */
+    private fun placePrompt() {
+        if (!::leftCard.isInitialized) return
+        val onMap = !compact && tab == TAB_MAP
+        val host = if (onMap) mapFrame else leftCard
+        if (promptBox.parent === host) return
+        (promptBox.parent as? android.view.ViewGroup)?.removeView(promptBox)
+        if (onMap) {
+            promptBox.elevation = context.dpf(8f)
+            promptBox.background = Ui.rounded(Ui.PRIMARY_SOFT, context.dpf(18f), context.dp(3), Ui.PRIMARY)
+            mapFrame.addView(promptBox, android.widget.FrameLayout.LayoutParams(context.dp(400), WRAP_CONTENT, Gravity.BOTTOM or Gravity.START).apply {
+                // above the speed badge, clear of the arrival bar
+                setMargins(context.dp(14), 0, 0, context.dp(16 + 84 + 12))
+            })
+        } else {
+            promptBox.elevation = 0f
+            promptBox.background = Ui.rounded(Ui.PRIMARY_SOFT, context.dpf(18f), context.dp(2), Ui.PRIMARY)
+            leftCard.addView(promptBox, leftCard.indexOfChild(advice) + 1, lp(MATCH_PARENT, WRAP_CONTENT).apply { topMargin = context.dp(10) })
+        }
+    }
+
+    /** The 지도 tab is a full-width navigation screen (the character rides on the map), so the big character card steps aside. */
     private fun layoutLeft() {
         if (!::leftCard.isInitialized) return
-        leftCard.gone(!compact && tab == TAB_MAP && promptBox.visibility != VISIBLE)
+        val hide = !compact && tab == TAB_MAP
+        if ((leftCard.visibility == GONE) != hide && isLaidOut) {
+            android.transition.TransitionManager.beginDelayedTransition(body, android.transition.AutoTransition().setDuration(180))
+        }
+        leftCard.gone(hide)
+        placePrompt()
     }
 
     /** Demo panel = scenario replay buttons for judges; the graph lives in the 분석 tab either way. */
@@ -375,9 +426,12 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
 
     fun setFamily(on: Boolean, names: List<String>) {
         familyNames = names
-        familyChip.text = familyLabel(on)
+        familyChip.text = familyLabel()
+        // fixed words; the fill and the icon say on/off
         familyChip.setTextColor(if (on) Color.WHITE else Ui.PRIMARY)
         familyChip.background = Ui.rounded(if (on) Ui.PRIMARY else Ui.CARD, context.dpf(28f), context.dp(2), Ui.PRIMARY)
+        familyChip.setCompoundDrawablesRelativeWithIntrinsicBounds(FamilyIcon(context.dp(26), if (on) Color.WHITE else Ui.PRIMARY, on), null, null, null)
+        if (!on) familyValues = emptyList()
         familyOn = on
         familyCard.gone(!on)
         if (::habits.isInitialized) habits.gone(on && names.size > 2)
@@ -386,11 +440,7 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
         if (key != familyKey) { familyKey = key; familyBars.set(names.map { it to 0.0 }) }
     }
 
-    private fun familyLabel(on: Boolean) = when {
-        compact -> if (on) "가족 켬" else "가족 끔"
-        on -> "가족 모드 · " + familyNames.joinToString(", ")
-        else -> "가족 모드 끔"
-    }
+    private fun familyLabel() = if (compact) "가족" else "가족 모드"
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
@@ -404,15 +454,32 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
      */
     private fun applyCompact() {
         rightColumn.gone(compact)
+        tabs.visibility = if (compact) INVISIBLE else VISIBLE
         demoBar.gone(compact || !demoOn)
+        // the pill takes the advice line's place: a number reads faster than a sentence
+        riskPill.gone(!compact)
+        advice.gone(compact)
+        updateRiskPill()
         (leftCard.layoutParams as LayoutParams).apply { weight = if (compact) 1f else 0.4f; marginEnd = if (compact) 0 else context.dp(14) }
         leftCard.requestLayout()
         layoutLeft()
-        familyChip.text = familyLabel(familyOn)
+        familyChip.text = familyLabel()
         callbacks.onCompactChanged(compact)
     }
 
-    fun setFamilyProbabilities(values: List<Pair<String, Double>>) = familyBars.set(values)
+    fun setFamilyProbabilities(values: List<Pair<String, Double>>) {
+        familyValues = values
+        familyBars.set(values)
+        updateRiskPill()
+    }
+
+    private fun updateRiskPill() {
+        if (!compact) return
+        val weakest = familyValues.takeIf { familyOn }?.maxByOrNull { it.second }
+        val p = weakest?.second ?: lastRisk
+        riskPill.text = if (weakest != null) "${weakest.first} ${Ui.pct(p)}%" else "멀미 가능성 ${Ui.pct(p)}%"
+        riskPill.background = Ui.rounded(Ui.riskColor(p), context.dpf(24f))
+    }
 
     /** Shows what the car just did for a few seconds instead of the generic advice. */
     fun showAction(msg: String) {
@@ -425,7 +492,7 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
     /** [risk] = sickness probability of the passenger who matters (shown on the map). */
     fun update(s: Sample, o: Output, nextTurnM: Double?, risk: Double = 0.0) {
         val level = if (o.thetaHigh > 0) (o.index / o.thetaHigh).toFloat() else 0f
-        showMood(Mood.of(o.state), level)
+        showMood(Mood.shown(o.state, risk), level)
         chipSpeed.setChip("%.0f".format(s.speed * 3.6))
         chipAir.setChip("%.0f°".format(s.cabinTemp), if (s.recirc) "실내 · 내기" else "실내 · 외기")
         val turnText = nextTurnM?.takeIf { it >= 0 }?.let { if (it >= 1000) "%.1f km".format(it / 1000) else "%.0f m".format(it) }
@@ -433,20 +500,27 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
         theme?.let { map.setMood(it, mood, level, labelFor(it, mood)) }
         map.setRisk(risk)
         gauge.set(risk)
+        lastRisk = risk
+        updateRiskPill()
         map.update(s)
     }
 
     /** Replay scenario whose route the map draws (null = live mode). Call after [resetTrip]. */
-    fun setRoute(name: String?, track: DoubleArray?) = map.setRoute(name, track)
+    fun setRoute(name: String?, track: DoubleArray?) {
+        markSource(name)
+        map.setRoute(name, track)
+    }
 
     /** Live navigation guidance for the map's turn card and arrival bar. */
     fun setNaviGuidance(g: ai.motioncare.app.NaviGuide.Guidance?) = map.setGuidance(g)
 
-    /** A turn cue fired: the character on the map says it. */
-    fun showCue(line: String) = map.showCue(line)
+    /** A turn cue fired: the map shows it as an arrow and a distance. */
+    fun showCue(left: Boolean) = map.showCue(left)
 
     /** Releases the map's WebView; call from the activity's onDestroy. */
     fun destroy() = map.destroy()
+
+    private fun shakeWord(m: Mood) = when (m) { Mood.CALM -> "잔잔"; Mood.UNEASY -> "흔들림"; Mood.SICK -> "흔들림 많음" }
 
     private fun showMood(m: Mood, level: Float) {
         mood = m
@@ -464,14 +538,15 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
         }
     }
 
-    fun updateSummary(minutes: Int, cues: Int, airs: Int, peak: Float) {
+    /** [peak]: the strongest face of the trip, in the same words the face uses. */
+    fun updateSummary(minutes: Int, cues: Int, airs: Int, peak: Mood) {
         statTime.setStat("${minutes}분")
         statCues.setStat("$cues")
         statAir.setStat("$airs")
-        val (word, color, face) = when {
-            peak >= 1f -> Triple("위험", Ui.ALERT, Glyph.Kind.FACE_SICK)
-            peak >= 0.6f -> Triple("주의", RiskGauge.AMBER, Glyph.Kind.FACE_UNEASY)
-            else -> Triple("편안", Ui.PRIMARY, Glyph.Kind.FACE_CALM)
+        val (word, color, face) = when (peak) {
+            Mood.SICK -> Triple("많음", Ui.ALERT, Glyph.Kind.FACE_SICK)
+            Mood.UNEASY -> Triple("보통", RiskGauge.AMBER, Glyph.Kind.FACE_UNEASY)
+            Mood.CALM -> Triple("잔잔", Ui.PRIMARY, Glyph.Kind.FACE_CALM)
         }
         statPeak.setStat(word, color)
         statPeak.findViewWithTag<Glyph>("glyph").apply { kind = face; this.color = color }
@@ -523,8 +598,32 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
                 c.drawRoundRect(x0, cy - r, x0 + (x1 - x0) * p.toFloat().coerceIn(0.04f, 1f), cy + r, r, r, paint)
                 word.color = paint.color; pct.color = paint.color
                 c.drawText(RiskGauge.label(p), x1 + wordW, cy + word.textSize / 3, word)
-                c.drawText("${(p * 100).roundToInt()}%", width.toFloat(), cy + pct.textSize / 3, pct)
+                c.drawText("${Ui.pct(p)}%", width.toFloat(), cy + pct.textSize / 3, pct)
             }
         }
     }
+}
+
+/** Two heads (adult and child): the family button's icon, filled while family mode is on. */
+private class FamilyIcon(private val size: Int, color: Int, private val filled: Boolean) : android.graphics.drawable.Drawable() {
+    private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        this.color = color
+        style = if (filled) Paint.Style.FILL else Paint.Style.STROKE
+        strokeWidth = size * 0.09f
+    }
+    override fun getIntrinsicWidth() = size
+    override fun getIntrinsicHeight() = size
+    override fun draw(c: Canvas) {
+        val b = bounds
+        val s = b.width().toFloat()
+        val x = b.left.toFloat(); val y = b.top.toFloat()
+        c.drawCircle(x + s * 0.34f, y + s * 0.26f, s * 0.15f, paint)
+        c.drawRoundRect(x + s * 0.12f, y + s * 0.5f, x + s * 0.56f, y + s * 0.95f, s * 0.2f, s * 0.2f, paint)
+        c.drawCircle(x + s * 0.74f, y + s * 0.46f, s * 0.11f, paint)
+        c.drawRoundRect(x + s * 0.6f, y + s * 0.65f, x + s * 0.9f, y + s * 0.95f, s * 0.14f, s * 0.14f, paint)
+    }
+    override fun setAlpha(alpha: Int) { paint.alpha = alpha }
+    override fun setColorFilter(cf: android.graphics.ColorFilter?) { paint.colorFilter = cf }
+    @Deprecated("Drawable opacity", ReplaceWith("PixelFormat.TRANSLUCENT"))
+    override fun getOpacity() = android.graphics.PixelFormat.TRANSLUCENT
 }

@@ -29,9 +29,9 @@ object CleanTheme : MoodTheme {
     override val animated = true
 
     override fun label(mood: Mood): String = when (mood) {
-        Mood.CALM -> "편안함"
-        Mood.UNEASY -> "흔들림 주의"
-        Mood.SICK -> "멀미 위험"
+        Mood.CALM -> "잔잔함"
+        Mood.UNEASY -> "흔들림 있음"
+        Mood.SICK -> "흔들림 많음"
     }
 
     private const val TAU = 6.2831855f

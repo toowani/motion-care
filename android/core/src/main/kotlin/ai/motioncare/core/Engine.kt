@@ -11,8 +11,9 @@ import kotlin.math.sqrt
  * Port of sim/engine.py. The numbers must match shared/test_vectors.csv.
  *
  * Formulas (team page numbering):
- *  1  a_x = dv/dt, a_y = v * yaw rate (EMA on both), low-frequency = a - mean(last 10 s)
- *  2  dose D = sqrt(sum (wX ax^2 + wY ay^2) dt), index I = RMS over last 60 s
+ *  1  a_x = dv/dt, a_y = v * yaw rate (EMA on both), low-frequency = a - mean(last 10 s):
+ *     1 Hz samples hold up to 0.5 Hz, the 10 s mean removes below 0.1 Hz, so only 0.1-0.5 Hz sway is accumulated
+ *  2  dose D = sqrt(sum (wX ax^2 + wY ay^2) dt), index I = RMS over last 60 s (zero-padded window)
  *  3  cabin factor m = 1 - gT*max(0, T - T0) - gV*min(1, t_recirc/3600), floor 0.6
  *  4  cue distance = v * (say + prepare)
  *  5  personal threshold tau = (n*meanD + n0*tau0) / (n + n0), P = sigmoid((D - tau*m)/s)
@@ -84,7 +85,7 @@ class MotionEstimator(private val p: Params) {
     }
 }
 
-/** Removes the slow (< 0.1 Hz) part by subtracting the mean of the last [window] samples. */
+/** Removes the slow (< 0.1 Hz) part by subtracting the mean of the last [window] samples; with 1 Hz input this keeps 0.1-0.5 Hz. */
 class LowFreqFilter(private val window: Int) {
     private val buf = ArrayDeque<Double>()
 
@@ -105,7 +106,9 @@ class SicknessIndex(private val p: Params) {
         window.addLast(e)
         if (window.size > size) window.removeFirst()
         doseSq += e * dt
-        return sqrt(window.sum() / window.size) to sqrt(doseSq)
+        // fixed denominator (zero-padded window): dividing by window.size let the first few
+        // samples of a ride inflate I into a false early alert
+        return sqrt(window.sum() / size) to sqrt(doseSq)
     }
 }
 
@@ -157,16 +160,35 @@ class AlertMachine(private val p: Params) {
     }
 }
 
-/** Speaks once per upcoming turn: on a turn-signal rising edge or when the turn is within v*(say+prepare). */
+/**
+ * Speaks once per upcoming turn: on a turn-signal rising edge or when the turn is within v*(say+prepare).
+ * A red light right before the turn (stopped >= 3 s with the turn < 40 m ahead) allows one more
+ * cue on departure, so the passenger hears it a few seconds before the turn, not 40 s early.
+ */
 class CueScheduler(p: Params) {
     private val lead = p.cueSayS + p.cuePrepareS
     private var prevSignal = TurnSignal.OFF
     private var prevNextM = -1.0
     private var armed = true
+    private var stoppedS = 0.0
+    private var recued = false
 
-    fun step(speed: Double, signal: TurnSignal, nextM: Double, nextLeft: Boolean): Action? {
-        // a new turn ahead (distance jumped up or guidance ended) re-arms the cue
-        if (signal == TurnSignal.OFF && (nextM < 0 || nextM > prevNextM + 20)) armed = true
+    fun step(speed: Double, signal: TurnSignal, nextM: Double, nextLeft: Boolean, dt: Double = 1.0): Action? {
+        // a new turn ahead (distance jumped up or guidance ended) re-arms the cue,
+        // whatever the indicator is doing (a lingering signal must not swallow the next cue)
+        if (nextM < 0 || nextM > prevNextM + 20) {
+            armed = true
+            recued = false
+        }
+        if (speed < STOP_SPEED) {
+            stoppedS += dt
+        } else {
+            if (stoppedS >= STOP_HOLD_S && nextM >= 0 && nextM < STOP_NEAR_M && !recued) {
+                armed = true
+                recued = true
+            }
+            stoppedS = 0.0
+        }
         val rising = signal != TurnSignal.OFF && prevSignal == TurnSignal.OFF
         val near = nextM >= 0 && nextM <= max(15.0, speed * lead)
         var cue: Action? = null
@@ -181,6 +203,12 @@ class CueScheduler(p: Params) {
         prevSignal = signal
         prevNextM = nextM
         return cue
+    }
+
+    private companion object {
+        const val STOP_SPEED = 0.5      // m/s
+        const val STOP_HOLD_S = 3.0
+        const val STOP_NEAR_M = 40.0
     }
 }
 
@@ -205,8 +233,19 @@ class Engine(private val p: Params) {
     private val alerts = AlertMachine(p)
     private val cues = CueScheduler(p)
     private val dt = 1.0 / p.sampleHz
+    private var lastSpeed = 0.0
+    private var lastBearing = 0.0
+    private var lastCabinTemp = p.cabinT0
 
-    fun step(s: Sample): Output {
+    fun step(raw: Sample): Output {
+        // sensor dropouts arrive as NaN: hold the last finite value (cabin falls back to T0)
+        if (raw.speed.isFinite()) lastSpeed = raw.speed
+        if (raw.bearing.isFinite()) lastBearing = raw.bearing
+        if (raw.cabinTemp.isFinite()) lastCabinTemp = raw.cabinTemp
+        val s = raw.copy(
+            speed = lastSpeed, bearing = lastBearing, cabinTemp = lastCabinTemp,
+            nextTurnM = if (raw.nextTurnM.isFinite()) raw.nextTurnM else -1.0,
+        )
         val (rawX, rawY) = motion.step(s.speed, s.bearing, dt)
         val ax = lfx.step(rawX)
         val ay = lfy.step(rawY)
@@ -215,7 +254,7 @@ class Engine(private val p: Params) {
         val r = alerts.step(s.t, idx, m, dt)
         val staleAir = s.recirc || s.cabinTemp > p.cabinT0 + 0.5
         val actions = r.actions.filter { it != Action.HVAC_FRESH || staleAir }.toMutableList()
-        cues.step(s.speed, s.turnSignal, s.nextTurnM, s.nextTurnLeft)?.let { actions += it }
+        cues.step(s.speed, s.turnSignal, s.nextTurnM, s.nextTurnLeft, dt)?.let { actions += it }
         return Output(ax, ay, idx, dose, m, r.state, r.thC, r.thH, actions)
     }
 }

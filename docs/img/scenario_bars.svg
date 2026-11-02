@@ -12,30 +12,30 @@
 <text x="360.0" y="344.0" font-size="12" fill="#D97706" text-anchor="start" font-weight="400">주의 0.9</text>
 <text x="464.0" y="344.0" font-size="12" fill="#C2410C" text-anchor="start" font-weight="400">높음 1.5</text>
 <text x="188.0" y="95.0" font-size="13" fill="#1F2340" text-anchor="end" font-weight="400">고속도로</text>
-<rect x="200.0" y="76.0" width="77.5" height="20.0" rx="4" fill="#0F766E"/>
+<rect x="200.0" y="76.0" width="74.9" height="20.0" rx="4" fill="#0F766E"/>
 <line x1="334.7" y1="72.0" x2="334.7" y2="100.0" stroke="#1F2340" stroke-width="2"/>
-<text x="283.5" y="93.0" font-size="12" fill="#1F2340" text-anchor="start" font-weight="400">0.45</text>
+<text x="280.9" y="93.0" font-size="12" fill="#1F2340" text-anchor="start" font-weight="400">0.43</text>
 <text x="760.0" y="93.0" font-size="13" fill="#6B6E86" text-anchor="start" font-weight="400">알림 0초 / 12.8분</text>
 <text x="188.0" y="145.0" font-size="13" fill="#1F2340" text-anchor="end" font-weight="400">도심 · 부드럽게</text>
-<rect x="200.0" y="126.0" width="112.5" height="20.0" rx="4" fill="#0F766E"/>
-<line x1="393.3" y1="122.0" x2="393.3" y2="150.0" stroke="#1F2340" stroke-width="2"/>
-<text x="318.5" y="143.0" font-size="12" fill="#1F2340" text-anchor="start" font-weight="400">0.65</text>
-<text x="760.0" y="143.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">알림 51초 / 8.8분</text>
+<rect x="200.0" y="126.0" width="108.0" height="20.0" rx="4" fill="#0F766E"/>
+<line x1="360.0" y1="122.0" x2="360.0" y2="150.0" stroke="#1F2340" stroke-width="2"/>
+<text x="314.0" y="143.0" font-size="12" fill="#1F2340" text-anchor="start" font-weight="400">0.62</text>
+<text x="760.0" y="143.0" font-size="13" fill="#6B6E86" text-anchor="start" font-weight="400">알림 0초 / 8.8분</text>
 <text x="188.0" y="195.0" font-size="13" fill="#1F2340" text-anchor="end" font-weight="400">도심 · 거칠게</text>
-<rect x="200.0" y="176.0" width="162.1" height="20.0" rx="4" fill="#D97706"/>
-<line x1="472.1" y1="172.0" x2="472.1" y2="200.0" stroke="#1F2340" stroke-width="2"/>
-<text x="368.1" y="193.0" font-size="12" fill="#1F2340" text-anchor="start" font-weight="400">0.94</text>
-<text x="760.0" y="193.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">알림 347초 / 8.2분</text>
+<rect x="200.0" y="176.0" width="154.6" height="20.0" rx="4" fill="#0F766E"/>
+<line x1="424.5" y1="172.0" x2="424.5" y2="200.0" stroke="#1F2340" stroke-width="2"/>
+<text x="360.6" y="193.0" font-size="12" fill="#1F2340" text-anchor="start" font-weight="400">0.89</text>
+<text x="760.0" y="193.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">알림 309초 / 8.2분</text>
 <text x="188.0" y="245.0" font-size="13" fill="#1F2340" text-anchor="end" font-weight="400">굽은 길 · 부드럽게</text>
-<rect x="200.0" y="226.0" width="247.2" height="20.0" rx="4" fill="#D97706"/>
+<rect x="200.0" y="226.0" width="241.6" height="20.0" rx="4" fill="#D97706"/>
 <line x1="514.8" y1="222.0" x2="514.8" y2="250.0" stroke="#1F2340" stroke-width="2"/>
-<text x="453.2" y="243.0" font-size="12" fill="#1F2340" text-anchor="start" font-weight="400">1.43</text>
-<text x="760.0" y="243.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">알림 451초 / 7.9분</text>
+<text x="447.6" y="243.0" font-size="12" fill="#1F2340" text-anchor="start" font-weight="400">1.39</text>
+<text x="760.0" y="243.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">알림 437초 / 7.9분</text>
 <text x="188.0" y="295.0" font-size="13" fill="#1F2340" text-anchor="end" font-weight="400">굽은 길 · 거칠게</text>
-<rect x="200.0" y="276.0" width="364.2" height="20.0" rx="4" fill="#C2410C"/>
+<rect x="200.0" y="276.0" width="353.1" height="20.0" rx="4" fill="#C2410C"/>
 <line x1="679.6" y1="272.0" x2="679.6" y2="300.0" stroke="#1F2340" stroke-width="2"/>
-<text x="570.2" y="293.0" font-size="12" fill="#1F2340" text-anchor="start" font-weight="400">2.10</text>
-<text x="760.0" y="293.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">알림 360초 / 6.2분</text>
+<text x="559.1" y="293.0" font-size="12" fill="#1F2340" text-anchor="start" font-weight="400">2.04</text>
+<text x="760.0" y="293.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">알림 351초 / 6.2분</text>
 <text x="760.0" y="50.0" font-size="12" fill="#6B6E86" text-anchor="start" font-weight="400">알림이 켜진 시간</text>
 <text x="200.0" y="50.0" font-size="12" fill="#6B6E86" text-anchor="start" font-weight="400">막대: 평균 지수 I · 세로선: 최댓값 (m/s²)</text>
 </svg>

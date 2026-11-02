@@ -8,7 +8,6 @@ import android.graphics.Paint
 import android.graphics.RectF
 import android.graphics.Typeface
 import android.view.View
-import kotlin.math.roundToInt
 
 /** Semicircle gauge: sickness probability as a big % with a level word, coloured by risk. */
 class RiskGauge(context: Context) : View(context) {
@@ -27,11 +26,12 @@ class RiskGauge(context: Context) : View(context) {
 
     override fun onDraw(c: Canvas) {
         val w = width.toFloat(); val h = height.toFloat()
-        // arc + word below it take about sw + 1.45 r; fit that and centre it vertically
+        // the arc hangs from the top (right under the card title); height left below it goes to bigger text
         val sw = minOf(w, h * 1.4f) * 0.1f
         val r = minOf(w / 2f - sw, (h - sw) / 1.45f)
-        val top = (h - (sw + r * 1.45f)) / 2f
-        val cx = w / 2f; val cy = top + sw + r
+        val cx = w / 2f; val cy = sw * 0.9f + r
+        val spare = (h - (sw * 0.9f + r * 1.45f)).coerceAtLeast(0f)
+        val grow = (1f + spare / r * 0.35f).coerceAtMost(1.2f)
         oval.set(cx - r, cy - r, cx + r, cy + r)
         track.strokeWidth = sw; arc.strokeWidth = sw
         c.drawArc(oval, 180f, 180f, false, track)
@@ -41,11 +41,14 @@ class RiskGauge(context: Context) : View(context) {
         // 50 % (alert) mark at the top of the arc
         c.drawLine(cx, cy - r - sw * 0.9f, cx, cy - r + sw * 0.9f, tick)
         big.color = col
-        big.textSize = r * 0.62f
-        c.drawText("${(p * 100).roundToInt()}%", cx, cy - r * 0.12f, big)
+        big.textSize = r * 0.62f * grow
+        // the number stays inside the arc ("100%" included)
+        val tw = big.measureText("${Ui.pct(p)}%")
+        if (tw > r * 1.45f) big.textSize *= r * 1.45f / tw
+        c.drawText("${Ui.pct(p)}%", cx, cy - r * 0.12f + (grow - 1f) * r * 0.5f, big)
         word.color = col
-        word.textSize = r * 0.28f
-        c.drawText(label(p), cx, cy + r * 0.34f, word)
+        word.textSize = r * 0.28f * grow
+        c.drawText(label(p), cx, cy + r * 0.34f * grow + (grow - 1f) * r * 0.5f, word)
     }
 
     companion object {
