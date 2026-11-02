@@ -1,9 +1,10 @@
 [
   {
     "name": "A_city_smooth",
+    "road": "강남 테헤란로",
     "style": "smooth",
-    "duration_s": 486,
-    "distance_m": 3053,
+    "duration_s": 527,
+    "distance_m": 3695,
     "turns": 4,
     "stops": 6,
     "cabin": {
@@ -13,9 +14,10 @@
   },
   {
     "name": "A_city_rough",
+    "road": "강남 테헤란로",
     "style": "rough",
-    "duration_s": 450,
-    "distance_m": 3053,
+    "duration_s": 493,
+    "distance_m": 3695,
     "turns": 4,
     "stops": 6,
     "cabin": {
@@ -25,9 +27,10 @@
   },
   {
     "name": "B_winding_smooth",
+    "road": "북악스카이웨이",
     "style": "smooth",
-    "duration_s": 486,
-    "distance_m": 5439,
+    "duration_s": 473,
+    "distance_m": 5208,
     "turns": 0,
     "stops": 0,
     "cabin": {
@@ -37,9 +40,10 @@
   },
   {
     "name": "B_winding_rough",
+    "road": "북악스카이웨이",
     "style": "rough",
     "duration_s": 372,
-    "distance_m": 5439,
+    "distance_m": 5208,
     "turns": 0,
     "stops": 0,
     "cabin": {
@@ -49,10 +53,11 @@
   },
   {
     "name": "C_highway",
+    "road": "경부고속도로",
     "style": "normal",
-    "duration_s": 854,
-    "distance_m": 18202,
-    "turns": 0,
+    "duration_s": 771,
+    "distance_m": 16975,
+    "turns": 1,
     "stops": 0,
     "cabin": {
       "temp": 22.0,
@@ -61,11 +66,12 @@
   },
   {
     "name": "D_family",
+    "road": "경부고속도로 → 남한산성로",
     "style": "normal",
-    "duration_s": 1778,
-    "distance_m": 36331,
-    "turns": 0,
-    "stops": 1,
+    "duration_s": 2068,
+    "distance_m": 37428,
+    "turns": 8,
+    "stops": 3,
     "cabin": {
       "temp": 25.0,
       "recirc": true

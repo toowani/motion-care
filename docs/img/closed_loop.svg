@@ -40,6 +40,6 @@
 <text x="98.0" y="56.0" font-size="12" fill="#1F2340" text-anchor="start" font-weight="400">앱이 공조를 바꿈</text>
 <line x1="230.0" y1="52.0" x2="252.0" y2="52.0" stroke="#9CA3AF" stroke-width="2" stroke-dasharray="6 4"/>
 <text x="258.0" y="56.0" font-size="12" fill="#1F2340" text-anchor="start" font-weight="400">앱 없음</text>
-<text x="460.0" y="119.3" font-size="12" fill="#0F766E" text-anchor="end" font-weight="400">0.84 → 0.99</text>
-<text x="460.0" y="295.3" font-size="12" fill="#6B6E86" text-anchor="end" font-weight="400">0.83에 머묾</text>
+<text x="460.0" y="117.4" font-size="12" fill="#0F766E" text-anchor="end" font-weight="400">0.84 → 0.99</text>
+<text x="460.0" y="295.7" font-size="12" fill="#6B6E86" text-anchor="end" font-weight="400">0.82에 머묾</text>
 </svg>

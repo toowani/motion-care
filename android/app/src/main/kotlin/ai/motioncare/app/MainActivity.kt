@@ -15,6 +15,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
+import android.graphics.Rect
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
@@ -40,10 +41,18 @@ class MainActivity : Activity(), HomeView.Callbacks {
     private var bound = false
     private var pendingRoute: Triple<Double, Double, String>? = null
     private var askedPermissions = false
+    /** Last region reported to the Pleos navigation; empty = none. */
+    private var region = Rect()
 
     private val screen = object : TripService.TripUi {
         override fun onReset() { home.dashboard.reset(); home.resetTrip() }
-        override fun onSample(s: Sample, o: Output) { home.dashboard.add(s, o); home.update(s, o, s.nextTurnM) }
+        override fun onSample(s: Sample, o: Output) {
+            home.dashboard.add(s, o)
+            home.setNaviGuidance(service?.naviGuidance)
+            home.update(s, o, s.nextTurnM)
+        }
+        override fun onRoute(name: String?, track: DoubleArray?) = home.setRoute(name, track)
+        override fun onCue(left: Boolean, line: String) = home.showCue(line)
         override fun onFamily(on: Boolean, names: List<String>) = home.setFamily(on, names)
         override fun onFamilyProbabilities(values: List<Pair<String, Double>>) = home.setFamilyProbabilities(values)
         override fun onAction(msg: String) = home.showAction(msg)
@@ -67,6 +76,7 @@ class MainActivity : Activity(), HomeView.Callbacks {
             if (resumed && panel.visibility != View.VISIBLE) s.attach(screen)
             pendingRoute?.let { (lat, lon, n) -> home.postDelayed({ s.routeTo(lat, lon, n) }, 3000) }
             pendingRoute = null
+            reportRegion()
         }
         override fun onServiceDisconnected(name: ComponentName?) { service = null }
     }
@@ -103,16 +113,21 @@ class MainActivity : Activity(), HomeView.Callbacks {
         super.onResume()
         resumed = true
         if (panel.visibility != View.VISIBLE) service?.attach(screen)
+        home.post { reportRegion() }
     }
 
     override fun onPause() {
         resumed = false
+        reportRegion()
         service?.detach(screen)   // from now on the service talks through heads-up cards
         super.onPause()
     }
 
     override fun onDestroy() {
+        resumed = false
+        reportRegion()
         service?.detach(screen)
+        home.destroy()
         if (bound) unbindService(connection)
         runCatching { car?.disconnect() }
         super.onDestroy()
@@ -194,4 +209,22 @@ class MainActivity : Activity(), HomeView.Callbacks {
     override fun onScenario(file: String) { service?.startScenario(file) }
     override fun onLive() { service?.startLive() }
     override fun onStopTrip() { service?.stopTrip() }
+    override fun onCompactChanged(compact: Boolean) = reportRegion()
+
+    /**
+     * In the one-pane layout beside the navigation, tell it which screen region we cover so its
+     * map keeps the car in the visible part; clear it when we leave that layout or the screen.
+     */
+    private fun reportRegion() {
+        val s = service ?: return
+        val r = Rect()
+        if (resumed && home.isCompact && home.isAttachedToWindow) {
+            val loc = IntArray(2)
+            home.getLocationOnScreen(loc)
+            r.set(loc[0], loc[1], loc[0] + home.width, loc[1] + home.height)
+        }
+        if (r == region) return
+        region = r
+        s.reportOccupiedRegion(r)
+    }
 }

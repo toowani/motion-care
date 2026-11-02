@@ -74,6 +74,12 @@ class Plot:
         self.s.poly([(self.X(t), self.Y(v)) for t, v in zip(ts, vs)], stroke, width, dash)
 
 
+def mmss(seconds):
+    """Korean minutes/seconds, e.g. 198 -> '3분 18초'."""
+    m, sec = divmod(int(round(seconds)), 60)
+    return f"{m}분 {sec}초" if m and sec else (f"{m}분" if m else f"{sec}초")
+
+
 def legend(svg, x, y, items):
     for label, color, dash in items:
         svg.line(x, y - 4, x + 22, y - 4, color, 3 if not dash else 2, dash)
@@ -145,7 +151,8 @@ def index_timeline(name, title, out):
     rows = run(name)
     ts = [r[0]["t"] for r in rows]
     s = Svg(960, 370)
-    s.text(30, 28, title, 15, INK, weight=700)
+    cues = sum(a.startswith("CUE_") for _, o in rows for a in o["actions"])
+    s.text(30, 28, title.format(min=round(len(rows) / 60), turns=cues), 15, INK, weight=700)
     pl = Plot(s, 70, 100, 860, 220, ts[-1], 0, 3.4, (0, 1, 2, 3), "흔들림 지수 I (m/s²)")
     bands = {"CAUTION": "#FEF3C7", "HIGH": "#FDE2D3"}
     for (smp, o) in rows:
@@ -183,8 +190,9 @@ def closed_loop():
         pl.s.line(pl.X(t_fresh), pl.y0, pl.X(t_fresh), pl.y0 + pl.h, APP, 1, "2 3")
     s.text(left.X(t_fresh) + 6, left.y0 + 14, f"{int(t_fresh)}초: 외기 전환 · 22°C", 12, APP)
     legend(s, 70, 56, [("앱이 공조를 바꿈", APP, None), ("앱 없음", NO_APP, "6 4")])
-    s.text(left.x0 + left.w, left.Y(0.99) - 8, "0.84 → 0.99", 12, APP, "end")
-    s.text(left.x0 + left.w, left.Y(0.825) + 18, "0.83에 머묾", 12, MUTED, "end")
+    m0, m_end, m_no = min(o["m"] for _, o in app), app[-1][1]["m"], no_app[-1][1]["m"]
+    s.text(left.x0 + left.w, left.Y(m_end) - 8, f"{m0:.2f} → {m_end:.2f}", 12, APP, "end")
+    s.text(left.x0 + left.w, left.Y(m_no) + 18, f"{m_no:.2f}에 머묾", 12, MUTED, "end")
     s.save("closed_loop.svg")
 
 
@@ -194,18 +202,21 @@ def family():
     taus = {"민준": personal_threshold(P, [20, 22, 24, 21, 23, 22, 25, 20, 24, 23]),
             "서연": personal_threshold(P, [45, 48, 44])}
     s = Svg(960, 370)
-    s.text(30, 28, "가족 모드 · 같은 귀성길, 아이마다 다른 기준선", 15, INK, weight=700)
+    hits = {}
+    s.text(30, 28, "가족 모드 · 같은 나들이길(경부고속도로 → 남한산성로), 아이마다 다른 기준선", 15, INK, weight=700)
     pl = Plot(s, 70, 100, 800, 220, ts[-1], 0, 45, (0, 15, 30, 45), "누적 흔들림 D")
     for who, tau in taus.items():
         pl.series(ts, [tau * max(P["cabinFactorFloor"], o["m"]) for _, o in rows], KIDS[who], 1.6, "6 4")
         t_hit = next((smp["t"] for smp, o in rows if sickness_probability(P, o["dose"], tau, o["m"]) >= 0.5), None)
         s.text(pl.x0 + 6, pl.Y(tau * rows[0][1]["m"]) - 8, f"{who} 기준선 τ = {tau:.1f}", 12, KIDS[who])
+        hits[who] = t_hit
         if t_hit is not None:
             s.line(pl.X(t_hit), pl.y0, pl.X(t_hit), pl.y0 + pl.h, KIDS[who], 1, "2 3")
             s.text(pl.X(t_hit) - 6, pl.y0 + (14 if who == "민준" else 32), f"{who} 도달 {t_hit / 60:.1f}분", 12, KIDS[who], "end")
     pl.series(ts, [o["dose"] for _, o in rows], INDEX, 2.4)
     legend(s, 70, 56, [("누적 흔들림 D", INDEX, None), ("아이별 기준선 × 환경 계수", MUTED, "6 4")])
-    s.text(930, 56, "민준(멀미 기록 10번, 약함)에게 2분 반 먼저 대응", 12, MUTED, "end")
+    if hits.get("민준") is not None and hits.get("서연") is not None:
+        s.text(930, 56, f"민준(멀미 기록 10번, 약함)에게 {mmss(hits['서연'] - hits['민준'])} 먼저 대응", 12, MUTED, "end")
     s.save("family.svg")
 
 
@@ -225,7 +236,8 @@ def real_vs_sim():
             s.text(x, y + 22, name, 13, MUTED)
             s.rect(x + 44, y + 6, 220 * v / vmax, 26, color, 4)
             s.text(x + 50 + 220 * v / vmax, y + 25, f"{v:g}", 13, INK)
-    s.text(40, 230, "실제 1분 구간과 시뮬 14분 전체의 평균 지수가 비슷하고(0.46 vs 0.49) 둘 다 주의 기준(0.9) 아래입니다.", 13, MUTED)
+    s.text(40, 230, f"실제 1분 구간과 시뮬 {round(int(sim['seconds']) / 60)}분 전체의 평균 지수가 비슷하고"
+           f"({float(real['mean_index']):.2f} vs {float(sim['mean_index']):.2f}) 둘 다 주의 기준(0.9) 아래입니다.", 13, MUTED)
     s.text(40, 252, "실제 구간이 직선이라 옆 가속도는 비교하지 못했습니다.", 13, MUTED)
     s.save("real_vs_sim.svg")
 
@@ -233,8 +245,9 @@ def real_vs_sim():
 def main():
     how_it_works()
     scenario_bars()
-    index_timeline("B_winding_rough", "굽은 길 · 거칠게 6분 · 지수가 기준을 넘자 안내 → 공조 → 휴게소 제안", "timeline_winding.svg")
-    index_timeline("A_city_rough", "도심 · 거칠게 7분 · 회전 4곳마다 미리 한 번씩 예고", "timeline_city.svg")
+    index_timeline("B_winding_rough", "굽은 길(북악스카이웨이) · 거칠게 {min}분 · 지수가 기준을 넘자 안내 → 공조 → 휴게소 제안",
+                   "timeline_winding.svg")
+    index_timeline("A_city_rough", "도심(강남 테헤란로) · 거칠게 {min}분 · 회전 {turns}곳마다 미리 한 번씩 예고", "timeline_city.svg")
     closed_loop()
     family()
     real_vs_sim()

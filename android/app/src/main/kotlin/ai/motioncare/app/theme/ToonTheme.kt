@@ -2,20 +2,31 @@ package ai.motioncare.app.theme
 
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RadialGradient
 import android.graphics.RectF
 import android.graphics.Shader
+import android.os.Build
+import androidx.core.graphics.PathParser
+import kotlin.math.abs
 import kotlin.math.cos
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.pow
 import kotlin.math.sin
 
 /**
- * 2D cel-shaded cartoon: 부릉이, a small round car whose windshield is a pair of big eyes.
- * Thick ink outlines, flat fills with one darker shade band, bouncing on a short road.
- * CALM: sky blue, sparkly eyes and a big smile, steady bounce, blinks every 3.5 s.
- * UNEASY: yellow, eyes glancing aside under worried brows, rocking, one sweat drop.
- * SICK: green-tinted, spiral eyes, tongue out, squashed wheels, 3 stars orbiting above.
+ * 2D cel-shaded cartoon: 부릉이, a squat chibi car seen head-on, headlights for eyes and the grille
+ * for a mouth, on a round stage with a road running to the horizon.
+ * Signature traits: springy pink antenna ball, heart hood badge, notched bumper, chrome grille slat.
+ * CALM: sky blue, sparkly eyes, big smile, hops with squash and stretch, speed streaks.
+ * UNEASY: yellow, worry brows and drooping lids, glancing eyes, wavy mouth, rocking, sweat drops.
+ * SICK: mint on a lavender stage, spiral eyes, tongue out, slow sway, smoke puffs, two dizzy stars.
+ *
+ * Designed in a 0..100 box and scaled by size / 100. Paths are parsed once; gradients are built
+ * once (per mood where they differ) in fixed local frames and placed with translate().
  */
 object ToonTheme : MoodTheme {
     override val id = "toon"
@@ -33,594 +44,697 @@ object ToonTheme : MoodTheme {
         if (left) "부릉이 출동! 곧 왼쪽으로 돌아요." else "부릉이 출동! 곧 오른쪽으로 돌아요."
 
     // ---- palette ----
-    private val INK = 0xFF23233A.toInt()
-    private val TIRE = 0xFF34344A.toInt()
-    private val HUB = 0xFFDDE1EA.toInt()
-    private val GLASS = 0xFFEFF8FF.toInt()
-    private val MOUTH = 0xFF8C2B3E.toInt()
-    private val TONGUE = 0xFFFF7E9D.toInt()
-    private val BLUSH = 0x70FF6F91
-    private val ROAD = 0xFF3B4058.toInt()
-    private val DASH = 0xFFB9BFD0.toInt()
-    private val SWEAT = 0xFF8FD3FF.toInt()
-    private val STAR = 0xFFFFD84A.toInt()
-    private val HEADLIGHT = 0xFFFFE680.toInt()
-    private val TAILLIGHT = 0xFFFF8A65.toInt()
+    private const val TAU = 6.2831855f
+    private const val PI = 3.1415927f
+    private const val RAD2DEG = 57.29578f
+    private const val LW = 2.4f // outline width in design units
+    private const val ER = 7.5f // eye (headlight lens) radius
 
-    private val CALM_A = 0xFF5EC8F2.toInt()
-    private val CALM_B = 0xFF3FB0EC.toInt()
-    private val UNEASY_A = 0xFFFFD84D.toInt()
-    private val UNEASY_B = 0xFFFFB938.toInt()
-    private val SICK_A = 0xFFBEDD7E.toInt()
-    private val SICK_B = 0xFF98C756.toInt()
+    private val INK = 0xFF25233F.toInt()
+    private val WHITE = Color.WHITE
 
-    // ---- layout (fractions of size, relative to the centre) ----
-    private const val OY = 0.03f        // car origin below centre
-    private const val CONTACT_Y = 0.242f // where tyres touch the road (global)
-    private const val ROAD_Y = 0.252f
-    private const val WHEEL_X = 0.165f
-    private const val WHEEL_R = 0.072f
-    private const val WHEEL_BOTTOM = 0.212f // local to car origin
-    private const val EYE_Y = -0.145f
-    private val EYE_X = floatArrayOf(-0.075f, 0.055f)
-    private const val MOUTH_X = -0.01f
+    private class Pal(
+        val hi: Int, val base: Int, val mid: Int, val shade: Int, val deep: Int,
+        val skyTop: Int, val skyBot: Int, val ground: Int, val road: Int,
+        val shadow: Int, val streak: Int, val iris: Int, val irisHi: Int,
+    )
 
-    private val TAU = 6.2831855f
-    private val PI = 3.1415927f
+    private val PALS = arrayOf(
+        Pal(
+            0xFFD2F3FF.toInt(), 0xFF5CC6F6.toInt(), 0xFF3AAEEC.toInt(), 0xFF2388D2.toInt(), 0xFF1A6FB4.toInt(),
+            0xFFE6F6FF.toInt(), 0xFFCBEAFF.toInt(), 0xFFCDEBC9.toInt(), 0xFFEEF4FB.toInt(),
+            0x4D1A5AA0, 0xFF3AAEEC.toInt(), 0xFF2B4C9A.toInt(), 0xFF59A9F0.toInt(),
+        ),
+        Pal(
+            0xFFFFF6C9.toInt(), 0xFFFFD54D.toInt(), 0xFFFFC234.toInt(), 0xFFEE9E1B.toInt(), 0xFFC9780C.toInt(),
+            0xFFFFF9E8.toInt(), 0xFFFFEEC6.toInt(), 0xFFF1E6B8.toInt(), 0xFFFBF6EA.toInt(),
+            0x4DAA6E14, 0xFFF2B23A.toInt(), 0xFF5A3A1E.toInt(), 0xFFB8813A.toInt(),
+        ),
+        // clean mint body on a greyish-lavender stage so the car pops instead of melting into green
+        Pal(
+            0xFFE4FBEF.toInt(), 0xFF8BE0B2.toInt(), 0xFF62CC98.toInt(), 0xFF3FAE7C.toInt(), 0xFF2C8C61.toInt(),
+            0xFFF3F1F8.toInt(), 0xFFDFDBEB.toInt(), 0xFFD3CEE2.toInt(), 0xFFECE9F3.toInt(),
+            0x47504678, 0xFFB7B0CC.toInt(), 0xFF3E5A2A.toInt(), 0xFF7FA65A.toInt(),
+        ),
+    )
+
+    // ---- shapes (0..100 box), frontal and symmetric about x = 50; parsed once ----
+    private fun p(d: String): Path = PathParser.createPathFromPathData(d)
+
+    private class Shapes {
+        val body = p("M20 80C13 80 10.5 75.5 10.8 69L11.4 58C11.8 52 15 48.4 21 47.4" +
+            "C22.6 37 29 30.4 50 30.4C71 30.4 77.4 37 79 47.4" +
+            "C85 48.4 88.2 52 88.6 58L89.2 69C89.5 75.5 87 80 80 80Z")
+        val glass = p("M28.6 45.8C29.8 39 34.8 35.2 50 35.2C65.2 35.2 70.2 39 71.4 45.8C62 47.1 38 47.1 28.6 45.8Z")
+        val glassStreak1 = p("M36.5 45.6L43.6 35.6L49 35.4L41.8 46Z")
+        val glassStreak2 = p("M45.4 46.2L52.6 35.5L55.2 35.6L48 46.3Z")
+        val dash = p("M33 46.3C40 44.4 60 44.4 67 46.3")
+        val sideShade = p("M100 40L80.6 47.8C83 54 83.6 66 82 82L100 82Z")
+        val bellyShade = p("M0 72.6C20 76.6 80 76.6 100 72.6L100 100L0 100Z")
+        val roofRim = p("M27.8 40.6C30.6 33.6 37.6 32 50 32C58 32 63.6 32.6 67 34.4C61 33.6 56 33.5 50 33.5C38.6 33.5 31.6 35.2 27.8 40.6Z")
+        val rimL = p("M15.6 55C14.8 59 14.6 66 15 71.6")
+        val hoodLine = p("M21.2 47.6C36 50 64 50 78.8 47.6")
+        val mirrorL = p("M16.8 49.4C13.8 45.8 7.8 46 6.6 49.6C5.6 52.8 8.8 54.8 12.8 54.4C14.8 54.2 16 53.2 16.8 51.8Z")
+        val mirrorR = p("M83.2 49.4C86.2 45.8 92.2 46 93.4 49.6C94.4 52.8 91.2 54.8 87.2 54.4C85.2 54.2 84 53.2 83.2 51.8Z")
+        val mirrorHiL = p("M8.8 49.4C9.6 48 11.6 47.6 13.2 48.4")
+        val mirrorHiR = p("M86.8 48.4C88.4 47.6 90.4 48 91.2 49.4")
+        val bumper = p("M18 76.4L44.6 76.4C46.4 76.4 47 78 50 78C53 78 53.6 76.4 55.4 76.4L82 76.4C87.2 76.4 87.8 83.6 82.4 83.6L17.6 83.6C12.2 83.6 12.8 76.4 18 76.4Z")
+        val mouthSmile = p("M40.4 64.4C46 65.8 54 65.8 59.6 64.4C60 70.8 55.8 74.2 50 74.2C44.2 74.2 40 70.8 40.4 64.4Z")
+        val tongueSmile = p("M44.4 72.6C46.2 70 48.8 69.8 50 71.2C51.2 69.8 53.8 70 55.6 72.6C53.8 74.2 52.2 74.6 50 74.6C47.8 74.6 46.2 74.2 44.4 72.6Z")
+        val mouthWavy = p("M41.2 69.6Q43.6 66.8 46 69.4T50.8 69.4T55.6 69.4T59.6 68.8")
+        val mouthSick = p("M41 67.4Q43.3 66.2 45.6 67.4T50.2 67.4T54.8 67.4T59.4 67.4C60.2 71.6 56 74.2 50.2 74.2C44.4 74.2 40.2 71.6 41 67.4Z")
+        val tongueSick = p("M52.6 71C52.8 69.2 59.6 69 59.8 71C60.2 74 59.8 76.8 56.2 76.8C52.6 76.8 52.2 74 52.6 71Z")
+        val tongueSickLine = p("M56.2 71.2L56.2 74.6")
+        val browL = p("M21.6 51.4Q29.4 50.6 36.8 46")
+        val browR = p("M78.4 51.4Q70.6 50.6 63.2 46")
+        val gloom = p("M42 37.4L42 43M50 36.6L50 43.6M58 37.4L58 43")
+        val sweat = p("M0 -7.2C2.8 -3 4.8 0 4.8 2.6C4.8 5.4 2.6 7.2 0 7.2C-2.6 7.2 -4.8 5.4 -4.8 2.6C-4.8 0 -2.8 -3 0 -7.2Z")
+        val spark = p("M0 -5C0.8 -1.6 1.6 -0.8 5 0C1.6 0.8 0.8 1.6 0 5C-0.8 1.6 -1.6 0.8 -5 0C-1.6 -0.8 -0.8 -1.6 0 -5Z")
+        val star5 = p("M0 -5L1.5 -1.7L5 -1.5L2.3 0.9L3.1 4.4L0 2.5L-3.1 4.4L-2.3 0.9L-5 -1.5L-1.5 -1.7Z")
+        val heart = p("M0 1.9C-1.9 0.6 -3 -0.4 -3 -1.6C-3 -2.6 -2.2 -3.2 -1.4 -3.2C-0.8 -3.2 -0.3 -2.9 0 -2.4" +
+            "C0.3 -2.9 0.8 -3.2 1.4 -3.2C2.2 -3.2 3 -2.6 3 -1.6C3 -0.4 1.9 0.6 0 1.9Z")
+        val road = p("M41 58L59 58L114 100L-14 100Z")
+        val nervousL = p("M9 28Q12 31 10 34")
+        val nervousR = p("M91 28Q88 31 90 34")
+
+        val disc = Path().apply { addCircle(50f, 50f, 48f, Path.Direction.CW) }
+        val tyre = Path().apply { addOval(-6.4f, -7f, 6.4f, 7f, Path.Direction.CW) }
+        val lens = Path().apply {
+            val r = ER
+            val q = ER * 0.552f
+            moveTo(-r, 0f)
+            cubicTo(-r, -q, -q, -r, 0f, -r)
+            cubicTo(q, -r, r, -q, r, 0f)
+            cubicTo(r, q, q, r, 0f, r)
+            cubicTo(-q, r, -r, q, -r, 0f)
+            close()
+        }
+        // spiral eyes depend only on the side; the spin is a canvas rotation
+        val spiralL = spiral(-1f)
+        val spiralR = spiral(1f)
+
+        private fun spiral(side: Float) = Path().apply {
+            for (i in 0..44) {
+                val a = i / 44f * TAU * 2.1f
+                val rr = ER * 0.08f + ER * 0.7f * (i / 44f)
+                val px = cos(a) * rr * side
+                val py = sin(a) * rr
+                if (i == 0) moveTo(px, py) else lineTo(px, py)
+            }
+        }
+    }
+
+    private val S by lazy { Shapes() }
+
+    private val EYE_X = floatArrayOf(29.6f, 70.4f)
+    private const val EYE_Y = 62.2f
+    private val TYRE_X = floatArrayOf(22.4f, 77.6f)
+
+    // speed streak rows: y, direction, phase
+    private val STREAKS = floatArrayOf(
+        24f, -1f, 0f, 37f, -1f, 0.5f, 21f, 1f, 0.25f,
+        34f, 1f, 0.75f, 50f, -1f, 0.6f, 49f, 1f, 0.1f,
+    )
 
     // ---- preallocated drawing objects ----
-    private val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
+    private val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL; isDither = true }
     private val stroke = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
         strokeJoin = Paint.Join.ROUND
     }
-    private val shadowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
-    private val tmp = Path()
     private val work = Path()
     private val rect = RectF()
 
-    /** Body/panel/star shapes for one icon size. Several sizes are on screen at once (home icon
-     *  plus the three settings previews), so keep a few slots instead of rebuilding every frame. */
-    private class Shapes {
-        var size = -1f
-        val body = Path()
-        val panel = Path()
-        val star = Path()
+    // ---- cached shaders ----
+    private val skyShaders = arrayOfNulls<Shader>(3)
+    private val bodyShaders = arrayOfNulls<Shader>(3)
+    private val irisShaders = arrayOfNulls<Shader>(3)
+
+    private val bezelShader by lazy {
+        lin(0f, -ER - 2f, 0f, ER + 2f, intArrayOf(WHITE, 0xFFD9E1EC.toInt(), 0xFFA9B5C8.toInt()), floatArrayOf(0f, 0.55f, 1f))
     }
-    private val slots = arrayOf(Shapes(), Shapes(), Shapes())
-    private var nextSlot = 0
-    private var cur = slots[0]
-    private val body: Path get() = cur.body
-    private val panel: Path get() = cur.panel
-    private val star: Path get() = cur.star
+    private val lensShader by lazy {
+        radial(
+            -ER * 0.3f, -ER * 0.35f, ER * 0.1f, 0f, 0f, ER,
+            intArrayOf(WHITE, 0xFFFFFDF2.toInt(), 0xFFF1E9C8.toInt()), floatArrayOf(0f, 0.7f, 1f),
+            floatArrayOf(0f, 0.58f, 0.88f),
+        )
+    }
+    private val rimShader by lazy {
+        lin(0f, -7f, 0f, 7f, intArrayOf(WHITE, 0xFFC9D2E0.toInt(), 0xFF8E9AB0.toInt()), floatArrayOf(0f, 0.6f, 1f))
+    }
+    private val ballShader by lazy {
+        radial(
+            -1.2f, -1.4f, 0.3f, 0f, 0f, 4f,
+            intArrayOf(WHITE, 0xFFFF8FB1.toInt(), 0xFFEE4F7B.toInt()), floatArrayOf(0f, 0.35f, 1f),
+            floatArrayOf(0f, 0.3f, 0.92f),
+        )
+    }
+    private val glassShader by lazy {
+        lin(0f, 35f, 0f, 46f, intArrayOf(0xFFF6FCFF.toInt(), 0xFFB9D5EC.toInt()), floatArrayOf(0f, 1f))
+    }
+    private val bumperShader by lazy {
+        lin(0f, 76f, 0f, 83.6f, intArrayOf(WHITE, 0xFFD6DEEA.toInt(), 0xFF9FAABF.toInt()), floatArrayOf(0f, 0.5f, 1f))
+    }
+    private val sweatShader by lazy {
+        lin(0f, -7f, 0f, 7f, intArrayOf(0xFFDDF4FF.toInt(), 0xFF6CC4F5.toInt()), floatArrayOf(0f, 1f))
+    }
 
-    /** Ground-shadow shaders, one per mood, built at a fixed reference radius and scaled by the
-     *  canvas, so they never depend on size and are allocated at most once each. */
-    private const val SH_R = 100f
-    private val shadowShaders = arrayOfNulls<Shader>(3)
+    private fun lin(x0: Float, y0: Float, x1: Float, y1: Float, colors: IntArray, stops: FloatArray): Shader =
+        LinearGradient(x0, y0, x1, y1, colors, stops, Shader.TileMode.CLAMP)
 
-    private fun ensure(s: Float, mood: Mood) {
-        cur = shapesFor(s)
-
-        val idx = mood.ordinal
-        var sh = shadowShaders[idx]
-        if (sh == null) {
-            val col = when (mood) {
-                Mood.CALM -> 0x44305A80
-                Mood.UNEASY -> 0x44806020
-                Mood.SICK -> 0x44507030
-            }
-            val clear = col and 0x00FFFFFF
-            val half = clear or (((col ushr 24) / 2) shl 24)
-            sh = RadialGradient(
-                0f, 0f, SH_R,
-                intArrayOf(col, half, clear),
-                floatArrayOf(0f, 0.55f, 1f),
-                Shader.TileMode.CLAMP
-            )
-            shadowShaders[idx] = sh
+    /** Two-point radial gradient like canvas createRadialGradient. Before API 31 there is no
+     *  two-point form, so fall back to one centre halfway to the focus with adjusted stops. */
+    private fun radial(
+        fx: Float, fy: Float, r0: Float, x1: Float, y1: Float, r1: Float,
+        colors: IntArray, stops: FloatArray, fallbackStops: FloatArray,
+    ): Shader {
+        if (Build.VERSION.SDK_INT >= 31) {
+            val packed = LongArray(colors.size) { Color.pack(colors[it]) }
+            return RadialGradient(fx, fy, r0, x1, y1, r1, packed, stops, Shader.TileMode.CLAMP)
         }
-        shadowPaint.shader = sh
+        val mx = (fx + x1) / 2f
+        val my = (fy + y1) / 2f
+        val dx = x1 - mx
+        val dy = y1 - my
+        val r = r1 + kotlin.math.sqrt(dx * dx + dy * dy)
+        return RadialGradient(mx, my, r, colors, fallbackStops, Shader.TileMode.CLAMP)
     }
 
-    private fun shapesFor(s: Float): Shapes {
-        for (slot in slots) if (slot.size == s) return slot
-        val slot = slots[nextSlot]
-        nextSlot = (nextSlot + 1) % slots.size
-        build(slot, s)
-        return slot
+    private fun sky(m: Int, pal: Pal): Shader =
+        skyShaders[m] ?: lin(0f, 2f, 0f, 98f, intArrayOf(pal.skyTop, pal.skyBot), floatArrayOf(0f, 1f))
+            .also { skyShaders[m] = it }
+
+    private fun bodyGrad(m: Int, pal: Pal): Shader =
+        bodyShaders[m] ?: lin(0f, 30f, 0f, 80f, intArrayOf(pal.hi, pal.base, pal.mid), floatArrayOf(0f, 0.2f, 1f))
+            .also { bodyShaders[m] = it }
+
+    private fun irisGrad(m: Int, pal: Pal, ir: Float): Shader =
+        irisShaders[m] ?: lin(0f, -ir, 0f, ir, intArrayOf(INK, pal.iris, pal.irisHi), floatArrayOf(0f, 0.45f, 1f))
+            .also { irisShaders[m] = it }
+
+    // ---- paint helpers (globalAlpha multiplies the colour's own alpha, as in canvas 2D) ----
+    private fun solid(color: Int, a: Float = 1f): Paint {
+        fill.shader = null
+        fill.color = color
+        if (a < 1f) fill.alpha = (Color.alpha(color) * a + 0.5f).toInt().coerceIn(0, 255)
+        return fill
     }
 
-    private fun build(slot: Shapes, s: Float) {
-        slot.size = s
-        val b = slot.body
-        b.reset()
-        rect.set(-0.28f * s, -0.045f * s, 0.28f * s, 0.14f * s)
-        b.addRoundRect(rect, 0.07f * s, 0.07f * s, Path.Direction.CW)
-        tmp.reset()
-        rect.set(-0.21f * s, -0.27f * s, 0.19f * s, 0f)
-        tmp.addRoundRect(rect, 0.11f * s, 0.11f * s, Path.Direction.CW)
-        b.op(tmp, Path.Op.UNION)
-        tmp.reset()
-
-        val pn = slot.panel
-        pn.reset()
-        rect.set(-0.175f * s, -0.237f * s, 0.155f * s, -0.06f * s)
-        pn.addRoundRect(rect, 0.075f * s, 0.075f * s, Path.Direction.CW)
-
-        val st = slot.star
-        st.reset()
-        val outer = 0.032f * s
-        val inner = outer * 0.48f
-        for (i in 0 until 10) {
-            val r = if (i % 2 == 0) outer else inner
-            val a = -PI / 2f + i * PI / 5f
-            val x = cos(a) * r
-            val y = sin(a) * r
-            if (i == 0) st.moveTo(x, y) else st.lineTo(x, y)
-        }
-        st.close()
+    private fun shaded(sh: Shader, a: Float = 1f): Paint {
+        fill.shader = sh
+        fill.color = Color.BLACK
+        fill.alpha = (255f * a + 0.5f).toInt().coerceIn(0, 255)
+        return fill
     }
+
+    private fun pen(color: Int, w: Float, a: Float = 1f): Paint {
+        stroke.shader = null
+        stroke.color = color
+        if (a < 1f) stroke.alpha = (Color.alpha(color) * a + 0.5f).toInt().coerceIn(0, 255)
+        stroke.strokeWidth = w
+        stroke.strokeCap = Paint.Cap.ROUND
+        stroke.strokeJoin = Paint.Join.ROUND
+        return stroke
+    }
+
+    private fun ink(w: Float = LW): Paint = pen(INK, w)
+
+    private fun oval(c: Canvas, x: Float, y: Float, rx: Float, ry: Float, paint: Paint) {
+        rect.set(x - rx, y - ry, x + rx, y + ry)
+        c.drawOval(rect, paint)
+    }
+
+    private fun ovalRot(c: Canvas, x: Float, y: Float, rx: Float, ry: Float, rotRad: Float, paint: Paint) {
+        c.save()
+        c.translate(x, y)
+        c.rotate(rotRad * RAD2DEG)
+        oval(c, 0f, 0f, rx, ry, paint)
+        c.restore()
+    }
+
+    // ---- per-frame eye state (reused, no allocation) ----
+    private var gazeX = 0f
+    private var gazeY = 0f
+    private var lidTop = 0f
+    private var lidBottom = 0f
+    private var lidTilt = 0f
+    private var spin = 0f
+    private var blinking = false
 
     override fun draw(c: Canvas, cx: Float, cy: Float, size: Float, mood: Mood, level: Float, t: Float) {
-        val s = size
-        if (s <= 1f) return
-        ensure(s, mood)
-
+        if (size <= 1f) return
+        val m = mood.ordinal
+        val pal = PALS[m]
+        val sh = S
         val k = when (mood) {
             Mood.CALM -> clamp01(level / 0.6f)
             Mood.UNEASY -> clamp01((level - 0.5f) / 0.5f)
-            Mood.SICK -> clamp01((level - 0.8f) / 0.7f) // HIGH holds down to ~0.8 (exit hysteresis)
+            Mood.SICK -> clamp01((level - 0.8f) / 0.7f)
         }
-        val bodyColor = when (mood) {
-            Mood.CALM -> lerpColor(CALM_A, CALM_B, k)
-            Mood.UNEASY -> lerpColor(UNEASY_A, UNEASY_B, k)
-            Mood.SICK -> lerpColor(SICK_A, SICK_B, k)
-        }
-        val shadeColor = darken(bodyColor, 0.8f)
 
-        val bodyDy: Float
-        val angle: Float
-        val spinPeriod: Float
+        c.save()
+        c.translate(cx - size / 2f, cy - size / 2f)
+        c.scale(size / 100f, size / 100f)
+
+        // motion: hop cycle with squash on landing, stretch on take-off / fall
+        var bob = 0f
+        var rot = 0f // radians
+        var sx = 1f
+        var sy = 1f
+        var shakeX = 0f
+        val speed: Float
+        val wheel: Float
+        var hop = 0f
+        val hopU = posMod(t / 1.05f, 1f)
         when (mood) {
             Mood.CALM -> {
-                bodyDy = -0.016f * s * (0.5f - 0.5f * cos(TAU * t / 1.6f))
-                angle = 0f
-                spinPeriod = 2f
+                hop = sin(PI * hopU)
+                val contact = max(0f, cos(TAU * hopU)).pow(6)
+                val stretch = 0.06f * abs(cos(PI * hopU)) * (1f - contact)
+                bob = -4.2f * hop
+                sy = 1f - 0.11f * contact + stretch
+                sx = 1f + 0.08f * contact - stretch * 0.7f
+                speed = 0.9f
+                wheel = t * 3.2f
             }
             Mood.UNEASY -> {
-                bodyDy = -0.010f * s * (0.5f - 0.5f * cos(TAU * t / 1.5f))
-                angle = (3f + 3f * k) * sin(TAU * t / 2.4f)
-                spinPeriod = 2.6f
+                rot = (3f + 3f * k) * sin(TAU * t / 1.4f) * PI / 180f
+                shakeX = 0.35f * sin(TAU * t * 7f) * (0.4f + k)
+                bob = -0.6f * (0.5f + 0.5f * sin(TAU * t / 0.7f))
+                speed = 0.45f
+                wheel = t * 1.8f
             }
             Mood.SICK -> {
-                bodyDy = 0.008f * s + 0.014f * s * sin(TAU * t / 3.2f)
-                angle = (5f + 3f * k) * sin(TAU * t / 3.2f + 0.8f)
-                spinPeriod = 3.6f
+                rot = (4f + 3f * k) * sin(TAU * t / 3.2f + 0.8f) * PI / 180f
+                sy = 0.965f
+                sx = 1.025f
+                bob = 0.6f + 0.8f * sin(TAU * t / 3.2f)
+                speed = 0.18f
+                wheel = t * 0.9f
             }
         }
 
-        c.save()
-        c.translate(cx, cy)
+        backdrop(c, m, pal, t, speed)
 
-        // soft ground shadow (gradient, no blur filter)
+        // crisp contact shadow, shrinks while airborne
         c.save()
-        c.translate(0f, CONTACT_Y * s)
-        c.scale(0.27f * s / SH_R, 0.038f * s / SH_R)
-        c.drawCircle(0f, 0f, SH_R, shadowPaint)
+        c.clipPath(sh.disc)
+        oval(c, 50f, 90f, 37f * (1f - 0.12f * hop), 3.4f * (1f - 0.12f * hop), solid(pal.shadow))
         c.restore()
 
-        drawRoad(c, s, t)
-        drawSpeedLines(c, s, t, mood, (OY * s) + bodyDy)
+        if (mood == Mood.SICK) drawSmoke(c, t)
 
-        // the car rocks around its contact point on the road
+        // tyres stay planted on the road (body rides the suspension above them)
         c.save()
-        c.rotate(angle, 0f, CONTACT_Y * s)
+        c.translate(shakeX, 0f)
+        drawTyre(c, TYRE_X[0], wheel, -1f)
+        drawTyre(c, TYRE_X[1], wheel, 1f)
+        c.restore()
 
+        // body transform: pivot at ground under the car
         c.save()
-        c.translate(0f, OY * s + bodyDy)
-        drawBody(c, s, bodyColor, shadeColor)
-        when (mood) {
-            Mood.CALM -> drawCalmFace(c, s, k, t)
-            Mood.UNEASY -> drawUneasyFace(c, s, k, t)
-            Mood.SICK -> drawSickFace(c, s, k, t, shadeColor)
+        c.translate(50f + shakeX, 84f + bob)
+        c.rotate(rot * RAD2DEG)
+        c.scale(sx, sy)
+        c.translate(-50f, -84f)
+
+        // antenna with springy pink ball
+        val sway = when (mood) {
+            Mood.CALM -> -cos(PI * hopU * 2f) * 5f
+            Mood.UNEASY -> sin(TAU * t / 1.4f - 0.6f) * 7f
+            Mood.SICK -> sin(TAU * t / 3.2f) * 9f + 6f
         }
-        c.restore()
-
+        val bx = 63f + sway
+        val by = 15.5f
+        work.rewind()
+        work.moveTo(60.5f, 31f)
+        work.quadTo(61.5f + sway * 0.3f, 22f, bx, by + 3f)
+        c.drawPath(work, ink(1.9f))
         c.save()
-        c.translate(0f, OY * s)
-        drawWheels(c, s, mood, k, t, spinPeriod)
+        c.translate(bx, by)
+        c.drawCircle(0f, 0f, 4f, shaded(ballShader))
+        c.drawCircle(0f, 0f, 4f, ink(1.9f))
         c.restore()
 
-        c.restore() // rotation
+        // mirrors
+        solid(pal.mid)
+        c.drawPath(sh.mirrorL, fill)
+        c.drawPath(sh.mirrorR, fill)
+        ink()
+        c.drawPath(sh.mirrorL, stroke)
+        c.drawPath(sh.mirrorR, stroke)
+        pen(WHITE, 1.3f, 0.85f)
+        c.drawPath(sh.mirrorHiL, stroke)
+        c.drawPath(sh.mirrorHiR, stroke)
 
+        // body with shade band on the right, rim light on the left
+        c.drawPath(sh.body, shaded(bodyGrad(m, pal)))
+        c.save()
+        c.clipPath(sh.body)
+        c.drawPath(sh.sideShade, solid(pal.shade))
+        c.drawPath(sh.bellyShade, solid(pal.shade, 0.85f))
+        c.drawPath(sh.roofRim, solid(WHITE, 0.8f))
+        c.drawPath(sh.rimL, pen(WHITE, 1.6f, 0.75f))
+        c.restore()
+        c.drawPath(sh.body, ink())
+        c.drawPath(sh.hoodLine, pen(pal.deep, 1.2f))
+
+        // windshield with a dashboard line
+        c.drawPath(sh.glass, shaded(glassShader))
+        c.save()
+        c.clipPath(sh.glass)
+        c.drawPath(sh.glassStreak1, solid(WHITE, 0.9f))
+        c.drawPath(sh.glassStreak2, solid(WHITE, 0.7f))
+        c.drawPath(sh.dash, pen(0xFF8FAECB.toInt(), 1.2f))
+        if (mood == Mood.SICK) c.drawPath(sh.gloom, pen(pal.deep, 1.6f, 0.7f))
+        c.restore()
+        c.drawPath(sh.glass, ink(2f))
+
+        // cheeks on the fenders outside the eyes
+        val cheek = if (mood == Mood.SICK) 0x73968CC8 else 0x8CFF6E96.toInt()
+        oval(c, 18.2f, 72.4f, 4.2f, 2.6f, solid(cheek))
+        oval(c, 81.8f, 72.4f, 4.2f, 2.6f, fill)
+
+        // heart hood badge
+        c.save()
+        c.translate(50f, 55.2f)
+        c.scale(1.3f, 1.3f)
+        c.drawPath(sh.heart, solid(0xFFFF6F96.toInt()))
+        c.drawPath(sh.heart, ink(1.25f))
+        c.drawCircle(-1.4f, -1.9f, 0.6f, solid(WHITE, 0.85f))
+        c.restore()
+
+        // eyes
+        val phase = posMod(t, 3.4f)
+        val blink = if (phase > 3.18f) sin((phase - 3.18f) / 0.22f * PI) else 0f
         when (mood) {
-            Mood.CALM -> drawTwinkles(c, s, t, bodyDy)
-            Mood.SICK -> drawStars(c, s, t, bodyDy)
-            Mood.UNEASY -> Unit
+            Mood.CALM -> {
+                gazeX = 0f; gazeY = -0.15f; lidTop = blink; lidBottom = 0.16f * (1f - blink); lidTilt = 0f; spin = 0f
+            }
+            Mood.UNEASY -> {
+                val g = sin(TAU * t / 2.8f)
+                val sd = if (g > 0f) min(1f, g * 3f) else max(-1f, g * 3f)
+                gazeX = sd * 0.85f; gazeY = -0.05f; lidTop = max(blink, 0.3f); lidBottom = 0f; lidTilt = 0.26f; spin = 0f
+            }
+            Mood.SICK -> {
+                gazeX = 0f; gazeY = 0f; lidTop = max(blink, 0.36f); lidBottom = 0f; lidTilt = 0.16f; spin = t * 3f
+            }
+        }
+        blinking = blink > 0.01f && blink >= lidTop - 0.001f
+        for (i in 0 until 2) {
+            c.save()
+            c.translate(EYE_X[i], EYE_Y)
+            drawEye(c, mood, m, pal, if (i == 0) -1f else 1f)
+            c.restore()
         }
 
+        // heavy worry brows over the bezels
+        if (mood == Mood.UNEASY) {
+            ink(3f)
+            c.drawPath(sh.browL, stroke)
+            c.drawPath(sh.browR, stroke)
+        }
+
+        // bumper with the chin notch
+        c.drawPath(sh.bumper, shaded(bumperShader))
+        c.drawPath(sh.bumper, ink())
+
+        // grille mouth
+        when (mood) {
+            Mood.CALM -> {
+                c.drawPath(sh.mouthSmile, solid(0xFF4A2240.toInt()))
+                c.save()
+                c.clipPath(sh.mouthSmile)
+                c.drawPath(sh.tongueSmile, solid(0xFFFF7FA0.toInt()))
+                c.drawRect(38f, 63f, 62f, 67.4f, solid(0xFFE9EEF6.toInt())) // chrome slat = upper teeth
+                c.drawRect(38f, 67f, 62f, 67.6f, solid(0xFFB9C3D3.toInt()))
+                c.restore()
+                c.drawPath(sh.mouthSmile, ink())
+            }
+            Mood.UNEASY -> c.drawPath(sh.mouthWavy, ink(2.4f))
+            Mood.SICK -> {
+                c.drawPath(sh.mouthSick, solid(0xFF3E2238.toInt()))
+                c.save()
+                c.clipPath(sh.mouthSick)
+                oval(c, 48.4f, 73.8f, 6f, 2.6f, solid(0xFFC24D74.toInt())) // throat
+                c.restore()
+                c.drawPath(sh.mouthSick, ink())
+                c.save()
+                c.rotate(sin(TAU * t / 1.6f) * 0.1f * RAD2DEG, 56.2f, 70.4f)
+                c.drawPath(sh.tongueSick, solid(0xFFFF86A6.toInt()))
+                c.drawPath(sh.tongueSick, ink(1.9f))
+                c.drawPath(sh.tongueSickLine, pen(0xFFD9557A.toInt(), 1.1f))
+                c.restore()
+            }
+        }
+        c.restore() // body transform
+
+        // mood effects in screen space
+        when (mood) {
+            Mood.CALM -> {
+                for (i in 0 until 2) {
+                    val x = if (i == 0) 19f else 83f
+                    val y = if (i == 0) 24f else 28f
+                    val s = if (i == 0) 1.05f else 0.85f
+                    val ph = if (i == 0) 0f else 0.5f
+                    val a = 0.5f + 0.5f * sin(TAU * (t / 1.4f + ph))
+                    val sc = s * (0.75f + 0.25f * a)
+                    c.save()
+                    c.translate(x, y)
+                    c.scale(sc, sc)
+                    c.drawPath(sh.spark, solid(0xFFFFD84A.toInt()))
+                    c.drawPath(sh.spark, ink(1.4f / s))
+                    c.restore()
+                }
+            }
+            Mood.UNEASY -> {
+                for (i in 0 until 2) {
+                    val x = if (i == 0) 83f else 16f
+                    val y = if (i == 0) 38f else 41f
+                    val s = if (i == 0) 1f else 0.72f
+                    val ph = if (i == 0) 0f else 0.45f
+                    val drip = posMod(t / 1.8f + ph, 1f)
+                    val a = 1f - max(0f, drip - 0.7f) / 0.3f
+                    c.save()
+                    c.translate(x, y + drip * 5f)
+                    c.scale(s, s)
+                    c.drawPath(sh.sweat, shaded(sweatShader, a))
+                    c.drawPath(sh.sweat, pen(INK, 1.8f / s, a))
+                    ovalRot(c, -1.6f, 2.6f, 1f, 1.8f, 0.3f, solid(WHITE, a))
+                    c.restore()
+                }
+                ink(1.8f)
+                c.drawPath(sh.nervousL, stroke)
+                c.drawPath(sh.nervousR, stroke)
+            }
+            Mood.SICK -> {
+                // two big dizzy stars orbiting above the roof
+                for (i in 0 until 2) {
+                    val a = t * 2.2f + i * PI
+                    val x = 47f + cos(a) * 21f
+                    val y = 20f + sin(a) * 4.5f
+                    val s = 1.05f + 0.2f * sin(a)
+                    c.save()
+                    c.translate(x, y)
+                    c.scale(s, s)
+                    c.drawPath(sh.star5, solid(0xFFFFD84A.toInt()))
+                    c.drawPath(sh.star5, ink(1.4f / s))
+                    c.restore()
+                }
+            }
+        }
         c.restore()
     }
 
     // ---------------------------------------------------------------- scenery
 
-    private fun drawRoad(c: Canvas, s: Float, t: Float) {
-        stroke.color = ROAD
-        stroke.strokeWidth = 0.022f * s
-        c.drawLine(-0.32f * s, ROAD_Y * s, 0.32f * s, ROAD_Y * s, stroke)
-
-        // small dashes drifting backwards under the road, fading at both ends
-        stroke.color = DASH
-        stroke.strokeWidth = 0.014f * s
-        val span = 0.56f
-        val y = 0.295f * s
-        for (i in 0 until 3) {
-            val pos = posMod(i * (span / 3f) - t * 0.1f, span)
-            val f = pos / span
-            stroke.alpha = (255f * sin(PI * f)).toInt().coerceIn(0, 255)
-            val x0 = (-0.30f + pos) * s
-            c.drawLine(x0, y, x0 + 0.05f * s, y, stroke)
-        }
-        stroke.alpha = 255
-    }
-
-    private fun drawSpeedLines(c: Canvas, s: Float, t: Float, mood: Mood, originY: Float) {
-        stroke.color = INK
-        stroke.strokeWidth = 0.018f * s
-        val baseAlpha = when (mood) {
-            Mood.CALM -> 150
-            Mood.UNEASY -> 120
-            Mood.SICK -> 85
-        }
-        val xEnd = -0.315f * s
-        for (i in 0 until 3) {
-            val yl = when (i) { 0 -> -0.13f; 1 -> -0.04f; else -> 0.05f }
-            val base = when (i) { 0 -> 0.07f; 1 -> 0.09f; else -> 0.06f }
-            val pulse = 0.5f + 0.5f * sin(TAU * t / 1.6f + i * 1.7f)
-            val len = base * (0.7f + 0.3f * pulse) * s
-            stroke.alpha = (baseAlpha * (0.75f + 0.25f * pulse)).toInt()
-            val y = originY + yl * s
-            c.drawLine(xEnd - len, y, xEnd, y, stroke)
-        }
-        stroke.alpha = 255
-    }
-
-    // ---------------------------------------------------------------- car
-
-    private fun drawBody(c: Canvas, s: Float, bodyColor: Int, shadeColor: Int) {
-        fill.color = bodyColor
-        c.drawPath(body, fill)
-
-        // one cel-shade band along the bottom
+    /** Round stage with a wide road running to the horizon. */
+    private fun backdrop(c: Canvas, m: Int, pal: Pal, t: Float, speed: Float) {
+        val sh = S
         c.save()
-        c.clipPath(body)
-        fill.color = shadeColor
-        c.drawRect(-0.3f * s, 0.075f * s, 0.3f * s, 0.15f * s, fill)
+        c.drawPath(sh.disc, shaded(sky(m, pal)))
+        c.clipPath(sh.disc)
+        c.drawRect(0f, 58f, 100f, 100f, solid(pal.ground))
+        c.drawPath(sh.road, solid(pal.road))
+        c.drawRect(0f, 57.4f, 100f, 58.6f, solid(WHITE, 0.7f))
+
+        // solid edge lines + centre dashes flowing toward the viewer
+        val edge = pen(pal.streak, 1.6f, 0.75f)
+        edge.strokeCap = Paint.Cap.BUTT
+        c.drawLine(42.6f, 58f, -6f, 100f, edge)
+        c.drawLine(57.4f, 58f, 106f, 100f, edge)
+        for (i in 0 until 3) {
+            val u = posMod(i / 3f + t * speed, 1f)
+            val z0 = u * u
+            val z1 = min(1f, (u + 0.14f) * (u + 0.14f))
+            val y0 = 58f + 42f * z0
+            val y1 = 58f + 42f * z1
+            val w0 = 0.4f + 2.2f * z0
+            val w1 = 0.4f + 2.2f * z1
+            work.rewind()
+            work.moveTo(50f - w0, y0)
+            work.lineTo(50f + w0, y0)
+            work.lineTo(50f + w1, y1)
+            work.lineTo(50f - w1, y1)
+            work.close()
+            c.drawPath(work, solid(pal.streak, 0.35f + 0.5f * u))
+        }
+
+        // bold speed streaks: coloured body, white core, flying outward past the car
+        if (speed > 0.5f) {
+            var j = 0
+            while (j < STREAKS.size) {
+                val y = STREAKS[j]
+                val s = STREAKS[j + 1]
+                val ph = STREAKS[j + 2]
+                j += 3
+                val u = posMod(ph + t * 1.4f, 1f)
+                val a = 30f + u * 14f
+                val len = 8f + 6f * sin(u * PI)
+                val x0 = 50f + s * a
+                val x1 = 50f + s * (a + len)
+                val alpha = clamp01(sin(u * PI) * 1.6f)
+                c.drawLine(x0, y, x1, y, pen(pal.streak, 3.4f, alpha))
+                c.drawLine(x0 + s * 1.2f, y, x1 - s * 0.6f, y, pen(WHITE, 1.4f, alpha))
+            }
+        }
         c.restore()
-
-        // flat glint on the rear of the bonnet line
-        fill.color = Color.WHITE
-        fill.alpha = 170
-        rect.set(-0.262f * s, -0.03f * s, -0.218f * s, -0.01f * s)
-        c.drawOval(rect, fill)
-        fill.alpha = 255
-
-        stroke.color = INK
-        stroke.strokeWidth = 0.025f * s
-        c.drawPath(body, stroke)
-
-        // lights
-        stroke.strokeWidth = 0.012f * s
-        fill.color = HEADLIGHT
-        rect.set(0.233f * s, -0.002f * s, 0.271f * s, 0.04f * s)
-        c.drawOval(rect, fill)
-        c.drawOval(rect, stroke)
-        fill.color = TAILLIGHT
-        rect.set(-0.272f * s, 0.022f * s, -0.24f * s, 0.05f * s)
-        c.drawOval(rect, fill)
-        c.drawOval(rect, stroke)
-
-        // windshield = face panel
-        fill.color = GLASS
-        c.drawPath(panel, fill)
-        stroke.strokeWidth = 0.016f * s
-        c.drawPath(panel, stroke)
     }
 
-    private fun drawWheels(c: Canvas, s: Float, mood: Mood, k: Float, t: Float, spinPeriod: Float) {
-        val r = WHEEL_R * s
-        val rx: Float
-        val ry: Float
+    private fun drawSmoke(c: Canvas, t: Float) {
+        for (i in 0 until 2) {
+            val u = posMod(t / 2.6f + i / 2f, 1f)
+            val x = 19f - u * 9f
+            val y = 44f - u * 26f
+            val r = 3.9f + u * 6.4f
+            val ga = if (u < 0.75f) 1f else (1f - u) / 0.25f
+            val x2 = x + r * 0.95f
+            val y2 = y + r * 0.35f
+            val r2 = r * 0.68f
+            val x3 = x - r * 0.85f
+            val y3 = y + r * 0.4f
+            val r3 = r * 0.58f
+            solid(INK, ga)
+            c.drawCircle(x, y, r + 1.3f, fill)
+            c.drawCircle(x2, y2, r2 + 1.3f, fill)
+            c.drawCircle(x3, y3, r3 + 1.3f, fill)
+            solid(0xFFF2F5F3.toInt(), ga)
+            c.drawCircle(x, y, r, fill)
+            c.drawCircle(x2, y2, r2, fill)
+            c.drawCircle(x3, y3, r3, fill)
+            oval(c, x + r * 0.2f, y + r * 0.62f, r * 1.1f, r * 0.3f, solid(0xFFC8CFD6.toInt(), ga))
+            c.drawCircle(x - r * 0.3f, y - r * 0.35f, r * 0.32f, solid(WHITE, ga))
+        }
+    }
+
+    // ---------------------------------------------------------------- car parts
+
+    /** Rounded tyre with a sidewall / rim sliver on its outer side and tread scrolling down. */
+    private fun drawTyre(c: Canvas, x: Float, wheel: Float, side: Float) {
+        val rx = 6.4f
+        val ry = 7f
+        c.save()
+        c.translate(x, 83f)
+        c.drawPath(S.tyre, solid(0xFF3A3A55.toInt()))
+        c.save()
+        c.clipPath(S.tyre)
+        val groove = pen(0xFF2A2942.toInt(), 1.1f)
+        groove.strokeCap = Paint.Cap.BUTT
+        for (i in 0 until 4) {
+            val yy = -ry + posMod(i * 3.6f + wheel * 3.6f, 14.4f)
+            c.drawLine(-rx, yy, rx, yy, groove)
+        }
+        oval(c, side * rx * 0.95f, 0f, rx * 0.5f, ry * 0.95f, solid(0xFF5A5A7A.toInt()))
+        oval(c, side * rx * 1.08f, 0f, rx * 0.36f, ry * 0.7f, shaded(rimShader))
+        oval(c, side * rx * 0.92f, ry * 0.32f, 0.7f, 1.3f, solid(WHITE, 0.9f))
+        c.restore()
+        c.drawPath(S.tyre, ink())
+        c.restore()
+    }
+
+    /** Headlight eye drawn around (0,0); [side] is -1 for the left eye, 1 for the right. */
+    private fun drawEye(c: Canvas, mood: Mood, m: Int, pal: Pal, side: Float) {
+        val r = ER
+        val sh = S
+        c.drawCircle(0f, 0f, r + 2.1f, shaded(bezelShader))
+        c.drawCircle(0f, 0f, r + 2.1f, ink())
+        c.drawPath(sh.lens, shaded(lensShader))
+
+        c.save()
+        c.clipPath(sh.lens)
         if (mood == Mood.SICK) {
-            rx = r * (1.08f + 0.04f * k)
-            ry = r * (0.86f - 0.06f * k)
-        } else {
-            rx = r
-            ry = r
-        }
-        val wy = WHEEL_BOTTOM * s - ry
-        val spin = TAU * t / spinPeriod
-        for (i in 0 until 2) {
-            val wx = if (i == 0) -WHEEL_X * s else WHEEL_X * s
-            fill.color = TIRE
-            rect.set(wx - rx, wy - ry, wx + rx, wy + ry)
-            c.drawOval(rect, fill)
-            stroke.color = INK
-            stroke.strokeWidth = 0.02f * s
-            c.drawOval(rect, stroke)
-
-            val hx = rx * 0.42f
-            val hy = ry * 0.42f
-            fill.color = HUB
-            rect.set(wx - hx, wy - hy, wx + hx, wy + hy)
-            c.drawOval(rect, fill)
-            stroke.strokeWidth = 0.011f * s
-            c.drawOval(rect, stroke)
-
-            // spokes turning slowly
-            stroke.strokeWidth = 0.009f * s
-            val ca = cos(spin)
-            val sa = sin(spin)
-            val lx = hx * 0.7f
-            val ly = hy * 0.7f
-            c.drawLine(wx - ca * lx, wy - sa * ly, wx + ca * lx, wy + sa * ly, stroke)
-            c.drawLine(wx + sa * lx, wy - ca * ly, wx - sa * lx, wy + ca * ly, stroke)
-        }
-    }
-
-    // ---------------------------------------------------------------- faces
-
-    private fun drawEyeWhite(c: Canvas, s: Float, ex: Float, ey: Float, rx: Float, ry: Float) {
-        rect.set(ex - rx, ey - ry, ex + rx, ey + ry)
-        fill.color = Color.WHITE
-        c.drawOval(rect, fill)
-    }
-
-    private fun outlineEye(c: Canvas, s: Float, ex: Float, ey: Float, rx: Float, ry: Float) {
-        rect.set(ex - rx, ey - ry, ex + rx, ey + ry)
-        stroke.color = INK
-        stroke.strokeWidth = 0.016f * s
-        c.drawOval(rect, stroke)
-    }
-
-    private fun drawCheeks(c: Canvas, s: Float, color: Int) {
-        fill.color = color
-        rect.set(-0.2f * s, 0.0f * s, -0.14f * s, 0.032f * s)
-        c.drawOval(rect, fill)
-        rect.set(0.12f * s, 0.0f * s, 0.18f * s, 0.032f * s)
-        c.drawOval(rect, fill)
-    }
-
-    private fun drawCalmFace(c: Canvas, s: Float, k: Float, t: Float) {
-        val blinking = posMod(t, 3.5f) > 3.35f
-        val rx = 0.052f * s
-        val ry = 0.064f * s
-        val ey = EYE_Y * s
-        for (i in 0 until 2) {
-            val ex = EYE_X[i] * s
-            if (blinking) {
-                // happy closed eye: ^
-                stroke.color = INK
-                stroke.strokeWidth = 0.018f * s
-                rect.set(ex - rx * 0.9f, ey - ry * 0.35f, ex + rx * 0.9f, ey + ry * 0.9f)
-                c.drawArc(rect, 200f, 140f, false, stroke)
-            } else {
-                drawEyeWhite(c, s, ex, ey, rx, ry)
-                fill.color = INK
-                rect.set(ex - 0.03f * s, ey - 0.035f * s, ex + 0.038f * s, ey + 0.055f * s)
-                c.drawOval(rect, fill)
-                fill.color = Color.WHITE
-                c.drawCircle(ex - 0.006f * s, ey - 0.008f * s, 0.015f * s, fill)
-                c.drawCircle(ex + 0.018f * s, ey + 0.03f * s, 0.0075f * s, fill)
-                outlineEye(c, s, ex, ey, rx, ry)
-            }
-        }
-
-        drawCheeks(c, s, BLUSH)
-
-        // big open smile with a little tongue
-        val mx = MOUTH_X * s
-        val my = 0.005f * s
-        val w = 0.05f * s
-        val d = (0.05f + 0.01f * (1f - k)) * s
-        work.reset()
-        work.moveTo(mx - w, my)
-        work.lineTo(mx + w, my)
-        work.cubicTo(mx + w, my + d * 1.3f, mx - w, my + d * 1.3f, mx - w, my)
-        work.close()
-        fill.color = MOUTH
-        c.drawPath(work, fill)
-        c.save()
-        c.clipPath(work)
-        fill.color = TONGUE
-        rect.set(mx - 0.018f * s, my + d * 0.62f, mx + 0.034f * s, my + d * 1.15f)
-        c.drawOval(rect, fill)
-        c.restore()
-        stroke.color = INK
-        stroke.strokeWidth = 0.016f * s
-        c.drawPath(work, stroke)
-    }
-
-    private fun drawUneasyFace(c: Canvas, s: Float, k: Float, t: Float) {
-        val rx = 0.052f * s
-        val ry = 0.058f * s
-        val ey = EYE_Y * s
-        // glancing aside, drifting slowly
-        val look = 0.75f + 0.25f * sin(TAU * t / 2.6f)
-        for (i in 0 until 2) {
-            val ex = EYE_X[i] * s
-            drawEyeWhite(c, s, ex, ey, rx, ry)
-            val px = ex + 0.022f * s * look
-            val py = ey + 0.008f * s
-            fill.color = INK
-            rect.set(px - 0.025f * s, py - 0.032f * s, px + 0.025f * s, py + 0.032f * s)
-            c.drawOval(rect, fill)
-            fill.color = Color.WHITE
-            c.drawCircle(px - 0.007f * s, py - 0.012f * s, 0.008f * s, fill)
-            outlineEye(c, s, ex, ey, rx, ry)
-        }
-
-        // worried brows (inner ends raised)
-        stroke.color = INK
-        stroke.strokeWidth = 0.015f * s
-        val bl = EYE_X[0] * s
-        val br = EYE_X[1] * s
-        val lift = 0.004f * s * k
-        c.drawLine(bl - 0.04f * s, ey - 0.07f * s, bl + 0.03f * s, ey - 0.086f * s - lift, stroke)
-        c.drawLine(br - 0.03f * s, ey - 0.086f * s - lift, br + 0.04f * s, ey - 0.07f * s, stroke)
-
-        drawCheeks(c, s, 0x40FF6F91)
-
-        // wobbly mouth
-        val a = (0.012f + 0.008f * k) * s
-        wavy(work, MOUTH_X * s - 0.045f * s, 0.09f * s, 0.028f * s, a, 2)
-        stroke.strokeWidth = 0.016f * s
-        c.drawPath(work, stroke)
-
-        // one sweat drop sliding down slowly beside the cabin
-        val p = posMod(t, 2.4f) / 2.4f
-        val dx = 0.215f * s
-        val dy = (-0.205f + 0.06f * p) * s
-        val dr = (0.02f + 0.01f * k) * s
-        work.reset()
-        work.moveTo(dx, dy - 1.7f * dr)
-        work.quadTo(dx + dr * 1.1f, dy - 0.4f * dr, dx + dr, dy)
-        rect.set(dx - dr, dy - dr, dx + dr, dy + dr)
-        work.arcTo(rect, 0f, 180f, false)
-        work.quadTo(dx - dr * 1.1f, dy - 0.4f * dr, dx, dy - 1.7f * dr)
-        work.close()
-        // fade in at the top and out at the bottom so the loop restart never pops
-        val alpha = (255f * minOf(1f, 2.5f * sin(PI * p))).toInt().coerceIn(0, 255)
-        fill.color = SWEAT
-        fill.alpha = alpha
-        c.drawPath(work, fill)
-        stroke.strokeWidth = 0.011f * s
-        stroke.alpha = alpha
-        c.drawPath(work, stroke)
-        fill.color = Color.WHITE
-        fill.alpha = alpha
-        c.drawCircle(dx - dr * 0.35f, dy - dr * 0.2f, dr * 0.28f, fill)
-        fill.alpha = 255
-        stroke.alpha = 255
-    }
-
-    private fun drawSickFace(c: Canvas, s: Float, k: Float, t: Float, shadeColor: Int) {
-        val rx = 0.052f * s
-        val ry = 0.06f * s
-        val ey = EYE_Y * s
-        val rot = TAU * t / 3f
-        val turns = 2.25f
-        val n = 30
-        for (i in 0 until 2) {
-            val ex = EYE_X[i] * s
-            drawEyeWhite(c, s, ex, ey, rx, ry)
-            val dir = if (i == 0) 1f else -1f
-            work.reset()
-            for (j in 0..n) {
-                val f = j.toFloat() / n
-                val ang = dir * (rot + f * turns * TAU)
-                val x = ex + cos(ang) * f * 0.04f * s
-                val y = ey + sin(ang) * f * 0.046f * s
-                if (j == 0) work.moveTo(x, y) else work.lineTo(x, y)
-            }
-            stroke.color = INK
-            stroke.strokeWidth = 0.012f * s
-            c.drawPath(work, stroke)
-            outlineEye(c, s, ex, ey, rx, ry)
-        }
-
-        // queasy cheeks: a darker green patch instead of blush
-        drawCheeks(c, s, (shadeColor and 0x00FFFFFF) or 0x90000000.toInt())
-
-        // tongue sticking out, wiggling a little
-        val mx = MOUTH_X * s
-        val my = 0.028f * s
-        val tl = (0.045f + 0.006f * sin(TAU * t / 2f)) * s
-        val tx0 = mx + 0.002f * s
-        val tx1 = mx + 0.042f * s
-        work.reset()
-        work.moveTo(tx0, my)
-        work.lineTo(tx1, my)
-        work.cubicTo(tx1, my + tl, tx0, my + tl, tx0, my)
-        work.close()
-        fill.color = TONGUE
-        c.drawPath(work, fill)
-        stroke.color = INK
-        stroke.strokeWidth = 0.013f * s
-        c.drawPath(work, stroke)
-        stroke.strokeWidth = 0.009f * s
-        val mid = (tx0 + tx1) / 2f
-        c.drawLine(mid, my + 0.008f * s, mid, my + tl * 0.5f, stroke)
-
-        // wavy mouth line on top
-        val a = (0.012f + 0.006f * k) * s
-        wavy(work, mx - 0.06f * s, 0.12f * s, my, a, 3)
-        stroke.strokeWidth = 0.016f * s
-        c.drawPath(work, stroke)
-    }
-
-    // ---------------------------------------------------------------- extras
-
-    private fun drawStars(c: Canvas, s: Float, t: Float, bodyDy: Float) {
-        val oy = -0.30f * s + bodyDy
-        val orx = 0.14f * s
-        val ory = 0.03f * s
-        for (i in 0 until 3) {
-            val a = TAU * t / 3f + i * TAU / 3f
-            val sa = sin(a)
-            val depth = 0.75f + 0.25f * sa // front (lower) stars are bigger
             c.save()
-            c.translate(cos(a) * orx, oy + sa * ory)
-            c.rotate(a * 57.29578f * 0.5f)
-            c.scale(depth, depth)
-            fill.color = STAR
-            fill.alpha = (255 * (0.7f + 0.3f * depth)).toInt().coerceIn(0, 255)
-            c.drawPath(star, fill)
-            stroke.color = INK
-            stroke.strokeWidth = 0.011f * s
-            stroke.alpha = fill.alpha
-            c.drawPath(star, stroke)
+            c.rotate(spin * side * RAD2DEG)
+            c.drawPath(if (side < 0f) sh.spiralL else sh.spiralR, ink(1.9f))
+            c.restore()
+        } else {
+            val gx = gazeX * r * 0.3f
+            val gy = gazeY * r * 0.24f
+            val ir = r * (if (mood == Mood.UNEASY) 0.56f else 0.72f)
+            c.save()
+            c.translate(gx, gy)
+            c.drawCircle(0f, 0f, ir, shaded(irisGrad(m, pal, ir)))
+            c.drawCircle(0f, 0f, ir * 0.5f, solid(INK))
+            ovalRot(c, -ir * 0.36f, -ir * 0.4f, ir * 0.38f, ir * 0.31f, -0.5f, solid(WHITE))
+            c.drawCircle(ir * 0.42f, ir * 0.42f, ir * 0.16f, fill)
+            if (mood == Mood.CALM) {
+                c.save()
+                c.translate(ir * 0.4f, -ir * 0.52f)
+                c.scale(0.42f, 0.42f)
+                c.drawPath(sh.spark, fill)
+                c.restore()
+            }
             c.restore()
         }
-        fill.alpha = 255
-        stroke.alpha = 255
-    }
 
-    private fun drawTwinkles(c: Canvas, s: Float, t: Float, bodyDy: Float) {
-        for (i in 0 until 2) {
-            val x = if (i == 0) 0.27f * s else -0.25f * s
-            val y = (if (i == 0) -0.24f else -0.29f) * s + bodyDy
-            val pulse = 0.5f + 0.5f * sin(TAU * t / 2.2f + i * PI)
-            val r = 0.03f * s * (0.55f + 0.45f * pulse)
-            work.reset()
-            work.moveTo(x, y - r)
-            work.quadTo(x, y, x + r, y)
-            work.quadTo(x, y, x, y + r)
-            work.quadTo(x, y, x - r, y)
-            work.quadTo(x, y, x, y - r)
+        // upper lid (body colour) with a curved lashed edge; outer corner droops
+        val top = lidTop
+        if (top > 0.01f) {
+            c.save()
+            c.rotate(lidTilt * side * RAD2DEG)
+            val yT = -r - 1f + (1.3f * r + 1f) * top
+            val sag = r * (0.34f - 0.22f * max(0f, top - 0.6f) / 0.4f)
+            work.rewind()
+            work.moveTo(-r - 3f, -r - 4f)
+            work.lineTo(r + 3f, -r - 4f)
+            work.lineTo(r + 3f, yT)
+            work.cubicTo(r * 0.5f, yT + sag * 1.33f, -r * 0.5f, yT + sag * 1.33f, -r - 3f, yT)
             work.close()
-            fill.color = STAR
-            c.drawPath(work, fill)
-            stroke.color = INK
-            stroke.strokeWidth = 0.008f * s
-            c.drawPath(work, stroke)
+            c.drawPath(work, solid(pal.base))
+            // darker crease above the lash for volume
+            work.rewind()
+            work.moveTo(-r * 0.8f, yT - 1.6f)
+            work.cubicTo(-r * 0.4f, yT + sag - 1.4f, r * 0.4f, yT + sag - 1.4f, r * 0.8f, yT - 1.6f)
+            c.drawPath(work, pen(pal.deep, 1.1f, 0.35f))
+            if (blinking) { // lower lid rises to meet it
+                val yB = r + 1f - (0.7f * r + 1f) * top
+                c.drawRect(-r - 3f, yB, r + 3f, r + 4f, solid(pal.base))
+            }
+            work.rewind()
+            work.moveTo(-r - 3f, yT)
+            work.cubicTo(-r * 0.5f, yT + sag * 1.33f, r * 0.5f, yT + sag * 1.33f, r + 3f, yT)
+            c.drawPath(work, ink(2.2f))
+            if (!blinking) { // lash flick at the outer corner
+                val ox = -side * r * 0.92f
+                val oy = yT + sag * 0.35f
+                c.drawLine(ox, oy, ox - side * 2.2f, oy + 1.2f, ink(1.7f))
+            }
+            c.restore()
         }
+        if (lidBottom > 0.01f) { // happy cheek-lid pushing up from below
+            val h = r * 2f * lidBottom
+            rect.set(-r * 1.25f, r + h * 0.55f - h, r * 1.25f, r + h * 0.55f + h)
+            c.drawOval(rect, solid(pal.base))
+            c.drawArc(rect, 1.12f * 180f, 0.76f * 180f, false, ink(1.8f))
+        }
+        ovalRot(c, -r * 0.45f, -r * 0.55f, r * 0.42f, r * 0.18f, -0.7f, solid(WHITE, 0.55f))
+        c.restore() // lens clip
+        c.drawPath(sh.lens, ink(1.6f))
     }
 
     // ---------------------------------------------------------------- helpers
-
-    private fun wavy(p: Path, x0: Float, w: Float, y: Float, a: Float, n: Int) {
-        p.reset()
-        p.moveTo(x0, y)
-        val seg = w / n
-        for (i in 0 until n) {
-            val off = if (i % 2 == 0) -a else a
-            val xa = x0 + seg * i
-            p.cubicTo(xa + seg * 0.33f, y + off, xa + seg * 0.67f, y + off, xa + seg, y)
-        }
-    }
 
     private fun posMod(v: Float, m: Float): Float {
         val r = v % m
@@ -628,23 +742,4 @@ object ToonTheme : MoodTheme {
     }
 
     private fun clamp01(v: Float) = if (v < 0f) 0f else if (v > 1f) 1f else v
-
-    private fun lerpColor(a: Int, b: Int, f: Float): Int {
-        val ar = (a shr 16) and 0xFF
-        val ag = (a shr 8) and 0xFF
-        val ab = a and 0xFF
-        val br = (b shr 16) and 0xFF
-        val bg = (b shr 8) and 0xFF
-        val bb = b and 0xFF
-        val r = (ar + (br - ar) * f).toInt()
-        val g = (ag + (bg - ag) * f).toInt()
-        val bl = (ab + (bb - ab) * f).toInt()
-        return Color.rgb(r, g, bl)
-    }
-
-    private fun darken(c: Int, f: Float): Int = Color.rgb(
-        (((c shr 16) and 0xFF) * f).toInt(),
-        (((c shr 8) and 0xFF) * f).toInt(),
-        ((c and 0xFF) * f).toInt()
-    )
 }

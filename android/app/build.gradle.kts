@@ -56,7 +56,7 @@ android {
 
 // Scenario CSVs and params come from the simulator (STEP 3–4) so replay mode uses the same data as the tests.
 val syncSimAssets = tasks.register<Copy>("syncSimAssets") {
-    from(rootDir.resolve("../sim/scenarios")) { include("*.csv") }
+    from(rootDir.resolve("../sim/scenarios")) { include("*.csv", "*.route.json") }
     from(rootDir.resolve("../shared/params.json"))
     into(layout.projectDirectory.dir("src/main/assets"))
 }
@@ -64,6 +64,8 @@ tasks.named("preBuild") { dependsOn(syncSimAssets) }
 
 dependencies {
     implementation(project(":core"))
+    // PathParser: themes keep character outlines as SVG path data
+    implementation("androidx.core:core:1.13.1")
     implementation("ai.pleos.playground:Vehicle:2.3.2")
     implementation("ai.pleos.playground:NaviHelper:3.0.5")
     implementation("ai.pleos.playground:TextToSpeech:3.3.1")

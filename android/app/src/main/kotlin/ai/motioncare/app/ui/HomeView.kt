@@ -44,6 +44,8 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
         fun onScenario(file: String)
         fun onLive()
         fun onStopTrip()
+        /** The app became (or stopped being) the narrow pane beside the navigation. */
+        fun onCompactChanged(compact: Boolean) {}
     }
 
     val dashboard = DashboardView(context)
@@ -61,6 +63,7 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
     private var familyNames: List<String> = emptyList()
     /** One app pane next to the navigation (Pleos lets an app take one of two panes): character only. */
     private var compact = false
+    val isCompact get() = compact
     private val familyBars = FamilyBars(context)
     private val familyCard: LinearLayout
     private val graphCard: LinearLayout
@@ -152,7 +155,8 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
         right.addView(graphCard, lp(MATCH_PARENT, 0, 1f))
         // 지도 tab: our own map with the character badge on top, like a speed-camera icon (prototype)
         mapCard = context.card().apply {
-            setPadding(context.dp(6), context.dp(6), context.dp(6), context.dp(6))
+            setPadding(0, 0, 0, 0)
+            clipToOutline = true
             addView(map, lp(MATCH_PARENT, MATCH_PARENT))
         }
         right.addView(mapCard, lp(MATCH_PARENT, 0, 1f))
@@ -231,9 +235,19 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
                 lp(0, WRAP_CONTENT, 1f).apply { setMargins(context.dp(5), 0, context.dp(5), 0) })
         }
         promptBox.visibility = VISIBLE
+        layoutLeft()
     }
 
-    fun hidePrompt() { promptBox.visibility = GONE }
+    fun hidePrompt() { promptBox.visibility = GONE; layoutLeft() }
+
+    /**
+     * The 지도 tab is a full-width navigation screen (the character rides on the map), so the big
+     * character card steps aside, except while it holds a question.
+     */
+    private fun layoutLeft() {
+        if (!::leftCard.isInitialized) return
+        leftCard.gone(!compact && tab == TAB_MAP && promptBox.visibility != VISIBLE)
+    }
 
     /** Demo panel = scenario replay buttons for judges; the graph lives in the 분석 tab either way. */
     fun setDemoPanel(on: Boolean) {
@@ -248,6 +262,7 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
         mapCard.gone(which != TAB_MAP)
         summaryCard.gone(which != TAB_DRIVE)
         familyCard.gone(which != TAB_DRIVE || !familyOn)
+        layoutLeft()
         listOf(tabDrive to (which == TAB_DRIVE), tabAnalysis to (which == TAB_ANALYSIS), tabMap to (which == TAB_MAP)).forEach { (v, on) ->
             v.setTextColor(if (on) Color.WHITE else Ui.PRIMARY)
             v.background = Ui.rounded(if (on) Ui.PRIMARY else Ui.CARD, context.dpf(28f), context.dp(2), Ui.PRIMARY)
@@ -287,7 +302,9 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
         demoBar.gone(compact || !demoOn)
         (leftCard.layoutParams as LayoutParams).apply { weight = if (compact) 1f else 0.4f; marginEnd = if (compact) 0 else context.dp(14) }
         leftCard.requestLayout()
+        layoutLeft()
         familyChip.text = familyLabel(familyOn)
+        callbacks.onCompactChanged(compact)
     }
 
     fun setFamilyProbabilities(values: List<Pair<String, Double>>) = familyBars.set(values)
@@ -307,10 +324,21 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
         chipAir.setChip("%.1f° · %s".format(s.cabinTemp, if (s.recirc) "내기" else "외기"))
         val turnText = nextTurnM?.takeIf { it >= 0 }?.let { if (it >= 1000) "%.1f km".format(it / 1000) else "%.0f m".format(it) }
         chipTurn.setChip(turnText ?: "—")
-        if (!s.lat.isNaN() && !s.lon.isNaN()) map.setPosition(s.lat, s.lon, s.bearing)
         theme?.let { map.setMood(it, mood, level, labelFor(it, mood)) }
-        map.setNextTurn(turnText?.let { "다음 회전 ${if (s.nextTurnLeft) "왼쪽" else "오른쪽"} $it" })
+        map.update(s)
     }
+
+    /** Replay scenario whose route the map draws (null = live mode). Call after [resetTrip]. */
+    fun setRoute(name: String?, track: DoubleArray?) = map.setRoute(name, track)
+
+    /** Live navigation guidance for the map's turn card and arrival bar. */
+    fun setNaviGuidance(g: ai.motioncare.app.NaviGuide.Guidance?) = map.setGuidance(g)
+
+    /** A turn cue fired: the character on the map says it. */
+    fun showCue(line: String) = map.showCue(line)
+
+    /** Releases the map's WebView; call from the activity's onDestroy. */
+    fun destroy() = map.destroy()
 
     private fun showMood(m: Mood, level: Float) {
         mood = m

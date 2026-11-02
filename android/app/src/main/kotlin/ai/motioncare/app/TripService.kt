@@ -48,6 +48,10 @@ class TripService : Service() {
         fun onPrompt(question: String, answers: List<String>, answer: (Int) -> Unit)
         fun onHidePrompt()
         fun onSummary(minutes: Int, cues: Int, airs: Int, peak: Float)
+        /** Replay scenario name (null in live mode) and metres along its route per second of the CSV. */
+        fun onRoute(name: String?, track: DoubleArray?) {}
+        /** A turn cue just fired; [line] is what the character says. */
+        fun onCue(left: Boolean, line: String) {}
     }
 
     inner class LocalBinder : Binder() { val service get() = this@TripService }
@@ -96,6 +100,11 @@ class TripService : Service() {
     private var pending: Pending? = null
     private val queued = ArrayDeque<Pending>()
     private var promptSeq = 0
+    private var routeName: String? = null
+    private var routeTrack: DoubleArray? = null
+
+    /** Live navigation guidance for the map screen (null in replay or without a route). */
+    val naviGuidance: NaviGuide.Guidance? get() = if (live != null && ::navi.isInitialized) navi.guidance else null
 
     private class Pending(val id: Int, val question: String, val answers: List<String>, val onAnswer: (Int) -> Unit)
 
@@ -149,6 +158,7 @@ class TripService : Service() {
     fun attach(screen: TripUi) {
         ui = screen
         screen.onReset()
+        screen.onRoute(routeName, routeTrack)
         history.forEach { (s, o) -> screen.onSample(s, o) }
         notes.reversed().forEach { screen.onNote(it) }
         screen.onFamily(familyMode, profiles.load().map { it.name })
@@ -226,6 +236,8 @@ class TripService : Service() {
     fun toggleFamily() {
         if (!ready) return
         familyMode = !familyMode
+        // turned off on purpose: the next rear-seat occupancy may ask again (a new passenger)
+        if (!familyMode) familySuggested = false
         rebuildFamily()
         ui?.onFamily(familyMode, profiles.load().map { it.name })
         note(if (familyMode) "가족 모드: 가장 약한 탑승자 기준으로 미리 대응" else "가족 모드 끔")
@@ -235,7 +247,10 @@ class TripService : Service() {
     fun startScenario(file: String) {
         if (!ready) return
         stopSource()
-        val samples = ScenarioCsv.parse(assets.open(file).bufferedReader().readText())
+        val text = assets.open(file).bufferedReader().readText()
+        val samples = ScenarioCsv.parse(text)
+        routeName = file.removeSuffix(".csv")
+        routeTrack = RouteTrack.fromCsv(text)
         val cabin = SimulatedCabin(params.cabinT0)
         if (file.startsWith("D_") && !familyMode) toggleFamily()
         run(ReplaySignalSource(samples, speedup = 4, cabin = cabin), cabin)
@@ -246,6 +261,8 @@ class TripService : Service() {
         if (!ready) return
         stopSource()
         val src = PleosSignalSource(this, vehicle, { navi.nextTurn }) { suggestFamilyMode() }
+        routeName = null
+        routeTrack = null
         live = src
         run(src, cabin = null)
         note("실차 신호 수신 시작")
@@ -273,6 +290,9 @@ class TripService : Service() {
     /** QA: requests a route so NaviHelper delivers next turns. */
     fun routeTo(lat: Double, lon: Double, name: String) { if (ready) navi.routeTo(lat, lon, name) }
 
+    /** Screen region our window occupies, for the Pleos navigation (empty Rect clears it). */
+    fun reportOccupiedRegion(rect: android.graphics.Rect) { if (ready) navi.updateOccupiedRegion(rect) }
+
     // ---- trip ----
 
     private fun rebuildFamily() {
@@ -292,6 +312,7 @@ class TripService : Service() {
         rebuildFamily()
         history.clear()
         ui?.onReset()
+        ui?.onRoute(routeName, routeTrack)
         // a waiting question (e.g. post-trip) survives the screen reset
         pending?.let { p -> ui?.onPrompt(p.question, p.answers) { i -> answer(p, i) } }
         startTripState()
@@ -368,6 +389,7 @@ class TripService : Service() {
         if (cue) {
             cueCount++
             action(spoken(a))
+            ui?.onCue(a == Action.CUE_LEFT, spoken(a))
             if (settings.lightCueOn) lightCue.cue(left = a == Action.CUE_LEFT)
         }
         note("t=${sample.t.toInt()}s  ${spoken(a)}")

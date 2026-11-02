@@ -15,7 +15,7 @@ class MoodIconView(context: Context) : View(context) {
     var mood: Mood = Mood.CALM
         set(value) { field = value; invalidate() }
     var level: Float = 0f
-        set(value) { field = value.coerceIn(0f, 1.5f); invalidate() }
+        set(value) { field = if (value.isNaN()) 0f else value.coerceIn(0f, 1.5f); invalidate() }
 
     override fun onDraw(c: Canvas) {
         // ease toward the new level so the face changes smoothly, not in 1-second steps

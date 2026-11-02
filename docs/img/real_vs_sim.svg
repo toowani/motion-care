@@ -6,22 +6,22 @@
 <rect x="84.0" y="98.0" width="118.8" height="26.0" rx="4" fill="#1F2340"/>
 <text x="208.8" y="117.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">0.81</text>
 <text x="40.0" y="166.0" font-size="13" fill="#6B6E86" text-anchor="start" font-weight="400">시뮬</text>
-<rect x="84.0" y="150.0" width="183.3" height="26.0" rx="4" fill="#453ECE"/>
-<text x="273.3" y="169.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">1.25</text>
+<rect x="84.0" y="150.0" width="167.2" height="26.0" rx="4" fill="#453ECE"/>
+<text x="257.2" y="169.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">1.14</text>
 <text x="350.0" y="70.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="700">평균 흔들림 지수 I</text>
 <text x="350.0" y="114.0" font-size="13" fill="#6B6E86" text-anchor="start" font-weight="400">실제</text>
 <rect x="394.0" y="98.0" width="101.2" height="26.0" rx="4" fill="#1F2340"/>
 <text x="501.2" y="117.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">0.46</text>
 <text x="350.0" y="166.0" font-size="13" fill="#6B6E86" text-anchor="start" font-weight="400">시뮬</text>
-<rect x="394.0" y="150.0" width="107.8" height="26.0" rx="4" fill="#453ECE"/>
-<text x="507.8" y="169.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">0.49</text>
+<rect x="394.0" y="150.0" width="99.0" height="26.0" rx="4" fill="#453ECE"/>
+<text x="499.0" y="169.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">0.45</text>
 <text x="660.0" y="70.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="700">평균 속도 (km/h)</text>
 <text x="660.0" y="114.0" font-size="13" fill="#6B6E86" text-anchor="start" font-weight="400">실제</text>
 <rect x="704.0" y="98.0" width="134.9" height="26.0" rx="4" fill="#1F2340"/>
 <text x="844.9" y="117.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">61.3</text>
 <text x="660.0" y="166.0" font-size="13" fill="#6B6E86" text-anchor="start" font-weight="400">시뮬</text>
-<rect x="704.0" y="150.0" width="170.1" height="26.0" rx="4" fill="#453ECE"/>
-<text x="880.1" y="169.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">77.3</text>
-<text x="40.0" y="230.0" font-size="13" fill="#6B6E86" text-anchor="start" font-weight="400">실제 1분 구간과 시뮬 14분 전체의 평균 지수가 비슷하고(0.46 vs 0.49) 둘 다 주의 기준(0.9) 아래입니다.</text>
+<rect x="704.0" y="150.0" width="175.8" height="26.0" rx="4" fill="#453ECE"/>
+<text x="885.8" y="169.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">79.9</text>
+<text x="40.0" y="230.0" font-size="13" fill="#6B6E86" text-anchor="start" font-weight="400">실제 1분 구간과 시뮬 13분 전체의 평균 지수가 비슷하고(0.46 vs 0.45) 둘 다 주의 기준(0.9) 아래입니다.</text>
 <text x="40.0" y="252.0" font-size="13" fill="#6B6E86" text-anchor="start" font-weight="400">실제 구간이 직선이라 옆 가속도는 비교하지 못했습니다.</text>
 </svg>

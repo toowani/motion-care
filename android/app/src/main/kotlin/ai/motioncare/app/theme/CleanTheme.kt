@@ -3,18 +3,24 @@ package ai.motioncare.app.theme
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.LinearGradient
+import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RadialGradient
 import android.graphics.RectF
 import android.graphics.Shader
+import android.os.Build
+import androidx.core.graphics.PathParser
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.sin
 
 /**
- * Flat, car-UI style traffic-light icon: a coloured disc with a minimal white line-art face.
- * CALM is still; UNEASY / SICK get a slowly breathing outer ring (and SICK a gentle sway).
- * Everything is drawn around the origin after translating to (cx, cy), so cached shaders only
- * depend on size and mood.
+ * Car-UI traffic-light icon: a glossy coloured disc with a white face, wrapped in a progress
+ * ring that fills (green -> amber -> red) with the sickness level. The disc breathes and blinks.
+ *
+ * Geometry lives in a fixed 0..100 box scaled by size / 100. Shadows are drawn with the canvas
+ * temporarily scaled back to pixels so their blur and offset stay in pixels at every size.
  */
 object CleanTheme : MoodTheme {
     override val id = "clean"
@@ -28,194 +34,275 @@ object CleanTheme : MoodTheme {
         Mood.SICK -> "멀미 위험"
     }
 
-    // Geometry as fractions of size. Max extent: ring 0.415 * 1.04 + 0.0175 = 0.449 < 0.46.
-    private const val DISC = 0.38f
-    private const val RING = 0.415f
-    private const val RING_STROKE = 0.035f
-    private const val TWO_PI = 6.2831855f
+    private const val TAU = 6.2831855f
+    private const val DEG = 57.29578f
+    private const val R = 42f
+    private const val RING_R = 46.2f
+    private const val RING_W = 3.4f
 
-    private val CALM_COLOR = 0xFF15803D.toInt()
-    private val UNEASY_COLOR = 0xFFD97706.toInt()
-    private val SICK_COLOR = 0xFFC2410C.toInt()
+    // hi, mid, lo, rim per mood (CALM, UNEASY, SICK)
+    private val PAL = arrayOf(
+        intArrayOf(0xFF6EDC9C.toInt(), 0xFF1FB062.toInt(), 0xFF13924A.toInt(), 0xFF0E7A3D.toInt()),
+        intArrayOf(0xFFFFD77A.toInt(), 0xFFFBA623.toInt(), 0xFFF28A12.toInt(), 0xFFE2770C.toInt()),
+        intArrayOf(0xFFFF8F84.toInt(), 0xFFEA4B43.toInt(), 0xFFD23631.toInt(), 0xFFB82A27.toInt()),
+    )
+    private val RING_G = 0xFF22C06A.toInt()
+    private val RING_A = 0xFFF5A20F.toInt()
+    private val RING_R_COLOR = 0xFFEE4A42.toInt()
 
-    private val shadowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
-    private val discPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
-    private val tintPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL; color = Color.BLACK }
-    private val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
-    private val glossPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    private fun pd(d: String): Path = PathParser.createPathFromPathData(d)
+
+    private val smile by lazy { pd("M35.5 58 C41 66 59 66 64.5 58") }
+    private val frown by lazy { pd("M38.5 63 C44 59.8 52 60 61.5 64.6") }
+    private val browL by lazy { pd("M31.5 36.6 C34.2 35.2 36.6 34.4 39.2 34") }
+    private val browR by lazy { pd("M68.5 36.6 C65.8 35.2 63.4 34.4 60.8 34") }
+    private val wave by lazy {
+        pd("M35 63.5 C39 56.5 44 56.5 47 61.5 C50 66.5 55 66.5 58 61.5 C60 58.3 63 58.3 65 61")
+    }
+    private val xL by lazy { pd("M31.5 39.5 L40 48 M40 39.5 L31.5 48") }
+    private val xR by lazy { pd("M60 39.5 L68.5 48 M68.5 39.5 L60 48") }
+    private val drop by lazy {
+        pd("M75.5 38 C75.5 38 72.7 41.8 72.7 43.8 C72.7 45.4 73.9 46.6 75.5 46.6 C77.1 46.6 78.3 45.4 78.3 43.8 C78.3 41.8 75.5 38 75.5 38 Z")
+    }
+    private val discPath by lazy { Path().apply { addCircle(50f, 50f, R, Path.Direction.CW) } }
+
+    // Canvas2D shadowBlur (sigma = blur / 2, px) -> Paint.setShadowLayer radius (sigma = 0.57735 r + 0.5).
+    private fun blurRadius(blurPx: Float): Float = max((blurPx * 0.5f - 0.5f) / 0.57735f, 0.01f)
+
+    private val bodyShaders by lazy { Array(3) { bodyShader(PAL[it]) } }
+
+    private fun bodyShader(p: IntArray): Shader {
+        val stops = floatArrayOf(0f, 0.5f, 0.88f, 1f)
+        return if (Build.VERSION.SDK_INT >= 31) {
+            // two-point conical, same as createRadialGradient(38,32,1, 50,50,R*1.04)
+            RadialGradient(
+                38f, 32f, 1f, 50f, 50f, R * 1.04f,
+                longArrayOf(Color.pack(p[0]), Color.pack(p[1]), Color.pack(p[2]), Color.pack(p[3])),
+                stops, Shader.TileMode.CLAMP,
+            )
+        } else {
+            RadialGradient(46f, 44f, 48f, p, stops, Shader.TileMode.CLAMP)
+        }
+    }
+
+    private val highlightShader by lazy {
+        RadialGradient(
+            36f, 28f, 26f,
+            intArrayOf(Color.argb(77, 255, 255, 255), Color.argb(26, 255, 255, 255), Color.argb(0, 255, 255, 255)),
+            floatArrayOf(0f, 0.5f, 1f), Shader.TileMode.CLAMP,
+        )
+    }
+    private val sickTintShader by lazy {
+        LinearGradient(
+            0f, 60f, 0f, 92f,
+            intArrayOf(Color.argb(0, 170, 226, 112), Color.argb(168, 162, 222, 106), Color.argb(240, 140, 210, 96)),
+            floatArrayOf(0f, 0.5f, 1f), Shader.TileMode.CLAMP,
+        )
+    }
+    private val dropShader by lazy {
+        LinearGradient(0f, 38f, 0f, 46.6f, 0xFFEAF8FF.toInt(), 0xFF9AD8F8.toInt(), Shader.TileMode.CLAMP)
+    }
+
+    private val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
-        color = Color.WHITE
-        alpha = 64
+        strokeWidth = RING_W
+        color = Color.argb(33, 100, 116, 139)
     }
-    private val linePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    private val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeCap = Paint.Cap.ROUND
+        strokeWidth = RING_W
+    }
+    private val discShadowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+        setShadowLayer(blurRadius(5f), 0f, 2f, Color.argb(56, 15, 23, 42))
+    }
+    private val bodyPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
+    private val ridgeWhite = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE; strokeWidth = 0.5f }
+    private val ridgeBlack = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = 0.5f
+        color = Color.argb(7, 0, 0, 0)
+    }
+    private val RIDGE_ALPHA = intArrayOf(15, 14, 12, 11, 9, 8) // 0.060 .. 0.030
+    private val tintPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
+    private val innerShadowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        color = Color.BLACK
+        setShadowLayer(blurRadius(4f), 0f, 1.2f, Color.argb(51, 0, 0, 0))
+    }
+    private val highlightPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
+    private val specPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+        color = Color.argb(179, 255, 255, 255)
+    }
+    private val faceFill = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+        color = Color.WHITE
+        setShadowLayer(blurRadius(1.2f), 0f, 0.9f, Color.argb(46, 0, 0, 0))
+    }
+    private val faceStroke = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
         strokeJoin = Paint.Join.ROUND
         color = Color.WHITE
+        setShadowLayer(blurRadius(1.2f), 0f, 0.9f, Color.argb(46, 0, 0, 0))
     }
-    private val dotPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL; color = Color.WHITE }
+    private val dropShadowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+        color = 0xFFC2E8FB.toInt()
+        setShadowLayer(blurRadius(1f), 0f, 0.6f, Color.argb(41, 0, 0, 0))
+    }
+    private val dropPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
 
-    private val path = Path()
+    private val tmpPath = Path()
+    private val matrix = Matrix()
     private val rect = RectF()
 
-    private class Shaders(val disc: Shader, val shadow: Shader)
+    private fun lerpC(a: Int, b: Int, f: Float): Int = Color.rgb(
+        (Color.red(a) + (Color.red(b) - Color.red(a)) * f).toInt(),
+        (Color.green(a) + (Color.green(b) - Color.green(a)) * f).toInt(),
+        (Color.blue(a) + (Color.blue(b) - Color.blue(a)) * f).toInt(),
+    )
 
-    // One slot per mood, rebuilt only when the size changes (no boxing / allocation per frame).
-    private val cache = arrayOfNulls<Shaders>(3)
-    private val cacheSize = FloatArray(3)
-
-    private fun baseColor(mood: Mood): Int = when (mood) {
-        Mood.CALM -> CALM_COLOR
-        Mood.UNEASY -> UNEASY_COLOR
-        Mood.SICK -> SICK_COLOR
+    private fun ringColor(level: Float): Int = when {
+        level <= 0.25f -> RING_G
+        level < 0.75f -> lerpC(RING_G, RING_A, (level - 0.25f) / 0.5f)
+        level < 1.15f -> lerpC(RING_A, RING_R_COLOR, (level - 0.75f) / 0.4f)
+        else -> RING_R_COLOR
     }
 
-    private fun mix(a: Int, b: Int, f: Float): Int {
-        val g = 1f - f
-        return Color.argb(
-            255,
-            (Color.red(a) * g + Color.red(b) * f).toInt(),
-            (Color.green(a) * g + Color.green(b) * f).toInt(),
-            (Color.blue(a) * g + Color.blue(b) * f).toInt(),
-        )
+    /** Strokes a 0..100-box path while the canvas is in pixel scale [u]. */
+    private fun strokePx(c: Canvas, p: Path, width: Float, u: Float) {
+        p.transform(matrix, tmpPath)
+        faceStroke.strokeWidth = width * u
+        c.drawPath(tmpPath, faceStroke)
     }
 
-    private fun shaders(size: Float, mood: Mood): Shaders {
-        val i = mood.ordinal
-        val hit = cache[i]
-        if (hit != null && cacheSize[i] == size) return hit
-        val base = baseColor(mood)
-        val r = size * DISC
-        val disc = LinearGradient(
-            0f, -r, 0f, r,
-            intArrayOf(mix(base, Color.WHITE, 0.16f), base, mix(base, Color.BLACK, 0.10f)),
-            floatArrayOf(0f, 0.55f, 1f),
-            Shader.TileMode.CLAMP,
-        )
-        val shadow = RadialGradient(
-            0f, size * 0.025f, size * RING,
-            intArrayOf(0x38000000, 0x38000000, 0x00000000),
-            floatArrayOf(0f, 0.86f, 1f),
-            Shader.TileMode.CLAMP,
-        )
-        val s = Shaders(disc, shadow)
-        cache[i] = s
-        cacheSize[i] = size
-        return s
+    private fun eyesPx(c: Canvas, x: Float, y: Float, rx: Float, ry: Float, u: Float) {
+        rect.set((x - rx) * u, (y - ry) * u, (x + rx) * u, (y + ry) * u)
+        c.drawOval(rect, faceFill)
+        val x2 = 100f - x
+        rect.set((x2 - rx) * u, (y - ry) * u, (x2 + rx) * u, (y + ry) * u)
+        c.drawOval(rect, faceFill)
     }
-
-    /** 0..1 intensity inside the current mood. */
-    private fun intensity(mood: Mood, level: Float): Float = when (mood) {
-        Mood.CALM -> level / 0.6f
-        Mood.UNEASY -> (level - 0.5f) / 0.5f
-        Mood.SICK -> (level - 1f) / 0.5f
-    }.coerceIn(0f, 1f)
 
     override fun draw(c: Canvas, cx: Float, cy: Float, size: Float, mood: Mood, level: Float, t: Float) {
         if (size <= 0f) return
-        val k = intensity(mood, level.coerceIn(0f, 1.5f))
-        val base = baseColor(mood)
-        val sh = shaders(size, mood)
-        val r = size * DISC
+        val pal = PAL[mood.ordinal]
+        val period = when (mood) {
+            Mood.SICK -> 2.6f
+            Mood.UNEASY -> 3.2f
+            Mood.CALM -> 4.0f
+        }
+        val breath = 0.5f + 0.5f * sin(TAU * t / period)
+        val k = size / 100f
 
         c.save()
         c.translate(cx, cy)
+        c.scale(k, k)
+        c.translate(-50f, -50f)
 
-        // soft drop shadow (gradient, no blur filter)
-        shadowPaint.shader = sh.shadow
-        c.drawCircle(0f, size * 0.025f, size * RING, shadowPaint)
+        // progress ring: faint track + level arc from 12 o'clock
+        c.drawCircle(50f, 50f, RING_R, trackPaint)
+        val frac = max(0.04f, min(1f, level / 1.5f))
+        ringPaint.color = ringColor(level)
+        rect.set(50f - RING_R, 50f - RING_R, 50f + RING_R, 50f + RING_R)
+        c.drawArc(rect, -90f, 360f * frac, false, ringPaint)
 
-        // breathing outer ring for UNEASY / SICK
-        if (mood != Mood.CALM) {
-            val period = if (mood == Mood.SICK) 2.6f else 3.6f
-            val ph = 0.5f + 0.5f * sin(TWO_PI * t / period)
-            val amp = if (mood == Mood.SICK) 0.03f + 0.01f * k else 0.02f + 0.005f * k
-            ringPaint.color = base
-            ringPaint.alpha = ((0.15f + 0.20f * ph) * 255f).toInt()
-            ringPaint.strokeWidth = size * RING_STROKE
-            c.drawCircle(0f, 0f, size * RING * (1f + amp * ph), ringPaint)
+        // disc (breathing)
+        val s = 1f + 0.018f * (breath - 0.5f) * 2f * (if (mood == Mood.CALM) 0.7f else 1f)
+        c.translate(50f, 50f)
+        c.scale(s, s)
+        c.translate(-50f, -50f)
+        val u = k * s
+        val inv = 1f / u
+        matrix.setScale(u, u)
+
+        // soft drop shadow
+        c.save()
+        c.scale(inv, inv)
+        discShadowPaint.color = pal[2]
+        c.drawCircle(50f * u, 50f * u, R * u, discShadowPaint)
+        c.restore()
+        // body gradient (light from top-left)
+        bodyPaint.shader = bodyShaders[mood.ordinal]
+        c.drawCircle(50f, 50f, R, bodyPaint)
+
+        c.save()
+        c.clipPath(discPath)
+        // Fresnel-lens ridges (very faint; vanish at small sizes)
+        for (i in 0 until 6) {
+            val r = 8f + i * 6.2f
+            ridgeWhite.color = Color.argb(RIDGE_ALPHA[i], 255, 255, 255)
+            c.drawCircle(50f, 50f, r, ridgeWhite)
+            c.drawCircle(50f, 50f, r + 0.7f, ridgeBlack)
         }
-
-        // disc
-        discPaint.shader = sh.disc
-        c.drawCircle(0f, 0f, r, discPaint)
-        val tintAlpha = (k * 30f).toInt()
-        if (tintAlpha > 0) {
-            tintPaint.alpha = tintAlpha
-            c.drawCircle(0f, 0f, r, tintPaint)
+        // SICK: lower face turns sickly green
+        if (mood == Mood.SICK) {
+            tintPaint.shader = sickTintShader
+            c.drawRect(0f, 60f, 100f, 100f, tintPaint)
         }
+        // soft inner shadow
+        c.save()
+        c.scale(inv, inv)
+        innerShadowPaint.strokeWidth = 8f * u
+        c.drawCircle(50f * u, 50f * u, (R + 4f) * u, innerShadowPaint)
+        c.restore()
+        c.restore()
 
-        // subtle top-left gloss arc
-        glossPaint.strokeWidth = r * 0.06f
-        rect.set(-r * 0.80f, -r * 0.80f, r * 0.80f, r * 0.80f)
-        c.drawArc(rect, 200f, 60f, false, glossPaint)
+        // soft top-left highlight, limited to the disc
+        highlightPaint.shader = highlightShader
+        c.drawCircle(50f, 50f, R, highlightPaint)
+        // specular dot
+        c.save()
+        c.translate(28.5f, 27.5f)
+        c.rotate(-0.75f * DEG)
+        rect.set(-2.6f, -1.5f, 2.6f, 1.5f)
+        c.drawOval(rect, specPaint)
+        c.restore()
 
         // face
+        c.save()
         if (mood == Mood.SICK) {
-            c.rotate(sin(TWO_PI * t / 3.4f) * (2f + 2f * k))
+            c.translate(50f, 52f)
+            c.rotate(sin(TAU * t / 3.4f) * 0.05f * DEG)
+            c.translate(-50f, -52f)
         }
-        linePaint.strokeWidth = r * 0.10f
-        path.reset()
+        c.scale(inv, inv)
+        val blink = if ((t + 1.6f) % 4.2f < 0.12f) 0.15f else 1f
         when (mood) {
             Mood.CALM -> {
-                val er = r * 0.075f
-                c.drawCircle(-r * 0.30f, -r * 0.14f, er, dotPaint)
-                c.drawCircle(r * 0.30f, -r * 0.14f, er, dotPaint)
-                val y = r * 0.18f
-                val depth = r * (0.20f - 0.08f * k)
-                path.moveTo(-r * 0.32f, y)
-                path.quadTo(0f, y + depth * 2f, r * 0.32f, y)
-                c.drawPath(path, linePaint)
+                eyesPx(c, 36f, 44f, 3.7f, 5.3f * blink, u)
+                strokePx(c, smile, 4.8f, u)
             }
             Mood.UNEASY -> {
-                val er = r * 0.07f
-                c.drawCircle(-r * 0.30f, -r * 0.10f, er, dotPaint)
-                c.drawCircle(r * 0.30f, -r * 0.10f, er, dotPaint)
-                // flat mouth, tilting slightly as unease grows
-                path.moveTo(-r * 0.24f, r * 0.27f)
-                path.lineTo(r * 0.24f, r * 0.27f - r * 0.06f * k)
-                c.drawPath(path, linePaint)
-                // small wavy "dizzy" line beside the head (upper right)
-                path.reset()
-                val x0 = r * 0.22f
-                val y0 = -r * 0.56f
-                val a = r * (0.07f + 0.04f * k)
-                val w = r * 0.09f
-                path.moveTo(x0, y0)
-                path.quadTo(x0 + w, y0 - a, x0 + 2f * w, y0)
-                path.quadTo(x0 + 3f * w, y0 + a, x0 + 4f * w, y0)
-                linePaint.strokeWidth = r * 0.07f
-                c.drawPath(path, linePaint)
+                eyesPx(c, 37f, 46f, 3.9f, 5.0f * blink, u)
+                strokePx(c, browL, 2.6f, u)
+                strokePx(c, browR, 2.6f, u)
+                strokePx(c, frown, 4.6f, u)
             }
             Mood.SICK -> {
-                // X eyes
-                val e = r * (0.085f + 0.015f * k)
-                val ey = -r * 0.12f
-                for (sgn in 0..1) {
-                    val ex = if (sgn == 0) -r * 0.30f else r * 0.30f
-                    path.moveTo(ex - e, ey - e)
-                    path.lineTo(ex + e, ey + e)
-                    path.moveTo(ex - e, ey + e)
-                    path.lineTo(ex + e, ey - e)
-                }
-                linePaint.strokeWidth = r * 0.085f
-                c.drawPath(path, linePaint)
-                // wavy mouth, amplitude breathing gently
-                path.reset()
-                val y = r * 0.30f
-                val a = r * (0.06f + 0.04f * k) * (0.85f + 0.15f * sin(TWO_PI * t / 3f))
-                val hw = r * 0.085f // half-wave width; 8 half-waves span 0.68r
-                var x = -r * 0.34f
-                path.moveTo(x, y)
-                for (i in 0 until 4) {
-                    path.quadTo(x + hw * 0.5f, y - a, x + hw, y)
-                    path.quadTo(x + hw * 1.5f, y + a, x + hw * 2f, y)
-                    x += hw * 2f
-                }
-                linePaint.strokeWidth = r * 0.09f
-                c.drawPath(path, linePaint)
+                strokePx(c, xL, 4.8f, u)
+                strokePx(c, xR, 4.8f, u)
+                strokePx(c, wave, 5.0f, u)
             }
+        }
+        c.restore()
+
+        // sweat drop: only when big enough to read
+        if (mood == Mood.UNEASY && size >= 96f) {
+            c.save()
+            c.translate(0f, breath)
+            c.save()
+            c.scale(inv, inv)
+            drop.transform(matrix, tmpPath)
+            c.drawPath(tmpPath, dropShadowPaint)
+            c.restore()
+            dropPaint.shader = dropShader
+            c.drawPath(drop, dropPaint)
+            c.restore()
         }
 
         c.restore()

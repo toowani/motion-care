@@ -3,12 +3,14 @@ package ai.motioncare.app
 import ai.pleos.playground.navi.constants.NaviErrorCode
 import ai.pleos.playground.navi.constants.RouteOption
 import ai.pleos.playground.navi.constants.WaypointIndex
+import ai.pleos.playground.navi.data.DrivingInfo
 import ai.pleos.playground.navi.data.RequestWaypointInfo
 import ai.pleos.playground.navi.data.RouteInfo
 import ai.pleos.playground.navi.data.TBTInfo
 import ai.pleos.playground.navi.helper.NaviHelper
 import ai.pleos.playground.navi.helper.listener.NaviHelperEventListener
 import android.content.Context
+import android.graphics.Rect
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -25,6 +27,12 @@ private const val TAG = "MotionCare"
 class NaviGuide(context: Context, private val log: (String) -> Unit) {
     data class NextTurn(val distanceM: Double, val left: Boolean)
 
+    /** What the map screen shows in live mode: next maneuver (TurnType name) and what is left to the destination. */
+    data class Guidance(
+        val turnType: String?, val turnM: Double?, val description: String?,
+        val remainM: Int?, val remainS: Int?, val destName: String?,
+    )
+
     private data class RestStop(val name: String, val lat: Double, val lon: Double)
 
     private val restStops = listOf(
@@ -39,6 +47,18 @@ class NaviGuide(context: Context, private val log: (String) -> Unit) {
 
     @Volatile var nextTurn: NextTurn? = null
         private set
+    @Volatile private var tbt: TBTInfo? = null
+    @Volatile private var driving: DrivingInfo? = null
+    private var loggedDriving = false
+
+    /** Null while no route is being guided. */
+    val guidance: Guidance?
+        get() {
+            val t = tbt
+            val d = driving?.destination
+            if (t == null && d == null) return null
+            return Guidance(t?.type?.name, t?.distance, t?.description, d?.distance, d?.duration, d?.name)
+        }
 
     private val listener = object : NaviHelperEventListener {
         override fun onTBTInfo(list: List<TBTInfo>) {
@@ -50,8 +70,14 @@ class NaviGuide(context: Context, private val log: (String) -> Unit) {
                 main.post { log("내비 다음 회전: ${if (turn.left) "왼쪽" else "오른쪽"} %.0f m".format(turn.distanceM)) }
             }
             nextTurn = turn
+            tbt = list.firstOrNull()
         }
-        override fun onRouteEnded() { nextTurn = null }
+        override fun onDrivingInfo(info: DrivingInfo) {
+            if (!loggedDriving) { loggedDriving = true; Log.i(TAG, "driving info: ${info.destination}") }
+            driving = info
+        }
+        override fun onRouteEnded() { nextTurn = null; tbt = null; driving = null }
+        override fun onRouteCancelled() { nextTurn = null; tbt = null; driving = null }
         override fun onError(error: NaviErrorCode) { Log.w(TAG, "navi error $error") }
     }
 
@@ -65,7 +91,7 @@ class NaviGuide(context: Context, private val log: (String) -> Unit) {
     fun start() {
         runCatching {
             navi.addListener(listener)
-            navi.initialize({ ready = true; main.post { log("NaviHelper 연결됨") } },
+            navi.initialize({ main.post { ready = true; log("NaviHelper 연결됨"); pendingRegion?.let { updateOccupiedRegion(it) } } },
                 { e -> main.post { log("NaviHelper 연결 실패: ${e.message}") } })
             main.post(poll)
         }.onFailure { Log.w(TAG, "navi", it) }
@@ -97,6 +123,22 @@ class NaviGuide(context: Context, private val log: (String) -> Unit) {
             log("경유지 추가 요청: ${stop.name}")
         }.onFailure { log("경유지 추가 실패: ${it.message}") }
     }
+
+    /**
+     * Tells the Pleos navigation which part of the screen our window covers (empty = none), so it can
+     * keep the car visible beside us. Private SDK API: may be ignored or refused on this build.
+     */
+    fun updateOccupiedRegion(rect: Rect) {
+        // keep the latest rect so it is sent once NaviHelper connects; a call before that would be lost
+        pendingRegion = Rect(rect)
+        if (!ready || regionRefused) return
+        val r = runCatching { navi.getInternalApi().updateOccupiedRegion(rect) }
+        Log.i(TAG, "updateOccupiedRegion $rect -> ${r.exceptionOrNull()?.let { "failed: $it" } ?: "ok"}")
+        // the Pleos build answers SecurityException for non-system apps; asking again will not change that
+        if (r.exceptionOrNull() is SecurityException) regionRefused = true
+    }
+    private var regionRefused = false
+    private var pendingRegion: Rect? = null
 
     fun release() {
         main.removeCallbacksAndMessages(null)
