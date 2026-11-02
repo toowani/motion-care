@@ -42,7 +42,7 @@ class SettingsPanel(
     private val themeCards = mutableMapOf<String, LinearLayout>()
     private val profileList = LinearLayout(context).apply { orientation = VERTICAL }
     private val welcome = context.text("", 19f, Ui.PRIMARY, bold = true)
-    private val drivingNote = context.text("주행 중에는 테마와 가족 프로필을 바꿀 수 없어요. 차를 세운 뒤 바꿔 주세요.", 18f, Ui.ALERT, bold = true)
+    private val drivingNote = context.text("주행 중에는 테마·프로필 잠김", 18f, Ui.ALERT, bold = true)
     private val parkedOnly = mutableListOf<android.view.View>()
     private var restricted = false
 
@@ -62,7 +62,7 @@ class SettingsPanel(
         drivingNote.visibility = GONE
         content.addView(drivingNote, lp(MATCH_PARENT, WRAP_CONTENT).apply { topMargin = context.dp(8) })
 
-        section(content, "아이콘 테마", "멀미 지수에 따라 표정이 바뀌어요. 아이와 함께 골라 보세요.")
+        section(content, "아이콘 테마", "흔들림에 따라 표정이 바뀌어요")
         val grid = LinearLayout(context).apply { orientation = VERTICAL }
         MoodThemes.all.chunked(2).forEach { pair ->
             val row = LinearLayout(context).apply { orientation = HORIZONTAL }
@@ -74,14 +74,14 @@ class SettingsPanel(
 
         section(content, "차가 도와주는 방법", null)
         val toggles = context.card()
-        toggles.addView(toggle("소리 안내", "휴게소·가족 모드 질문과 멀미 위험 안내를 소리로 알려요", settings.voiceOn) { settings.voiceOn = it })
+        toggles.addView(toggle("소리 안내", "질문과 위험 안내를 소리로", settings.voiceOn) { settings.voiceOn = it })
         toggles.addView(cueStylePicker())
-        toggles.addView(toggle("무드등 예고", "회전 직전 실내 무드등을 깜빡여요 (어린아이용)", settings.lightCueOn) { settings.lightCueOn = it })
-        toggles.addView(toggle("공조 자동 조절", "멀미 위험이 높으면 바깥 공기·22°C로 바꿔요", settings.autoClimateOn) { settings.autoClimateOn = it })
-        toggles.addView(toggle("시연 패널", "그래프와 시나리오 재생 버튼을 보여요 (심사·시연용)", settings.demoPanelOn) { settings.demoPanelOn = it })
+        toggles.addView(toggle("무드등 예고", "회전 직전 무드등 깜빡임", settings.lightCueOn) { settings.lightCueOn = it })
+        toggles.addView(toggle("공조 자동 조절", "위험할 때 바깥 공기·22°C", settings.autoClimateOn) { settings.autoClimateOn = it })
+        toggles.addView(toggle("시연 패널", "시나리오 재생 버튼 (시연용)", settings.demoPanelOn) { settings.demoPanelOn = it })
         content.addView(toggles, lp(MATCH_PARENT, WRAP_CONTENT, 0f, context.dp(6)))
 
-        section(content, "가족 프로필", "아이 프로필은 이 차에만 저장되고 밖으로 나가지 않아요. 이름 대신 별명을 써 주세요.")
+        section(content, "가족 프로필", "이 차에만 저장 · 별명으로 등록")
         val family = context.card()
         family.addView(profileList, lp(MATCH_PARENT, WRAP_CONTENT))
         val actions = LinearLayout(context).apply { orientation = HORIZONTAL }
@@ -97,7 +97,7 @@ class SettingsPanel(
         parkedOnly += family
         content.addView(family, lp(MATCH_PARENT, WRAP_CONTENT, 0f, context.dp(6)))
 
-        content.addView(context.text("멀미 케어 · 차의 방향지시등·내비·공조 신호로 동승자 멀미를 미리 막아요. 운전 중에는 화면을 조작하지 마세요.", 14f, Ui.MUTED),
+        content.addView(context.text("운전 중에는 화면을 조작하지 마세요", 16f, Ui.MUTED),
             lp(MATCH_PARENT, WRAP_CONTENT).apply { setMargins(context.dp(6), context.dp(16), context.dp(6), context.dp(24)) })
 
         addView(ScrollView(context).apply { addView(content) }, lp(MATCH_PARENT, 0, 1f).apply { topMargin = context.dp(8) })
@@ -121,26 +121,26 @@ class SettingsPanel(
     }
 
     fun showWelcome(first: Boolean) {
-        welcome.text = if (first) "환영해요! 먼저 아이콘 테마를 골라 주세요. 언제든 설정에서 바꿀 수 있어요." else ""
+        welcome.text = if (first) "환영해요! 아이콘 테마를 골라 주세요" else ""
         welcome.visibility = if (first) VISIBLE else GONE
         refreshProfiles()
     }
 
     private fun section(parent: LinearLayout, title: String, sub: String?) {
         parent.addView(context.text(title, 21f, bold = true), lp(MATCH_PARENT, WRAP_CONTENT).apply { setMargins(context.dp(6), context.dp(18), 0, 0) })
-        sub?.let { parent.addView(context.text(it, 15f, Ui.MUTED), lp(MATCH_PARENT, WRAP_CONTENT).apply { setMargins(context.dp(6), context.dp(2), 0, context.dp(4)) }) }
+        sub?.let { parent.addView(context.text(it, 16f, Ui.MUTED), lp(MATCH_PARENT, WRAP_CONTENT).apply { setMargins(context.dp(6), context.dp(2), 0, context.dp(4)) }) }
     }
 
     private fun themeCard(t: MoodTheme) = context.card().apply {
         isClickable = true
         addView(context.text(t.title, 19f, bold = true))
-        addView(context.text(t.subtitle, 14f, Ui.MUTED))
+        addView(context.text(t.subtitle, 16f, Ui.MUTED).apply { maxLines = 1 })
         val faces = LinearLayout(context).apply { orientation = HORIZONTAL }
         Mood.values().forEach { m ->
             val col = LinearLayout(context).apply { orientation = VERTICAL; gravity = Gravity.CENTER_HORIZONTAL }
             col.addView(MoodIconView(context).apply { theme = t; mood = m; level = when (m) { Mood.CALM -> 0.2f; Mood.UNEASY -> 0.75f; Mood.SICK -> 1.2f } },
                 lp(MATCH_PARENT, context.dp(120)))
-            col.addView(context.text(t.label(m), 13f, Ui.MUTED).apply { gravity = Gravity.CENTER })
+            col.addView(context.text(t.label(m), 16f, Ui.MUTED, bold = true).apply { gravity = Gravity.CENTER })
             faces.addView(col, lp(0, WRAP_CONTENT, 1f))
         }
         addView(faces, lp(MATCH_PARENT, WRAP_CONTENT).apply { topMargin = context.dp(8) })
@@ -165,7 +165,7 @@ class SettingsPanel(
         orientation = VERTICAL
         setPadding(0, context.dp(6), 0, context.dp(10))
         addView(context.text("회전 예고 방식", 18f, bold = true))
-        addView(context.text("말로 하는 예고는 금방 피곤해져요. 기본은 짧은 알림음이고, 내비가 회전을 안내할 때는 겹쳐 말하지 않아요.", 14f, Ui.MUTED))
+        addView(context.text("기본은 짧은 알림음 · 내비 안내와 겹치지 않아요", 16f, Ui.MUTED))
         val row = LinearLayout(context).apply { orientation = HORIZONTAL }
         val options = listOf("chime" to "알림음", "voice" to "캐릭터 목소리", "silent" to "무드등만")
         val pills = mutableListOf<android.widget.TextView>()
@@ -190,7 +190,7 @@ class SettingsPanel(
         val texts = LinearLayout(context).apply {
             orientation = VERTICAL
             addView(context.text(title, 18f, bold = true))
-            addView(context.text(sub, 14f, Ui.MUTED))
+            addView(context.text(sub, 16f, Ui.MUTED))
         }
         addView(texts, lp(0, WRAP_CONTENT, 1f))
         val sw = Switch(context).apply {
@@ -212,8 +212,8 @@ class SettingsPanel(
             val info = LinearLayout(context).apply {
                 orientation = VERTICAL
                 addView(context.text(p.name, 19f, bold = true))
-                val sensitivity = when { p.onsetDoses.isEmpty() -> "아직 기록 없음 · 평균 기준으로 시작"; p.threshold(params) < 26 -> "멀미를 쉽게 해요"; p.threshold(params) < 34 -> "보통이에요"; else -> "멀미를 잘 안 해요" }
-                addView(context.text("멀미 기록 ${p.onsetDoses.size}번 · $sensitivity · 기준선 %.1f".format(p.threshold(params)), 14f, Ui.MUTED))
+                val sensitivity = when { p.onsetDoses.isEmpty() -> "아직 기록 없음"; p.threshold(params) < 26 -> "멀미를 쉽게 해요"; p.threshold(params) < 34 -> "보통이에요"; else -> "멀미를 잘 안 해요" }
+                addView(context.text("멀미 기록 ${p.onsetDoses.size}번 · $sensitivity", 16f, Ui.MUTED))
             }
             row.addView(info, lp(0, WRAP_CONTENT, 1f))
             row.addView(context.pill("이름 바꾸기", color = Ui.PRIMARY) {

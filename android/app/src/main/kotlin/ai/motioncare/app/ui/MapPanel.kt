@@ -64,8 +64,10 @@ class MapPanel(context: Context) : FrameLayout(context) {
     // character widget (top-right) and its speech bubble
     private val icon = MoodIconView(context)
     private val ring = FrameLayout(context)
-    private val moodLabel = context.text("편안해요", 14f, Ui.INK, bold = true)
-    private val indexChip = context.text("지금 흔들림 0", 13f, Color.WHITE, bold = true)
+    private val moodLabel = context.text("편안", 22f, Ui.INK, bold = true)
+    private val riskLabel = context.text("멀미 가능성", 16f, Color.WHITE, bold = true)
+    private val riskValue = context.text("0%", 28f, Color.WHITE, bold = true)
+    private val riskChip = LinearLayout(context)
     private val bubble = context.text("", 18f, Ui.INK, bold = true)
 
     // bottom: speed, arrival bar, 2D/3D, attribution
@@ -163,10 +165,20 @@ class MapPanel(context: Context) : FrameLayout(context) {
             val m = context.dp(9); setMargins(m, m, m, m)
         })
         moodLabel.gravity = Gravity.CENTER
-        moodLabel.maxLines = 2
+        moodLabel.maxLines = 1
         moodLabel.ellipsize = TextUtils.TruncateAt.END
-        indexChip.gravity = Gravity.CENTER
-        indexChip.setPadding(context.dp(10), context.dp(3), context.dp(10), context.dp(4))
+        riskChip.apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
+            background = Ui.rounded(riskColor(0.0), context.dpf(14f))
+            setPadding(context.dp(6), context.dp(4), context.dp(6), context.dp(4))
+            riskLabel.gravity = Gravity.CENTER
+            riskLabel.maxLines = 1
+            riskValue.gravity = Gravity.CENTER
+            riskValue.includeFontPadding = false
+            addView(riskLabel)
+            addView(riskValue)
+        }
         val card = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_HORIZONTAL
@@ -175,7 +187,9 @@ class MapPanel(context: Context) : FrameLayout(context) {
             setPadding(context.dp(10), context.dp(10), context.dp(10), context.dp(10))
             addView(ring, LinearLayout.LayoutParams(context.dp(CHAR_RING), context.dp(CHAR_RING)))
             addView(moodLabel, LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply { topMargin = context.dp(6) })
-            addView(indexChip, LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply { topMargin = context.dp(4) })
+            // navigation mode shows only the chance of sickness; the face word (the shake now) read as a contradiction next to it
+            moodLabel.gone(true)
+            addView(riskChip, LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply { topMargin = context.dp(6) })
         }
         addView(card, LayoutParams(context.dp(CHAR_RING + 20), LayoutParams.WRAP_CONTENT, Gravity.TOP or Gravity.END).apply {
             setMargins(0, context.dp(14), context.dp(14), 0)
@@ -279,7 +293,7 @@ class MapPanel(context: Context) : FrameLayout(context) {
             val step = r.nextStep(pos)
             if (step == null || step.type == "TURN_ARRIVE") {
                 val left = (step?.s ?: r.totalM) - pos
-                showTbt("TURN_ARRIVE", left, if (left < 30) "목적지에 도착했어요" else "목적지 · ${r.dest.ifBlank { r.title }}")
+                showTbt("TURN_ARRIVE", left, r.dest.ifBlank { r.title })   // the pin already says "destination"
             } else {
                 showTbt(step.type, step.s - pos, listOf(step.text.ifBlank { turnWord(step.type) }, step.road).filter { it.isNotBlank() }.joinToString(" · "))
             }
@@ -288,7 +302,7 @@ class MapPanel(context: Context) : FrameLayout(context) {
             // the trip average would jump by minutes at every red light
             val left = track?.let { (it.size - 1 - s.t).toDouble() }?.takeIf { it >= 0 }
             val avg = if (s.t > 20 && pos > 100) pos / s.t else maxOf(s.speed, 8.0)
-            showEta(remain, left ?: (remain / avg.coerceAtLeast(3.0)), r.dest)
+            if (remain < 30) etaBar.gone(true) else showEta(remain, left ?: (remain / avg.coerceAtLeast(3.0)), r.dest)
             return@onMain
         }
         if (s.lat.isFinite() && s.lon.isFinite()) {
@@ -316,13 +330,17 @@ class MapPanel(context: Context) : FrameLayout(context) {
         icon.theme = theme
         icon.mood = mood
         icon.level = level
-        moodLabel.text = label
+        // a glance only: the level word (편안·주의·위험), the theme's phrase stays on the home card
+        moodLabel.text = (label).substringBefore(" · ")
         val c = moodColor(mood)
         (ring.background as GradientDrawable).setStroke(context.dp(5), c)
         moodLabel.setTextColor(c)
-        // the instant shake; the mood above changes only once it lasts, so call it what it is
-        indexChip.text = "지금 흔들림 ${(level * 100).roundToInt().coerceIn(0, 100)}"
-        indexChip.background = Ui.rounded(c, context.dpf(14f))
+    }
+
+    /** Sickness probability (0..1) of the passenger who matters, built up from the trip's dose. */
+    fun setRisk(p: Double) = onMain {
+        riskValue.text = "${(p * 100).roundToInt().coerceIn(0, 100)}%"
+        riskChip.background = Ui.rounded(riskColor(p), context.dpf(14f))
     }
 
     /** Next turn hint without a route ("300m 앞 좌회전"); null hides the card. */
@@ -330,7 +348,8 @@ class MapPanel(context: Context) : FrameLayout(context) {
 
     /** The character says the turn cue for a few seconds, like a navigation voice bubble. */
     fun showCue(line: String) = onMain {
-        bubble.text = line
+        // one sentence per line, so a word like "곧" is never left alone at a line end
+        bubble.text = line.replace(". ", ".\n")
         main.removeCallbacks(hideBubble)
         bubble.animate().cancel()
         if (bubble.visibility != VISIBLE) { bubble.alpha = 0f; bubble.translationX = context.dpf(12f) }
@@ -348,6 +367,8 @@ class MapPanel(context: Context) : FrameLayout(context) {
         tbtCard.gone(true)
         etaBar.gone(true)
         speedNum.text = "0"
+        riskValue.text = "0%"
+        riskChip.background = Ui.rounded(riskColor(0.0), context.dpf(14f))
         main.removeCallbacks(hideBubble)
         bubble.gone(true)
         js("resetAll()")
@@ -402,6 +423,8 @@ class MapPanel(context: Context) : FrameLayout(context) {
         ManeuverView.Kind.ARRIVE -> "목적지"
         ManeuverView.Kind.STRAIGHT -> "직진"
     }
+
+    private fun riskColor(p: Double) = when { p >= 0.5 -> Ui.ALERT; p >= 0.25 -> Color.parseColor("#D97706"); else -> Ui.PRIMARY }
 
     private fun moodColor(m: Mood) = when (m) { Mood.CALM -> Ui.PRIMARY; Mood.UNEASY -> Color.parseColor("#D97706"); Mood.SICK -> Ui.ALERT }
 

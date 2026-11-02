@@ -46,10 +46,10 @@ class MainActivity : Activity(), HomeView.Callbacks {
 
     private val screen = object : TripService.TripUi {
         override fun onReset() { home.dashboard.reset(); home.resetTrip() }
-        override fun onSample(s: Sample, o: Output) {
-            home.dashboard.add(s, o)
+        override fun onSample(s: Sample, o: Output, risk: TripService.Risk) {
+            home.dashboard.add(s, o, risk)
             home.setNaviGuidance(service?.naviGuidance)
-            home.update(s, o, s.nextTurnM)
+            home.update(s, o, s.nextTurnM, risk.p)
         }
         override fun onRoute(name: String?, track: DoubleArray?) = home.setRoute(name, track)
         override fun onCue(left: Boolean, line: String) = home.showCue(line)

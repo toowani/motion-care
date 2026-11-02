@@ -3,7 +3,9 @@ package ai.motioncare.app.ui
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.text.LineBreakConfig
 import android.graphics.drawable.GradientDrawable
+import android.os.Build
 import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
@@ -35,12 +37,19 @@ object Ui {
     fun Context.text(s: String, sp: Float, color: Int = INK, bold: Boolean = false) = TextView(this).apply {
         text = s; textSize = sp * SCALE; setTextColor(color)
         if (bold) typeface = Typeface.DEFAULT_BOLD
+        phraseBreaks()
+    }
+
+    /** Korean wraps at phrase boundaries, never mid-word or leaving a lone syllable (API 33+). */
+    fun TextView.phraseBreaks() {
+        if (Build.VERSION.SDK_INT >= 33) lineBreakWordStyle = LineBreakConfig.LINE_BREAK_WORD_STYLE_PHRASE
     }
 
     /** Pill button. [filled] for the main action on a screen. */
     fun Context.pill(label: String, filled: Boolean = false, color: Int = PRIMARY, onClick: () -> Unit) = TextView(this).apply {
         text = label; textSize = 18f * SCALE; gravity = Gravity.CENTER
         typeface = Typeface.DEFAULT_BOLD
+        phraseBreaks()
         setTextColor(if (filled) Color.WHITE else color)
         background = rounded(if (filled) color else CARD, dpf(28f), dp(2), color)
         minHeight = dp(56); minWidth = dp(96)

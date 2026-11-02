@@ -92,7 +92,7 @@ class Voice(private val context: Context, private val log: (String) -> Unit) {
         override fun onUpdatedEpdData(start: Long, end: Long) = Unit
         override fun onStartedRecognition() = Unit
         override fun onEndedRecognition() = Unit
-        override fun onError(errorType: SttError) { main.post { log("음성 인식 오류($errorType)"); giveUpListening() } }
+        override fun onError(errorType: SttError) { main.post { log("음성 인식이 안 돼요 · 버튼으로 답해 주세요"); Log.w("MotionCare", "stt error $errorType"); giveUpListening() } }
         override fun onReady() = Unit
         override fun onUpdatedRms(rms: Double) = Unit
     }

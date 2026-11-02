@@ -40,7 +40,7 @@ class TripService : Service() {
     /** What the home screen shows; all calls arrive on the main thread. */
     interface TripUi {
         fun onReset()
-        fun onSample(s: Sample, o: Output)
+        fun onSample(s: Sample, o: Output, risk: Risk)
         fun onFamily(on: Boolean, names: List<String>)
         fun onFamilyProbabilities(values: List<Pair<String, Double>>)
         fun onAction(msg: String)
@@ -53,6 +53,12 @@ class TripService : Service() {
         /** A turn cue just fired; [line] is what the character says. */
         fun onCue(left: Boolean, line: String) {}
     }
+
+    /**
+     * Sickness probability (formula 6) of the passenger who matters: the most sensitive child in
+     * family mode, otherwise an average passenger (tau0). [children] has one value per child.
+     */
+    data class Risk(val p: Double, val children: List<Pair<String, Double>> = emptyList())
 
     inner class LocalBinder : Binder() { val service get() = this@TripService }
 
@@ -93,11 +99,13 @@ class TripService : Service() {
     private var mood = Mood.CALM
 
     // what an attaching screen needs to catch up
-    private val history = ArrayDeque<Pair<Sample, Output>>()
+    private val history = ArrayDeque<Triple<Sample, Output, Risk>>()
     private val notes = ArrayDeque<String>()
     private var lastProbabilities: List<Pair<String, Double>> = emptyList()
     private var lastSummary = arrayOf(0, 0, 0)
     private var pending: Pending? = null
+    /** Recreated per trip: its dose only grows, so a new live trip must not inherit the last one's. */
+    private lateinit var engine: Engine
     private val queued = ArrayDeque<Pending>()
     private var promptSeq = 0
     private var routeName: String? = null
@@ -159,7 +167,7 @@ class TripService : Service() {
         ui = screen
         screen.onReset()
         screen.onRoute(routeName, routeTrack)
-        history.forEach { (s, o) -> screen.onSample(s, o) }
+        history.forEach { (s, o, r) -> screen.onSample(s, o, r) }
         notes.reversed().forEach { screen.onNote(it) }
         screen.onFamily(familyMode, profiles.load().map { it.name })
         if (lastProbabilities.isNotEmpty()) screen.onFamilyProbabilities(lastProbabilities)
@@ -308,7 +316,7 @@ class TripService : Service() {
     }
 
     private fun run(src: SignalSource, cabin: SimulatedCabin?) {
-        val engine = Engine(params)
+        engine = Engine(params)
         rebuildFamily()
         history.clear()
         ui?.onReset()
@@ -322,12 +330,15 @@ class TripService : Service() {
             lastDose = out.dose
             tripMaxDose = maxOf(tripMaxDose, out.dose)
             mood = Mood.of(out.state)
-            history.addLast(sample to out)
+            val kids = taus.map { (n, tau) -> n to sicknessProbability(params, out.dose, tau, out.m) }
+            // the weakest child has the lowest tau, hence the highest probability
+            val risk = Risk(kids.maxOfOrNull { it.second } ?: sicknessProbability(params, out.dose, params.tau0, out.m), kids)
+            history.addLast(Triple(sample, out, risk))
             while (history.size > HISTORY) history.removeFirst()
-            ui?.onSample(sample, out)
+            ui?.onSample(sample, out, risk)
             if (out.thetaHigh > 0) peakLevel = maxOf(peakLevel, (out.index / out.thetaHigh).toFloat())
-            if (taus.isNotEmpty()) {
-                lastProbabilities = taus.map { (n, tau) -> n to sicknessProbability(params, out.dose, tau, out.m) }
+            if (kids.isNotEmpty()) {
+                lastProbabilities = kids
                 ui?.onFamilyProbabilities(lastProbabilities)
             }
             val actions = out.actions.toMutableList()
@@ -426,6 +437,13 @@ class TripService : Service() {
         val since = stillSince ?: t.also { stillSince = it }
         if (t - since >= TRIP_END_STILL_S) {
             finishTrip()
+            engine = Engine(params)
+            rebuildFamily()
+            history.clear()
+            ui?.onReset()
+            ui?.onRoute(routeName, routeTrack)
+            // finishTrip may have just asked the post-trip question; onReset cleared it from the screen
+            pending?.let { p -> ui?.onPrompt(p.question, p.answers) { i -> answer(p, i) } }
             startTripState()
         }
     }
