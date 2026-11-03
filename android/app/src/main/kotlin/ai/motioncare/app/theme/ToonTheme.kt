@@ -21,9 +21,9 @@ import kotlin.math.sin
  * 2D cel-shaded cartoon: 부릉이, a squat chibi car seen head-on, headlights for eyes and the grille
  * for a mouth, on a round stage with a road running to the horizon.
  * Signature traits: springy pink antenna ball, heart hood badge, notched bumper, chrome grille slat.
- * CALM: sky blue, sparkly eyes, big smile, hops with squash and stretch, speed streaks.
+ * CALM: green, sparkly eyes, big smile, hops with squash and stretch, speed streaks.
  * UNEASY: yellow, worry brows and drooping lids, glancing eyes, wavy mouth, rocking, sweat drops.
- * SICK: mint on a lavender stage, spiral eyes, tongue out, slow sway, smoke puffs, two dizzy stars.
+ * SICK: red on a pale rose stage, spiral eyes, tongue out, slow sway, smoke puffs, two dizzy stars.
  *
  * Designed in a 0..100 box and scaled by size / 100. Paths are parsed once; gradients are built
  * once (per mood where they differ) in fixed local frames and placed with translate().
@@ -61,20 +61,20 @@ object ToonTheme : MoodTheme {
 
     private val PALS = arrayOf(
         Pal(
-            0xFFD2F3FF.toInt(), 0xFF5CC6F6.toInt(), 0xFF3AAEEC.toInt(), 0xFF2388D2.toInt(), 0xFF1A6FB4.toInt(),
-            0xFFE6F6FF.toInt(), 0xFFCBEAFF.toInt(), 0xFFCDEBC9.toInt(), 0xFFEEF4FB.toInt(),
-            0x4D1A5AA0, 0xFF3AAEEC.toInt(), 0xFF2B4C9A.toInt(), 0xFF59A9F0.toInt(),
+            0xFFDCFCE7.toInt(), 0xFF4ADE80.toInt(), 0xFF22C55E.toInt(), 0xFF16A34A.toInt(), 0xFF15803D.toInt(),
+            0xFFEFFCF3.toInt(), 0xFFD3F5DE.toInt(), 0xFFCDEBC9.toInt(), 0xFFEEF6F0.toInt(),
+            0x4D166534, 0xFF22C55E.toInt(), 0xFF2B4C9A.toInt(), 0xFF59A9F0.toInt(),
         ),
         Pal(
-            0xFFFFF6C9.toInt(), 0xFFFFD54D.toInt(), 0xFFFFC234.toInt(), 0xFFEE9E1B.toInt(), 0xFFC9780C.toInt(),
-            0xFFFFF9E8.toInt(), 0xFFFFEEC6.toInt(), 0xFFF1E6B8.toInt(), 0xFFFBF6EA.toInt(),
-            0x4DAA6E14, 0xFFF2B23A.toInt(), 0xFF5A3A1E.toInt(), 0xFFB8813A.toInt(),
+            0xFFFEF9C3.toInt(), 0xFFFACC15.toInt(), 0xFFEAB308.toInt(), 0xFFCA9A04.toInt(), 0xFFA16207.toInt(),
+            0xFFFFFAE6.toInt(), 0xFFFEF0BF.toInt(), 0xFFF1E6B8.toInt(), 0xFFFBF6EA.toInt(),
+            0x4D8A6A0A, 0xFFEAB308.toInt(), 0xFF5A3A1E.toInt(), 0xFFB8813A.toInt(),
         ),
-        // clean mint body on a greyish-lavender stage so the car pops instead of melting into green
+        // red body on a pale rose stage; dizzy violet irises
         Pal(
-            0xFFE4FBEF.toInt(), 0xFF8BE0B2.toInt(), 0xFF62CC98.toInt(), 0xFF3FAE7C.toInt(), 0xFF2C8C61.toInt(),
-            0xFFF3F1F8.toInt(), 0xFFDFDBEB.toInt(), 0xFFD3CEE2.toInt(), 0xFFECE9F3.toInt(),
-            0x47504678, 0xFFB7B0CC.toInt(), 0xFF3E5A2A.toInt(), 0xFF7FA65A.toInt(),
+            0xFFFEE2E2.toInt(), 0xFFF87171.toInt(), 0xFFEF4444.toInt(), 0xFFDC2626.toInt(), 0xFFB91C1C.toInt(),
+            0xFFFFF3F3.toInt(), 0xFFFBDCDC.toInt(), 0xFFF2D6D6.toInt(), 0xFFFBEEEE.toInt(),
+            0x477F1D1D, 0xFFF2A3A3.toInt(), 0xFF4A3A6A.toInt(), 0xFF8A7AB0.toInt(),
         ),
     )
 

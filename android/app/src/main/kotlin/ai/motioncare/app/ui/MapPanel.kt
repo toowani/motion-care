@@ -39,7 +39,6 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 
 private const val TAG = "MotionCare"
-private const val CUE_SHOW_MS = 4000L
 
 /**
  * Our own navigation-style map. Apps cannot draw over the Pleos navigation, so this screen looks
@@ -59,18 +58,10 @@ class MapPanel(context: Context) : FrameLayout(context) {
     private val tbtRoad = context.text("", 17f, Color.parseColor("#C9CED8"))
     private val tbtCard = LinearLayout(context)
 
-    // character widget (top-right) and its speech bubble
+    // character widget (top-right): the face in a disc filled with the risk colour, no number
     private val icon = MoodIconView(context)
     private val ring = FrameLayout(context)
-    private val moodLabel = context.text("편안", 22f, Ui.INK, bold = true)
-    private val riskLabel = context.text("멀미 가능성", 16f, Color.WHITE, bold = true)
-    private val riskValue = context.text("0%", 28f, Color.WHITE, bold = true)
-    private val riskChip = LinearLayout(context)
-    // turn cue: a big arrow and the distance under the character, no sentence
-    private val cueArrow = ManeuverView(context)
-    private val cueDist = context.text("", 30f, Color.WHITE, bold = true)
-    private val bubble = LinearLayout(context)
-    private var cueAt = -1.0
+    private val disc = GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(Ui.RISK_LOW) }
 
     // bottom: speed, arrival bar, 2D/3D, attribution
     private val speedNum = context.text("0", 28f, Ui.INK, bold = true)
@@ -82,7 +73,6 @@ class MapPanel(context: Context) : FrameLayout(context) {
     private val attribution = context.text("© OpenStreetMap contributors © OpenFreeMap", 9f, Ui.MUTED)
 
     private val main = Handler(Looper.getMainLooper())
-    private val hideBubble = Runnable { cueAt = -1.0; bubble.animate().alpha(0f).setDuration(250).withEndAction { bubble.gone(true) }.start() }
     private var destroyed = false
     private var ready = false
     private val queue = ArrayList<String>()
@@ -162,56 +152,14 @@ class MapPanel(context: Context) : FrameLayout(context) {
     }
 
     private fun buildCharacter() {
-        ring.background = GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(Color.WHITE); setStroke(context.dp(5), Ui.PRIMARY) }
+        // a white rim keeps the coloured disc apart from any map colour underneath
+        disc.setStroke(context.dp(6), Color.WHITE)
+        ring.background = disc
+        ring.elevation = context.dpf(8f)
         ring.addView(icon, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT).apply {
-            val m = context.dp(9); setMargins(m, m, m, m)
+            val m = context.dp(16); setMargins(m, m, m, m)
         })
-        moodLabel.gravity = Gravity.CENTER
-        moodLabel.maxLines = 1
-        moodLabel.ellipsize = TextUtils.TruncateAt.END
-        riskChip.apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
-            background = Ui.rounded(Ui.riskColor(0.0), context.dpf(14f))
-            setPadding(context.dp(6), context.dp(4), context.dp(6), context.dp(4))
-            riskLabel.gravity = Gravity.CENTER
-            riskLabel.maxLines = 1
-            riskValue.gravity = Gravity.CENTER
-            riskValue.includeFontPadding = false
-            addView(riskLabel)
-            addView(riskValue)
-        }
-        val card = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER_HORIZONTAL
-            background = Ui.rounded(Color.WHITE, context.dpf(20f))
-            elevation = context.dpf(6f)
-            setPadding(context.dp(10), context.dp(10), context.dp(10), context.dp(10))
-            addView(ring, LinearLayout.LayoutParams(context.dp(CHAR_RING), context.dp(CHAR_RING)))
-            addView(moodLabel, LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply { topMargin = context.dp(6) })
-            // navigation mode shows only the chance of sickness; the face word (the shake now) read as a contradiction next to it
-            moodLabel.gone(true)
-            addView(riskChip, LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply { topMargin = context.dp(6) })
-        }
-        // the cue sits under the character, at the side, so it never covers the road ahead
-        bubble.apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            background = Ui.rounded(Color.parseColor("#111317"), context.dpf(16f), context.dp(3), RiskGauge.AMBER)
-            elevation = context.dpf(6f)
-            setPadding(context.dp(8), context.dp(6), context.dp(14), context.dp(6))
-            addView(cueArrow, LinearLayout.LayoutParams(context.dp(56), context.dp(56)))
-            cueDist.maxLines = 1
-            addView(cueDist, LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply { marginStart = context.dp(4) })
-            gone(true)
-        }
-        val side = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.END
-            addView(card, LinearLayout.LayoutParams(context.dp(CHAR_RING + 20), LayoutParams.WRAP_CONTENT))
-            addView(bubble, LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply { topMargin = context.dp(10) })
-        }
-        addView(side, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.TOP or Gravity.END).apply {
+        addView(ring, LayoutParams(context.dp(CHAR_RING), context.dp(CHAR_RING), Gravity.TOP or Gravity.END).apply {
             setMargins(0, context.dp(14), context.dp(14), 0)
         })
     }
@@ -302,7 +250,7 @@ class MapPanel(context: Context) : FrameLayout(context) {
             js(String.format(Locale.US, "setS(%.1f,%.2f)", pos, s.speed))
             val step = r.nextStep(pos)
             when {
-                // one turn source: the turn the engine (and the cue) sees; the route only lends a road name
+                // one turn source: the turn the engine sees; the route only lends a road name
                 s.nextTurnM >= 0 -> {
                     val at = pos + s.nextTurnM
                     val named = r.steps.firstOrNull { abs(it.s - at) < 60 && it.type != "TURN_ARRIVE" }
@@ -316,7 +264,6 @@ class MapPanel(context: Context) : FrameLayout(context) {
                     showTbt("TURN_ARRIVE", (step?.s ?: r.totalM) - pos, r.dest.ifBlank { r.title }, "목적지")
                 else -> showTbt(step.type, step.s - pos, step.road, step.text.ifBlank { turnWord(step.type) })
             }
-            followCue(s.nextTurnM)
             val remain = (r.totalM - pos).coerceAtLeast(0.0)
             // a replay knows its own timetable (stops included), like a navigation's traffic-aware estimate;
             // the trip average would jump by minutes at every red light
@@ -336,7 +283,6 @@ class MapPanel(context: Context) : FrameLayout(context) {
                 showTbt(if (s.nextTurnLeft) "TURN_LEFT" else "TURN_RIGHT", s.nextTurnM, "", if (s.nextTurnLeft) "좌회전" else "우회전")
             else -> tbtCard.gone(true)
         }
-        followCue(s.nextTurnM)
         if (g?.remainM != null && g.remainM > 0) showEta(g.remainM.toDouble(), g.remainS?.toDouble(), g.destName ?: "")
         else etaBar.gone(true)
     }
@@ -347,51 +293,22 @@ class MapPanel(context: Context) : FrameLayout(context) {
         js(String.format(Locale.US, "setPos(%.7f,%.7f,%.1f,0)", lat, lon, if (bearing.isFinite()) bearing else 0.0))
     }
 
-    fun setMood(theme: MoodTheme, mood: Mood, level: Float, label: String) = onMain {
+    fun setMood(theme: MoodTheme, mood: Mood, level: Float) = onMain {
         icon.theme = theme
         icon.mood = mood
         icon.level = level
-        // a glance only: the level word (편안·주의·위험), the theme's phrase stays on the home card
-        moodLabel.text = (label).substringBefore(" · ")
-        val c = moodColor(mood)
-        (ring.background as GradientDrawable).setStroke(context.dp(5), c)
-        moodLabel.setTextColor(c)
     }
 
-    /** Sickness probability (0..1) of the passenger who matters, built up from the trip's dose. */
+    /** Sickness probability (0..1) of the passenger: green < 25 % ≤ yellow < 50 % ≤ red. */
     fun setRisk(p: Double) = onMain {
-        riskValue.text = "${Ui.pct(p)}%"
-        riskChip.background = Ui.rounded(Ui.riskColor(p), context.dpf(14f))
+        val c = Ui.riskColor(p)
+        if (c != riskShown) { riskShown = c; disc.setColor(c) }
     }
+
+    private var riskShown = Ui.RISK_LOW
 
     /** Next turn hint without a route ("300m 앞 좌회전"); null hides the card. */
     fun setNextTurn(text: String?) = onMain { if (text.isNullOrBlank()) tbtCard.gone(true) }
-
-    /** A turn cue fired: arrow + distance under the character until the turn is passed (or a few seconds). */
-    fun showCue(left: Boolean) = onMain {
-        cueArrow.kind = if (left) ManeuverView.Kind.LEFT else ManeuverView.Kind.RIGHT
-        cueAt = lastTurnM
-        cueDist.text = cueText(lastTurnM)
-        main.removeCallbacks(hideBubble)
-        bubble.animate().cancel()
-        if (bubble.visibility != VISIBLE) { bubble.alpha = 0f; bubble.translationY = -context.dpf(10f) }
-        bubble.gone(false)
-        bubble.animate().alpha(1f).translationY(0f).setDuration(220).start()
-        main.postDelayed(hideBubble, CUE_SHOW_MS)
-    }
-
-    private var lastTurnM = -1.0
-
-    private fun cueText(m: Double) = if (m in 0.0..30.0 || m < 0) "곧" else "${(m / 10).roundToInt() * 10}m"
-
-    /** Counts the cue down with each sample; a growing distance means the turn is behind us. */
-    private fun followCue(turnM: Double) {
-        val prev = lastTurnM
-        lastTurnM = turnM
-        if (bubble.visibility != VISIBLE || cueAt < 0) return
-        if (turnM < 0 || (prev >= 0 && turnM > prev + 5)) { main.removeCallbacks(hideBubble); hideBubble.run(); return }
-        cueDist.text = cueText(turnM)
-    }
 
     /** Clears the trail, route and guidance, e.g. when a new trip starts. */
     fun reset() = onMain {
@@ -402,12 +319,8 @@ class MapPanel(context: Context) : FrameLayout(context) {
         tbtCard.gone(true)
         etaBar.gone(true)
         speedNum.text = "0"
-        riskValue.text = "0%"
-        riskChip.background = Ui.rounded(Ui.riskColor(0.0), context.dpf(14f))
-        main.removeCallbacks(hideBubble)
-        bubble.gone(true)
-        cueAt = -1.0
-        lastTurnM = -1.0
+        riskShown = Ui.RISK_LOW
+        disc.setColor(riskShown)
         js("resetAll()")
     }
 
@@ -464,8 +377,6 @@ class MapPanel(context: Context) : FrameLayout(context) {
     }
 
 
-    private fun moodColor(m: Mood) = when (m) { Mood.CALM -> Ui.PRIMARY; Mood.UNEASY -> Color.parseColor("#D97706"); Mood.SICK -> Ui.ALERT }
-
     private fun js(code: String) {
         if (destroyed) return
         if (ready) web.evaluateJavascript(code, null)
@@ -490,7 +401,8 @@ class MapPanel(context: Context) : FrameLayout(context) {
     }
 
     private companion object {
-        const val CHAR_RING = 112
+        /** Big enough to read the face at a glance from the driver's seat. */
+        const val CHAR_RING = 168
 
         val HTML = """
 <!DOCTYPE html><html><head>
@@ -550,8 +462,8 @@ function push(s,v,instant){if(!ENG||!ENG.move)return;var t=now(),dur=interval*K,
  if(instant||camT==null)camT=look;else{var dc=((look-camT+540)%360)-180;camT=(camT+Math.max(-25,Math.min(25,dc*0.5))+360)%360;}
  ENG.move(p,camT,b-camT,dur,zoomLevel(v*3.6),prog,instant);}
 function set3d(on){threeD=on;if(ENG&&ENG.tilt)ENG.tilt();}
-// speed bands with hysteresis (up at 45/80 km/h, down at 38/70) so the zoom never flips back and forth
-function zoomLevel(kmh){if(zLvl<2&&kmh>80)zLvl=2;else if(zLvl<1&&kmh>45)zLvl=1;else if(zLvl===2&&kmh<70)zLvl=1;else if(zLvl===1&&kmh<38)zLvl=0;return zLvl;}
+// one zoom for the whole drive: the speed-band zoom-outs on fast curves felt like the map breathing
+function zoomLevel(kmh){return 0;}
 function frame(){requestAnimationFrame(frame);var t=now();if(!have||!ENG||ENG.move)return;
  // the canvas engines redraw the whole map per frame: 30 fps is smooth and leaves the CPU some room
  if(ENG.fps&&t-tDraw<1000/ENG.fps-4)return;var el=tDraw?Math.min(100,t-tDraw):16.7,k=el/16.7;tDraw=t;

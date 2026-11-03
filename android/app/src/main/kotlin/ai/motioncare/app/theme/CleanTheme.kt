@@ -17,7 +17,7 @@ import kotlin.math.sin
 
 /**
  * Car-UI traffic-light icon: a glossy coloured disc with a white face, wrapped in a progress
- * ring that fills (green -> amber -> red) with the sickness level. The disc breathes and blinks.
+ * ring that fills (green -> yellow -> red) with the sickness level. The disc breathes and blinks.
  *
  * Geometry lives in a fixed 0..100 box scaled by size / 100. Shadows are drawn with the canvas
  * temporarily scaled back to pixels so their blur and offset stay in pixels at every size.
@@ -42,13 +42,13 @@ object CleanTheme : MoodTheme {
 
     // hi, mid, lo, rim per mood (CALM, UNEASY, SICK)
     private val PAL = arrayOf(
-        intArrayOf(0xFF6EDC9C.toInt(), 0xFF1FB062.toInt(), 0xFF13924A.toInt(), 0xFF0E7A3D.toInt()),
-        intArrayOf(0xFFFFD77A.toInt(), 0xFFFBA623.toInt(), 0xFFF28A12.toInt(), 0xFFE2770C.toInt()),
-        intArrayOf(0xFFFF8F84.toInt(), 0xFFEA4B43.toInt(), 0xFFD23631.toInt(), 0xFFB82A27.toInt()),
+        intArrayOf(0xFF6BD992.toInt(), 0xFF16A34A.toInt(), 0xFF138E40.toInt(), 0xFF0F7535.toInt()),
+        intArrayOf(0xFFFDE68A.toInt(), 0xFFEAB308.toInt(), 0xFFD39F06.toInt(), 0xFFB98A04.toInt()),
+        intArrayOf(0xFFF88A8A.toInt(), 0xFFDC2626.toInt(), 0xFFC21F1F.toInt(), 0xFFA51B1B.toInt()),
     )
-    private val RING_G = 0xFF22C06A.toInt()
-    private val RING_A = 0xFFF5A20F.toInt()
-    private val RING_R_COLOR = 0xFFEE4A42.toInt()
+    private val RING_G = 0xFF16A34A.toInt()
+    private val RING_A = 0xFFEAB308.toInt()
+    private val RING_R_COLOR = 0xFFDC2626.toInt()
 
     private fun pd(d: String): Path = PathParser.createPathFromPathData(d)
 
@@ -95,7 +95,7 @@ object CleanTheme : MoodTheme {
     private val sickTintShader by lazy {
         LinearGradient(
             0f, 60f, 0f, 92f,
-            intArrayOf(Color.argb(0, 170, 226, 112), Color.argb(168, 162, 222, 106), Color.argb(240, 140, 210, 96)),
+            intArrayOf(Color.argb(0, 127, 29, 29), Color.argb(70, 127, 29, 29), Color.argb(120, 110, 22, 22)),
             floatArrayOf(0f, 0.5f, 1f), Shader.TileMode.CLAMP,
         )
     }
@@ -239,7 +239,7 @@ object CleanTheme : MoodTheme {
             c.drawCircle(50f, 50f, r, ridgeWhite)
             c.drawCircle(50f, 50f, r + 0.7f, ridgeBlack)
         }
-        // SICK: lower face turns sickly green
+        // SICK: lower face darkens (no green tint: green means calm)
         if (mood == Mood.SICK) {
             tintPaint.shader = sickTintShader
             c.drawRect(0f, 60f, 100f, 100f, tintPaint)

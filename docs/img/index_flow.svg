@@ -17,7 +17,7 @@
 <text x="730.0" y="157.0" font-size="14" fill="#5B21B6" text-anchor="middle" font-weight="700">판단</text>
 <rect x="810.0" y="120.0" width="130.0" height="64.0" rx="12" fill="#ECFDF5"/>
 <text x="875.0" y="149.0" font-size="14" fill="#065F46" text-anchor="middle" font-weight="700">흔들림 단계</text>
-<text x="875.0" y="168.0" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">멀미 가능성 P (아이별)</text>
+<text x="875.0" y="168.0" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">멀미 가능성 P</text>
 <polyline points="154.0,152.0 176.0,152.0" fill="none" stroke="#6B6E86" stroke-width="2.5" stroke-linejoin="round"/>
 <path d="M176.0 152.0 L166.1 156.8 L166.1 147.2 Z" fill="#6B6E86"/>
 <polyline points="314.0,152.0 336.0,152.0" fill="none" stroke="#6B6E86" stroke-width="2.5" stroke-linejoin="round"/>
@@ -39,13 +39,13 @@
 <text x="710.0" y="259.0" font-size="13" fill="#5B21B6" text-anchor="middle" font-weight="700">환경 계수 m</text>
 <text x="710.0" y="278.0" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">덥고 탁하면 ↓</text>
 <rect x="800.0" y="236.0" width="140.0" height="52.0" rx="12" fill="#F5F3FF"/>
-<text x="870.0" y="259.0" font-size="13" fill="#5B21B6" text-anchor="middle" font-weight="700">아이별 기준선 τ</text>
-<text x="870.0" y="278.0" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">정차 후 질문으로 학습</text>
+<text x="870.0" y="259.0" font-size="13" fill="#5B21B6" text-anchor="middle" font-weight="700">개인 기준선 τ</text>
+<text x="870.0" y="278.0" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">완화 버튼으로 학습</text>
 <polyline points="624.0,262.0 646.0,262.0" fill="none" stroke="#6B6E86" stroke-width="2.5" stroke-linejoin="round"/>
 <path d="M646.0 262.0 L636.1 266.8 L636.1 257.2 Z" fill="#6B6E86"/>
 <polyline points="710.0,234.0 725.0,188.0" fill="none" stroke="#6B6E86" stroke-width="2.5" stroke-linejoin="round"/>
 <path d="M725.0 188.0 L726.5 198.9 L717.4 195.9 Z" fill="#6B6E86"/>
 <polyline points="870.0,234.0 750.0,188.0" fill="none" stroke="#6B6E86" stroke-width="2.5" stroke-linejoin="round"/>
 <path d="M750.0 188.0 L761.0 187.1 L757.5 196.0 Z" fill="#6B6E86"/>
-<text x="480.0" y="318.0" font-size="13" fill="#6B6E86" text-anchor="middle" font-weight="400">기준선 × m을 넘으면 주의·위험 · 가족 모드는 확률 P가 0.5를 넘는 아이가 생기면 대응</text>
+<text x="480.0" y="318.0" font-size="13" fill="#6B6E86" text-anchor="middle" font-weight="400">지수가 기준선 × m을 넘으면 공기를 바꾸고, 흔들림이 길게 이어지면 휴게소를 제안</text>
 </svg>

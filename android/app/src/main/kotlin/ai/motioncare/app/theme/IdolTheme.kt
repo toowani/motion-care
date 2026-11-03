@@ -103,12 +103,12 @@ object IdolTheme : MoodTheme {
     )
 
     private val STAGES = arrayOf(
-        Stage(hex("#FFE6F4"), hex("#FF6DB8"), hex("#5A1E9E"), rgba(255, 240, 250, 1f),
-            hex("#FFD6F0"), hex("#FF4FA7"), hex("#FF7CC8")),
-        Stage(hex("#EEE6FF"), hex("#AE95E6"), hex("#45367E"), rgba(240, 232, 255, 1f),
-            hex("#E6DAFF"), hex("#9C83E0"), hex("#B89BFF")),
-        Stage(hex("#E2F1FF"), hex("#86B6EA"), hex("#2C4A8C"), rgba(230, 244, 255, 1f),
-            hex("#D8ECFF"), hex("#6E9EE0"), hex("#7EC4FF")),
+        Stage(hex("#E8FCEE"), hex("#4ADE80"), hex("#14532D"), rgba(236, 255, 242, 1f),
+            hex("#D1FADF"), hex("#16A34A"), hex("#6EE7A0")),
+        Stage(hex("#FFF8D6"), hex("#F5C518"), hex("#713F12"), rgba(255, 250, 226, 1f),
+            hex("#FEF0B0"), hex("#EAB308"), hex("#FFD84A")),
+        Stage(hex("#FFE6E6"), hex("#F06262"), hex("#7F1D1D"), rgba(255, 238, 238, 1f),
+            hex("#FFD6D6"), hex("#DC2626"), hex("#FF8A8A")),
     )
 
     // ---------------------------------------------------------------- static paths (0..100 box)
@@ -399,7 +399,7 @@ object IdolTheme : MoodTheme {
         }
         // dimming veil (level-driven)
         if (dim > 0f) {
-            val veil = if (mood == Mood.SICK) rgba(20, 34, 80, dim * 0.55f) else rgba(40, 24, 80, dim * 0.55f)
+            val veil = if (mood == Mood.SICK) rgba(60, 12, 16, dim * 0.55f) else rgba(58, 40, 8, dim * 0.55f)
             c.drawRect(0f, 0f, 100f, 100f, fillC(veil))
         }
         c.restore()

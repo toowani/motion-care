@@ -1,6 +1,5 @@
 package ai.motioncare.app.ui
 
-import ai.motioncare.app.ProfileStore
 import ai.motioncare.app.Settings
 import ai.motioncare.app.theme.Mood
 import ai.motioncare.app.theme.MoodIconView
@@ -12,37 +11,29 @@ import ai.motioncare.app.ui.Ui.dpf
 import ai.motioncare.app.ui.Ui.lp
 import ai.motioncare.app.ui.Ui.pill
 import ai.motioncare.app.ui.Ui.text
-import ai.motioncare.core.Params
-import ai.motioncare.core.Profile
-import android.app.AlertDialog
 import android.content.Context
-import android.text.InputType
 import android.view.Gravity
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.Switch
 
 /**
  * Full-screen settings over the home screen: icon theme (live preview of all three moods),
- * how the car helps (voice, light, climate), family profiles, and the demo panel switch.
- * Shown on first launch as a short welcome with the theme choice.
+ * how the car helps (voice, climate) and the demo panel switch. Shown on first launch as a short
+ * welcome with the theme choice. The family profiles and turn cue picker are parked in [ai.motioncare.app.later].
  */
 class SettingsPanel(
     context: Context,
     private val settings: Settings,
-    private val profiles: ProfileStore,
-    private val params: Params,
     private val onThemeChanged: (MoodTheme) -> Unit,
     private val onChanged: () -> Unit,
     private val onClose: () -> Unit,
 ) : LinearLayout(context) {
     private val themeCards = mutableMapOf<String, LinearLayout>()
-    private val profileList = LinearLayout(context).apply { orientation = VERTICAL }
     private val welcome = context.text("", 19f, Ui.PRIMARY, bold = true)
-    private val drivingNote = context.text("주행 중에는 테마·프로필 잠김", 18f, Ui.ALERT, bold = true)
+    private val drivingNote = context.text("주행 중에는 테마 잠김", 18f, Ui.ALERT, bold = true)
     private val parkedOnly = mutableListOf<android.view.View>()
     private val themeRows = mutableListOf<LinearLayout>()
     private var oneColumn = false
@@ -78,27 +69,9 @@ class SettingsPanel(
         section(content, "차가 도와주는 방법", null)
         val toggles = context.card()
         toggles.addView(toggle("소리 안내", "질문과 위험 안내를 소리로", settings.voiceOn) { settings.voiceOn = it })
-        toggles.addView(cueStylePicker())
-        toggles.addView(toggle("무드등 예고", "회전 직전 무드등 깜빡임", settings.lightCueOn) { settings.lightCueOn = it })
         toggles.addView(toggle("공조 자동 조절", "위험할 때 바깥 공기·22°C", settings.autoClimateOn) { settings.autoClimateOn = it })
         toggles.addView(toggle("시연 패널", "시나리오 재생 버튼 (시연용)", settings.demoPanelOn) { settings.demoPanelOn = it })
         content.addView(toggles, lp(MATCH_PARENT, WRAP_CONTENT, 0f, context.dp(6)))
-
-        section(content, "가족 프로필", "이 차에만 저장 · 별명으로 등록")
-        val family = context.card()
-        family.addView(profileList, lp(MATCH_PARENT, WRAP_CONTENT))
-        val actions = LinearLayout(context).apply { orientation = HORIZONTAL }
-        actions.addView(context.pill("+ 아이 추가") { askName("아이 별명", "") { name -> profiles.save(profiles.load() + Profile(name)); refreshProfiles() } },
-            lp(WRAP_CONTENT, WRAP_CONTENT).apply { marginEnd = context.dp(10) })
-        actions.addView(context.pill("학습 기록 초기화", color = Ui.MUTED) {
-            AlertDialog.Builder(context).setTitle("학습한 기준선을 지울까요?")
-                .setMessage("아이 별명은 남고, 멀미 기록만 지워져요.")
-                .setPositiveButton("지우기") { _, _ -> profiles.save(profiles.load().map { it.copy(onsetDoses = emptyList()) }); refreshProfiles() }
-                .setNegativeButton("취소", null).show()
-        })
-        family.addView(actions, lp(MATCH_PARENT, WRAP_CONTENT).apply { topMargin = context.dp(12) })
-        parkedOnly += family
-        content.addView(family, lp(MATCH_PARENT, WRAP_CONTENT, 0f, context.dp(6)))
 
         content.addView(context.text("운전 중에는 화면을 조작하지 마세요", 16f, Ui.MUTED),
             lp(MATCH_PARENT, WRAP_CONTENT).apply { setMargins(context.dp(6), context.dp(16), context.dp(6), 0) })
@@ -114,12 +87,11 @@ class SettingsPanel(
         content.addView(credits, lp(MATCH_PARENT, WRAP_CONTENT).apply { setMargins(context.dp(6), context.dp(14), context.dp(6), context.dp(24)) })
 
         addView(ScrollView(context).apply { addView(content) }, lp(MATCH_PARENT, 0, 1f).apply { topMargin = context.dp(8) })
-        refreshProfiles()
         markSelected()
     }
 
     /**
-     * Driving UX restrictions (no setup / no keyboard while moving): theme and profile editing are
+     * Driving UX restrictions (no setup / no keyboard while moving): theme editing is
      * locked; the guidance toggles stay usable because they only reduce what the car does.
      */
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -151,7 +123,6 @@ class SettingsPanel(
     fun showWelcome(first: Boolean) {
         welcome.text = if (first) "환영해요! 아이콘 테마를 골라 주세요" else ""
         welcome.visibility = if (first) VISIBLE else GONE
-        refreshProfiles()
     }
 
     private fun section(parent: LinearLayout, title: String, sub: String?) {
@@ -191,29 +162,6 @@ class SettingsPanel(
         }
     }
 
-    /** Turn cue: short tone (default), the theme's sentence, or light only. Navigation turns are never spoken twice. */
-    private fun cueStylePicker() = LinearLayout(context).apply {
-        orientation = VERTICAL
-        setPadding(0, context.dp(6), 0, context.dp(10))
-        addView(context.text("회전 예고 방식", 18f, bold = true))
-        addView(context.text("기본은 짧은 알림음 · 내비 안내와 겹치지 않아요", 16f, Ui.MUTED))
-        val row = LinearLayout(context).apply { orientation = HORIZONTAL }
-        val options = listOf("chime" to "알림음", "voice" to "캐릭터 목소리", "silent" to "무드등만")
-        val pills = mutableListOf<android.widget.TextView>()
-        fun paint() = pills.forEachIndexed { i, v ->
-            val on = options[i].first == settings.cueStyle
-            v.setTextColor(if (on) android.graphics.Color.WHITE else Ui.PRIMARY)
-            v.background = Ui.rounded(if (on) Ui.PRIMARY else Ui.CARD, context.dpf(28f), context.dp(2), Ui.PRIMARY)
-        }
-        options.forEach { (id, label) ->
-            val p = context.pill(label) { settings.cueStyle = id; paint(); onChanged() }
-            pills += p
-            row.addView(p, lp(WRAP_CONTENT, WRAP_CONTENT).apply { marginEnd = context.dp(10) })
-        }
-        paint()
-        addView(row, lp(MATCH_PARENT, WRAP_CONTENT).apply { topMargin = context.dp(8) })
-    }
-
     private fun toggle(title: String, sub: String, value: Boolean, onSet: (Boolean) -> Unit) = LinearLayout(context).apply {
         orientation = HORIZONTAL; gravity = Gravity.CENTER_VERTICAL
         minimumHeight = context.dp(72)
@@ -235,37 +183,5 @@ class SettingsPanel(
         // the whole row toggles, not just the small switch
         isClickable = true
         setOnClickListener { sw.toggle() }
-    }
-
-    private fun refreshProfiles() {
-        profileList.removeAllViews()
-        val list = profiles.load()
-        if (list.isEmpty()) profileList.addView(context.text("아직 등록한 아이가 없어요.", 16f, Ui.MUTED))
-        list.forEachIndexed { i, p ->
-            val row = LinearLayout(context).apply { orientation = HORIZONTAL; gravity = Gravity.CENTER_VERTICAL; minimumHeight = context.dp(68) }
-            val info = LinearLayout(context).apply {
-                orientation = VERTICAL
-                addView(context.text(p.name, 19f, bold = true))
-                val sensitivity = when { p.onsetDoses.isEmpty() -> "아직 기록 없음"; p.threshold(params) < 26 -> "멀미를 쉽게 해요"; p.threshold(params) < 34 -> "보통이에요"; else -> "멀미를 잘 안 해요" }
-                addView(context.text("멀미 기록 ${p.onsetDoses.size}번 · $sensitivity", 16f, Ui.MUTED))
-            }
-            row.addView(info, lp(0, WRAP_CONTENT, 1f))
-            row.addView(context.pill("이름 바꾸기", color = Ui.PRIMARY) {
-                askName("새 별명", p.name) { name -> profiles.save(list.toMutableList().also { it[i] = p.copy(name = name) }); refreshProfiles(); onChanged() }
-            }, lp(WRAP_CONTENT, WRAP_CONTENT).apply { marginEnd = context.dp(8) })
-            row.addView(context.pill("삭제", color = Ui.ALERT) {
-                AlertDialog.Builder(context).setTitle("${p.name} 프로필을 지울까요?")
-                    .setPositiveButton("지우기") { _, _ -> profiles.save(list.filterIndexed { j, _ -> j != i }); refreshProfiles(); onChanged() }
-                    .setNegativeButton("취소", null).show()
-            })
-            profileList.addView(row, lp(MATCH_PARENT, WRAP_CONTENT))
-        }
-    }
-
-    private fun askName(title: String, initial: String, onOk: (String) -> Unit) {
-        val input = EditText(context).apply { setText(initial); inputType = InputType.TYPE_CLASS_TEXT; textSize = 20f; setSingleLine() }
-        AlertDialog.Builder(context).setTitle(title).setView(input)
-            .setPositiveButton("확인") { _, _ -> input.text.toString().trim().take(8).takeIf { it.isNotEmpty() && !it.contains('=') }?.let(onOk) }
-            .setNegativeButton("취소", null).show()
     }
 }

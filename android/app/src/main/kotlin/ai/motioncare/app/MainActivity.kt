@@ -4,7 +4,6 @@ import ai.motioncare.app.theme.MoodThemes
 import ai.motioncare.app.ui.HomeView
 import ai.motioncare.app.ui.SettingsPanel
 import ai.motioncare.core.Output
-import ai.motioncare.core.Params
 import ai.motioncare.core.Sample
 import android.app.Activity
 import android.car.Car
@@ -32,7 +31,6 @@ private const val PERMISSIONS_REQUEST = 1
  */
 class MainActivity : Activity(), HomeView.Callbacks {
     private lateinit var settings: Settings
-    private lateinit var profiles: ProfileStore
     private lateinit var home: HomeView
     private lateinit var panel: SettingsPanel
     private var car: Car? = null
@@ -51,18 +49,18 @@ class MainActivity : Activity(), HomeView.Callbacks {
         override fun onSample(s: Sample, o: Output, risk: TripService.Risk) {
             home.dashboard.add(s, o, risk)
             home.setNaviGuidance(service?.naviGuidance)
-            home.update(s, o, s.nextTurnM, risk.p)
+            home.update(s, o, risk.p)
         }
         override fun onRoute(name: String?, track: DoubleArray?) = home.setRoute(name, track)
-        override fun onCue(left: Boolean, line: String) = home.showCue(left)
-        override fun onFamily(on: Boolean, names: List<String>) = home.setFamily(on, names)
-        override fun onFamilyProbabilities(values: List<Pair<String, Double>>) = home.setFamilyProbabilities(values)
+        // family mode is parked (see later/README.md): the service may still report it, the screen shows none of it
+        override fun onFamily(on: Boolean, names: List<String>) = Unit
+        override fun onFamilyProbabilities(values: List<Pair<String, Double>>) = Unit
         override fun onAction(msg: String) = home.showAction(msg)
         override fun onNote(msg: String) = home.note(msg)
         override fun onPrompt(question: String, answers: List<String>, answer: (Int) -> Unit) =
             home.prompt(question, answers.mapIndexed { i, label -> label to { answer(i) } })
         override fun onHidePrompt() = home.hidePrompt()
-        override fun onSummary(minutes: Int, cues: Int, airs: Int, peak: ai.motioncare.app.theme.Mood) = home.updateSummary(minutes, cues, airs, peak)
+        override fun onSummary(minutes: Int, reliefs: Int, airs: Int, peak: ai.motioncare.app.theme.Mood) = home.updateSummary(minutes, reliefs, airs, peak)
     }
 
     private val connection = object : ServiceConnection {
@@ -87,11 +85,9 @@ class MainActivity : Activity(), HomeView.Callbacks {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val params = Params.fromJson(assets.open("params.json").bufferedReader().readText())
         settings = Settings(this)
-        profiles = ProfileStore(this)
         home = HomeView(this, this)
-        panel = SettingsPanel(this, settings, profiles, params,
+        panel = SettingsPanel(this, settings,
             onThemeChanged = { t -> home.setTheme(t) },
             onChanged = { service?.onSettingsChanged(); applySettings() },
             onClose = { closeSettings() })
@@ -183,7 +179,7 @@ class MainActivity : Activity(), HomeView.Callbacks {
         startTrip()
     }
 
-    /** Locks theme/profile editing while the car says setup or typing is not allowed (moving). */
+    /** Locks theme editing while the car says setup or typing is not allowed (moving). */
     private fun watchDrivingRestrictions() {
         runCatching {
             val c = Car.createCar(this)
@@ -201,7 +197,6 @@ class MainActivity : Activity(), HomeView.Callbacks {
 
     private fun applySettings() {
         home.setDemoPanel(settings.demoPanelOn)
-        home.setFamily(service?.familyMode ?: false, profiles.load().map { it.name })
     }
 
     override fun onSettings() = onSettingsShown(first = false)
@@ -226,8 +221,7 @@ class MainActivity : Activity(), HomeView.Callbacks {
         if (panel.visibility == View.VISIBLE) closeSettings() else @Suppress("DEPRECATION") super.onBackPressed()
     }
 
-    override fun onFamilyToggle() { service?.toggleFamily() }
-    override fun onReportSick() { service?.reportSick() }
+    override fun onRelief() { service?.relief() }
     override fun onScenario(file: String) { service?.startScenario(file) }
     override fun onLive() { service?.startLive() }
     override fun onStopTrip() { service?.stopTrip() }

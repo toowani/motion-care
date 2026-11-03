@@ -17,7 +17,8 @@ private const val TAG = "MotionCare"
 
 /**
  * Analysis panel: either the shake index with its thresholds × cabin factor, or the sickness
- * probability (one line per child in family mode). Cue and fresh-air markers on both; event log below.
+ * probability (one line per child in family mode, which is parked). Fresh-air markers on both;
+ * event log below. Turn cues are not shown (hidden by team decision; the engine still plans them).
  */
 class DashboardView(context: Context) : View(context) {
     enum class Mode { INDEX, RISK }
@@ -28,8 +29,10 @@ class DashboardView(context: Context) : View(context) {
     private val log = ArrayDeque<String>()
     private val violet = Color.parseColor("#453ECE")
     private val navy = Color.parseColor("#012348")
-    private val amber = Color.parseColor("#B45309")
-    private val warn = Color.parseColor("#C2410C")
+    // the shared risk scale: caution line yellow (darkened to read on white), high line and alert red
+    private val amber = ai.motioncare.app.ui.Ui.RISK_MID_INK
+    private val warn = ai.motioncare.app.ui.Ui.RISK_HIGH
+    private val air = ai.motioncare.app.ui.Ui.PRIMARY
     private val muted = Color.parseColor("#6B6E86")
     private val line = Color.parseColor("#DADAEA")
     /** One colour per child, in profile order. */
@@ -78,30 +81,19 @@ class DashboardView(context: Context) : View(context) {
         text.textSize = label; text.isFakeBoldText = true; text.textAlign = Paint.Align.LEFT
         if (mode == Mode.INDEX) drawIndex(c, left, right, top, bottom, ::x) else drawRisk(c, left, right, top, bottom, ::x)
 
-        // event markers: turn cue (dot) and fresh air (square), on both graphs
+        // event markers: fresh air (square), on both graphs
         points.forEachIndexed { i, pt ->
-            pt.o.actions.forEach { a ->
-                when (a) {
-                    Action.CUE_LEFT, Action.CUE_RIGHT -> { fill.color = navy; c.drawCircle(x(i), top + 18f, 9f, fill) }
-                    Action.HVAC_FRESH -> { fill.color = warn; c.drawRect(x(i) - 9f, top + 34f, x(i) + 9f, top + 52f, fill) }
-                    else -> Unit
-                }
-            }
+            if (Action.HVAC_FRESH in pt.o.actions) { fill.color = air; c.drawRect(x(i) - 9f, top + 18f, x(i) + 9f, top + 36f, fill) }
         }
         // marker legend (top-right)
         text.textAlign = Paint.Align.RIGHT; text.color = muted; text.textSize = label
         val ly = top - label * 0.8f
         val airW = text.measureText("바람")
         c.drawText("바람", w - context.dpf(12f), ly, text)
-        fill.color = warn
+        fill.color = air
         val sq = label * 0.35f
         val airX = w - context.dpf(12f) - airW - sq - context.dpf(6f)
         c.drawRect(airX - sq, ly - label * 0.35f - sq, airX + sq, ly - label * 0.35f + sq, fill)
-        val cueEnd = airX - sq - context.dpf(18f)
-        val cueW = text.measureText("회전 예고")
-        c.drawText("회전 예고", cueEnd, ly, text)
-        fill.color = navy
-        c.drawCircle(cueEnd - cueW - sq - context.dpf(6f), ly - label * 0.35f, sq, fill)
 
         // event log
         text.textAlign = Paint.Align.LEFT; text.isFakeBoldText = false; text.color = muted; text.textSize = label

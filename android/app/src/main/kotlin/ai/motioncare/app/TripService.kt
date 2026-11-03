@@ -20,6 +20,7 @@ import android.content.pm.ServiceInfo
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
+import android.os.SystemClock
 import android.util.Log
 
 private const val TAG = "MotionCare"
@@ -28,12 +29,22 @@ private const val TRIP_END_STILL_S = 60.0
 /** Below this cumulative dose a "멀미 났어" report is not used to learn a child's threshold. */
 private const val MIN_LEARN_DOSE = 5.0
 private const val HISTORY = 900
-/** The navigation announces a turn itself within roughly this distance. */
-private const val NAVI_GUIDES_WITHIN_M = 300.0
+/** One 멀미 완화 press per this long; the car is still opening windows and changing the air. */
+private const val RELIEF_DEBOUNCE_MS = 20_000L
+/** The rest-stop question follows the spoken relief line instead of talking over it. */
+private const val REST_OFFER_DELAY_MS = 6_000L
+private const val REST_QUESTION = "가까운 휴게소에 들를까요?"
+/**
+ * Family mode and its prompts are parked (team decision): no 가족 모드 button, no rear-seat
+ * question, no post-trip question. The logic stays; set true to bring the prompts back with the UI
+ * in [ai.motioncare.app.later].
+ */
+private const val FAMILY_UI = false
 
 /**
- * Runs the trip in the background so the car keeps getting cues, fresh air and family care while
- * the navigation is in front. The screen ([MainActivity]) attaches a [TripUi] when visible; without
+ * Runs the trip in the background so the car keeps getting fresh air and the 멀미 완화 help while
+ * the navigation is in front. The engine still plans turn cues; the app no longer plays them.
+ * The screen ([MainActivity]) attaches a [TripUi] when visible; without
  * one, questions and events go to heads-up cards over the navigation ([Notifier]).
  */
 class TripService : Service() {
@@ -47,17 +58,15 @@ class TripService : Service() {
         fun onNote(msg: String)
         fun onPrompt(question: String, answers: List<String>, answer: (Int) -> Unit)
         fun onHidePrompt()
-        /** [peak]: the strongest shake the face showed this trip. */
-        fun onSummary(minutes: Int, cues: Int, airs: Int, peak: Mood)
+        /** [reliefs]: 멀미 완화 presses; [peak]: the strongest shake the face showed this trip. */
+        fun onSummary(minutes: Int, reliefs: Int, airs: Int, peak: Mood)
         /** Replay scenario name (null in live mode) and metres along its route per second of the CSV. */
         fun onRoute(name: String?, track: DoubleArray?) {}
-        /** A turn cue just fired; [line] is what the character says. */
-        fun onCue(left: Boolean, line: String) {}
     }
 
     /**
      * Sickness probability (formula 6) of the passenger who matters: the most sensitive child in
-     * family mode, otherwise an average passenger (tau0). [children] has one value per child.
+     * family mode, otherwise the passenger's own learnt threshold (tau0 until 멀미 완화 is pressed). [children] has one value per child.
      */
     data class Risk(val p: Double, val children: List<Pair<String, Double>> = emptyList())
 
@@ -71,7 +80,7 @@ class TripService : Service() {
     private lateinit var voice: Voice
     private lateinit var vehicle: Vehicle
     private lateinit var hvac: HvacController
-    private lateinit var lightCue: LightCue
+    private lateinit var window: WindowController
     private lateinit var navi: NaviGuide
     private var ui: TripUi? = null
     /** False when the service could not become a foreground service; the screen then unbinds. */
@@ -85,6 +94,8 @@ class TripService : Service() {
     private var familySuggested = false
     private var family: FamilyMonitor? = null
     private var taus: List<Pair<String, Double>> = emptyList()
+    /** Threshold of the single default passenger (see [ProfileStore.loadSelf]). */
+    private var selfTau = 0.0
 
     // per-trip state
     private var tripMaxDose = 0.0
@@ -92,7 +103,10 @@ class TripService : Service() {
     private val reportedDose = mutableMapOf<String, Double>()
     private var tripRan = false
     private var lastFreshAt = Double.NEGATIVE_INFINITY
-    private var cueCount = 0
+    private var reliefCount = 0
+    private var lastReliefAt = Long.MIN_VALUE / 2
+    private var learnedThisTrip = false
+    private var restStopAdded = false
     private var airCount = 0
     private var peakMood = Mood.CALM
     /** Seconds of this trip spent moving (live) or played (replay); a parked car does not count. */
@@ -134,6 +148,8 @@ class TripService : Service() {
     private val main = android.os.Handler(android.os.Looper.getMainLooper())
     /** A question shown as a card expires with the card; the screen keeps it until answered. */
     private val expire = Runnable { pending?.let { p -> if (ui == null) { Log.i(TAG, "question expired: ${p.question}"); dismiss(p); p.onExpire(); showNext() } } }
+    private var lastSample: Sample? = null
+    private var cabinNow: SimulatedCabin? = null
     private var lastLat = Double.NaN
     private var lastLon = Double.NaN
 
@@ -152,7 +168,7 @@ class TripService : Service() {
         voice = Voice(this, ::note).also { it.start() }
         vehicle = Vehicle(this).also { runCatching { it.initialize() } }
         hvac = HvacController(vehicle, ::note)
-        lightCue = LightCue(vehicle, ::note).also { it.start() }
+        window = WindowController(vehicle, ::note)
         navi = NaviGuide(this, ::note).also { it.start() }
         ready = true
         startLive()   // follow the car from the start; demo replays can replace this
@@ -174,8 +190,6 @@ class TripService : Service() {
         main.removeCallbacksAndMessages(null)
         stopSource()
         if (ready) {
-            runCatching { tone?.release() }
-            lightCue.release()
             voice.release()
             navi.release()
             runCatching { vehicle.release() }
@@ -336,7 +350,7 @@ class TripService : Service() {
         // the map indexes the track by playback second, so it starts where playback starts
         routeTrack = RouteTrack.fromCsv(text)?.let { tr -> tr.copyOfRange(from.toInt().coerceAtMost(tr.size - 1), tr.size) }
         val cabin = SimulatedCabin(params.cabinT0)
-        if (name.startsWith("D_") && !familyMode) toggleFamily()
+        if (FAMILY_UI && name.startsWith("D_") && !familyMode) toggleFamily()
         // a new demo replaces the held trip on screen; its post-trip question (if any) stays
         held = null
         val src = ReplaySignalSource(samples, speed, cabin, from)
@@ -376,6 +390,71 @@ class TripService : Service() {
         }
     }
 
+    /**
+     * "멀미 완화", at once: the rear windows open a little (or the passenger is asked to open one),
+     * fresh air and a cooler set point, one short spoken line, then the nearest rest stop is offered.
+     * The first press of a trip also records this dose as the passenger's own feedback point.
+     */
+    fun relief() {
+        if (!ready) return
+        val nowMs = SystemClock.elapsedRealtime()
+        if (nowMs - lastReliefAt < RELIEF_DEBOUNCE_MS) { action("바람 넣는 중이에요", card = false); return }
+        lastReliefAt = nowMs
+        reliefCount++
+        lastSummary = arrayOf(lastSummary[0], reliefCount, airCount)
+        ui?.onSummary(lastSummary[0], reliefCount, airCount, peakMood)
+        action("창문 열고 바람 넣어요", card = false)
+        note("멀미 완화 ${reliefCount}번째")
+        learnFromRelief()
+        val trip = source
+        window.openRearALittle(onDone = {
+            say("창문 열고 바람 넣을게요. 먼 곳을 보세요.")
+            if (source === trip) action("창문 열고 바람 넣었어요", card = false)
+            offerRestStopLater(trip)
+        }, onDenied = {
+            say("바람 넣을게요. 창문을 조금 열어 주세요. 먼 곳을 보세요.")
+            if (source === trip) action("창문을 조금 열어 주세요", card = false)
+            offerRestStopLater(trip)
+        })
+        if (settings.autoClimateOn) {
+            hvac.freshAir(params.cabinT0.toFloat(), remember = trip != null && trip !== live, onDone = {
+                if (source === trip) {
+                    airCount++
+                    lastSample?.let { s -> lastFreshAt = s.t; cabinNow?.freshAir(s) }
+                    lastSummary = arrayOf(lastSummary[0], reliefCount, airCount)
+                    ui?.onSummary(lastSummary[0], reliefCount, airCount, peakMood)
+                }
+            }, onDenied = { msg -> Log.i(TAG, "relief: climate not changed ($msg)") })
+        }
+    }
+
+    private fun offerRestStopLater(trip: SignalSource?) =
+        main.postDelayed({ if (source === trip) offerRestStop(REST_QUESTION) }, REST_OFFER_DELAY_MS)
+
+    /** Yes adds the nearest rest stop as a waypoint (NaviHelper); one offer at a time, none after it is added. */
+    private fun offerRestStop(question: String) {
+        // engine and relief word it differently; both end with the same question
+        fun isRest(q: String) = q.endsWith(REST_QUESTION)
+        if (restStopAdded || pending?.question?.let(::isRest) == true || queued.any { isRest(it.question) }) return
+        askYesNo(question) {
+            // replay: the scenario's own position; never a made-up default
+            val lat = live?.lat ?: lastLat.takeIf { it.isFinite() }
+            val lon = live?.lon ?: lastLon.takeIf { it.isFinite() }
+            if (navi.addRestStop(lat, lon)) { restStopAdded = true; action("휴게소를 경유지로 넣었어요") } else action("가까운 휴게소에 들러 주세요")
+        }
+    }
+
+    /** One feedback point per trip: the dose at the first press, unless almost nothing has moved yet. */
+    private fun learnFromRelief() {
+        if (learnedThisTrip) return
+        if (lastDose < MIN_LEARN_DOSE) { Log.i(TAG, "relief: dose %.1f too low to learn from".format(lastDose)); return }
+        learnedThisTrip = true
+        val me = ProfileLearning.update(params, profiles.loadSelf(), Rating.SLIGHT, lastDose, tripMaxDose)
+        profiles.saveSelf(me)
+        rebuildFamily()
+        note("완화 기록: 누적량 %.1f · 기준 %.1f".format(lastDose, me.threshold(params)))
+    }
+
     /** QA: requests a route so NaviHelper delivers next turns. */
     fun routeTo(lat: Double, lon: Double, name: String) { if (ready) navi.routeTo(lat, lon, name) }
 
@@ -388,6 +467,7 @@ class TripService : Service() {
         val kids = if (familyMode) profiles.load() else emptyList()
         family = if (familyMode && kids.isNotEmpty()) FamilyMonitor(params, kids) else null
         taus = kids.map { it.name to it.threshold(params) }
+        selfTau = profiles.loadSelf().threshold(params)
     }
 
     /** Asked once per service; only someone leaving the back and someone (new) sitting down asks again. */
@@ -397,7 +477,7 @@ class TripService : Service() {
         Log.i(TAG, "rear seats occupied=$occupied")
         if (!occupied) { if (familySuggested) rearLeft = true; return }
         if (rearLeft) { familySuggested = false; rearLeft = false }
-        suggestFamilyMode()
+        if (FAMILY_UI) suggestFamilyMode()
     }
 
     private fun suggestFamilyMode() {
@@ -410,6 +490,8 @@ class TripService : Service() {
         engine = Engine(params)
         rebuildFamily()
         history.clear()
+        cabinNow = cabin
+        lastSample = null
         if (held == null) {
             ui?.onReset()
             // a waiting question survives the screen reset
@@ -422,13 +504,14 @@ class TripService : Service() {
         source = src
         src.start { sample ->
             if (sample.lat.isFinite() && sample.lon.isFinite()) { lastLat = sample.lat; lastLon = sample.lon }
+            lastSample = sample
             val out = engine.step(sample)
             lastDose = out.dose
             tripMaxDose = maxOf(tripMaxDose, out.dose)
             // probabilities are sanitised once here, so no screen ever sees NaN or more than 100 %
             val kids = taus.map { (n, tau) -> n to safeP(sicknessProbability(params, out.dose, tau, out.m)) }
             // the weakest child has the lowest tau, hence the highest probability
-            val risk = Risk(kids.maxOfOrNull { it.second } ?: safeP(sicknessProbability(params, out.dose, params.tau0, out.m)), kids)
+            val risk = Risk(kids.maxOfOrNull { it.second } ?: safeP(sicknessProbability(params, out.dose, selfTau, out.m)), kids)
             mood = Mood.shown(out.state, risk.p)
             peakMood = maxOf(peakMood, mood)
             // driving again: the finished trip gives the screen back to the live one (its questions stay open)
@@ -457,62 +540,22 @@ class TripService : Service() {
             for (a in actions) act(a, sample, cabin)
             // live: only time on the move counts (a parked car with the app open is not a 47-minute drive)
             if (src !== live || sample.speed > 3.0 / 3.6) driveS += 1.0
-            lastSummary = arrayOf((driveS / 60).toInt(), cueCount, airCount)
-            screen?.onSummary(lastSummary[0], cueCount, airCount, peakMood)
+            lastSummary = arrayOf((driveS / 60).toInt(), reliefCount, airCount)
+            screen?.onSummary(lastSummary[0], reliefCount, airCount, peakMood)
             if (src === live) detectTripEnd(sample.t, sample.speed)
         }
         notifier.updateOngoing(if (src === live) "주행을 지켜보고 있어요" else "시연 시나리오 재생 중")
     }
 
     /**
-     * Turn cues should not talk over the navigation or wear people out: while the navigation is
-     * guiding a turn it already announces it, so only the light (and a tone) remain; otherwise the
-     * chosen style decides between a short tone, the theme's sentence or silence.
+     * Turn cues (CUE_LEFT/RIGHT) are hidden from the app by team decision: the engine still plans
+     * them (and the sim checks them), but no tone, voice, light, bubble or count follows. The parked
+     * players are in [ai.motioncare.app.later].
      */
-    private fun soundCue(line: String) {
-        val naviSpeaks = navi.nextTurn?.let { it.distanceM in 0.0..NAVI_GUIDES_WITHIN_M } == true
-        when {
-            settings.cueStyle == "silent" -> Unit
-            settings.cueStyle == "voice" && !naviSpeaks -> say(line)
-            else -> chime()
-        }
-    }
-
-    private val tone by lazy { runCatching { android.media.ToneGenerator(android.media.AudioManager.STREAM_NOTIFICATION, 70) }.getOrNull() }
-
-    private fun chime() {
-        if (!settings.voiceOn) return
-        val played = runCatching { tone?.startTone(android.media.ToneGenerator.TONE_PROP_BEEP2, 180) }.getOrNull() == true
-        Log.i(TAG, "turn cue tone played=$played")
-    }
-
-    /** What the car says for an action; turn cues use the theme's voice when it has one. */
-    private fun spoken(a: Action) = when (a) {
-        Action.CUE_LEFT -> theme().cueLine(true)
-        Action.CUE_RIGHT -> theme().cueLine(false)
-        else -> null
-    } ?: Voice.phrase(a)
-
     private fun act(a: Action, sample: Sample, cabin: SimulatedCabin?) {
-        val cue = a == Action.CUE_LEFT || a == Action.CUE_RIGHT
-        when {
-            a == Action.SUGGEST_REST_STOP -> askYesNo(Voice.phrase(a)) {
-                // replay: the scenario's own position; never a made-up default
-                val lat = live?.lat ?: lastLat.takeIf { it.isFinite() }
-                val lon = live?.lon ?: lastLon.takeIf { it.isFinite() }
-                if (navi.addRestStop(lat, lon)) action("휴게소를 경유지로 넣었어요") else action("가까운 휴게소에 들러 주세요")
-            }
-            cue -> soundCue(spoken(a))
-            else -> say(spoken(a))
-        }
-        if (cue) {
-            cueCount++
-            // the screen and the card get two words; the full sentence is for the ear
-            action(if (a == Action.CUE_LEFT) "곧 왼쪽!" else "곧 오른쪽!")
-            ui?.onCue(a == Action.CUE_LEFT, spoken(a))
-            if (settings.lightCueOn) lightCue.cue(left = a == Action.CUE_LEFT)
-        }
-        note("t=${sample.t.toInt()}s  ${spoken(a)}")
+        if (a == Action.CUE_LEFT || a == Action.CUE_RIGHT) { Log.i(TAG, "t=${sample.t.toInt()}s engine cue $a (not played)"); return }
+        if (a == Action.SUGGEST_REST_STOP) offerRestStop(Voice.phrase(a)) else say(Voice.phrase(a))
+        note("t=${sample.t.toInt()}s  ${Voice.phrase(a)}")
         if (a == Action.HVAC_FRESH) {
             if (settings.autoClimateOn) {
                 // counted and announced only once the car confirms; with the climate off, ask for a window
@@ -555,7 +598,8 @@ class TripService : Service() {
         reportedDose.clear()
         tripRan = true
         lastFreshAt = Double.NEGATIVE_INFINITY
-        cueCount = 0; airCount = 0; peakMood = Mood.CALM; driveS = 0.0
+        reliefCount = 0; airCount = 0; peakMood = Mood.CALM; driveS = 0.0
+        learnedThisTrip = false; restStopAdded = false
         moved = false; stillSince = null
         mood = Mood.CALM
         lastProbabilities = emptyList()

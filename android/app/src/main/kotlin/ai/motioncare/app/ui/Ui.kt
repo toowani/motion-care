@@ -23,6 +23,14 @@ object Ui {
     val PRIMARY_SOFT = Color.parseColor("#E1F5EE")
     val ALERT = Color.parseColor("#C2410C")
     val ALERT_SOFT = Color.parseColor("#FDEBDD")
+    /** One risk scale for every screen and theme: green → yellow → red (same hex values in the themes). */
+    val RISK_LOW = Color.parseColor("#16A34A")
+    val RISK_MID = Color.parseColor("#EAB308")
+    val RISK_HIGH = Color.parseColor("#DC2626")
+    /** Yellow is too light for text on white: the same hue, darker, for words and numbers. */
+    val RISK_MID_INK = Color.parseColor("#A16207")
+    /** The 멀미 완화 button: warm and filled, the one thing a passenger may press while moving. */
+    val RELIEF = Color.parseColor("#EA580C")
 
     /** Car screens are wide and seen from arm's length: everything is drawn a third larger than phone sizes. */
     const val SCALE = 1.35f
@@ -68,7 +76,7 @@ object Ui {
 
     fun lp(w: Int, h: Int, weight: Float = 0f, margin: Int = 0) = LinearLayout.LayoutParams(w, h, weight).apply { setMargins(margin, margin, margin, margin) }
 
-    /** Green / amber / red for a chance of sickness (same bands as the gauge). */
+    /** Green / yellow / red for a chance of sickness (same bands as the gauge). */
     fun riskColor(p: Double) = RiskGauge.color(p)
 
     /** Probability 0..1 as a whole percent; NaN or out-of-range values never reach the screen. */

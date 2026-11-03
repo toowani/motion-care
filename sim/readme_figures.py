@@ -14,9 +14,11 @@ IMG = ROOT / "docs" / "img"
 
 FONT = "Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif"
 INK, MUTED, GRID = "#1F2340", "#6B6E86", "#E3E4EE"
-INDEX, CAUTION, HIGH = "#453ECE", "#D97706", "#C2410C"
+INDEX = "#453ECE"
+# one risk scale for the app and the figures: green → yellow → red (yellow is darkened for lines/text on white)
+LOW, CAUTION, HIGH = "#16A34A", "#CA8A04", "#DC2626"
 APP, NO_APP = "#0F766E", "#9CA3AF"
-KIDS = {"민준": "#C2410C", "서연": "#0F766E"}
+KIDS = {"민준": "#DC2626", "서연": "#0F766E"}
 
 
 class Svg:
@@ -89,30 +91,42 @@ def legend(svg, x, y, items):
 
 
 def how_it_works():
-    s = Svg(960, 450)
+    """Car signals → the Pleos SDK that delivers each → what the app computes → what the car does."""
+    s = Svg(1140, 500)
+    car, sdk, calc, act = ("#EEF2FF", "#3730A3"), ("#F1F5F9", "#334155"), ("#F5F3FF", "#5B21B6"), ("#ECFDF5", "#065F46")
     cols = [
-        (30, "차가 아는 것", "#EEF2FF", "#3730A3",
-         ["방향지시등 · 핸들 각도", "내비 다음 회전 거리", "속도 · 진행 방향", "실내 온도 · 내기순환", "뒷좌석 탑승"]),
-        (350, "앱이 계산하는 것", "#F5F3FF", "#5B21B6",
-         ["흔들림 지수 I (최근 1분)", "누적 흔들림 D", "환경 계수 m (덥고 탁하면 ↓)", "아이별 기준선 τ", "회전까지 남은 시간"]),
-        (670, "차가 하는 일", "#ECFDF5", "#065F46",
-         ["예고: 알림음 · 목소리 · 무드등", "외기 전환 · 22°C", "휴게소 경유지 추가", "가족 모드: 약한 아이 기준", "정차 후 한 질문으로 학습"]),
+        (20, 250, "차가 아는 것", car,
+         ["방향지시등 · 핸들 각도", "실내 온도 · 내기순환", "속도 · 위치", "다음 회전 · 경로", "목소리 (응 / 아니)"]),
+        (300, 250, "Pleos SDK", sdk,
+         ["Vehicle (TurnSignal, SteeringWheel)", "Vehicle (HVAC)", "위치 (GNSS) · Vehicle", "NaviHelper", "TextToSpeech · SpeechToText"]),
+        (600, 250, "앱이 계산하는 것", calc,
+         ["흔들림 지수 I (최근 1분)", "누적 흔들림 D", "환경 계수 m (덥고 탁하면 ↓)", "개인 기준선 τ", "멀미 가능성 P"]),
+        (880, 240, "차가 하는 일", act,
+         ["외기 전환 · 온도 낮춤", "창문 조금 열기 (멀미 완화 버튼)", "휴게소 경유지 추가", "음성 안내", "버튼 누른 순간으로 기준 학습"]),
     ]
-    for x, title, fill, ink, items in cols:
-        s.rect(x, 40, 260, 300, fill, 14)
-        s.text(x + 130, 72, title, 16, ink, "middle", 700)
-        for i, it in enumerate(items):
-            s.rect(x + 18, 92 + i * 47, 224, 36, "#fff", 8)
-            s.text(x + 130, 115 + i * 47, it, 13, INK, "middle")
-    for x in (290, 610):
-        s.add(f'<path d="M{x + 6} 190 L{x + 52} 190" stroke="{MUTED}" stroke-width="3" fill="none"/>'
-              f'<path d="M{x + 44} 182 L{x + 56} 190 L{x + 44} 198" fill="{MUTED}"/>')
+    rows = [92 + i * 50 for i in range(5)]
+    for x, w, title, (fill, ink), items in cols:
+        s.rect(x, 40, w, 320, fill, 14)
+        s.text(x + w / 2, 72, title, 16, ink, "middle", 700)
+        for y, it in zip(rows, items):
+            s.rect(x + 12, y, w - 24, 38, "#fff", 8)
+            s.text(x + w / 2, y + 24, it, 12.5 if len(it) > 16 else 13, INK, "middle")
+    # each car signal goes through the SDK that provides it
+    for y in rows:
+        arrow(s, [(258, y + 19), (308, y + 19)], "#3730A3", 2)
+    # SDK rows join one bus into the engine
+    for y in rows:
+        s.line(538, y + 19, 566, y + 19, MUTED, 2)
+    s.line(566, rows[0] + 19, 566, rows[-1] + 19, MUTED, 2)
+    arrow(s, [(566, 210), (606, 210)], MUTED, 3)
+    arrow(s, [(842, 210), (888, 210)], MUTED, 3)
     # closed loop: fresh air changes what the car reports
-    s.add(f'<path d="M800 340 L800 385 L160 385 L160 340" stroke="{APP}" stroke-width="2.5" fill="none" stroke-dasharray="7 5"/>'
-          f'<path d="M152 350 L160 338 L168 350" fill="{APP}"/>')
-    s.text(480, 378, "닫힌 고리: 공조를 바꾸면 실내 온도·환기가 바뀌고, 그 값이 다시 계산에 들어갑니다", 13, APP, "middle")
-    s.text(480, 24, "멀미 케어가 하는 일 · Pleos SDK로 차 신호를 읽고 차를 움직입니다", 15, INK, "middle", 700)
-    s.text(480, 432, "판단은 백그라운드 서비스에서 계속 돕니다 · 내비가 앞 화면이어도 소리·무드등·공조로 안내", 13, MUTED, "middle")
+    s.add(f'<path d="M1000 360 L1000 412 L145 412 L145 360" stroke="{APP}" stroke-width="2.5" fill="none" stroke-dasharray="7 5"/>'
+          f'<path d="M137 370 L145 358 L153 370" fill="{APP}"/>')
+    s.text(570, 400, "닫힌 고리: 공기를 바꾸면 실내 온도·환기가 바뀌고, 그 값이 다시 계산에 들어갑니다", 13, APP, "middle")
+    s.text(570, 24, "멀미 케어가 하는 일 · Pleos SDK로 차 신호를 읽고 차를 움직입니다", 15, INK, "middle", 700)
+    s.text(570, 446, "앱을 닫아도 뒤에서 계속 계산 · 내비가 앞 화면이어도 소리·공조로 안내", 13, MUTED, "middle")
+    s.text(570, 470, "멀미 완화 버튼: 한 번 누르면 창문 조금 · 바깥 공기 · 음성 안내 · 휴게소 제안", 13, MUTED, "middle")
     s.save("how_it_works.svg")
 
 
@@ -144,7 +158,7 @@ def index_flow():
     y, h = 120, 64
     row = [(20, 130, "속도 · 진행 방향", "차 신호", car), (180, 130, "가속도", "앞뒤 aₓ · 옆 aᵧ", calc),
            (340, 140, "느린 흔들림만", "10초 평균 제거", calc), (510, 140, "지수 I · 누적 D", "최근 60초 · 주행 전체", calc),
-           (680, 100, "판단", None, calc), (810, 130, "흔들림 단계", "멀미 가능성 P (아이별)", out)]
+           (680, 100, "판단", None, calc), (810, 130, "흔들림 단계", "멀미 가능성 P", out)]
     for x, w, t, sub, (f, ink) in row:
         box(s, x, y, w, h, t, sub, f, ink, 13 if len(t) > 7 else 14)
     for (x, w, *_), (nx, *_) in zip(row, row[1:]):
@@ -154,29 +168,29 @@ def index_flow():
     s.text(96, 108, "방향을 1–2초 앞당김", 11, "#3730A3")
     box(s, 470, 236, 150, 52, "실내 온도 · 내기순환", None, *car, size=13)
     box(s, 650, 236, 120, 52, "환경 계수 m", "덥고 탁하면 ↓", *calc, size=13)
-    box(s, 800, 236, 140, 52, "아이별 기준선 τ", "정차 후 질문으로 학습", *calc, size=13)
+    box(s, 800, 236, 140, 52, "개인 기준선 τ", "완화 버튼으로 학습", *calc, size=13)
     arrow(s, [(624, 262), (646, 262)])
     arrow(s, [(710, 234), (725, y + h + 4)])
     arrow(s, [(870, 234), (750, y + h + 4)])
-    s.text(480, 318, "기준선 × m을 넘으면 주의·위험 · 가족 모드는 확률 P가 0.5를 넘는 아이가 생기면 대응", 13, MUTED, "middle")
+    s.text(480, 318, "지수가 기준선 × m을 넘으면 공기를 바꾸고, 흔들림이 길게 이어지면 휴게소를 제안", 13, MUTED, "middle")
     s.save("index_flow.svg")
 
 
 def architecture():
-    """Where things run: car signals → TripService → car actions; the screen only attaches (replaces a mermaid chart)."""
+    """Where things run, in plain words: car → background calculation → car; the screen only shows it."""
     s = Svg(960, 400)
-    s.text(480, 26, "앱 구조 · 판단은 백그라운드 서비스, 화면은 보일 때만 붙음", 15, INK, "middle", 700)
+    s.text(480, 26, "앱 구조 · 계산은 뒤에서 계속, 화면은 볼 때만", 15, INK, "middle", 700)
     car, calc, ui = ("#EEF2FF", "#3730A3"), ("#F5F3FF", "#5B21B6"), ("#ECFDF5", "#065F46")
     s.rect(20, 50, 230, 320, "#F8FAFC", 16, GRID)
     s.text(135, 78, "Pleos 차량", 15, INK, "middle", 700)
-    box(s, 40, 100, 190, 100, "읽기", "Vehicle · NaviHelper · 위치", *car)
-    box(s, 40, 250, 190, 100, "행동", "공조 · 무드등 · TTS · 내비", *car)
+    box(s, 40, 100, 190, 100, "차 신호 읽기", "속도 · 핸들 · 실내 온도 · 내비", *car)
+    box(s, 40, 250, 190, 100, "차 움직이기", "공기 · 창문 · 음성 · 휴게소", *car)
     s.rect(300, 50, 640, 320, "#FBFAFF", 16, GRID)
     s.text(620, 78, "멀미 케어", 15, INK, "middle", 700)
-    box(s, 330, 160, 220, 110, "TripService", "포그라운드 서비스 · 내비가 앞이어도 계속", *calc, size=16)
-    box(s, 330, 300, 220, 52, "core 엔진", "순수 Kotlin · 파이썬과 숫자 일치", *calc)
-    box(s, 640, 110, 270, 80, "화면 (주행 · 분석 · 지도)", "앱이 보일 때만 붙어서 그림", *ui)
-    box(s, 640, 240, 270, 80, "알림 카드", "앱이 안 보일 때 질문 · 응/아니", *ui)
+    box(s, 330, 160, 220, 110, "주행 지킴이", "앱을 닫아도 뒤에서 계속 계산", *calc, size=16)
+    box(s, 330, 300, 220, 52, "계산 엔진", "시뮬레이터와 같은 계산", *calc)
+    box(s, 640, 110, 270, 80, "화면 (지도 · 분석)", "앱을 보고 있을 때만 그림", *ui)
+    box(s, 640, 240, 270, 80, "알림 카드", "내비를 보는 동안 질문 · 응/아니", *ui)
     arrow(s, [(234, 150), (326, 200)], "#3730A3")
     arrow(s, [(326, 240), (234, 295)], "#3730A3")
     arrow(s, [(420, 274), (420, 296)], "#5B21B6")
@@ -184,7 +198,7 @@ def architecture():
     arrow(s, [(554, 195), (636, 150)], APP)
     arrow(s, [(554, 235), (636, 280)], APP)
     s.text(262, 146, "1초마다", 12, MUTED, "middle")
-    s.text(300, 298, "예고 · 공조", 12, MUTED, "middle")
+    s.text(296, 298, "공기 · 창문", 12, MUTED, "middle")
     s.save("architecture.svg")
 
 
@@ -207,7 +221,7 @@ def scenario_bars():
         r = by[key]
         y = y0 + i * bh + 10
         mean, mx = float(r["mean_index"]), float(r["max_index"])
-        color = HIGH if mean >= 1.5 else CAUTION if mean >= 0.9 else APP
+        color = HIGH if mean >= 1.5 else CAUTION if mean >= 0.9 else LOW
         s.text(x0 - 12, y + bh / 2, label, 13, INK, "end")
         s.rect(x0, y + 6, w * mean / vmax, bh - 30, color, 4)
         s.line(x0 + w * mx / vmax, y + 2, x0 + w * mx / vmax, y + bh - 20, INK, 2)
@@ -220,7 +234,7 @@ def scenario_bars():
     s.save("scenario_bars.svg")
 
 
-def index_timeline(name, title, out):
+def index_timeline(name, title, out, cues=False):
     rows = run(name)
     ts = [r[0]["t"] for r in rows]
     s = Svg(960, 370)
@@ -229,7 +243,7 @@ def index_timeline(name, title, out):
                  if m["name"] == name)
     s.text(30, 28, title.format(min=round(len(rows) / 60), turns=turns), 15, INK, weight=700)
     pl = Plot(s, 70, 100, 860, 220, ts[-1], 0, 3.4, (0, 1, 2, 3), "흔들림 지수 I (m/s²)")
-    bands = {"CAUTION": "#FEF3C7", "HIGH": "#FDE2D3"}
+    bands = {"CAUTION": "#FEF9C3", "HIGH": "#FEE2E2"}
     for (smp, o) in rows:
         if o["state"] in bands:
             s.rect(pl.X(smp["t"]), pl.y0, pl.w / len(rows) + 0.6, pl.h, bands[o["state"]])
@@ -237,7 +251,9 @@ def index_timeline(name, title, out):
     pl.series(ts, [o["th_h"] for _, o in rows], HIGH, 1.5, "6 4")
     pl.series(ts, [o["index"] for _, o in rows], INDEX, 2.2)
     # one row per action type so markers at the same second don't overlap
-    marks = {"CUE": ("●", INK, 0), "TTS_DRIVER": ("◆", INDEX, 1), "HVAC_FRESH": ("■", APP, 2), "SUGGEST_REST_STOP": ("▲", HIGH, 3)}
+    marks = {"TTS_DRIVER": ("◆", INDEX, 1), "HVAC_FRESH": ("■", APP, 2), "SUGGEST_REST_STOP": ("▲", HIGH, 3)}
+    if cues:
+        marks["CUE"] = ("●", INK, 0)
     for smp, o in rows:
         for a in o["actions"]:
             key = "CUE" if a.startswith("CUE_") else a
@@ -245,7 +261,10 @@ def index_timeline(name, title, out):
                 g, c, row = marks[key]
                 s.text(pl.X(smp["t"]), pl.y0 + 14 + row * 14, g, 12, c, "middle")
     legend(s, 70, 56, [("지수 I", INDEX, None), ("주의 기준 × m", CAUTION, "6 4"), ("높음 기준 × m", HIGH, "6 4")])
-    s.text(930, 56, "● 회전·커브 예고  ◆ 운전자 안내  ■ 공조 외기 전환  ▲ 휴게소 제안 · 배경: 주의/높음", 12, MUTED, "end")
+    key = "◆ 음성 안내  ■ 공조 외기 전환  ▲ 휴게소 제안"
+    if cues:
+        key = "● 엔진의 예고 시점 (앱에서는 꺼 둠)  ◆ 음성 안내"
+    s.text(930, 56, key + " · 배경: 주의/높음", 12, MUTED, "end")
     s.save(out)
 
 
@@ -278,7 +297,7 @@ def family():
             "서연": personal_threshold(P, [45, 48, 44])}
     s = Svg(960, 370)
     hits = {}
-    s.text(30, 28, "가족 모드 · 같은 나들이길(경부고속도로 → 남한산성로), 아이마다 다른 기준선", 15, INK, weight=700)
+    s.text(30, 28, "확장 · 아이별 기준선 · 같은 나들이길(경부고속도로 → 남한산성로)", 15, INK, weight=700)
     pl = Plot(s, 70, 100, 800, 220, ts[-1], 0, 45, (0, 15, 30, 45), "누적 흔들림 D")
     for who, tau in taus.items():
         pl.series(ts, [tau * max(P["cabinFactorFloor"], o["m"]) for _, o in rows], KIDS[who], 1.6, "6 4")
@@ -324,9 +343,10 @@ def main():
     index_flow()
     architecture()
     scenario_bars()
-    index_timeline("B_winding_rough", "굽은 길(북악스카이웨이) · 거칠게 {min}분 · 지수가 기준을 넘자 안내 → 공조 → 휴게소 제안",
+    index_timeline("B_winding_rough", "굽은 길(북악스카이웨이) · 거칠게 {min}분 · 지수가 기준을 넘자 음성 안내 → 공조 → 휴게소 제안",
                    "timeline_winding.svg")
-    index_timeline("A_city_rough", "도심(강남 테헤란로) · 거칠게 {min}분 · 회전 {turns}곳마다 미리 예고, 신호 대기 뒤 한 번 더", "timeline_city.svg")
+    index_timeline("A_city_rough", "확장 · 엔진 안의 회전 예고 · 도심(강남 테헤란로) 거칠게 {min}분, 회전 {turns}곳 + 신호 대기 뒤 한 번 더",
+                   "timeline_city.svg", cues=True)
     closed_loop()
     family()
     real_vs_sim()

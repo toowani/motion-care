@@ -12,7 +12,7 @@ import android.view.View
  * in a unit box, so it scales with the view; [color] tints strokes and fills.
  */
 class Glyph(context: Context, kind: Kind, color: Int) : View(context) {
-    enum class Kind { CLOCK, TURN, WIND, WINDOW, PHONE, FOOD, FACE_CALM, FACE_UNEASY, FACE_SICK }
+    enum class Kind { CLOCK, TURN, WIND, RELIEF, WINDOW, PHONE, FOOD, FACE_CALM, FACE_UNEASY, FACE_SICK }
 
     var kind: Kind = kind
         set(value) { field = value; invalidate() }
@@ -36,6 +36,7 @@ class Glyph(context: Context, kind: Kind, color: Int) : View(context) {
             Kind.CLOCK -> clock(c)
             Kind.TURN -> turn(c)
             Kind.WIND -> wind(c)
+            Kind.RELIEF -> relief(c)
             Kind.WINDOW -> window(c)
             Kind.PHONE -> phone(c)
             Kind.FOOD -> food(c)
@@ -73,6 +74,22 @@ class Glyph(context: Context, kind: Kind, color: Int) : View(context) {
         path.moveTo(0.1f, 0.76f); path.lineTo(0.52f, 0.76f)
         path.cubicTo(0.74f, 0.76f, 0.74f, 0.98f, 0.56f, 0.94f)
         c.drawPath(path, stroke)
+    }
+
+    /** A window pane lowered a little with air coming in: the 멀미 완화 button. */
+    private fun relief(c: Canvas) {
+        box.set(0.08f, 0.1f, 0.92f, 0.9f)
+        c.drawRoundRect(box, 0.1f, 0.1f, stroke)
+        box.set(0.08f, 0.36f, 0.92f, 0.9f)
+        c.drawRoundRect(box, 0.1f, 0.1f, fill)
+        stroke.color = android.graphics.Color.WHITE
+        path.reset()
+        path.moveTo(0.22f, 0.54f); path.lineTo(0.62f, 0.54f); path.cubicTo(0.8f, 0.54f, 0.8f, 0.36f, 0.66f, 0.38f)
+        c.drawPath(path, stroke)
+        path.reset()
+        path.moveTo(0.22f, 0.72f); path.lineTo(0.76f, 0.72f)
+        c.drawPath(path, stroke)
+        stroke.color = color
     }
 
     /** Window frame with far-away hills: "look out at the distance". */

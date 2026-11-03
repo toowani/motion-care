@@ -26,8 +26,8 @@ class Notifier(private val context: Context) {
             description = "멀미 케어가 주행 신호를 받고 있을 때 표시돼요"
         })
         // heads-up cards; silent because the car already speaks the same line
-        nm.createNotificationChannel(NotificationChannel(CH_ALERT, "예고와 질문", NotificationManager.IMPORTANCE_HIGH).apply {
-            description = "회전 예고, 공기 바꾸기, 휴게소·가족 모드 질문"
+        nm.createNotificationChannel(NotificationChannel(CH_ALERT, "안내와 질문", NotificationManager.IMPORTANCE_HIGH).apply {
+            description = "공기 바꾸기, 창문, 휴게소 질문"
             setSound(null, null)
             enableVibration(false)
         })

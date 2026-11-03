@@ -9,15 +9,18 @@
     <uses-permission android:name="pleos.car.permission.CAR_CLIMATE" />
     <uses-permission android:name="pleos.car.permission.CONTROL_CAR_CLIMATE" />
     <uses-permission android:name="pleos.car.permission.CAR_WINDOWS" />
+    <!-- 멀미 완화: opens the rear windows a little (Window.setWindowPosition) -->
+    <uses-permission android:name="pleos.car.permission.CONTROL_CAR_WINDOWS" />
     <uses-permission android:name="pleos.car.permission.CAR_DOORS" />
     <uses-permission android:name="pleos.car.permission.CAR_SEATS" />
     <!-- steering wheel angle (read only) feeds the heading estimate -->
     <uses-permission android:name="pleos.car.permission.CAR_DRIVE" />
-    <!-- Pleos TTS/STT (server voice) and microphone for "멀미 났어" / yes-no answers -->
+    <!-- Pleos navigation: rest-stop waypoint and route guidance -->
     <uses-permission android:name="pleos.car.permission.NAVI_ROUTE" />
     <uses-permission android:name="pleos.car.permission.NAVI_ROUTE_SEARCH" />
     <!-- updateOccupiedRegion (one-pane layout beside the navigation) -->
     <uses-permission android:name="pleos.car.permission.NAVI_CUSTOM_ETC" />
+    <!-- Pleos TTS/STT (server voice) and microphone for yes-no answers -->
     <uses-permission android:name="pleos.car.permission.TTS_SERVICE" />
     <uses-permission android:name="pleos.car.permission.STT_SERVICE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -48,7 +51,7 @@
             </intent-filter>
             <meta-data android:name="distractionOptimized" android:value="true" />
             <!-- no fixed orientation: Pleos then opens the app in one pane beside the navigation (compact
-                 character view); widening it with the window bar brings back family bars and the graph -->
+                 face card); widening it with the window bar brings back the map and 분석 tabs -->
         </activity>
         <service
             android:name=".TripService"
