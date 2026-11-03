@@ -122,9 +122,11 @@ $$
 
 - 속도 $v$, 진행 방향 변화율 $\omega$에서 구함
 
-```math
-a_x = \frac{\Delta v}{\Delta t}, \qquad a_y = v \omega
-```
+<div align="center">
+
+$$a_x = \frac{\Delta v}{\Delta t}, \qquad a_y = v \omega$$
+
+</div>
 
 **② 핸들 각도로 방향 앞당기기**
 
@@ -133,9 +135,11 @@ a_x = \frac{\Delta v}{\Delta t}, \qquad a_y = v \omega
 - 축간거리 $L = 2.9$ m로 회전 속도 예측
 - GPS 방향 쪽으로 조금씩($k = 0.2$) 당겨 오차 누적 방지
 
-```math
-\omega = \frac{v \tan(\delta_{sw} / r)}{L}
-```
+<div align="center">
+
+$$\omega = \frac{v \tan(\delta_{sw} / r)}{L}$$
+
+</div>
 
 **③ 느린 흔들림**
 
@@ -156,9 +160,11 @@ a_x = \frac{\Delta v}{\Delta t}, \qquad a_y = v \omega
 - 멀미가 난 시점의 누적량 기록 $n$개의 평균 $\bar{D}$
 - 기록이 적으면 출발값 $\tau_0 = 30$ 쪽으로 당김 ($n_0 = 5$)
 
-```math
-\tau = \frac{n \bar{D} + n_0 \tau_0}{n + n_0}
-```
+<div align="center">
+
+$$\tau = \frac{n \bar{D} + n_0 \tau_0}{n + n_0}$$
+
+</div>
 
 **⑥ 멀미 가능성**
 
@@ -172,9 +178,11 @@ a_x = \frac{\Delta v}{\Delta t}, \qquad a_y = v \omega
 - 신호 대기: 회전 40 m 앞에서 3초 넘게 섰다가 출발하면 한 번 더
 - 굽은 길: 150 m 안에서 45°를 넘게 꺾이는 커브도 예고 ("왼쪽 커브", 커브 시작 3–7초 전)
 
-```math
-d_{\mathrm{cue}} = v (t_{\mathrm{say}} + t_{\mathrm{prepare}})
-```
+<div align="center">
+
+$$d_{\mathrm{cue}} = v (t_{\mathrm{say}} + t_{\mathrm{prepare}})$$
+
+</div>
 
 **상수와 검증**
 
