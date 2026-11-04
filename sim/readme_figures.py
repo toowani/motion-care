@@ -102,7 +102,7 @@ def how_it_works():
         (600, 250, "앱이 계산하는 것", calc,
          ["흔들림 지수 I (최근 1분)", "누적 흔들림 D", "환경 계수 m (덥고 탁하면 ↓)", "개인 기준선 τ", "멀미 가능성 P"]),
         (880, 240, "차가 하는 일", act,
-         ["외기 전환 · 온도 낮춤", "창문 조금 열기 (멀미 완화 버튼)", "휴게소 경유지 추가", "음성 안내", "버튼 누른 순간으로 기준 학습"]),
+         ["외기 전환 · 온도 낮춤", "창문 조금 열기 (멀미 완화 버튼)", "음성 안내 한 줄", "버튼 누른 순간으로 기준 학습", "정지하면 공조 되돌림"]),
     ]
     rows = [92 + i * 50 for i in range(5)]
     for x, w, title, (fill, ink), items in cols:
@@ -126,7 +126,7 @@ def how_it_works():
     s.text(570, 400, "닫힌 고리: 공기를 바꾸면 실내 온도·환기가 바뀌고, 그 값이 다시 계산에 들어갑니다", 13, APP, "middle")
     s.text(570, 24, "멀미 케어가 하는 일 · Pleos SDK로 차 신호를 읽고 차를 움직입니다", 15, INK, "middle", 700)
     s.text(570, 446, "앱을 닫아도 뒤에서 계속 계산 · 내비가 앞 화면이어도 소리·공조로 안내", 13, MUTED, "middle")
-    s.text(570, 470, "멀미 완화 버튼: 한 번 누르면 창문 조금 · 바깥 공기 · 음성 안내 · 휴게소 제안", 13, MUTED, "middle")
+    s.text(570, 470, "멀미 완화 버튼: 한 번 누르면 창문 조금 · 바깥 공기 · 음성 한 줄 · 내 기준 기록", 13, MUTED, "middle")
     s.save("how_it_works.svg")
 
 
@@ -172,7 +172,7 @@ def index_flow():
     arrow(s, [(624, 262), (646, 262)])
     arrow(s, [(710, 234), (725, y + h + 4)])
     arrow(s, [(870, 234), (750, y + h + 4)])
-    s.text(480, 318, "지수가 기준선 × m을 넘으면 공기를 바꾸고, 흔들림이 길게 이어지면 휴게소를 제안", 13, MUTED, "middle")
+    s.text(480, 318, "지수가 기준선 × m을 넘으면 공기를 바꾸고, 멀미 완화 버튼을 누르면 창문까지 엶", 13, MUTED, "middle")
     s.save("index_flow.svg")
 
 
@@ -184,13 +184,13 @@ def architecture():
     s.rect(20, 50, 230, 320, "#F8FAFC", 16, GRID)
     s.text(135, 78, "Pleos 차량", 15, INK, "middle", 700)
     box(s, 40, 100, 190, 100, "차 신호 읽기", "속도 · 핸들 · 실내 온도 · 내비", *car)
-    box(s, 40, 250, 190, 100, "차 움직이기", "공기 · 창문 · 음성 · 휴게소", *car)
+    box(s, 40, 250, 190, 100, "차 움직이기", "공기 · 창문 · 음성", *car)
     s.rect(300, 50, 640, 320, "#FBFAFF", 16, GRID)
     s.text(620, 78, "멀미 케어", 15, INK, "middle", 700)
     box(s, 330, 160, 220, 110, "주행 지킴이", "앱을 닫아도 뒤에서 계속 계산", *calc, size=16)
     box(s, 330, 300, 220, 52, "계산 엔진", "시뮬레이터와 같은 계산", *calc)
     box(s, 640, 110, 270, 80, "화면 (지도 · 분석)", "앱을 보고 있을 때만 그림", *ui)
-    box(s, 640, 240, 270, 80, "알림 카드", "내비를 보는 동안 질문 · 응/아니", *ui)
+    box(s, 640, 240, 270, 80, "알림 카드", "내비를 보는 동안 차가 한 일 안내", *ui)
     arrow(s, [(234, 150), (326, 200)], "#3730A3")
     arrow(s, [(326, 240), (234, 295)], "#3730A3")
     arrow(s, [(420, 274), (420, 296)], "#5B21B6")
@@ -251,7 +251,7 @@ def index_timeline(name, title, out, cues=False):
     pl.series(ts, [o["th_h"] for _, o in rows], HIGH, 1.5, "6 4")
     pl.series(ts, [o["index"] for _, o in rows], INDEX, 2.2)
     # one row per action type so markers at the same second don't overlap
-    marks = {"TTS_DRIVER": ("◆", INDEX, 1), "HVAC_FRESH": ("■", APP, 2), "SUGGEST_REST_STOP": ("▲", HIGH, 3)}
+    marks = {"TTS_DRIVER": ("◆", INDEX, 1), "HVAC_FRESH": ("■", APP, 2)}
     if cues:
         marks["CUE"] = ("●", INK, 0)
     for smp, o in rows:
@@ -261,7 +261,7 @@ def index_timeline(name, title, out, cues=False):
                 g, c, row = marks[key]
                 s.text(pl.X(smp["t"]), pl.y0 + 14 + row * 14, g, 12, c, "middle")
     legend(s, 70, 56, [("지수 I", INDEX, None), ("주의 기준 × m", CAUTION, "6 4"), ("높음 기준 × m", HIGH, "6 4")])
-    key = "◆ 음성 안내  ■ 공조 외기 전환  ▲ 휴게소 제안"
+    key = "◆ 음성 안내  ■ 공조 외기 전환"
     if cues:
         key = "● 엔진의 예고 시점 (앱에서는 꺼 둠)  ◆ 음성 안내"
     s.text(930, 56, key + " · 배경: 주의/높음", 12, MUTED, "end")
@@ -343,7 +343,7 @@ def main():
     index_flow()
     architecture()
     scenario_bars()
-    index_timeline("B_winding_rough", "굽은 길(북악스카이웨이) · 거칠게 {min}분 · 지수가 기준을 넘자 음성 안내 → 공조 → 휴게소 제안",
+    index_timeline("B_winding_rough", "굽은 길(북악스카이웨이) · 거칠게 {min}분 · 지수가 기준을 넘자 음성 안내 → 공조",
                    "timeline_winding.svg")
     index_timeline("A_city_rough", "확장 · 엔진 안의 회전 예고 · 도심(강남 테헤란로) 거칠게 {min}분, 회전 {turns}곳 + 신호 대기 뒤 한 번 더",
                    "timeline_city.svg", cues=True)

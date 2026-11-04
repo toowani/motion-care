@@ -137,7 +137,7 @@ class SettingsPanel(
         val faces = LinearLayout(context).apply { orientation = HORIZONTAL }
         Mood.values().forEach { m ->
             val col = LinearLayout(context).apply { orientation = VERTICAL; gravity = Gravity.CENTER_HORIZONTAL }
-            col.addView(MoodIconView(context).apply { theme = t; mood = m; level = when (m) { Mood.CALM -> 0.2f; Mood.UNEASY -> 0.75f; Mood.SICK -> 1.2f } },
+            col.addView(MoodIconView(context).apply { theme = t; mood = m; level = when (m) { Mood.CALM -> 0.2f; Mood.UNEASY -> 0.75f; Mood.SICK -> 1.2f }; ring = when (m) { Mood.CALM -> 0.15f; Mood.UNEASY -> 0.4f; Mood.SICK -> 0.8f } },
                 lp(MATCH_PARENT, context.dp(120)))
             col.addView(context.text(t.label(m), 16f, Ui.MUTED, bold = true).apply {
                 gravity = Gravity.CENTER; maxLines = 1

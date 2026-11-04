@@ -31,9 +31,6 @@ private const val MIN_LEARN_DOSE = 5.0
 private const val HISTORY = 900
 /** One 멀미 완화 press per this long; the car is still opening windows and changing the air. */
 private const val RELIEF_DEBOUNCE_MS = 20_000L
-/** The rest-stop question follows the spoken relief line instead of talking over it. */
-private const val REST_OFFER_DELAY_MS = 6_000L
-private const val REST_QUESTION = "가까운 휴게소에 들를까요?"
 /**
  * Family mode and its prompts are parked (team decision): no 가족 모드 button, no rear-seat
  * question, no post-trip question. The logic stays; set true to bring the prompts back with the UI
@@ -106,7 +103,6 @@ class TripService : Service() {
     private var reliefCount = 0
     private var lastReliefAt = Long.MIN_VALUE / 2
     private var learnedThisTrip = false
-    private var restStopAdded = false
     private var airCount = 0
     private var peakMood = Mood.CALM
     /** Seconds of this trip spent moving (live) or played (replay); a parked car does not count. */
@@ -150,8 +146,6 @@ class TripService : Service() {
     private val expire = Runnable { pending?.let { p -> if (ui == null) { Log.i(TAG, "question expired: ${p.question}"); dismiss(p); p.onExpire(); showNext() } } }
     private var lastSample: Sample? = null
     private var cabinNow: SimulatedCabin? = null
-    private var lastLat = Double.NaN
-    private var lastLon = Double.NaN
 
     override fun onCreate() {
         super.onCreate()
@@ -265,7 +259,7 @@ class TripService : Service() {
         onExpire: () -> Unit = {}, onAnswer: (Int) -> Unit,
     ): Pending {
         val p = Pending(++promptSeq, kind, question, answers, voiceText, onExpire, onAnswer)
-        // one question at a time: later ones wait (e.g. the post-trip chain behind a rest-stop question)
+        // one question at a time: later ones wait (e.g. the post-trip chain behind a rear-seat question)
         if (pending != null) queued.addLast(p) else show(p)
         return p
     }
@@ -303,7 +297,7 @@ class TripService : Service() {
 
     private fun showNext() { if (pending == null) queued.removeFirstOrNull()?.let { show(it) } }
 
-    /** The trip is over or replaced: its questions (rest stop, rear seat, who is sick) no longer apply. */
+    /** The trip is over or replaced: its questions (rear seat, who is sick) no longer apply. */
     private fun clearTripPrompts() {
         queued.removeAll { it.kind == Kind.TRIP }
         pending?.takeIf { it.kind == Kind.TRIP }?.let { dismiss(it) }
@@ -392,8 +386,9 @@ class TripService : Service() {
 
     /**
      * "멀미 완화", at once: the rear windows open a little (or the passenger is asked to open one),
-     * fresh air and a cooler set point, one short spoken line, then the nearest rest stop is offered.
-     * The first press of a trip also records this dose as the passenger's own feedback point.
+     * fresh air and a cooler set point, one short spoken line. The first press of a trip also records
+     * this dose as the passenger's own feedback point. The rest-stop offer that followed is parked in
+     * [ai.motioncare.app.later.RestStopOffer].
      */
     fun relief() {
         if (!ready) return
@@ -410,11 +405,9 @@ class TripService : Service() {
         window.openRearALittle(onDone = {
             say("창문 열고 바람 넣을게요. 먼 곳을 보세요.")
             if (source === trip) action("창문 열고 바람 넣었어요", card = false)
-            offerRestStopLater(trip)
         }, onDenied = {
             say("바람 넣을게요. 창문을 조금 열어 주세요. 먼 곳을 보세요.")
             if (source === trip) action("창문을 조금 열어 주세요", card = false)
-            offerRestStopLater(trip)
         })
         if (settings.autoClimateOn) {
             hvac.freshAir(params.cabinT0.toFloat(), remember = trip != null && trip !== live, onDone = {
@@ -425,22 +418,6 @@ class TripService : Service() {
                     ui?.onSummary(lastSummary[0], reliefCount, airCount, peakMood)
                 }
             }, onDenied = { msg -> Log.i(TAG, "relief: climate not changed ($msg)") })
-        }
-    }
-
-    private fun offerRestStopLater(trip: SignalSource?) =
-        main.postDelayed({ if (source === trip) offerRestStop(REST_QUESTION) }, REST_OFFER_DELAY_MS)
-
-    /** Yes adds the nearest rest stop as a waypoint (NaviHelper); one offer at a time, none after it is added. */
-    private fun offerRestStop(question: String) {
-        // engine and relief word it differently; both end with the same question
-        fun isRest(q: String) = q.endsWith(REST_QUESTION)
-        if (restStopAdded || pending?.question?.let(::isRest) == true || queued.any { isRest(it.question) }) return
-        askYesNo(question) {
-            // replay: the scenario's own position; never a made-up default
-            val lat = live?.lat ?: lastLat.takeIf { it.isFinite() }
-            val lon = live?.lon ?: lastLon.takeIf { it.isFinite() }
-            if (navi.addRestStop(lat, lon)) { restStopAdded = true; action("휴게소를 경유지로 넣었어요") } else action("가까운 휴게소에 들러 주세요")
         }
     }
 
@@ -503,7 +480,6 @@ class TripService : Service() {
         warmUp(warmup, cabin)
         source = src
         src.start { sample ->
-            if (sample.lat.isFinite() && sample.lon.isFinite()) { lastLat = sample.lat; lastLon = sample.lon }
             lastSample = sample
             val out = engine.step(sample)
             lastDose = out.dose
@@ -550,11 +526,13 @@ class TripService : Service() {
     /**
      * Turn cues (CUE_LEFT/RIGHT) are hidden from the app by team decision: the engine still plans
      * them (and the sim checks them), but no tone, voice, light, bubble or count follows. The parked
-     * players are in [ai.motioncare.app.later].
+     * players are in [ai.motioncare.app.later]. The rest-stop question (SUGGEST_REST_STOP) is parked
+     * the same way ([ai.motioncare.app.later.RestStopOffer]).
      */
     private fun act(a: Action, sample: Sample, cabin: SimulatedCabin?) {
         if (a == Action.CUE_LEFT || a == Action.CUE_RIGHT) { Log.i(TAG, "t=${sample.t.toInt()}s engine cue $a (not played)"); return }
-        if (a == Action.SUGGEST_REST_STOP) offerRestStop(Voice.phrase(a)) else say(Voice.phrase(a))
+        if (a == Action.SUGGEST_REST_STOP) { Log.i(TAG, "t=${sample.t.toInt()}s engine rest stop (not offered)"); return }
+        say(Voice.phrase(a))
         note("t=${sample.t.toInt()}s  ${Voice.phrase(a)}")
         if (a == Action.HVAC_FRESH) {
             if (settings.autoClimateOn) {
@@ -599,7 +577,7 @@ class TripService : Service() {
         tripRan = true
         lastFreshAt = Double.NEGATIVE_INFINITY
         reliefCount = 0; airCount = 0; peakMood = Mood.CALM; driveS = 0.0
-        learnedThisTrip = false; restStopAdded = false
+        learnedThisTrip = false
         moved = false; stillSince = null
         mood = Mood.CALM
         lastProbabilities = emptyList()

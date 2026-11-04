@@ -334,6 +334,7 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
         lastRisk = 0.0
         updateRiskPill()
         showMood(Mood.CALM, 0f)
+        icon.ring = 0f
         chipSpeed.setChip("—")
         chipAir.setChip("—", "실내")
         gauge.set(0.0)
@@ -438,7 +439,7 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
         postDelayed(hideBanner, 6000)
     }
 
-    /** [risk] = sickness probability of the passenger (shown on the map as the widget's colour). */
+    /** [risk] = sickness probability of the passenger (the character's ring, here and on the map). */
     fun update(s: Sample, o: Output, risk: Double = 0.0) {
         val level = if (o.thetaHigh > 0) (o.index / o.thetaHigh).toFloat() else 0f
         showMood(Mood.shown(o.state, risk), level)
@@ -446,6 +447,7 @@ class HomeView(context: Context, private val callbacks: Callbacks) : LinearLayou
         chipAir.setChip("%.0f°".format(s.cabinTemp), if (s.recirc) "실내 · 내기" else "실내 · 외기")
         theme?.let { map.setMood(it, mood, level) }
         map.setRisk(risk)
+        icon.ring = risk.toFloat()
         gauge.set(risk)
         lastRisk = risk
         updateRiskPill()

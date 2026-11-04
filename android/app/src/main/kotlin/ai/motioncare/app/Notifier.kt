@@ -27,7 +27,7 @@ class Notifier(private val context: Context) {
         })
         // heads-up cards; silent because the car already speaks the same line
         nm.createNotificationChannel(NotificationChannel(CH_ALERT, "안내와 질문", NotificationManager.IMPORTANCE_HIGH).apply {
-            description = "공기 바꾸기, 창문, 휴게소 질문"
+            description = "공기 바꾸기, 창문"
             setSound(null, null)
             enableVibration(false)
         })

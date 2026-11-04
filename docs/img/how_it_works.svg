@@ -43,11 +43,11 @@
 <rect x="892.0" y="142.0" width="216.0" height="38.0" rx="8" fill="#fff"/>
 <text x="1000.0" y="166.0" font-size="12.5" fill="#1F2340" text-anchor="middle" font-weight="400">창문 조금 열기 (멀미 완화 버튼)</text>
 <rect x="892.0" y="192.0" width="216.0" height="38.0" rx="8" fill="#fff"/>
-<text x="1000.0" y="216.0" font-size="13" fill="#1F2340" text-anchor="middle" font-weight="400">휴게소 경유지 추가</text>
+<text x="1000.0" y="216.0" font-size="13" fill="#1F2340" text-anchor="middle" font-weight="400">음성 안내 한 줄</text>
 <rect x="892.0" y="242.0" width="216.0" height="38.0" rx="8" fill="#fff"/>
-<text x="1000.0" y="266.0" font-size="13" fill="#1F2340" text-anchor="middle" font-weight="400">음성 안내</text>
+<text x="1000.0" y="266.0" font-size="13" fill="#1F2340" text-anchor="middle" font-weight="400">버튼 누른 순간으로 기준 학습</text>
 <rect x="892.0" y="292.0" width="216.0" height="38.0" rx="8" fill="#fff"/>
-<text x="1000.0" y="316.0" font-size="13" fill="#1F2340" text-anchor="middle" font-weight="400">버튼 누른 순간으로 기준 학습</text>
+<text x="1000.0" y="316.0" font-size="13" fill="#1F2340" text-anchor="middle" font-weight="400">정지하면 공조 되돌림</text>
 <polyline points="258.0,111.0 308.0,111.0" fill="none" stroke="#3730A3" stroke-width="2" stroke-linejoin="round"/>
 <path d="M308.0 111.0 L298.1 115.8 L298.1 106.2 Z" fill="#3730A3"/>
 <polyline points="258.0,161.0 308.0,161.0" fill="none" stroke="#3730A3" stroke-width="2" stroke-linejoin="round"/>
@@ -72,5 +72,5 @@
 <text x="570.0" y="400.0" font-size="13" fill="#0F766E" text-anchor="middle" font-weight="400">닫힌 고리: 공기를 바꾸면 실내 온도·환기가 바뀌고, 그 값이 다시 계산에 들어갑니다</text>
 <text x="570.0" y="24.0" font-size="15" fill="#1F2340" text-anchor="middle" font-weight="700">멀미 케어가 하는 일 · Pleos SDK로 차 신호를 읽고 차를 움직입니다</text>
 <text x="570.0" y="446.0" font-size="13" fill="#6B6E86" text-anchor="middle" font-weight="400">앱을 닫아도 뒤에서 계속 계산 · 내비가 앞 화면이어도 소리·공조로 안내</text>
-<text x="570.0" y="470.0" font-size="13" fill="#6B6E86" text-anchor="middle" font-weight="400">멀미 완화 버튼: 한 번 누르면 창문 조금 · 바깥 공기 · 음성 안내 · 휴게소 제안</text>
+<text x="570.0" y="470.0" font-size="13" fill="#6B6E86" text-anchor="middle" font-weight="400">멀미 완화 버튼: 한 번 누르면 창문 조금 · 바깥 공기 · 음성 한 줄 · 내 기준 기록</text>
 </svg>

@@ -9,6 +9,7 @@ import android.graphics.Path
 import android.graphics.RadialGradient
 import android.graphics.RectF
 import android.graphics.Shader
+import ai.motioncare.app.ui.RiskRing
 import androidx.core.graphics.PathParser
 import kotlin.math.abs
 import kotlin.math.max
@@ -43,6 +44,9 @@ object IdolTheme : MoodTheme {
     // ---------------------------------------------------------------- math helpers
     private const val TAU = 6.2831855f
     private const val PI_F = 3.1415927f
+    private const val RING_R = 46.5f
+    private const val RING_W = 5f
+    private const val RING_FIT = 0.92f
     private fun deg(rad: Float): Float = rad * 57.29578f
     private fun lerp(a: Float, b: Float, k: Float): Float = a + (b - a) * k
     private fun hex(s: String): Int = Color.parseColor(s)
@@ -328,6 +332,10 @@ object IdolTheme : MoodTheme {
         c.save()
         c.translate(cx - size / 2f, cy - size / 2f)
         c.scale(s, s)
+        // with the risk ring on, it replaces the stage rim and the stage shrinks to sit inside it
+        val ring = RiskRing.current
+        val fit = if (ring.isNaN()) 1f else RING_FIT
+        c.scale(fit, fit, 50f, 50f)
         drawStage(c, mood, k, t)
         c.save()
         c.clipPath(CLIP_CIRCLE)
@@ -336,7 +344,7 @@ object IdolTheme : MoodTheme {
         if (mood == Mood.SICK) c.translate(0f, 1f + 2f * k)
         drawLumi(c, mood, k, t)
         c.restore()
-        drawRim(c, mood)
+        if (ring.isNaN()) drawRim(c, mood) else RiskRing.draw(c, 50f, 50f, RING_R / fit, RING_W / fit, ring)
         drawFront(c, mood, k, t)
         c.restore()
         ga = 1f

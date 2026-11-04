@@ -47,5 +47,5 @@
 <path d="M725.0 188.0 L726.5 198.9 L717.4 195.9 Z" fill="#6B6E86"/>
 <polyline points="870.0,234.0 750.0,188.0" fill="none" stroke="#6B6E86" stroke-width="2.5" stroke-linejoin="round"/>
 <path d="M750.0 188.0 L761.0 187.1 L757.5 196.0 Z" fill="#6B6E86"/>
-<text x="480.0" y="318.0" font-size="13" fill="#6B6E86" text-anchor="middle" font-weight="400">지수가 기준선 × m을 넘으면 공기를 바꾸고, 흔들림이 길게 이어지면 휴게소를 제안</text>
+<text x="480.0" y="318.0" font-size="13" fill="#6B6E86" text-anchor="middle" font-weight="400">지수가 기준선 × m을 넘으면 공기를 바꾸고, 멀미 완화 버튼을 누르면 창문까지 엶</text>
 </svg>

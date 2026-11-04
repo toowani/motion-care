@@ -9,6 +9,7 @@ import android.graphics.Path
 import android.graphics.RadialGradient
 import android.graphics.RectF
 import android.graphics.Shader
+import ai.motioncare.app.ui.RiskRing
 import androidx.core.graphics.PathParser
 import kotlin.math.abs
 import kotlin.math.atan2
@@ -46,6 +47,9 @@ object ClayTheme : MoodTheme {
     private const val TAU = 6.2831855f
     private const val PI_F = 3.1415927f
     private const val DEG = 57.29578f
+    private const val RING_R = 46.5f
+    private const val RING_W = 5f
+    private const val RING_FIT = 0.84f
     private const val GX = 50f
     private const val GY = 86f
     private val SIDES = floatArrayOf(-1f, 1f)
@@ -233,6 +237,9 @@ object ClayTheme : MoodTheme {
         c.save()
         c.translate(cx - 50f * s, cy - 50f * s)
         c.scale(s, s)
+        // with the risk ring on, shrink the figure so it stands inside the ring
+        val ring = RiskRing.current
+        if (!ring.isNaN()) { c.save(); c.scale(RING_FIT, RING_FIT, 50f, 50f) }
 
         // ---- posture
         val breath = sin(TAU * tt / 2.4f)
@@ -428,6 +435,10 @@ object ClayTheme : MoodTheme {
                 c.drawPath(tmpPath, stroke)
             }
             c.restore()
+        }
+        if (!ring.isNaN()) {
+            c.restore()
+            RiskRing.draw(c, 50f, 50f, RING_R, RING_W, ring)
         }
         c.restore()
     }

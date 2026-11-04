@@ -9,6 +9,7 @@ import android.graphics.RadialGradient
 import android.graphics.RectF
 import android.graphics.Shader
 import android.os.Build
+import ai.motioncare.app.ui.RiskRing
 import androidx.core.graphics.PathParser
 import kotlin.math.abs
 import kotlin.math.cos
@@ -47,6 +48,9 @@ object ToonTheme : MoodTheme {
     private const val TAU = 6.2831855f
     private const val PI = 3.1415927f
     private const val RAD2DEG = 57.29578f
+    private const val RING_R = 46.5f
+    private const val RING_W = 5f
+    private const val RING_FIT = 0.88f
     private const val LW = 2.4f // outline width in design units
     private const val ER = 7.5f // eye (headlight lens) radius
 
@@ -297,6 +301,9 @@ object ToonTheme : MoodTheme {
         c.save()
         c.translate(cx - size / 2f, cy - size / 2f)
         c.scale(size / 100f, size / 100f)
+        // with the risk ring on, shrink the round stage so it sits inside the ring
+        val ring = RiskRing.current
+        if (!ring.isNaN()) { c.save(); c.scale(RING_FIT, RING_FIT, 50f, 50f) }
 
         // motion: hop cycle with squash on landing, stretch on take-off / fall
         var bob = 0f
@@ -544,6 +551,10 @@ object ToonTheme : MoodTheme {
                     c.restore()
                 }
             }
+        }
+        if (!ring.isNaN()) {
+            c.restore()
+            RiskRing.draw(c, 50f, 50f, RING_R, RING_W, ring)
         }
         c.restore()
     }

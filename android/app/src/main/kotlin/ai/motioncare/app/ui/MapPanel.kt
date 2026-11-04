@@ -58,10 +58,10 @@ class MapPanel(context: Context) : FrameLayout(context) {
     private val tbtRoad = context.text("", 17f, Color.parseColor("#C9CED8"))
     private val tbtCard = LinearLayout(context)
 
-    // character widget (top-right): the face in a disc filled with the risk colour, no number
-    private val icon = MoodIconView(context)
+    // character widget (top-right): the face on a white disc; the theme draws the risk ring (RiskRing), no number
+    private val icon = MoodIconView(context).apply { ring = 0f }
     private val ring = FrameLayout(context)
-    private val disc = GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(Ui.RISK_LOW) }
+    private val disc = GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(Color.WHITE) }
 
     // bottom: speed, arrival bar, 2D/3D, attribution
     private val speedNum = context.text("0", 28f, Ui.INK, bold = true)
@@ -152,12 +152,10 @@ class MapPanel(context: Context) : FrameLayout(context) {
     }
 
     private fun buildCharacter() {
-        // a white rim keeps the coloured disc apart from any map colour underneath
-        disc.setStroke(context.dp(6), Color.WHITE)
         ring.background = disc
         ring.elevation = context.dpf(8f)
         ring.addView(icon, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT).apply {
-            val m = context.dp(16); setMargins(m, m, m, m)
+            val m = context.dp(5); setMargins(m, m, m, m)
         })
         addView(ring, LayoutParams(context.dp(CHAR_RING), context.dp(CHAR_RING), Gravity.TOP or Gravity.END).apply {
             setMargins(0, context.dp(14), context.dp(14), 0)
@@ -299,18 +297,13 @@ class MapPanel(context: Context) : FrameLayout(context) {
         icon.level = level
     }
 
-    /** Sickness probability (0..1) of the passenger: green < 25 % ≤ yellow < 50 % ≤ red. */
-    fun setRisk(p: Double) = onMain {
-        val c = Ui.riskColor(p)
-        if (c != riskShown) { riskShown = c; disc.setColor(c) }
-    }
-
-    private var riskShown = Ui.RISK_LOW
+    /** Sickness probability (0..1) of the passenger: the ring's sweep, green < 25 % ≤ yellow < 50 % ≤ red. */
+    fun setRisk(p: Double) = onMain { icon.ring = if (p.isNaN()) 0f else p.toFloat() }
 
     /** Next turn hint without a route ("300m 앞 좌회전"); null hides the card. */
     fun setNextTurn(text: String?) = onMain { if (text.isNullOrBlank()) tbtCard.gone(true) }
 
-    /** Clears the trail, route and guidance, e.g. when a new trip starts. */
+    /** Clears the route and guidance, e.g. when a new trip starts. */
     fun reset() = onMain {
         replayName = null
         route = null
@@ -319,8 +312,7 @@ class MapPanel(context: Context) : FrameLayout(context) {
         tbtCard.gone(true)
         etaBar.gone(true)
         speedNum.text = "0"
-        riskShown = Ui.RISK_LOW
-        disc.setColor(riskShown)
+        icon.ring = 0f
         js("resetAll()")
     }
 
@@ -417,10 +409,11 @@ var MCB=window.MC||{engine:function(){},log:function(){}};
 var STYLE='https://tiles.openfreemap.org/styles/positron';
 var GL='https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.';
 var LF='https://unpkg.com/leaflet@1.9.4/dist/leaflet.';
-var BLUE='#2B6CF6',DONE='#A7AFBD';
+// like a real navigation only the road ahead is drawn: no line behind the car
+var BLUE='#2B6CF6',GONE='rgba(255,255,255,0)';
 var CAR='<svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="29" fill="#fff"/><circle cx="32" cy="32" r="24" fill="'+BLUE+'"/><path d="M32 14 L44 45 L32 38 L20 45 Z" fill="#fff"/></svg>';
 var EMPTY={type:'FeatureCollection',features:[]};
-var ENG=null,route=null,cum=null,total=0,trail=[],have=false,threeD=true;
+var ENG=null,route=null,cum=null,total=0,have=false,threeD=true;
 var sPrev=0,sTgt=0,pPrev=null,pTgt=null,bGps=0,tUpd=0,interval=1000,speed=0;
 var carB=0,camB=null,zoom=17.0,zLvl=0,tDraw=0;
 // per-sample camera for the canvas engine (see push): displayed route position and camera bearing
@@ -437,17 +430,16 @@ function at(s){var lo=0,hi=cum.length-1;if(s<=0)return route[0];if(s>=total)retu
  var f=(s-cum[lo])/Math.max(1e-6,cum[hi]-cum[lo]),a=route[lo],b=route[hi];return [a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f];}
 function curS(){return tUpd?sPrev+(sTgt-sPrev)*frac():sTgt;}
 function curP(){var f=frac();return [pPrev[0]+(pTgt[0]-pPrev[0])*f,pPrev[1]+(pTgt[1]-pPrev[1])*f];}
-function setRoute(g){sM=null;camT=null;if(ENG&&ENG.reset)ENG.reset();route=g;cum=[0];for(var i=1;i<g.length;i++)cum.push(cum[i-1]+dist(g[i-1],g[i]));total=cum[cum.length-1];have=false;trail=[];if(ENG){ENG.route(route);ENG.trail(trail);}}
+function setRoute(g){sM=null;camT=null;if(ENG&&ENG.reset)ENG.reset();route=g;cum=[0];for(var i=1;i<g.length;i++)cum.push(cum[i-1]+dist(g[i-1],g[i]));total=cum[cum.length-1];have=false;if(ENG)ENG.route(route);}
 function clearRoute(){route=null;cum=null;total=0;have=false;if(ENG)ENG.route(null);}
-function resetAll(){clearRoute();trail=[];camB=null;sM=null;camT=null;if(ENG&&ENG.reset)ENG.reset();zLvl=0;zoom=17.0;if(ENG)ENG.trail(trail);}
+function resetAll(){clearRoute();camB=null;sM=null;camT=null;if(ENG&&ENG.reset)ENG.reset();zLvl=0;zoom=17.0;}
 // aim at where the car will be at the next sample (1 s of the scenario later), so the display neither lags nor
 // overshoots and then backs up; never steer backwards
 function setS(s,v){if(!route)return;speed=v;var c=have?curS():s;if(!have||Math.abs(s-c)>300)c=s;
  sPrev=c;sTgt=Math.max(c,s+Math.max(0,v));have=true;tick();push(s,v,false);}
 // a new scenario: show its start (and load its tiles) before the first sample arrives
 function preview(s){if(!route)return;s=Math.max(0,Math.min(total,s));sPrev=sTgt=s;speed=0;tUpd=0;have=true;camB=null;sM=null;push(s,0,true);}
-function setPos(lat,lon,b,v){if(route)return;speed=v;var p=[lat,lon],c=have?curP():p;if(!have||dist(c,p)>500)c=p;pPrev=c;pTgt=p;bGps=b;var jump=!have||dist(c,p)>500;have=true;tick();push(0,v,jump);
- var l=trail[trail.length-1];if(!l||dist(l,p)>2){trail.push(p);if(trail.length>120)trail.shift();if(ENG)ENG.trail(trail);}}
+function setPos(lat,lon,b,v){if(route)return;speed=v;var p=[lat,lon],c=have?curP():p;if(!have||dist(c,p)>500)c=p;pPrev=c;pTgt=p;bGps=b;var jump=!have||dist(c,p)>500;have=true;tick();push(0,v,jump);}
 // Canvas engine: the map is redrawn only now and then; between samples the browser's compositor glides the
 // tilted map (CSS transitions), which keeps running even while a redraw blocks the page. Each sample aims the
 // camera K samples ahead, so the next sample retargets it mid-way and the motion never stops and restarts.
@@ -478,7 +470,7 @@ function load(src,ok,fail){var s=document.createElement('script');s.src=src;s.on
 function css(href){var l=document.createElement('link');l.rel='stylesheet';l.href=href;document.head.appendChild(l);}
 function webgl(){try{var c=document.createElement('canvas');return !!(window.WebGLRenderingContext&&(c.getContext('webgl')||c.getContext('experimental-webgl')));}catch(e){return false;}}
 function feat(g){return g&&g.length>1?{type:'Feature',properties:{},geometry:{type:'LineString',coordinates:g.map(function(p){return [p[1],p[0]];})}}:EMPTY;}
-function grad(p){p=Math.max(1e-6,Math.min(0.999999,p));return ['step',['line-progress'],DONE,p,BLUE];}
+function grad(p,c){p=Math.max(1e-6,Math.min(0.999999,p));return ['step',['line-progress'],GONE,p,c];}
 function startGl(){
  var m;
  try{m=new maplibregl.Map({container:'map',style:STYLE,center:[126.978,37.5665],zoom:16.8,pitch:56,maxPitch:70,
@@ -506,23 +498,21 @@ function startGl(){
    'fill-extrusion-color':'#DFE2E8','fill-extrusion-opacity':0.88,
    'fill-extrusion-height':['coalesce',['get','render_height'],8],'fill-extrusion-base':['coalesce',['get','render_min_height'],0]}},first);
   m.addSource('mc-route',{type:'geojson',data:EMPTY,lineMetrics:true});
-  m.addSource('mc-trail',{type:'geojson',data:EMPTY});
   m.addSource('mc-dest',{type:'geojson',data:EMPTY});
   var w=function(a,b){return ['interpolate',['linear'],['zoom'],13,a,18,b];};
-  m.addLayer({id:'mc-trail',type:'line',source:'mc-trail',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':BLUE,'line-opacity':0.45,'line-width':w(4,12)}},first);
-  m.addLayer({id:'mc-route-case',type:'line',source:'mc-route',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#fff','line-width':w(9,30)}},first);
-  m.addLayer({id:'mc-route',type:'line',source:'mc-route',layout:{'line-cap':'round','line-join':'round'},paint:{'line-gradient':grad(0),'line-width':w(5,20)}},first);
+  m.addLayer({id:'mc-route-case',type:'line',source:'mc-route',layout:{'line-cap':'round','line-join':'round'},paint:{'line-gradient':grad(0,'#fff'),'line-width':w(9,30)}},first);
+  m.addLayer({id:'mc-route',type:'line',source:'mc-route',layout:{'line-cap':'round','line-join':'round'},paint:{'line-gradient':grad(0,BLUE),'line-width':w(5,20)}},first);
   m.addLayer({id:'mc-dest',type:'circle',source:'mc-dest',paint:{'circle-radius':11,'circle-color':'#E5484D','circle-stroke-color':'#fff','circle-stroke-width':4}});
+  function ahead(p){m.setPaintProperty('mc-route','line-gradient',grad(p,BLUE));m.setPaintProperty('mc-route-case','line-gradient',grad(p,'#fff'));}
   ENG={draw:function(p,cb,camb,z,prog){
     car.setLngLat([p[1],p[0]]).setRotation(cb);if(!placed){car.addTo(m);placed=true;}
     var H=m.getContainer().clientHeight;
     m.jumpTo({center:[p[1],p[0]],bearing:camb,pitch:threeD?56:0,zoom:threeD?z:z-0.3,padding:{top:H*(threeD?0.42:0.3),bottom:0,left:0,right:0}});
-    if(prog!=null&&Math.abs(prog-lastProg)>0.0004){lastProg=prog;m.setPaintProperty('mc-route','line-gradient',grad(prog));}},
+    if(prog!=null&&Math.abs(prog-lastProg)>0.0004){lastProg=prog;ahead(prog);}},
    route:function(g){m.getSource('mc-route').setData(feat(g));
     m.getSource('mc-dest').setData(g?{type:'Feature',properties:{},geometry:{type:'Point',coordinates:[g[g.length-1][1],g[g.length-1][0]]}}:EMPTY);
-    lastProg=-1;m.setPaintProperty('mc-route','line-gradient',grad(0));},
-   trail:function(t){m.getSource('mc-trail').setData(feat(route?null:t));}};
-  ENG.route(route);ENG.trail(trail);
+    lastProg=-1;ahead(0);}};
+  ENG.route(route);
   MCB.engine('maplibre');
   }catch(e){ENG=null;loaded=false;bail('load handler: '+e);}
  });
@@ -568,14 +558,13 @@ function startOl(){
    box.innerHTML='';box.style.cssText='';startLeaflet();});
   function ll(p){return ol.proj.fromLonLat([p[1],p[0]]);}
   function lineStyle(c,w){return new ol.style.Style({stroke:new ol.style.Stroke({color:c,width:w,lineCap:'round',lineJoin:'round'})});}
-  var cas=new ol.Feature(),done=new ol.Feature(),ahead=new ol.Feature(),tr=new ol.Feature(),dest=new ol.Feature();
-  cas.setStyle(lineStyle('#fff',24));done.setStyle(lineStyle(DONE,14));ahead.setStyle(lineStyle(BLUE,14));
-  tr.setStyle(lineStyle('rgba(43,108,246,.45)',8));
+  var cas=new ol.Feature(),ahead=new ol.Feature(),dest=new ol.Feature();
+  cas.setStyle(lineStyle('#fff',24));ahead.setStyle(lineStyle(BLUE,14));
   dest.setStyle(new ol.style.Style({image:new ol.style.Circle({radius:11,fill:new ol.style.Fill({color:'#E5484D'}),stroke:new ol.style.Stroke({color:'#fff',width:4})})}));
-  m.addLayer(new ol.layer.Vector({source:new ol.source.Vector({features:[tr,cas,done,ahead,dest]}),zIndex:100}));
+  m.addLayer(new ol.layer.Vector({source:new ol.source.Vector({features:[cas,ahead,dest]}),zIndex:100}));
   function geom(g){return g&&g.length>1?new ol.geom.LineString(g.map(ll)):null;}
   function split(prog){if(!route||prog==null)return;var s=prog*total,i=0,p=at(s);while(i<cum.length-1&&cum[i+1]<s)i++;
-   done.setGeometry(geom(route.slice(0,i+1).concat([p])));ahead.setGeometry(geom([p].concat(route.slice(i+1))));}
+   var g=geom([p].concat(route.slice(i+1)));cas.setGeometry(g);ahead.setGeometry(g);}
   // C: view centre (map units); mv: the transition in flight (x,y = car offset from C in px, rz camera, cr car)
   var C=null,zi=17,lastRe=0,mv=null;
   function cur(t){var f=Math.max(0,Math.min(1,(t-mv.t0)/mv.dur)),o={};for(var k in mv.b)o[k]=mv.a[k]+(mv.b[k]-mv.a[k])*f;return o;}
@@ -606,13 +595,14 @@ function startOl(){
     if(zt>zi&&!zoomIn){zoomIn=zt;zm.style.transition='transform 700ms ease-in-out';zm.style.transform='scale('+Math.pow(2,zt-zi)+')';
      zoomTimer=setTimeout(function(){recenter(zoomIn,lastProg,false);zoomIn=0;},720);}
     var c=cur(t);if(zt<zi||(zoomIn===0&&zt===zi&&(Math.hypot(c.x,c.y)>R||(t-lastRe>4000&&Math.hypot(c.x,c.y)>16))))recenter(zoomIn||zt,prog,true);
+    // trim the line behind the car every sample, not only on redraws (the view is unchanged, so OL repaints in place)
+    split(prog);
     t=now();c=cur(t);var r=view.getResolution();
     var b={x:(Pw[0]-C[0])/r,y:-(Pw[1]-C[1])/r,rz:wrap(c.rz,rzT),cr:wrap(c.cr,crT)};
     mv={t0:t,dur:dur,a:c,b:b};apply(b,dur);},
-   route:function(g){cas.setGeometry(geom(g));done.setGeometry(null);ahead.setGeometry(geom(g));
-    dest.setGeometry(g?new ol.geom.Point(ll(g[g.length-1])):null);},
-   trail:function(t){tr.setGeometry(route?null:geom(t));}};
-  ENG.route(route);ENG.trail(trail);
+   route:function(g){cas.setGeometry(geom(g));ahead.setGeometry(geom(g));
+    dest.setGeometry(g?new ol.geom.Point(ll(g[g.length-1])):null);}};
+  ENG.route(route);
   if(have&&route)push(sTgt,0,true);
   MCB.engine('openlayers');
  },function(){MCB.log('olms failed to load');startLeaflet();});},function(){MCB.log('ol failed to load');startLeaflet();});
@@ -636,9 +626,7 @@ function startLeaflet(){
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,tileSize:512,zoomOffset:-1,keepBuffer:4}).addTo(m);
   var car=L.marker([37.5665,126.978],{interactive:false,icon:L.divIcon({className:'',html:'<div class="car">'+CAR+'</div>',iconSize:[64,64],iconAnchor:[32,32]})});
   var cas=L.polyline([],{color:'#fff',weight:22,lineCap:'round',lineJoin:'round'}).addTo(m),
-   done=L.polyline([],{color:DONE,weight:13,lineCap:'round',lineJoin:'round'}).addTo(m),
-   ahead=L.polyline([],{color:BLUE,weight:13,lineCap:'round',lineJoin:'round'}).addTo(m),
-   tr=L.polyline([],{color:BLUE,weight:8,opacity:0.45}).addTo(m);
+   ahead=L.polyline([],{color:BLUE,weight:13,lineCap:'round',lineJoin:'round'}).addTo(m);
   var placed=false,lastSplit=0,z0=17;
   ENG={fps:30,draw:function(p,cb,camb,z,prog,lv){
     z0=[17,16,15][lv];
@@ -648,10 +636,9 @@ function startLeaflet(){
     var e=car.getElement();if(e)e.firstChild.style.transform='rotate('+cb+'deg)';
     var t=now();
     if(route&&prog!=null&&t-lastSplit>200){lastSplit=t;var s=prog*total,i=0;while(i<cum.length-1&&cum[i+1]<s)i++;
-     done.setLatLngs(route.slice(0,i+1).concat([p]));ahead.setLatLngs([p].concat(route.slice(i+1)));}},
-   route:function(g){cas.setLatLngs(g||[]);done.setLatLngs([]);ahead.setLatLngs(g||[]);},
-   trail:function(t){tr.setLatLngs(route?[]:t);}};
-  ENG.route(route);ENG.trail(trail);
+     var g=[p].concat(route.slice(i+1));cas.setLatLngs(g);ahead.setLatLngs(g);}},
+   route:function(g){cas.setLatLngs(g||[]);ahead.setLatLngs(g||[]);}};
+  ENG.route(route);
   MCB.engine('leaflet');
  },function(){MCB.engine('none');});
 }

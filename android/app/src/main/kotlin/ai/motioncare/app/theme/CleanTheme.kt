@@ -10,14 +10,14 @@ import android.graphics.RadialGradient
 import android.graphics.RectF
 import android.graphics.Shader
 import android.os.Build
+import ai.motioncare.app.ui.RiskRing
 import androidx.core.graphics.PathParser
 import kotlin.math.max
-import kotlin.math.min
 import kotlin.math.sin
 
 /**
- * Car-UI traffic-light icon: a glossy coloured disc with a white face, wrapped in a progress
- * ring that fills (green -> yellow -> red) with the sickness level. The disc breathes and blinks.
+ * Car-UI traffic-light icon: a glossy coloured disc with a white face, wrapped in the shared
+ * [RiskRing] that fills with the chance of sickness. The disc breathes and blinks.
  *
  * Geometry lives in a fixed 0..100 box scaled by size / 100. Shadows are drawn with the canvas
  * temporarily scaled back to pixels so their blur and offset stay in pixels at every size.
@@ -37,8 +37,8 @@ object CleanTheme : MoodTheme {
     private const val TAU = 6.2831855f
     private const val DEG = 57.29578f
     private const val R = 42f
-    private const val RING_R = 46.2f
-    private const val RING_W = 3.4f
+    private const val RING_R = 46.5f
+    private const val RING_W = 5f
 
     // hi, mid, lo, rim per mood (CALM, UNEASY, SICK)
     private val PAL = arrayOf(
@@ -46,9 +46,6 @@ object CleanTheme : MoodTheme {
         intArrayOf(0xFFFDE68A.toInt(), 0xFFEAB308.toInt(), 0xFFD39F06.toInt(), 0xFFB98A04.toInt()),
         intArrayOf(0xFFF88A8A.toInt(), 0xFFDC2626.toInt(), 0xFFC21F1F.toInt(), 0xFFA51B1B.toInt()),
     )
-    private val RING_G = 0xFF16A34A.toInt()
-    private val RING_A = 0xFFEAB308.toInt()
-    private val RING_R_COLOR = 0xFFDC2626.toInt()
 
     private fun pd(d: String): Path = PathParser.createPathFromPathData(d)
 
@@ -103,17 +100,6 @@ object CleanTheme : MoodTheme {
         LinearGradient(0f, 38f, 0f, 46.6f, 0xFFEAF8FF.toInt(), 0xFF9AD8F8.toInt(), Shader.TileMode.CLAMP)
     }
 
-    private val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        style = Paint.Style.STROKE
-        strokeCap = Paint.Cap.ROUND
-        strokeWidth = RING_W
-        color = Color.argb(33, 100, 116, 139)
-    }
-    private val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        style = Paint.Style.STROKE
-        strokeCap = Paint.Cap.ROUND
-        strokeWidth = RING_W
-    }
     private val discShadowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
         setShadowLayer(blurRadius(5f), 0f, 2f, Color.argb(56, 15, 23, 42))
@@ -160,19 +146,6 @@ object CleanTheme : MoodTheme {
     private val matrix = Matrix()
     private val rect = RectF()
 
-    private fun lerpC(a: Int, b: Int, f: Float): Int = Color.rgb(
-        (Color.red(a) + (Color.red(b) - Color.red(a)) * f).toInt(),
-        (Color.green(a) + (Color.green(b) - Color.green(a)) * f).toInt(),
-        (Color.blue(a) + (Color.blue(b) - Color.blue(a)) * f).toInt(),
-    )
-
-    private fun ringColor(level: Float): Int = when {
-        level <= 0.25f -> RING_G
-        level < 0.75f -> lerpC(RING_G, RING_A, (level - 0.25f) / 0.5f)
-        level < 1.15f -> lerpC(RING_A, RING_R_COLOR, (level - 0.75f) / 0.4f)
-        else -> RING_R_COLOR
-    }
-
     /** Strokes a 0..100-box path while the canvas is in pixel scale [u]. */
     private fun strokePx(c: Canvas, p: Path, width: Float, u: Float) {
         p.transform(matrix, tmpPath)
@@ -204,12 +177,7 @@ object CleanTheme : MoodTheme {
         c.scale(k, k)
         c.translate(-50f, -50f)
 
-        // progress ring: faint track + level arc from 12 o'clock
-        c.drawCircle(50f, 50f, RING_R, trackPaint)
-        val frac = max(0.04f, min(1f, level / 1.5f))
-        ringPaint.color = ringColor(level)
-        rect.set(50f - RING_R, 50f - RING_R, 50f + RING_R, 50f + RING_R)
-        c.drawArc(rect, -90f, 360f * frac, false, ringPaint)
+        RiskRing.draw(c, 50f, 50f, RING_R, RING_W)
 
         // disc (breathing)
         val s = 1f + 0.018f * (breath - 0.5f) * 2f * (if (mood == Mood.CALM) 0.7f else 1f)

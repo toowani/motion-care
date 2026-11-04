@@ -267,13 +267,37 @@
 - 옛 화면이 남아 README에 "이전 회차 화면"으로 표시: `ui_12_card.jpg`
 - 더 이상 README에 안 쓰는 옛 그림: `ui_1_drive`, `ui_1_welcome`, `ui_2_rear_prompt`, `ui_3_turn_cue`, `ui_7_post_trip`, `ui_8_learned`, `ui_9_settings`, `ui_10_rest_stop`, `ui_11_analysis`, `ui_14_map`, `ui_15_analysis_risk`, `gif_turn_cue`, `gif_family`, `gif_compact`, `gif_themes`
 
+## 확인 완료 (11.4 · 팀 회의 2 반영)
+
+팀 회의 결정 A–G를 반영. 빌드 `:core:test :app:lintDebug :app:installDebug` 통과, lint 오류 0개, `sim/prototype.py` 점검 10개 통과. 엔진(`android/core`, `sim/engine.py`)은 바꾸지 않음.
+
+| 결정 | 바꾼 것 | 확인 (에뮬레이터) |
+|---|---|---|
+| A. 이름 | "멀미 케어"로 확정, 부제 "멀미 지수로 높이는 탑승 쾌적함". README · 문서에서 "(가칭)" 뺌 | — |
+| B. 팀 표기 | "팀 CRAVE"만 (README · 기획서 · 문의 초안), CRAVE 로고와 설정 "만든 팀 CRAVE"는 그대로 | — |
+| C. 캐릭터 링 | 지도 위젯의 꽉 찬 색 원 → 흰 원 + 굵은 링. 링은 멀미 가능성만큼 12시부터 시계 방향으로 차오르고, 회색 바탕(`#E5E7EB`), 색은 `Ui.RISK_*` (25% · 50%). `ui/RiskRing.kt`, `MoodIconView.ring` (부드럽게 따라감), 테마 4종이 같은 링을 그림. 설정 미리보기는 0.15 · 0.4 · 0.8 | 굽은 길 재생: 초록 일부 → 빨강 약 85%. 설정 테마 카드 4종 × 3단계 (겹침 · 잘림 없음). 한 화면 모드 표정 카드: 빨강 약 67% = "멀미 가능성 67%" |
+| D. 휴게소는 확장으로 | 엔진은 `SUGGEST_REST_STOP`을 그대로 계획, 앱은 로그만 ("engine rest stop (not offered)"). 멀미 완화 뒤 휴게소 질문 없음. 질문 코드는 `later/RestStopOffer.kt` | 로그 "t=105s engine rest stop (not offered)", 재생 중과 멀미 완화 12초 뒤까지 질문 없음. 멀미 완화: "누적량 32.3 · 기준 30.6", 뒷창문 `ROW_2_LEFT` · `ROW_2_RIGHT` 위치 2 |
+| E · F. README | 맨 위를 제목 · 부제 · 팀 · 시연 · 동작 두 줄 · 다른 점 세 줄로 줄임. "확장 가능성" 절 새로 (예측 음성 안내 · 휴게소 추천 · 아이별 · 승차감 지표) | GitHub API로 수식 렌더 확인 |
+| G. 지나온 길 지움 | 세 지도 엔진 모두 차 뒤의 길(회색 지난 선 · 파란 흔적)을 그리지 않음, 시연 · 실차 모드 모두. MapLibre는 경로 · 흰 테두리 그라데이션을 차 뒤에서 투명하게, OpenLayers · Leaflet은 다시 그릴 때마다 차 앞부분만 남김 | OpenLayers(에뮬레이터)에서 차 앞 파란 길만. MapLibre · Leaflet은 화면으로 못 봄 (WebGL 없음) |
+
+확인하며 고친 것:
+
+- **차 뒤에 파란 토막**: OpenLayers는 지도 전체를 다시 그릴 때만 경로를 차 위치에서 잘랐고, 사이에 차가 움직여 최대 약 70 px 토막이 남음 → 새 위치가 올 때마다 자름 (`MapPanel.kt` OpenLayers `ENG.move`)
+
+확인 못 한 것:
+
+- 멀미 완화의 외기 · 온도: 에뮬레이터 공조가 꺼져 있어 "공조가 꺼져 있어 바꾸지 않았어요" (기존 동작)
+- 음성 한 줄: 로그에 남지 않아 소리는 확인 못 함 (같은 창문 응답 콜백에서 말함)
+
+README 그림 다시 찍음 (11.4 02:56): `demo.webp`, `ui_r6_map.jpg`, `ui_r6_relief.jpg`, `ui_r6_compact.jpg`, `ui_r6_settings.jpg`, `theme_gallery.jpg`, `gif_themes.webp`, `gif_compact.webp`. `ui_r6_analysis.jpg`는 휴게소 질문 카드가 남아 있어 03:02에 다시 찍음. README에서 뺀 것: `ui_r6_rest.jpg`, `ui_12_card.jpg`, `gif_fresh_air.webp`, `closed_loop.svg`. 그래프 다시 만듦: `how_it_works.svg` · `index_flow.svg` · `architecture.svg` · `timeline_winding.svg` (휴게소 표시 뺌)
+
 ## 남은 확인
 
 - 회전 예고 · 가족 모드 관련 확인 항목은 화면에서 숨기며 뺌 (11.3 팀장 회의)
 - **창문이 실제로 열리는지**: 창문 연결이 되는 환경에서 다시 확인
-- **옛 화면 그림**: `ui_12_card`, `ui_1_welcome`, `gif_themes`, `gif_compact` 다시 찍기
-- **실차 모드 경로선**: NaviHelper가 경로 좌표를 주지 않음 → 지도 탭은 차 위치와 지나온 길만. Pleos 문의 항목.
-- **헤드업 알림**: Pleos 홈은 시스템 앱 알림만 지도 위에 띄움 → 질문 카드는 알림 센터로만. Pleos 문의 항목.
+- **옛 화면 그림**: `ui_1_welcome`만 남음 (README에서는 빼 둠)
+- **실차 모드 경로선**: NaviHelper가 경로 좌표를 주지 않음 → 지도 탭은 차 위치만. Pleos 문의 항목.
+- **헤드업 알림**: Pleos 홈은 시스템 앱 알림만 지도 위에 띄움 → 알림 카드는 알림 센터로만. Pleos 문의 항목.
 - **도심 회전 뒤 지도 멈춤**: 도심 · 거칠게에서 회전 뒤 지도가 새 방향으로 도는 동안 0.2–0.43초 멈춤이 30초에 13–33번. 굽은 길 · 나들이길은 매끄러움.
 
 QA용 명령:
