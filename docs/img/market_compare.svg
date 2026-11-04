@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 596" width="960" height="596" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="14" role="img"><title>다른 멀미 대응 서비스와 기능 비교</title>
+
+<rect x="0.75" y="0.75" width="958.5" height="594.5" rx="16" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1.5"/>
+<text x="392.0" y="64.0" font-size="13.5" fill="#1F2340" text-anchor="middle" font-weight="700">차 신호</text>
+<text x="496.0" y="64.0" font-size="13.5" fill="#1F2340" text-anchor="middle" font-weight="700">미리 계산</text>
+<text x="600.0" y="64.0" font-size="13.5" fill="#1F2340" text-anchor="middle" font-weight="700">공기 · 바람</text>
+<text x="704.0" y="64.0" font-size="13.5" fill="#1F2340" text-anchor="middle" font-weight="700">장비 없음</text>
+<text x="808.0" y="64.0" font-size="13.5" fill="#1F2340" text-anchor="middle" font-weight="700">사람별 기준</text>
+<text x="880.0" y="64.0" font-size="13.5" fill="#1F2340" text-anchor="middle" font-weight="700">상태</text>
+<line x1="28.0" y1="78.0" x2="932.0" y2="78.0" stroke="#E3E4EE" stroke-width="1" stroke-linecap="round"/>
+<rect x="28.0" y="88.0" width="904.0" height="44.0" rx="10" fill="#F8FAFC"/>
+<text x="46.0" y="112.0" font-size="14.5" fill="#1F2340" text-anchor="start" font-weight="700">Apple Motion Cues</text>
+<text x="176.6" y="112.0" font-size="12" fill="#6B6E86" text-anchor="start" font-weight="400">iOS 18, 2024</text>
+<circle cx="392.0" cy="111.0" r="4" fill="#D1D5DB"/>
+<circle cx="496.0" cy="111.0" r="4" fill="#D1D5DB"/>
+<circle cx="600.0" cy="111.0" r="4" fill="#D1D5DB"/>
+<circle cx="704.0" cy="111.0" r="11" fill="#16A34A"/>
+<path d="M699.0 111.0l3.5 3.5 6.5-7" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="808.0" cy="111.0" r="4" fill="#D1D5DB"/>
+<rect x="858.2" y="99.0" width="43.6" height="24.0" rx="12.0" fill="#DCFCE7" stroke="#DCFCE7" stroke-width="1"/>
+<text x="880.0" y="115.5" font-size="12.5" fill="#16A34A" text-anchor="middle" font-weight="700">양산</text>
+<text x="46.0" y="158.0" font-size="14.5" fill="#1F2340" text-anchor="start" font-weight="700">Google Motion Assist · KineStop</text>
+<text x="270.2" y="158.0" font-size="12" fill="#6B6E86" text-anchor="start" font-weight="400">2026 · 2018</text>
+<circle cx="392.0" cy="157.0" r="4" fill="#D1D5DB"/>
+<circle cx="496.0" cy="157.0" r="4" fill="#D1D5DB"/>
+<circle cx="600.0" cy="157.0" r="4" fill="#D1D5DB"/>
+<circle cx="704.0" cy="157.0" r="11" fill="#16A34A"/>
+<path d="M699.0 157.0l3.5 3.5 6.5-7" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="808.0" cy="157.0" r="4" fill="#D1D5DB"/>
+<rect x="858.2" y="145.0" width="43.6" height="24.0" rx="12.0" fill="#DCFCE7" stroke="#DCFCE7" stroke-width="1"/>
+<text x="880.0" y="161.5" font-size="12.5" fill="#16A34A" text-anchor="middle" font-weight="700">양산</text>
+<rect x="28.0" y="180.0" width="904.0" height="44.0" rx="10" fill="#F8FAFC"/>
+<text x="46.0" y="204.0" font-size="14.5" fill="#1F2340" text-anchor="start" font-weight="700">Citroën Seetroën 안경</text>
+<text x="204.9" y="204.0" font-size="12" fill="#6B6E86" text-anchor="start" font-weight="400">2018</text>
+<circle cx="392.0" cy="203.0" r="4" fill="#D1D5DB"/>
+<circle cx="496.0" cy="203.0" r="4" fill="#D1D5DB"/>
+<circle cx="600.0" cy="203.0" r="4" fill="#D1D5DB"/>
+<circle cx="704.0" cy="203.0" r="4" fill="#D1D5DB"/>
+<circle cx="808.0" cy="203.0" r="4" fill="#D1D5DB"/>
+<rect x="858.2" y="191.0" width="43.6" height="24.0" rx="12.0" fill="#DCFCE7" stroke="#DCFCE7" stroke-width="1"/>
+<text x="880.0" y="207.5" font-size="12.5" fill="#16A34A" text-anchor="middle" font-weight="700">양산</text>
+<text x="46.0" y="250.0" font-size="14.5" fill="#1F2340" text-anchor="start" font-weight="700">현대차 스무스 모드</text>
+<text x="174.1" y="250.0" font-size="12" fill="#6B6E86" text-anchor="start" font-weight="400">아이오닉 6, 2025</text>
+<circle cx="392.0" cy="249.0" r="11" fill="#16A34A"/>
+<path d="M387.0 249.0l3.5 3.5 6.5-7" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="496.0" cy="249.0" r="4" fill="#D1D5DB"/>
+<circle cx="600.0" cy="249.0" r="4" fill="#D1D5DB"/>
+<circle cx="704.0" cy="249.0" r="11" fill="#16A34A"/>
+<path d="M699.0 249.0l3.5 3.5 6.5-7" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="808.0" cy="249.0" r="4" fill="#D1D5DB"/>
+<rect x="858.2" y="237.0" width="43.6" height="24.0" rx="12.0" fill="#DCFCE7" stroke="#DCFCE7" stroke-width="1"/>
+<text x="880.0" y="253.5" font-size="12.5" fill="#16A34A" text-anchor="middle" font-weight="700">양산</text>
+<rect x="28.0" y="272.0" width="904.0" height="44.0" rx="10" fill="#F8FAFC"/>
+<text x="46.0" y="296.0" font-size="14.5" fill="#1F2340" text-anchor="start" font-weight="700">현대모비스 멀미 저감</text>
+<text x="187.8" y="296.0" font-size="12" fill="#6B6E86" text-anchor="start" font-weight="400">2023</text>
+<circle cx="392.0" cy="295.0" r="11" fill="#16A34A"/>
+<path d="M387.0 295.0l3.5 3.5 6.5-7" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="496.0" cy="295.0" r="4" fill="#D1D5DB"/>
+<circle cx="600.0" cy="295.0" r="11" fill="#16A34A"/>
+<path d="M595.0 295.0l3.5 3.5 6.5-7" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="704.0" cy="295.0" r="4" fill="#D1D5DB"/>
+<circle cx="808.0" cy="295.0" r="10" fill="#FFFFFF" stroke="#CA8A04" stroke-width="2"/>
+<path d="M808.0 286.0A9 9 0 0 1 808.0 304.0z" fill="#CA8A04" stroke="#CA8A04" stroke-width="0.1" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="858.2" y="283.0" width="43.6" height="24.0" rx="12.0" fill="#F3F4F6" stroke="#F3F4F6" stroke-width="1"/>
+<text x="880.0" y="299.5" font-size="12.5" fill="#6B6E86" text-anchor="middle" font-weight="700">시범</text>
+<text x="46.0" y="342.0" font-size="14.5" fill="#1F2340" text-anchor="start" font-weight="700">JLR 웰니스 점수</text>
+<text x="161.4" y="342.0" font-size="12" fill="#6B6E86" text-anchor="start" font-weight="400">2018 · 2020</text>
+<circle cx="392.0" cy="341.0" r="11" fill="#16A34A"/>
+<path d="M387.0 341.0l3.5 3.5 6.5-7" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="496.0" cy="341.0" r="4" fill="#D1D5DB"/>
+<circle cx="600.0" cy="341.0" r="4" fill="#D1D5DB"/>
+<circle cx="704.0" cy="341.0" r="4" fill="#D1D5DB"/>
+<circle cx="808.0" cy="341.0" r="11" fill="#16A34A"/>
+<path d="M803.0 341.0l3.5 3.5 6.5-7" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="858.2" y="329.0" width="43.6" height="24.0" rx="12.0" fill="#F3F4F6" stroke="#F3F4F6" stroke-width="1"/>
+<text x="880.0" y="345.5" font-size="12.5" fill="#6B6E86" text-anchor="middle" font-weight="700">연구</text>
+<rect x="28.0" y="364.0" width="904.0" height="44.0" rx="10" fill="#F8FAFC"/>
+<text x="46.0" y="388.0" font-size="14.5" fill="#1F2340" text-anchor="start" font-weight="700">VW · Bentley 연구</text>
+<text x="171.3" y="388.0" font-size="12" fill="#6B6E86" text-anchor="start" font-weight="400">Diels 외, 2023</text>
+<circle cx="392.0" cy="387.0" r="11" fill="#16A34A"/>
+<path d="M387.0 387.0l3.5 3.5 6.5-7" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="496.0" cy="387.0" r="10" fill="#FFFFFF" stroke="#CA8A04" stroke-width="2"/>
+<path d="M496.0 378.0A9 9 0 0 1 496.0 396.0z" fill="#CA8A04" stroke="#CA8A04" stroke-width="0.1" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="600.0" cy="387.0" r="4" fill="#D1D5DB"/>
+<circle cx="704.0" cy="387.0" r="11" fill="#16A34A"/>
+<path d="M699.0 387.0l3.5 3.5 6.5-7" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="808.0" cy="387.0" r="4" fill="#D1D5DB"/>
+<rect x="858.2" y="375.0" width="43.6" height="24.0" rx="12.0" fill="#F3F4F6" stroke="#F3F4F6" stroke-width="1"/>
+<text x="880.0" y="391.5" font-size="12.5" fill="#6B6E86" text-anchor="middle" font-weight="700">연구</text>
+<text x="46.0" y="434.0" font-size="14.5" fill="#1F2340" text-anchor="start" font-weight="700">holoride</text>
+<text x="109.9" y="434.0" font-size="12" fill="#6B6E86" text-anchor="start" font-weight="400">2022</text>
+<circle cx="392.0" cy="433.0" r="11" fill="#16A34A"/>
+<path d="M387.0 433.0l3.5 3.5 6.5-7" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="496.0" cy="433.0" r="4" fill="#D1D5DB"/>
+<circle cx="600.0" cy="433.0" r="4" fill="#D1D5DB"/>
+<circle cx="704.0" cy="433.0" r="4" fill="#D1D5DB"/>
+<circle cx="808.0" cy="433.0" r="4" fill="#D1D5DB"/>
+<rect x="858.2" y="421.0" width="43.6" height="24.0" rx="12.0" fill="#F3F4F6" stroke="#F3F4F6" stroke-width="1"/>
+<text x="880.0" y="437.5" font-size="12.5" fill="#6B6E86" text-anchor="middle" font-weight="700">파산</text>
+<rect x="28.0" y="456.0" width="904.0" height="44.0" rx="10" fill="#F8FAFC"/>
+<text x="46.0" y="480.0" font-size="14.5" fill="#1F2340" text-anchor="start" font-weight="700">Mercedes · BMW</text>
+<text x="159.4" y="480.0" font-size="12" fill="#6B6E86" text-anchor="start" font-weight="400">바람 · 천장 화면</text>
+<circle cx="392.0" cy="479.0" r="11" fill="#16A34A"/>
+<path d="M387.0 479.0l3.5 3.5 6.5-7" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="496.0" cy="479.0" r="4" fill="#D1D5DB"/>
+<circle cx="600.0" cy="479.0" r="10" fill="#FFFFFF" stroke="#CA8A04" stroke-width="2"/>
+<path d="M600.0 470.0A9 9 0 0 1 600.0 488.0z" fill="#CA8A04" stroke="#CA8A04" stroke-width="0.1" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="704.0" cy="479.0" r="11" fill="#16A34A"/>
+<path d="M699.0 479.0l3.5 3.5 6.5-7" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="808.0" cy="479.0" r="4" fill="#D1D5DB"/>
+<rect x="858.2" y="467.0" width="43.6" height="24.0" rx="12.0" fill="#F3F4F6" stroke="#F3F4F6" stroke-width="1"/>
+<text x="880.0" y="483.5" font-size="12.5" fill="#6B6E86" text-anchor="middle" font-weight="700">특허</text>
+<rect x="28.0" y="502.0" width="904.0" height="44.0" rx="12" fill="#DBEAFE" stroke="#1E40AF" stroke-width="1.5"/>
+<text x="46.0" y="526.0" font-size="14.5" fill="#1E40AF" text-anchor="start" font-weight="700">멀미 케어</text>
+<text x="115.1" y="526.0" font-size="12" fill="#6B6E86" text-anchor="start" font-weight="400">Pleos Connect</text>
+<circle cx="392.0" cy="525.0" r="11" fill="#1E40AF"/>
+<path d="M387.0 525.0l3.5 3.5 6.5-7" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="496.0" cy="525.0" r="11" fill="#1E40AF"/>
+<path d="M491.0 525.0l3.5 3.5 6.5-7" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="600.0" cy="525.0" r="11" fill="#1E40AF"/>
+<path d="M595.0 525.0l3.5 3.5 6.5-7" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="704.0" cy="525.0" r="11" fill="#1E40AF"/>
+<path d="M699.0 525.0l3.5 3.5 6.5-7" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="808.0" cy="525.0" r="11" fill="#1E40AF"/>
+<path d="M803.0 525.0l3.5 3.5 6.5-7" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="852.3" y="513.0" width="55.4" height="24.0" rx="12.0" fill="#FFFFFF" stroke="#1E40AF" stroke-width="1"/>
+<text x="880.0" y="529.5" font-size="12.5" fill="#1E40AF" text-anchor="middle" font-weight="700">시제품</text>
+<circle cx="46.0" cy="566.0" r="8" fill="#16A34A"/>
+<path d="M42 566l2.5 2.5 5-5" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="60.0" y="571.0" font-size="12.5" fill="#1F2340" text-anchor="start" font-weight="400">있음</text>
+<circle cx="110.0" cy="566.0" r="7" fill="#FFFFFF" stroke="#CA8A04" stroke-width="2"/>
+<path d="M110 560A6 6 0 0 1 110 572z" fill="#CA8A04" stroke="#CA8A04" stroke-width="0.1" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="124.0" y="571.0" font-size="12.5" fill="#1F2340" text-anchor="start" font-weight="400">일부 · 연구 단계</text>
+<circle cx="240.0" cy="566.0" r="4" fill="#D1D5DB"/>
+<text x="252.0" y="571.0" font-size="12.5" fill="#1F2340" text-anchor="start" font-weight="400">없음 · 확인 못 함</text>
+</svg>

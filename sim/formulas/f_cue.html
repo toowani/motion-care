@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>f_cue</title><script src="common.js"></script></head>
+<body>
+<script>
+const chipc = (ic, t) => `<div style="flex:1;display:flex;align-items:center;gap:10px">${icon(ic, '#65A30D', '#ECFCCB')}<div style="font-size:14px;font-weight:600;line-height:1.35">${t}</div></div>`;
+window.F = {
+  title: '⑥ 예고 시점 <span class="v" style="color:#65A30D">d<sub style="font-size:15px">cue</sub></span>',
+  chip: '엔진에만 · 앱 화면 · 소리에서는 꺼 둠',
+  section: '3 · 전체 수식',
+  size: 40,
+  tex: String.raw`\cQ{d_{\mathrm{cue}}} = \cS{v}\,(\cK{t_{\mathrm{say}}} + \cK{t_{\mathrm{prepare}}})`,
+  legend: [
+    { v: 'Q', tex: String.raw`\cQ{d_{\mathrm{cue}}}`, text: '예고 거리', sub: '회전까지 이 거리 안이면 예고' },
+    { v: 'S', tex: String.raw`\cS{v}`, text: '속도', sig: true },
+    { v: 'K', tex: String.raw`\cK{t_{\mathrm{say}}}`, text: '말하는 시간', k: '2초' },
+    { v: 'K', tex: String.raw`\cK{t_{\mathrm{prepare}}}`, text: '몸이 대비할 시간', k: '3초' },
+  ],
+  foot: chipc('turn', '회전마다 한 번') + chipc('light', '신호 대기 뒤 출발하면 한 번 더') + chipc('curve', '굽은 길: 150 m 안에서 45° 넘게 꺾이면 예고'),
+};
+</script>
+</body></html>

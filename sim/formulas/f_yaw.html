@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>f_yaw</title><script src="common.js"></script></head>
+<body>
+<script>
+// timing strip: GPS heading lags the turn by 1-2 s; steering angle leads
+const strip = `<svg width="300" height="150" viewBox="0 0 300 150" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif">
+  <line x1="20" y1="124" x2="290" y2="124" stroke="#1F2340" stroke-width="1.2"/>
+  <text x="290" y="142" font-size="12" fill="#6B6E86" text-anchor="end">시간 →</text>
+  <line x1="110" y1="14" x2="110" y2="124" stroke="#6B6E86" stroke-dasharray="3 3"/>
+  <text x="110" y="142" font-size="12" fill="#1F2340" text-anchor="middle" font-weight="700">실제 회전</text>
+  <rect x="96" y="26" width="120" height="30" rx="8" fill="#F3E8DD"/>
+  <text x="104" y="46" font-size="13" fill="#8B5E3C" font-weight="700">핸들 각도: 바로</text>
+  <rect x="150" y="70" width="136" height="30" rx="8" fill="#F3F4F6"/>
+  <text x="158" y="90" font-size="13" fill="#4B5563" font-weight="700">GPS 방향: 1–2초 늦음</text>
+  <path d="M110 85h34" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round"/><path d="M139 80l6 5-6 5" fill="none" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`;
+window.F = {
+  title: '② 핸들 각도로 방향 앞당기기 <span class="v" style="color:#8B5E3C">ω</span>',
+  section: '3 · 전체 수식',
+  size: 40,
+  tex: String.raw`\cW{\omega} = \frac{\cS{v}\, \tan(\cS{\delta_{sw}} / \cK{r})}{\cK{L}}`,
+  side: strip,
+  legend: [
+    { v: 'W', tex: String.raw`\cW{\omega}`, text: '회전 속도 예측', sub: '진행 방향 변화율' },
+    { v: 'S', tex: String.raw`\cS{v}`, text: '속도', sig: true },
+    { v: 'S', tex: String.raw`\cS{\delta_{sw}}`, text: '핸들 각도', sub: 'Pleos SteeringWheel', sig: true },
+    { v: 'K', tex: String.raw`\cK{r}`, text: '조향비', sub: '핸들 각도 ÷ r = 바퀴 각도', k: '14.5' },
+    { v: 'K', tex: String.raw`\cK{L}`, text: '축간거리', k: '2.9 m' },
+    { v: 'K', tex: String.raw`\cK{k}`, text: 'GPS 방향 쪽으로 조금씩 당김', sub: '오차 누적 방지', k: '0.2' },
+  ],
+};
+</script>
+</body></html>

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>f_prob</title><script src="common.js"></script></head>
+<body>
+<script>
+// mini S-curve: P = 1 / (1 + e^{-(D - tau m)/s}), tau m = 30, s = 5 (shape only)
+const sc = (() => {
+  const W = 330, H = 190, x0 = 44, x1 = 318, y0 = 160, y1 = 14;
+  const X = d => x0 + (x1 - x0) * d / 60, Y = p => y0 - (y0 - y1) * p;
+  let pts = [];
+  for (let d = 0; d <= 60; d += 0.5) pts.push(X(d).toFixed(1) + ',' + Y(1 / (1 + Math.exp(-(d - 30) / 5))).toFixed(1));
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif">
+    <rect x="${x0}" y="${Y(0.25)}" width="${x1 - x0}" height="${Y(0) - Y(0.25)}" fill="#DCFCE7"/>
+    <rect x="${x0}" y="${Y(0.5)}" width="${x1 - x0}" height="${Y(0.25) - Y(0.5)}" fill="#FEF9C3"/>
+    <rect x="${x0}" y="${Y(1)}" width="${x1 - x0}" height="${Y(0.5) - Y(1)}" fill="#FEE2E2"/>
+    <text x="${x1 - 6}" y="${Y(0.08)}" font-size="12" fill="#16A34A" text-anchor="end" font-weight="700">낮음</text>
+    <text x="${x1 - 6}" y="${Y(0.33)}" font-size="12" fill="#A16207" text-anchor="end" font-weight="700">보통</text>
+    <text x="${x1 - 6}" y="${Y(0.88)}" font-size="12" fill="#DC2626" text-anchor="end" font-weight="700">높음</text>
+    <text x="${x0 - 6}" y="${Y(0.25) + 4}" font-size="12" fill="#6B6E86" text-anchor="end">25%</text>
+    <text x="${x0 - 6}" y="${Y(0.5) + 4}" font-size="12" fill="#6B6E86" text-anchor="end">50%</text>
+    <text x="${x0 - 6}" y="${Y(1) + 4}" font-size="12" fill="#6B6E86" text-anchor="end">100%</text>
+    <line x1="${X(30)}" y1="${y1}" x2="${X(30)}" y2="${y0}" stroke="#EA580C" stroke-width="1.6" stroke-dasharray="4 3"/>
+    <polyline points="${pts.join(' ')}" fill="none" stroke="#DC2626" stroke-width="3" stroke-linecap="round"/>
+    <line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y0}" stroke="#1F2340" stroke-width="1.2"/>
+    <text x="${X(30)}" y="${y0 + 20}" font-size="14" text-anchor="middle" font-family="Times New Roman, serif" font-style="italic" font-weight="700"><tspan fill="#EA580C">τ</tspan><tspan fill="#1F2340" font-style="normal">·</tspan><tspan fill="#0D9488">m</tspan></text>
+    <text x="${x1}" y="${y0 + 20}" font-size="15" text-anchor="end" fill="#7C3AED" font-family="Times New Roman, serif" font-style="italic" font-weight="700">D →</text>
+    <text x="${x0}" y="${y0 + 20}" font-size="12" fill="#6B6E86">0</text>
+  </svg>`;
+})();
+window.F = {
+  title: '멀미 가능성 <span class="v" style="color:#DC2626">P</span>',
+  section: '3 · 멀미 지수 계산',
+  size: 40,
+  tex: String.raw`\cP{P} = \frac{1}{1 + e^{-(\cD{D} - \cT{\tau}\,\cM{m})/\cK{s}}}`,
+  side: `<div class="cap">누적량이 기준선(<span class="v" style="font-size:15px;color:#EA580C">τ</span>·<span class="v" style="font-size:15px;color:#0D9488">m</span>)을 넘을수록 커짐</div>` + sc,
+  legend: [
+    { v: 'P', tex: String.raw`\cP{P}`, text: '멀미 가능성', sub: '25% · 50%에서 단계가 바뀜' },
+    { v: 'D', tex: String.raw`\cD{D}`, text: '누적 흔들림' },
+    { v: 'T', tex: String.raw`\cT{\tau}`, text: '개인 기준선', sub: '멀미 완화 버튼을 누른 순간의 누적량으로 학습' },
+    { v: 'T', tex: String.raw`\cT{\tau_0}`, text: '출발값', sub: '버튼을 누르기 전', k: '30' },
+    { v: 'M', tex: String.raw`\cM{m}`, text: '환경 계수', sub: '덥고 답답하면 기준선이 내려감' },
+    { v: 'K', tex: String.raw`\cK{s}`, text: '기울기', k: '상수 5.0' },
+  ],
+};
+</script>
+</body></html>

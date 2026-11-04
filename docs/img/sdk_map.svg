@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 560" width="960" height="560" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="14">
+<rect x="0.75" y="0.75" width="958.5" height="558.5" rx="16" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1.5"/>
+<rect x="28.0" y="26.0" width="360.0" height="456.0" rx="14" fill="#EEF2FF"/>
+<text x="208.0" y="56.0" font-size="17" fill="#3730A3" text-anchor="middle" font-weight="700">읽기 · 1초마다</text>
+<rect x="420.0" y="26.0" width="200.0" height="456.0" rx="14" fill="#F5F3FF"/>
+<text x="520.0" y="56.0" font-size="17" fill="#5B21B6" text-anchor="middle" font-weight="700">계산</text>
+<rect x="652.0" y="26.0" width="280.0" height="456.0" rx="14" fill="#ECFDF5"/>
+<text x="792.0" y="56.0" font-size="17" fill="#065F46" text-anchor="middle" font-weight="700">행동</text>
+<rect x="44.0" y="74.0" width="328.0" height="84.0" rx="10" fill="#FFFFFF" stroke="#334155" stroke-width="1.5"/>
+<text x="58.0" y="99.0" font-size="14" fill="#334155" text-anchor="start" font-weight="700">Vehicle · SteeringWheel</text>
+<text x="58.0" y="121.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">핸들 각도 → 1–2초 먼저</text>
+<rect x="58.0" y="130.0" width="79.1" height="20.0" rx="10.0" fill="#F1F5F9"/>
+<text x="97.6" y="144.1" font-size="11.5" fill="#334155" text-anchor="middle" font-weight="400" font-family="SFMono-Regular, Menlo, Consolas, monospace">CAR_DRIVE</text>
+<rect x="44.0" y="168.0" width="328.0" height="64.0" rx="10" fill="#FFFFFF" stroke="#334155" stroke-width="1.5"/>
+<text x="58.0" y="193.0" font-size="14" fill="#334155" text-anchor="start" font-weight="700">Vehicle · TurnSignal</text>
+<text x="58.0" y="215.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">방향지시등</text>
+<rect x="44.0" y="242.0" width="328.0" height="64.0" rx="10" fill="#FFFFFF" stroke="#334155" stroke-width="1.5"/>
+<text x="58.0" y="267.0" font-size="14" fill="#334155" text-anchor="start" font-weight="700">Vehicle · HVAC</text>
+<text x="58.0" y="289.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">실내 온도 · 내기순환</text>
+<rect x="44.0" y="316.0" width="328.0" height="64.0" rx="10" fill="#FFFFFF" stroke="#334155" stroke-width="1.5"/>
+<text x="58.0" y="341.0" font-size="14" fill="#334155" text-anchor="start" font-weight="700">위치 (GNSS) · CarPropertyManager</text>
+<text x="58.0" y="363.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">속도 · 위치</text>
+<rect x="44.0" y="390.0" width="328.0" height="64.0" rx="10" fill="#FFFFFF" stroke="#334155" stroke-width="1.5"/>
+<text x="58.0" y="415.0" font-size="14" fill="#334155" text-anchor="start" font-weight="700">NaviHelper</text>
+<text x="58.0" y="437.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">다음 회전 · 도착 (TBT, DrivingInfo)</text>
+<rect x="436.0" y="74.0" width="168.0" height="392.0" rx="12" fill="#FFFFFF" stroke="#5B21B6" stroke-width="1.8"/>
+<circle cx="520.0" cy="108.0" r="22" fill="#F5F3FF"/>
+<g transform="translate(508.0 96.0) scale(1.0)" fill="none" stroke="#5B21B6" stroke-width="2.00" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="14" height="14" rx="3"/><path d="M9 12h6M12 9v6"/></g>
+<text x="520.0" y="152.0" font-size="14" fill="#5B21B6" text-anchor="middle" font-weight="700">순수 Kotlin 엔진</text>
+<text x="520.0" y="171.0" font-size="12.5" fill="#6B6E86" text-anchor="middle" font-weight="400">SDK와 분리</text>
+<rect x="452.0" y="188.0" width="136.0" height="36.0" rx="18.0" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.5"/>
+<text x="520.0" y="210.9" font-size="13.5" fill="#1F2340" text-anchor="middle" font-weight="700"><tspan fill="#2563EB" font-family="Times New Roman, Times, serif" font-style="italic" font-weight="700" font-size="15.1">I</tspan>  흔들림 지수</text>
+<rect x="452.0" y="234.0" width="136.0" height="36.0" rx="18.0" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1.5"/>
+<text x="520.0" y="256.9" font-size="13.5" fill="#1F2340" text-anchor="middle" font-weight="700"><tspan fill="#7C3AED" font-family="Times New Roman, Times, serif" font-style="italic" font-weight="700" font-size="15.1">D</tspan>  누적 흔들림</text>
+<rect x="452.0" y="280.0" width="136.0" height="36.0" rx="18.0" fill="#CCFBF1" stroke="#0D9488" stroke-width="1.5"/>
+<text x="520.0" y="302.9" font-size="13.5" fill="#1F2340" text-anchor="middle" font-weight="700"><tspan fill="#0D9488" font-family="Times New Roman, Times, serif" font-style="italic" font-weight="700" font-size="15.1">m</tspan>  환경 계수</text>
+<rect x="452.0" y="326.0" width="136.0" height="36.0" rx="18.0" fill="#FFEDD5" stroke="#EA580C" stroke-width="1.5"/>
+<text x="520.0" y="348.9" font-size="13.5" fill="#1F2340" text-anchor="middle" font-weight="700"><tspan fill="#EA580C" font-family="Times New Roman, Times, serif" font-style="italic" font-weight="700" font-size="15.1">τ</tspan>  개인 기준선</text>
+<rect x="452.0" y="372.0" width="136.0" height="36.0" rx="18.0" fill="#FEE2E2" stroke="#DC2626" stroke-width="1.5"/>
+<text x="520.0" y="394.9" font-size="13.5" fill="#1F2340" text-anchor="middle" font-weight="700"><tspan fill="#DC2626" font-family="Times New Roman, Times, serif" font-style="italic" font-weight="700" font-size="15.1">P</tspan>  멀미 가능성</text>
+<text x="520.0" y="436.0" font-size="12.5" fill="#6B6E86" text-anchor="middle" font-weight="400">식은 3절</text>
+<rect x="668.0" y="74.0" width="248.0" height="64.0" rx="10" fill="#FFFFFF" stroke="#334155" stroke-width="1.5"/>
+<text x="682.0" y="99.0" font-size="14" fill="#334155" text-anchor="start" font-weight="700">Vehicle · HVAC</text>
+<text x="682.0" y="121.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">외기 · 22°C</text>
+<rect x="668.0" y="148.0" width="248.0" height="84.0" rx="10" fill="#FFFFFF" stroke="#334155" stroke-width="1.5"/>
+<text x="682.0" y="173.0" font-size="14" fill="#334155" text-anchor="start" font-weight="700">Vehicle · Window</text>
+<text x="682.0" y="195.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">뒷창문 20%</text>
+<rect x="682.0" y="204.0" width="149.3" height="20.0" rx="10.0" fill="#F1F5F9"/>
+<text x="756.6" y="218.1" font-size="11.5" fill="#334155" text-anchor="middle" font-weight="400" font-family="SFMono-Regular, Menlo, Consolas, monospace">CONTROL_CAR_WINDOWS</text>
+<rect x="668.0" y="242.0" width="248.0" height="84.0" rx="10" fill="#FFFFFF" stroke="#334155" stroke-width="1.5"/>
+<text x="682.0" y="267.0" font-size="14" fill="#334155" text-anchor="start" font-weight="700">TextToSpeech</text>
+<text x="682.0" y="289.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">안내 한 줄</text>
+<rect x="682.0" y="298.0" width="58.1" height="20.0" rx="10.0" fill="#F1F5F9"/>
+<text x="711.0" y="312.1" font-size="11.5" fill="#334155" text-anchor="middle" font-weight="400" font-family="SFMono-Regular, Menlo, Consolas, monospace">HYBRID</text>
+<rect x="668.0" y="336.0" width="248.0" height="84.0" rx="10" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="682.0" y="361.0" font-size="14" fill="#334155" text-anchor="start" font-weight="700">SpeechToText</text>
+<text x="682.0" y="383.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">확장 기능 답</text>
+<rect x="682.0" y="392.0" width="37.8" height="20.0" rx="10.0" fill="#F1F5F9"/>
+<text x="700.9" y="406.1" font-size="11.5" fill="#334155" text-anchor="middle" font-weight="400">확장</text>
+<path d="M390.0 270.0 L408.4 270.0" fill="none" stroke="#6B6E86" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M418.0 270.0 L407.2 275.2 L407.2 264.8 Z" fill="#6B6E86"/>
+<path d="M622.0 270.0 L640.4 270.0" fill="none" stroke="#6B6E86" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M650.0 270.0 L639.2 275.2 L639.2 264.8 Z" fill="#6B6E86"/>
+<path d="M792.0 484.0 L792.0 522.0 L208.0 522.0 L208.0 497.6" fill="none" stroke="#065F46" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 6"/>
+<path d="M208.0 488.0 L213.2 498.8 L202.8 498.8 Z" fill="#065F46"/>
+<rect x="338.3" y="507.0" width="323.5" height="30.0" rx="15.0" fill="#ECFDF5" stroke="#065F46" stroke-width="1.5"/>
+<text x="500.0" y="527.0" font-size="14" fill="#065F46" text-anchor="middle" font-weight="700">닫힌 고리 · 바뀐 실내 온도 · 환기가 다시 계산으로</text>
+</svg>

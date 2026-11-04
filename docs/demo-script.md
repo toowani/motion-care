@@ -55,7 +55,7 @@ adb shell am start --user 10 -n ai.motioncare.app/.MainActivity --ez skip_welcom
 | 30–44초 | "멀미 완화" 한 번: "창문 열고 바람 넣었어요" → 음성 "창문 열고 바람 넣을게요. 먼 곳을 보세요." | 자막: 버튼 하나로 창문 · 바람 · 음성 |
 | 44–54초 | 분석 탭: 게이지, 완화 버튼 1 · 공기 바꿈 1 타일, 흔들림 지수 ↔ 멀미 가능성 토글 | 자막: 누른 순간이 내 기준이 됩니다 |
 | 54–64초 | Pleos 화면 나누기 손잡이: 왼쪽 표정 카드 + "멀미 가능성 N%" 알약 + 멀미 완화 버튼, 오른쪽 Pleos 내비 | 자막: 내비 옆에는 표정과 %만 |
-| 64–72초 | 구조도 한 장 (`docs/img/how_it_works.svg`) | 자막: Pleos Vehicle (HVAC · Window · SteeringWheel) · NaviHelper · TTS · STT |
+| 64–72초 | 구조도 한 장 (`docs/img/sdk_map.svg`) | 자막: Pleos Vehicle (HVAC · Window · SteeringWheel) · NaviHelper · TTS · STT |
 
 - 창문: 에뮬레이터에서는 명령은 수락되지만 Virtual Console에서 창문이 움직이지 않음 → 화면의 안내 알약과 로그의 창문 위치 응답(2)으로 보여 줌
 - 화면 나누기: `adb shell input swipe 2545 717 1700 717 1500`, 되돌리기 `adb shell input swipe 1705 717 2545 717 1500`

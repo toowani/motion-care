@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 480" width="960" height="480" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="14">
+<rect x="0.75" y="0.75" width="958.5" height="478.5" rx="16" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1.5"/>
+<rect x="28.0" y="186.0" width="196.0" height="72.0" rx="36" fill="#EA580C"/>
+<g transform="translate(54.0 210.0) scale(1.0)" fill="none" stroke="#FFFFFF" stroke-width="2.00" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5.5"/><path d="M12 14.5V21M9 18l3 3 3-3"/></g>
+<text x="140.0" y="230.0" font-size="22" fill="#FFFFFF" text-anchor="middle" font-weight="700">멀미 완화</text>
+<text x="126.0" y="284.0" font-size="12.5" fill="#6B6E86" text-anchor="middle" font-weight="400">지도 · 분석 · 한 화면 모드</text>
+<text x="126.0" y="302.0" font-size="12.5" fill="#6B6E86" text-anchor="middle" font-weight="400">어디서나</text>
+<line x1="224.0" y1="222.0" x2="246.0" y2="222.0" stroke="#6B6E86" stroke-width="2" stroke-linecap="round"/>
+<line x1="246.0" y1="78.0" x2="246.0" y2="366.0" stroke="#6B6E86" stroke-width="2" stroke-linecap="round"/>
+<path d="M246.0 78.0 L259.6 78.0" fill="none" stroke="#6B6E86" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M266.0 78.0 L258.8 81.5 L258.8 74.5 Z" fill="#6B6E86"/>
+<path d="M246.0 174.0 L259.6 174.0" fill="none" stroke="#6B6E86" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M266.0 174.0 L258.8 177.5 L258.8 170.5 Z" fill="#6B6E86"/>
+<path d="M246.0 270.0 L259.6 270.0" fill="none" stroke="#6B6E86" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M266.0 270.0 L258.8 273.5 L258.8 266.5 Z" fill="#6B6E86"/>
+<path d="M246.0 366.0 L259.6 366.0" fill="none" stroke="#6B6E86" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M266.0 366.0 L258.8 369.5 L258.8 362.5 Z" fill="#6B6E86"/>
+<rect x="268.0" y="36.0" width="368.0" height="84.0" rx="12" fill="#ECFDF5" stroke="#065F46" stroke-width="1.8"/>
+<circle cx="292.0" cy="78.0" r="13" fill="#065F46"/>
+<text x="292.0" y="83.0" font-size="14" fill="#FFFFFF" text-anchor="middle" font-weight="700">1</text>
+<circle cx="338.0" cy="78.0" r="22" fill="#FFFFFF"/>
+<g transform="translate(326.0 66.0) scale(1.0)" fill="none" stroke="#065F46" stroke-width="2.00" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V10l5-5h11v14z"/><path d="M4 13h16"/></g>
+<text x="372.0" y="72.0" font-size="15" fill="#1F2340" text-anchor="start" font-weight="700">뒷창문 조금 (전체의 20%)</text>
+<rect x="372.0" y="84.0" width="103.3" height="24.0" rx="12.0" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+<text x="423.6" y="100.3" font-size="12" fill="#334155" text-anchor="middle" font-weight="400">Vehicle Window</text>
+<rect x="268.0" y="132.0" width="368.0" height="84.0" rx="12" fill="#ECFDF5" stroke="#065F46" stroke-width="1.8"/>
+<circle cx="292.0" cy="174.0" r="13" fill="#065F46"/>
+<text x="292.0" y="179.0" font-size="14" fill="#FFFFFF" text-anchor="middle" font-weight="700">2</text>
+<circle cx="338.0" cy="174.0" r="22" fill="#FFFFFF"/>
+<g transform="translate(326.0 162.0) scale(1.0)" fill="none" stroke="#065F46" stroke-width="2.00" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5h10.5a3 3 0 1 0-3-3"/><path d="M3 12.5h15a3 3 0 1 1-3 3"/><path d="M3 16.5h7"/></g>
+<text x="372.0" y="168.0" font-size="15" fill="#1F2340" text-anchor="start" font-weight="700">바깥 공기 + 22°C</text>
+<rect x="372.0" y="180.0" width="96.1" height="24.0" rx="12.0" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+<text x="420.0" y="196.3" font-size="12" fill="#334155" text-anchor="middle" font-weight="400">Vehicle HVAC</text>
+<rect x="268.0" y="228.0" width="368.0" height="84.0" rx="12" fill="#ECFDF5" stroke="#065F46" stroke-width="1.8"/>
+<circle cx="292.0" cy="270.0" r="13" fill="#065F46"/>
+<text x="292.0" y="275.0" font-size="14" fill="#FFFFFF" text-anchor="middle" font-weight="700">3</text>
+<circle cx="338.0" cy="270.0" r="22" fill="#FFFFFF"/>
+<g transform="translate(326.0 258.0) scale(1.0)" fill="none" stroke="#065F46" stroke-width="2.00" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5M18.5 6.5a7.5 7.5 0 0 1 0 11"/></g>
+<path d="M380 240 h230 a10 10 0 0 1 10 10 v20 a10 10 0 0 1 -10 10 h-206 l-10 8 v-8 h-14 a10 10 0 0 1 -10 -10 v-20 a10 10 0 0 1 10 -10 z" fill="#FFFFFF" stroke="#065F46" stroke-width="1.5"/>
+<text x="495.0" y="257.0" font-size="13" fill="#1F2340" text-anchor="middle" font-weight="700">“창문 열고 바람 넣을게요.</text>
+<text x="495.0" y="273.0" font-size="13" fill="#1F2340" text-anchor="middle" font-weight="700">먼 곳을 보세요.”</text>
+<rect x="518.0" y="284.0" width="102.4" height="24.0" rx="12.0" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+<text x="569.2" y="300.3" font-size="12" fill="#334155" text-anchor="middle" font-weight="400">TextToSpeech</text>
+<rect x="268.0" y="324.0" width="368.0" height="84.0" rx="12" fill="#F5F3FF" stroke="#5B21B6" stroke-width="1.8"/>
+<circle cx="292.0" cy="366.0" r="13" fill="#5B21B6"/>
+<text x="292.0" y="371.0" font-size="14" fill="#FFFFFF" text-anchor="middle" font-weight="700">4</text>
+<circle cx="338.0" cy="366.0" r="22" fill="#FFFFFF"/>
+<g transform="translate(326.0 354.0) scale(1.0)" fill="none" stroke="#5B21B6" stroke-width="2.00" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5.5" rx="7.5" ry="2.8"/><path d="M4.5 5.5v13c0 1.5 3.4 2.8 7.5 2.8s7.5-1.3 7.5-2.8v-13"/><path d="M4.5 12c0 1.5 3.4 2.8 7.5 2.8s7.5-1.3 7.5-2.8"/></g>
+<text x="372.0" y="360.0" font-size="15" fill="#1F2340" text-anchor="start" font-weight="700">누른 순간 <tspan fill="#7C3AED" font-family="Times New Roman, Times, serif" font-style="italic" font-weight="700" font-size="16.8">D</tspan> → 내 기준선 <tspan fill="#EA580C" font-family="Times New Roman, Times, serif" font-style="italic" font-weight="700" font-size="16.8">τ</tspan></text>
+<rect x="372.0" y="372.0" width="91.5" height="24.0" rx="12.0" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+<text x="417.8" y="388.3" font-size="12" fill="#334155" text-anchor="middle" font-weight="400">앱 안 · 수식 ⑤</text>
+<rect x="268.0" y="432.0" width="333.0" height="30.0" rx="15.0" fill="#F1F5F9"/>
+<text x="434.5" y="451.5" font-size="12.5" fill="#334155" text-anchor="middle" font-weight="400" font-family="SFMono-Regular, Menlo, Consolas, monospace">pleos.car.permission.CONTROL_CAR_WINDOWS</text>
+<text x="676.0" y="32.0" font-size="14" fill="#92400E" text-anchor="start" font-weight="700">안 될 때</text>
+<rect x="676.0" y="44.0" width="256.0" height="116.0" rx="12" fill="#FFFBEB" stroke="#CA8A04" stroke-width="1.8" stroke-dasharray="6 4"/>
+<text x="692.0" y="70.0" font-size="14.5" fill="#92400E" text-anchor="start" font-weight="700">창문 불가</text>
+<text x="692.0" y="90.0" font-size="12" fill="#6B6E86" text-anchor="start" font-weight="400">거절 · 뒷창문 없음 · 4초 무응답</text>
+<path d="M698 100 v9 h10 m-5 -5 l5 5 -5 5" fill="none" stroke="#92400E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="720.0" y="114.0" font-size="13.5" fill="#1F2340" text-anchor="start" font-weight="700">화면 + 음성</text>
+<text x="720.0" y="134.0" font-size="13.5" fill="#1F2340" text-anchor="start" font-weight="700">“창문을 조금 열어 주세요”</text>
+<path d="M638.0 78.0 L667.8 84.6" fill="none" stroke="#CA8A04" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="5 4"/>
+<path d="M674.0 86.0 L666.2 87.8 L667.7 81.0 Z" fill="#CA8A04"/>
+<rect x="676.0" y="172.0" width="256.0" height="68.0" rx="12" fill="#FFFBEB" stroke="#CA8A04" stroke-width="1.8" stroke-dasharray="6 4"/>
+<text x="692.0" y="198.0" font-size="14.5" fill="#92400E" text-anchor="start" font-weight="700">공조 꺼짐</text>
+<path d="M698 208 v9 h10 m-5 -5 l5 5 -5 5" fill="none" stroke="#92400E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="720.0" y="222.0" font-size="13.5" fill="#1F2340" text-anchor="start" font-weight="700">공조는 그대로</text>
+<path d="M638.0 174.0 L669.2 201.7" fill="none" stroke="#CA8A04" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="5 4"/>
+<path d="M674.0 206.0 L666.3 203.8 L670.9 198.6 Z" fill="#CA8A04"/>
+<rect x="676.0" y="256.0" width="256.0" height="68.0" rx="12" fill="#FFFBEB" stroke="#CA8A04" stroke-width="1.8" stroke-dasharray="6 4"/>
+<text x="692.0" y="282.0" font-size="14.5" fill="#92400E" text-anchor="start" font-weight="700">20초 안 다시 누름</text>
+<path d="M698 292 v9 h10 m-5 -5 l5 5 -5 5" fill="none" stroke="#92400E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="720.0" y="306.0" font-size="13.5" fill="#1F2340" text-anchor="start" font-weight="700">“바람 넣는 중이에요”만</text>
+<path d="M638.0 270.0 L668.4 286.9" fill="none" stroke="#CA8A04" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="5 4"/>
+<path d="M674.0 290.0 L666.0 289.5 L669.4 283.5 Z" fill="#CA8A04"/>
+</svg>

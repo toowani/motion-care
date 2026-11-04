@@ -1,23 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 330" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="13">
-<rect width="960" height="330" fill="#fff"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 356" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="13">
+<rect x="0.75" y="0.75" width="958.5" height="354.5" rx="16" fill="#fff" stroke="#E3E4EE" stroke-width="1.5"/>
 <text x="480.0" y="26.0" font-size="15" fill="#1F2340" text-anchor="middle" font-weight="700">멀미 지수 계산 · 1초마다</text>
 <rect x="20.0" y="120.0" width="130.0" height="64.0" rx="12" fill="#EEF2FF"/>
 <text x="85.0" y="149.0" font-size="13" fill="#3730A3" text-anchor="middle" font-weight="700">속도 · 진행 방향</text>
 <text x="85.0" y="168.0" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">차 신호</text>
 <rect x="180.0" y="120.0" width="130.0" height="64.0" rx="12" fill="#F5F3FF"/>
 <text x="245.0" y="149.0" font-size="14" fill="#5B21B6" text-anchor="middle" font-weight="700">가속도</text>
-<text x="245.0" y="168.0" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">앞뒤 aₓ · 옆 aᵧ</text>
+<text x="245.0" y="168.0" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">앞뒤 <tspan fill="#DB2777" font-family="Times New Roman, Times, serif" font-style="italic" font-weight="700" font-size="13.2">a</tspan><tspan fill="#DB2777" font-family="Times New Roman, Times, serif" font-style="italic" font-size="9.0" dy="3">x</tspan><tspan dy="-3"> </tspan> · 옆 <tspan fill="#DB2777" font-family="Times New Roman, Times, serif" font-style="italic" font-weight="700" font-size="13.2">a</tspan><tspan fill="#DB2777" font-family="Times New Roman, Times, serif" font-style="italic" font-size="9.0" dy="3">y</tspan><tspan dy="-3"> </tspan></text>
 <rect x="340.0" y="120.0" width="140.0" height="64.0" rx="12" fill="#F5F3FF"/>
 <text x="410.0" y="149.0" font-size="14" fill="#5B21B6" text-anchor="middle" font-weight="700">느린 흔들림만</text>
 <text x="410.0" y="168.0" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">10초 평균 제거</text>
 <rect x="510.0" y="120.0" width="140.0" height="64.0" rx="12" fill="#F5F3FF"/>
-<text x="580.0" y="149.0" font-size="13" fill="#5B21B6" text-anchor="middle" font-weight="700">지수 I · 누적 D</text>
+<text x="580.0" y="149.0" font-size="13" fill="#5B21B6" text-anchor="middle" font-weight="700">지수 <tspan fill="#2563EB" font-family="Times New Roman, Times, serif" font-style="italic" font-weight="700" font-size="14.3">I</tspan> · 누적 <tspan fill="#7C3AED" font-family="Times New Roman, Times, serif" font-style="italic" font-weight="700" font-size="14.3">D</tspan></text>
 <text x="580.0" y="168.0" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">최근 60초 · 주행 전체</text>
 <rect x="680.0" y="120.0" width="100.0" height="64.0" rx="12" fill="#F5F3FF"/>
 <text x="730.0" y="157.0" font-size="14" fill="#5B21B6" text-anchor="middle" font-weight="700">판단</text>
 <rect x="810.0" y="120.0" width="130.0" height="64.0" rx="12" fill="#ECFDF5"/>
 <text x="875.0" y="149.0" font-size="14" fill="#065F46" text-anchor="middle" font-weight="700">흔들림 단계</text>
-<text x="875.0" y="168.0" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">멀미 가능성 P</text>
+<text x="875.0" y="168.0" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">멀미 가능성 <tspan fill="#DC2626" font-family="Times New Roman, Times, serif" font-style="italic" font-weight="700" font-size="13.2">P</tspan></text>
 <polyline points="154.0,152.0 176.0,152.0" fill="none" stroke="#6B6E86" stroke-width="2.5" stroke-linejoin="round"/>
 <path d="M176.0 152.0 L166.1 156.8 L166.1 147.2 Z" fill="#6B6E86"/>
 <polyline points="314.0,152.0 336.0,152.0" fill="none" stroke="#6B6E86" stroke-width="2.5" stroke-linejoin="round"/>
@@ -35,17 +35,22 @@
 <text x="96.0" y="108.0" font-size="11" fill="#3730A3" text-anchor="start" font-weight="400">방향을 1–2초 앞당김</text>
 <rect x="470.0" y="236.0" width="150.0" height="52.0" rx="12" fill="#EEF2FF"/>
 <text x="545.0" y="267.0" font-size="13" fill="#3730A3" text-anchor="middle" font-weight="700">실내 온도 · 내기순환</text>
-<rect x="650.0" y="236.0" width="120.0" height="52.0" rx="12" fill="#F5F3FF"/>
-<text x="710.0" y="259.0" font-size="13" fill="#5B21B6" text-anchor="middle" font-weight="700">환경 계수 m</text>
+<rect x="650.0" y="236.0" width="120.0" height="52.0" rx="12" fill="#CCFBF1"/>
+<text x="710.0" y="259.0" font-size="13" fill="#0F766E" text-anchor="middle" font-weight="700">환경 계수 <tspan fill="#0D9488" font-family="Times New Roman, Times, serif" font-style="italic" font-weight="700" font-size="14.3">m</tspan></text>
 <text x="710.0" y="278.0" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">덥고 탁하면 ↓</text>
-<rect x="800.0" y="236.0" width="140.0" height="52.0" rx="12" fill="#F5F3FF"/>
-<text x="870.0" y="259.0" font-size="13" fill="#5B21B6" text-anchor="middle" font-weight="700">개인 기준선 τ</text>
+<rect x="800.0" y="236.0" width="140.0" height="52.0" rx="12" fill="#FFEDD5"/>
+<text x="870.0" y="259.0" font-size="13" fill="#C2410C" text-anchor="middle" font-weight="700">개인 기준선 <tspan fill="#EA580C" font-family="Times New Roman, Times, serif" font-style="italic" font-weight="700" font-size="14.3">τ</tspan></text>
 <text x="870.0" y="278.0" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">완화 버튼으로 학습</text>
 <polyline points="624.0,262.0 646.0,262.0" fill="none" stroke="#6B6E86" stroke-width="2.5" stroke-linejoin="round"/>
 <path d="M646.0 262.0 L636.1 266.8 L636.1 257.2 Z" fill="#6B6E86"/>
-<polyline points="710.0,234.0 725.0,188.0" fill="none" stroke="#6B6E86" stroke-width="2.5" stroke-linejoin="round"/>
-<path d="M725.0 188.0 L726.5 198.9 L717.4 195.9 Z" fill="#6B6E86"/>
-<polyline points="870.0,234.0 750.0,188.0" fill="none" stroke="#6B6E86" stroke-width="2.5" stroke-linejoin="round"/>
-<path d="M750.0 188.0 L761.0 187.1 L757.5 196.0 Z" fill="#6B6E86"/>
-<text x="480.0" y="318.0" font-size="13" fill="#6B6E86" text-anchor="middle" font-weight="400">지수가 기준선 × m을 넘으면 공기를 바꾸고, 멀미 완화 버튼을 누르면 창문까지 엶</text>
+<polyline points="710.0,234.0 710.0,214.0 718.0,214.0 718.0,188.0" fill="none" stroke="#6B6E86" stroke-width="2.5" stroke-linejoin="round"/>
+<path d="M718.0 188.0 L722.8 197.9 L713.2 197.9 Z" fill="#6B6E86"/>
+<polyline points="870.0,234.0 870.0,214.0 762.0,214.0 762.0,188.0" fill="none" stroke="#6B6E86" stroke-width="2.5" stroke-linejoin="round"/>
+<path d="M762.0 188.0 L766.8 197.9 L757.2 197.9 Z" fill="#6B6E86"/>
+<rect x="150.0" y="300.0" width="300.0" height="38.0" rx="19" fill="#ECFDF5"/>
+<text x="170.0" y="324.0" font-size="14" fill="#065F46" text-anchor="start" font-weight="700">지수 <tspan fill="#2563EB" font-family="Times New Roman, Times, serif" font-style="italic" font-weight="700" font-size="15.4">I</tspan> &gt; 기준선 × <tspan fill="#0D9488" font-family="Times New Roman, Times, serif" font-style="italic" font-weight="700" font-size="15.4">m</tspan></text>
+<text x="430.0" y="324.0" font-size="14" fill="#1F2340" text-anchor="end" font-weight="700">→ 외기 전환 · 22°C</text>
+<rect x="510.0" y="300.0" width="300.0" height="38.0" rx="19" fill="#FFEDD5"/>
+<text x="530.0" y="324.0" font-size="14" fill="#C2410C" text-anchor="start" font-weight="700">멀미 완화 버튼</text>
+<text x="790.0" y="324.0" font-size="14" fill="#1F2340" text-anchor="end" font-weight="700">→ 창문 · 바람 · 음성</text>
 </svg>

@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 552" width="960" height="552" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="14" role="img"><title>실제 도로 시나리오 4종</title>
+
+<rect x="0.75" y="0.75" width="958.5" height="550.5" rx="16" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1.5"/>
+<rect x="28.0" y="28.0" width="444.0" height="200.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<circle cx="68.0" cy="66.0" r="20" fill="#E2E8F0"/>
+<g transform="translate(57.1 55.1) scale(0.909)" fill="none" stroke="#334155" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3L5 21 M16 3l3 18 M12 4v3 M12 10v4 M12 17v3"/></g>
+<text x="100.0" y="72.0" font-size="17" fill="#1F2340" text-anchor="start" font-weight="700">도심</text>
+<rect x="48.0" y="98.0" width="52.4" height="24.0" rx="12.0" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<text x="74.2" y="114.3" font-size="12" fill="#1F2340" text-anchor="middle" font-weight="400">강남역</text>
+<line x1="103.4" y1="110.0" x2="115.4" y2="110.0" stroke="#6B6E86" stroke-width="1.4" stroke-linecap="round"/>
+<path d="M111.0 112.4L115.4 110.0L111.0 107.6" fill="none" stroke="#6B6E86" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="118.4" y="98.0" width="63.2" height="24.0" rx="12.0" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<text x="150.0" y="114.3" font-size="12" fill="#1F2340" text-anchor="middle" font-weight="400">테헤란로</text>
+<line x1="184.6" y1="110.0" x2="196.6" y2="110.0" stroke="#6B6E86" stroke-width="1.4" stroke-linecap="round"/>
+<path d="M192.2 112.4L196.6 110.0L192.2 107.6" fill="none" stroke="#6B6E86" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="199.6" y="98.0" width="52.4" height="24.0" rx="12.0" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<text x="225.8" y="114.3" font-size="12" fill="#1F2340" text-anchor="middle" font-weight="400">언주로</text>
+<line x1="255.0" y1="110.0" x2="267.0" y2="110.0" stroke="#6B6E86" stroke-width="1.4" stroke-linecap="round"/>
+<path d="M262.6 112.4L267.0 110.0L262.6 107.6" fill="none" stroke="#6B6E86" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="270.0" y="98.0" width="63.2" height="24.0" rx="12.0" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<text x="301.6" y="114.3" font-size="12" fill="#1F2340" text-anchor="middle" font-weight="400">봉은사로</text>
+<line x1="336.2" y1="110.0" x2="348.2" y2="110.0" stroke="#6B6E86" stroke-width="1.4" stroke-linecap="round"/>
+<path d="M343.8 112.4L348.2 110.0L343.8 107.6" fill="none" stroke="#6B6E86" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="351.2" y="98.0" width="52.4" height="24.0" rx="12.0" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<text x="377.4" y="114.3" font-size="12" fill="#1F2340" text-anchor="middle" font-weight="400">선릉로</text>
+<text x="48.0" y="174.0" font-size="28" fill="#1F2340" text-anchor="start" font-weight="700">4</text>
+<text x="70.2" y="173.0" font-size="14" fill="#6B6E86" text-anchor="start" font-weight="400">회전</text>
+<text x="117.4" y="174.0" font-size="28" fill="#1F2340" text-anchor="start" font-weight="700">6</text>
+<text x="139.5" y="173.0" font-size="14" fill="#6B6E86" text-anchor="start" font-weight="400">신호 정지</text>
+<rect x="48.0" y="192.0" width="55.2" height="24.0" rx="12.0" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<text x="75.6" y="208.3" font-size="12" fill="#1F2340" text-anchor="middle" font-weight="700">3.7 km</text>
+<rect x="111.2" y="192.0" width="73.6" height="24.0" rx="12.0" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<text x="147.9" y="208.3" font-size="12" fill="#1F2340" text-anchor="middle" font-weight="700">8.2–8.8분</text>
+<rect x="488.0" y="28.0" width="444.0" height="200.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<circle cx="528.0" cy="66.0" r="20" fill="#E2E8F0"/>
+<g transform="translate(517.1 55.1) scale(0.909)" fill="none" stroke="#334155" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3L5 21 M16 3l3 18 M12 4v3 M12 10v4 M12 17v3"/></g>
+<text x="560.0" y="72.0" font-size="17" fill="#1F2340" text-anchor="start" font-weight="700">굽은 길</text>
+<rect x="508.0" y="98.0" width="149.4" height="24.0" rx="12.0" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<text x="582.7" y="114.3" font-size="12" fill="#1F2340" text-anchor="middle" font-weight="400">북악스카이웨이 (북악산로)</text>
+<text x="508.0" y="174.0" font-size="28" fill="#1F2340" text-anchor="start" font-weight="700">52</text>
+<text x="546.3" y="173.0" font-size="14" fill="#6B6E86" text-anchor="start" font-weight="400">반경 100 m 미만 커브</text>
+<rect x="508.0" y="192.0" width="55.2" height="24.0" rx="12.0" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<text x="535.6" y="208.3" font-size="12" fill="#1F2340" text-anchor="middle" font-weight="700">5.2 km</text>
+<rect x="571.2" y="192.0" width="73.6" height="24.0" rx="12.0" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<text x="607.9" y="208.3" font-size="12" fill="#1F2340" text-anchor="middle" font-weight="700">6.2–7.9분</text>
+<rect x="652.7" y="192.0" width="125.2" height="24.0" rx="12.0" fill="#E2E8F0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="715.3" y="208.3" font-size="12" fill="#334155" text-anchor="middle" font-weight="400">출발 26°C · 내기순환</text>
+<rect x="28.0" y="244.0" width="444.0" height="200.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<circle cx="68.0" cy="282.0" r="20" fill="#E2E8F0"/>
+<g transform="translate(57.1 271.1) scale(0.909)" fill="none" stroke="#334155" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3L5 21 M16 3l3 18 M12 4v3 M12 10v4 M12 17v3"/></g>
+<text x="100.0" y="288.0" font-size="17" fill="#1F2340" text-anchor="start" font-weight="700">고속도로</text>
+<rect x="48.0" y="314.0" width="109.8" height="24.0" rx="12.0" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<text x="102.9" y="330.3" font-size="12" fill="#1F2340" text-anchor="middle" font-weight="400">경부고속도로 판교</text>
+<line x1="160.8" y1="326.0" x2="172.8" y2="326.0" stroke="#6B6E86" stroke-width="1.4" stroke-linecap="round"/>
+<path d="M168.4 328.4L172.8 326.0L168.4 323.6" fill="none" stroke="#6B6E86" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="175.8" y="314.0" width="78.1" height="24.0" rx="12.0" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<text x="214.8" y="330.3" font-size="12" fill="#1F2340" text-anchor="middle" font-weight="400">수원신갈IC</text>
+<text x="48.0" y="390.0" font-size="28" fill="#1F2340" text-anchor="start" font-weight="700">17.0</text>
+<text x="111.3" y="389.0" font-size="14" fill="#6B6E86" text-anchor="start" font-weight="400">km</text>
+<rect x="48.0" y="408.0" width="55.9" height="24.0" rx="12.0" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<text x="76.0" y="424.3" font-size="12" fill="#1F2340" text-anchor="middle" font-weight="700">12.8분</text>
+<rect x="488.0" y="244.0" width="444.0" height="200.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<circle cx="528.0" cy="282.0" r="20" fill="#E2E8F0"/>
+<g transform="translate(517.1 271.1) scale(0.909)" fill="none" stroke="#334155" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3L5 21 M16 3l3 18 M12 4v3 M12 10v4 M12 17v3"/></g>
+<text x="560.0" y="288.0" font-size="17" fill="#1F2340" text-anchor="start" font-weight="700">나들이길</text>
+<rect x="508.0" y="314.0" width="41.6" height="24.0" rx="12.0" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<text x="528.8" y="330.3" font-size="12" fill="#1F2340" text-anchor="middle" font-weight="400">동탄</text>
+<line x1="552.6" y1="326.0" x2="564.6" y2="326.0" stroke="#6B6E86" stroke-width="1.4" stroke-linecap="round"/>
+<path d="M560.2 328.4L564.6 326.0L560.2 323.6" fill="none" stroke="#6B6E86" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="567.6" y="314.0" width="123.6" height="24.0" rx="12.0" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<text x="629.4" y="330.3" font-size="12" fill="#1F2340" text-anchor="middle" font-weight="400">경부 · 수도권제1순환</text>
+<line x1="694.2" y1="326.0" x2="706.2" y2="326.0" stroke="#6B6E86" stroke-width="1.4" stroke-linecap="round"/>
+<path d="M701.8 328.4L706.2 326.0L701.8 323.6" fill="none" stroke="#6B6E86" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="709.2" y="314.0" width="74.0" height="24.0" rx="12.0" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<text x="746.2" y="330.3" font-size="12" fill="#1F2340" text-anchor="middle" font-weight="400">남한산성로</text>
+<text x="508.0" y="390.0" font-size="28" fill="#1F2340" text-anchor="start" font-weight="700">34.5</text>
+<text x="571.3" y="389.0" font-size="14" fill="#6B6E86" text-anchor="start" font-weight="400">분 긴 주행</text>
+<rect x="508.0" y="408.0" width="62.1" height="24.0" rx="12.0" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<text x="539.0" y="424.3" font-size="12" fill="#1F2340" text-anchor="middle" font-weight="700">37.4 km</text>
+<rect x="578.1" y="408.0" width="125.2" height="24.0" rx="12.0" fill="#E2E8F0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="640.7" y="424.3" font-size="12" fill="#334155" text-anchor="middle" font-weight="400">출발 25°C · 내기순환</text>
+<rect x="28.0" y="460.0" width="904.0" height="64.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<circle cx="60.0" cy="492.0" r="18" fill="#E2E8F0"/>
+<g transform="translate(50.2 482.2) scale(0.818)" fill="none" stroke="#334155" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18a2 2 0 1 0 4 0a2 2 0 1 0-4 0 M16 6a2 2 0 1 0 4 0a2 2 0 1 0-4 0 M6 16v-5a3 3 0 0 1 3-3h7"/></g>
+<line x1="86.0" y1="492.0" x2="106.0" y2="492.0" stroke="#6B6E86" stroke-width="1.6" stroke-linecap="round"/>
+<path d="M100.7 494.9L106.0 492.0L100.7 489.1" fill="none" stroke="#6B6E86" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="114.0" y="479.0" width="141.1" height="26.0" rx="13.0" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<text x="184.5" y="496.7" font-size="13" fill="#1F2340" text-anchor="middle" font-weight="700">1초 간격 가상 센서 값</text>
+<line x1="267.1" y1="492.0" x2="287.1" y2="492.0" stroke="#6B6E86" stroke-width="1.6" stroke-linecap="round"/>
+<path d="M281.8 494.9L287.1 492.0L281.8 489.1" fill="none" stroke="#6B6E86" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="297.1" y="479.0" width="43.4" height="26.0" rx="13.0" fill="#E2E8F0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="318.8" y="496.7" font-size="13" fill="#334155" text-anchor="middle" font-weight="400">속도</text>
+<rect x="348.5" y="479.0" width="70.4" height="26.0" rx="13.0" fill="#E2E8F0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="383.7" y="496.7" font-size="13" fill="#334155" text-anchor="middle" font-weight="400">진행 방향</text>
+<rect x="426.9" y="479.0" width="43.4" height="26.0" rx="13.0" fill="#E2E8F0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="448.6" y="496.7" font-size="13" fill="#334155" text-anchor="middle" font-weight="400">핸들</text>
+<rect x="478.3" y="479.0" width="70.4" height="26.0" rx="13.0" fill="#E2E8F0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="513.5" y="496.7" font-size="13" fill="#334155" text-anchor="middle" font-weight="400">실내 온도</text>
+<rect x="560.8" y="480.0" width="55.8" height="24.0" rx="12.0" fill="#FFFFFF" stroke="#334155" stroke-width="1" stroke-dasharray="3 2"/>
+<text x="588.6" y="496.3" font-size="12" fill="#334155" text-anchor="middle" font-weight="400">차 신호</text>
+</svg>

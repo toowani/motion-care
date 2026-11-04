@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 262" width="960" height="262" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="14" role="img"><title>남은 일</title>
+
+<rect x="0.75" y="0.75" width="958.5" height="260.5" rx="16" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1.5"/>
+<rect x="28.0" y="28.0" width="904.0" height="38.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<rect x="46.0" y="38.0" width="18.0" height="18.0" rx="4" fill="#FFFFFF" stroke="#6B6E86" stroke-width="1.6"/>
+<text x="78.0" y="52.0" font-size="14" fill="#1F2340" text-anchor="start" font-weight="400">실제 동승 데이터 5–10회</text>
+<rect x="860.0" y="36.0" width="54.0" height="22.0" rx="11.0" fill="#E2E8F0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="887.0" y="51.3" font-size="12" fill="#334155" text-anchor="middle" font-weight="700">데이터</text>
+<rect x="28.0" y="72.0" width="904.0" height="38.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<rect x="46.0" y="82.0" width="18.0" height="18.0" rx="4" fill="#FFFFFF" stroke="#6B6E86" stroke-width="1.6"/>
+<text x="78.0" y="96.0" font-size="14" fill="#1F2340" text-anchor="start" font-weight="400">창문이 실제로 열리는지 확인 (창문 연결이 되는 환경)</text>
+<rect x="871.3" y="80.0" width="42.7" height="22.0" rx="11.0" fill="#E2E8F0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="892.7" y="95.3" font-size="12" fill="#334155" text-anchor="middle" font-weight="700">확인</text>
+<rect x="28.0" y="116.0" width="904.0" height="38.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<rect x="46.0" y="126.0" width="18.0" height="18.0" rx="4" fill="#FFFFFF" stroke="#6B6E86" stroke-width="1.6"/>
+<text x="78.0" y="140.0" font-size="14" fill="#1F2340" text-anchor="start" font-weight="400">시연 영상 v3 촬영 · README에 링크</text>
+<rect x="871.3" y="124.0" width="42.7" height="22.0" rx="11.0" fill="#E2E8F0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="892.7" y="139.3" font-size="12" fill="#334155" text-anchor="middle" font-weight="700">영상</text>
+<rect x="28.0" y="160.0" width="904.0" height="38.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<rect x="46.0" y="170.0" width="18.0" height="18.0" rx="4" fill="#FFFFFF" stroke="#6B6E86" stroke-width="1.6"/>
+<text x="78.0" y="184.0" font-size="14" fill="#1F2340" text-anchor="start" font-weight="400">release APK 다시 빌드 · GitHub Releases에 첨부</text>
+<rect x="871.3" y="168.0" width="42.7" height="22.0" rx="11.0" fill="#E2E8F0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="892.7" y="183.3" font-size="12" fill="#334155" text-anchor="middle" font-weight="700">빌드</text>
+<rect x="28.0" y="204.0" width="904.0" height="38.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<rect x="46.0" y="214.0" width="18.0" height="18.0" rx="4" fill="#FFFFFF" stroke="#6B6E86" stroke-width="1.6"/>
+<text x="78.0" y="228.0" font-size="14" fill="#1F2340" text-anchor="start" font-weight="400">기획서를 접수 양식으로 옮기기</text>
+<rect x="871.3" y="212.0" width="42.7" height="22.0" rx="11.0" fill="#E2E8F0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="892.7" y="227.3" font-size="12" fill="#334155" text-anchor="middle" font-weight="700">문서</text>
+</svg>

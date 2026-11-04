@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 120" width="960" height="120" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="14">
+<rect x="0.75" y="0.75" width="958.5" height="118.5" rx="14" fill="#FFFFFF" stroke="#6D28D9" stroke-width="1.5"/>
+<path d="M16 0.75H216V119.25H16A13.25 13.25 0 0 1 0.75 106V14A13.25 13.25 0 0 1 16 0.75Z" fill="#EDE9FE"/>
+<line x1="216" y1="1" x2="216" y2="119" stroke="#6D28D9" stroke-opacity=".35"/>
+<circle cx="40" cy="44.0" r="22.0" fill="#6D28D9"/>
+<g transform="translate(28.00,32.00) scale(1.0000)" fill="none" stroke="#FFFFFF" stroke-width="2.00" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20.5h16"/><path d="M7 20.5v-4M12 20.5v-6.5M17 20.5v-9"/><path d="M4.5 11l5-4 3 2.2L19 4"/><path d="M15.5 4H19v3.5"/></g>
+<text x="72.0" y="51.0" font-size="20" fill="#6D28D9" text-anchor="start" font-weight="700">사업성</text>
+<text x="20.0" y="84.0" font-size="12.5" fill="#6B6E86" text-anchor="start" font-weight="400">타깃 · 예상 MAU</text>
+<text x="20.0" y="102.0" font-size="12.5" fill="#6B6E86" text-anchor="start" font-weight="400">Retention · 확대 계획</text>
+<text x="238.0" y="46.0" font-size="17" fill="#1F2340" text-anchor="start" font-weight="700">아이가 있는 가족 운전자 · 출시 1년 MAU 약 1,800명</text>
+<rect x="238.0" y="64.0" width="222.3" height="28.0" rx="14" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<circle cx="250" cy="78.0" r="3" fill="#6D28D9"/>
+<text x="258.0" y="83.0" font-size="13.5" fill="#1F2340" text-anchor="start" font-weight="400">Retention: 누를수록 내 기준 정확</text>
+<rect x="468.3" y="64.0" width="165.8" height="28.0" rx="14" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<circle cx="480.265" cy="78.0" r="3" fill="#6D28D9"/>
+<text x="488.3" y="83.0" font-size="13.5" fill="#1F2340" text-anchor="start" font-weight="400">무료 + IP 테마 · 음성 팩</text>
+<rect x="642.1" y="64.0" width="158.5" height="28.0" rx="14" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<circle cx="654.1" cy="78.0" r="3" fill="#6D28D9"/>
+<text x="662.1" y="83.0" font-size="13.5" fill="#1F2340" text-anchor="start" font-weight="400">택시 24만 · 통학 4만 대</text>
+<line x1="810" y1="18" x2="810" y2="102" stroke="#E3E4EE"/>
+<rect x="822.0" y="46.0" width="36.3" height="28.0" rx="14" fill="#6D28D9"/>
+<text x="840.2" y="65.0" font-size="14" fill="#FFFFFF" text-anchor="middle" font-weight="700">§6</text>
+<rect x="864.3" y="46.0" width="36.3" height="28.0" rx="14" fill="#6D28D9"/>
+<text x="882.5" y="65.0" font-size="14" fill="#FFFFFF" text-anchor="middle" font-weight="700">§7</text>
+</svg>

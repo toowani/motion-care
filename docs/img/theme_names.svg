@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 168" width="960" height="168" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="14" role="img"><title>아이콘 테마 4종</title>
+
+<rect x="0.75" y="0.75" width="958.5" height="166.5" rx="16" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1.5"/>
+<rect x="28.0" y="24.0" width="217.0" height="66.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<text x="46.0" y="52.0" font-size="15" fill="#1F2340" text-anchor="start" font-weight="700">깔끔한 기본</text>
+<text x="46.0" y="74.0" font-size="13" fill="#6B6E86" text-anchor="start" font-weight="400">신호등형 표정</text>
+<rect x="257.0" y="24.0" width="217.0" height="66.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<text x="275.0" y="52.0" font-size="15" fill="#1F2340" text-anchor="start" font-weight="700">말랑 3D 친구</text>
+<text x="275.0" y="74.0" font-size="13" fill="#6B6E86" text-anchor="start" font-weight="400">몽글이</text>
+<rect x="486.0" y="24.0" width="217.0" height="66.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<text x="504.0" y="52.0" font-size="15" fill="#1F2340" text-anchor="start" font-weight="700">애니메이션 친구</text>
+<text x="504.0" y="74.0" font-size="13" fill="#6B6E86" text-anchor="start" font-weight="400">부릉이</text>
+<rect x="715.0" y="24.0" width="217.0" height="66.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<text x="733.0" y="52.0" font-size="15" fill="#1F2340" text-anchor="start" font-weight="700">가상 아이돌 콜라보</text>
+<text x="733.0" y="74.0" font-size="13" fill="#6B6E86" text-anchor="start" font-weight="400">루미</text>
+<rect x="813.1" y="60.0" width="106.9" height="22.0" rx="11.0" fill="#FFFFFF" stroke="#6B6E86" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="866.5" y="75.1" font-size="11.5" fill="#6B6E86" text-anchor="middle" font-weight="400">예시 · IP 계약 없음</text>
+<rect x="28.0" y="104.0" width="237.4" height="36.0" rx="18" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<g transform="translate(39.0 113.0) scale(0.750)" fill="none" stroke="#7C3AED" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a3 3 0 1 0 6 0a3 3 0 1 0-6 0 M12 2v3 M12 19v3 M2 12h3 M19 12h3 M4.9 4.9L7 7 M17 17l2.1 2.1 M4.9 19.1L7 17 M17 7l2.1-2.1"/></g>
+<text x="64.0" y="127.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">첫 실행 때 고름 · 주행 중 변경 잠금</text>
+<rect x="275.4" y="104.0" width="149.0" height="36.0" rx="18" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<g transform="translate(286.4 113.0) scale(0.750)" fill="none" stroke="#7C3AED" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.5 0 2-1 2-2s-1-1.5-1-2.5 1-1.5 2-1.5h2a4 4 0 0 0 4-4c0-4.5-4-8-9-8z M7.5 11h.01 M10 7h.01 M15 7h.01"/></g>
+<text x="311.4" y="127.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">그림 · 말투만 다름</text>
+<rect x="434.4" y="104.0" width="149.0" height="36.0" rx="18" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<g transform="translate(445.4 113.0) scale(0.750)" fill="none" stroke="#7C3AED" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12a7 7 0 1 0 14 0a7 7 0 1 0-14 0 M12 2v3"/></g>
+<text x="470.4" y="127.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">계산 · 안내는 같음</text>
+</svg>

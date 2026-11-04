@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 240" width="960" height="240" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="14">
+<rect x="0.75" y="0.75" width="958.5" height="238.5" rx="16" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1.5"/>
+<rect x="28.0" y="70.0" width="150.0" height="68.0" rx="12" fill="#FEE2E2" stroke="#DC2626" stroke-width="1.5"/>
+<text x="103.0" y="98.7" font-size="14.5" fill="#DC2626" text-anchor="middle" font-weight="700">흔들림 많음이</text>
+<text x="103.0" y="118.7" font-size="12.5" fill="#DC2626" text-anchor="middle" font-weight="400">길게 이어짐</text>
+<path d="M180.0 104.0 L196.0 104.0" fill="none" stroke="#6B6E86" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M204.0 104.0 L195.0 108.3 L195.0 99.7 Z" fill="#6B6E86"/>
+<rect x="206.0" y="70.0" width="196.0" height="68.0" rx="12" fill="#F5F3FF" stroke="#5B21B6" stroke-width="1.5"/>
+<text x="304.0" y="98.7" font-size="14.5" fill="#5B21B6" text-anchor="middle" font-weight="700">엔진: 제안 시점</text>
+<text x="304.0" y="118.7" font-size="12.5" fill="#6B6E86" text-anchor="middle" font-weight="400">굽은 길 거칠게 3분 45초</text>
+<path d="M404.0 104.0 L420.0 104.0" fill="none" stroke="#6B6E86" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M428.0 104.0 L419.0 108.3 L419.0 99.7 Z" fill="#6B6E86"/>
+<rect x="430.0" y="24.0" width="200.0" height="160.0" rx="14" fill="#FFFFFF" stroke="#94A3B8" stroke-width="2" stroke-dasharray="7 5"/>
+<text x="530.0" y="50.0" font-size="15" fill="#334155" text-anchor="middle" font-weight="700">확장: LLM</text>
+<rect x="450.0" y="64.0" width="160.0" height="30.0" rx="15.0" fill="#E2E8F0"/>
+<text x="530.0" y="83.7" font-size="13" fill="#1F2340" text-anchor="middle" font-weight="700">남은 경로</text>
+<rect x="450.0" y="102.0" width="160.0" height="30.0" rx="15.0" fill="#FEE2E2" stroke="#DC2626" stroke-width="1.5"/>
+<text x="530.0" y="121.7" font-size="13" fill="#1F2340" text-anchor="middle" font-weight="700">멀미 가능성 <tspan fill="#DC2626" font-family="Times New Roman, Times, serif" font-style="italic" font-weight="700" font-size="14.6">P</tspan></text>
+<rect x="450.0" y="140.0" width="160.0" height="30.0" rx="15.0" fill="#E2E8F0"/>
+<text x="530.0" y="159.7" font-size="13" fill="#1F2340" text-anchor="middle" font-weight="700">동승자</text>
+<path d="M632.0 104.0 L648.0 104.0" fill="none" stroke="#6B6E86" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M656.0 104.0 L647.0 108.3 L647.0 99.7 Z" fill="#6B6E86"/>
+<rect x="658.0" y="70.0" width="128.0" height="68.0" rx="12" fill="#ECFDF5" stroke="#065F46" stroke-width="1.5"/>
+<text x="722.0" y="98.7" font-size="14.5" fill="#065F46" text-anchor="middle" font-weight="700">들를 곳</text>
+<text x="722.0" y="118.7" font-size="12.5" fill="#6B6E86" text-anchor="middle" font-weight="400">한 줄 추천</text>
+<path d="M788.0 104.0 L804.0 104.0" fill="none" stroke="#6B6E86" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M812.0 104.0 L803.0 108.3 L803.0 99.7 Z" fill="#6B6E86"/>
+<rect x="814.0" y="70.0" width="118.0" height="68.0" rx="12" fill="#F1F5F9" stroke="#334155" stroke-width="1.5"/>
+<text x="873.0" y="98.7" font-size="14.5" fill="#334155" text-anchor="middle" font-weight="700">NaviHelper</text>
+<text x="873.0" y="118.7" font-size="12.5" fill="#6B6E86" text-anchor="middle" font-weight="400">경유지</text>
+<g transform="translate(33.0 205.0) scale(0.75)" fill="none" stroke="#6B6E86" stroke-width="2.67" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></g>
+<text x="60.0" y="218.0" font-size="13" fill="#6B6E86" text-anchor="start" font-weight="400">질문 코드는 보관 · POI 검색 API 필요</text>
+</svg>

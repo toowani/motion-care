@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 151 44" width="151" height="44" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="14">
+<rect x="0.75" y="0.75" width="149.5" height="42.5" rx="22" fill="#FFFFFF" stroke="#1E40AF" stroke-width="1.5"/>
+<circle cx="22" cy="22" r="18.0" fill="#1E40AF"/>
+<g transform="translate(12.00,12.00) scale(0.8333)" fill="none" stroke="#FFFFFF" stroke-width="2.40" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l1.8-4.6A2 2 0 0 1 8.7 6.6h6.6a2 2 0 0 1 1.9 1.3L19 12.5"/><rect x="3" y="12.5" width="18" height="5" rx="1.6"/><circle cx="7.5" cy="17.5" r="1.8"/><circle cx="16.5" cy="17.5" r="1.8"/></g>
+<text x="48.0" y="28.5" font-size="17" fill="#1E40AF" text-anchor="start" font-weight="700">차량특화성</text>
+</svg>

@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>f_accel</title><script src="common.js"></script></head>
+<body>
+<script>
+window.F = {
+  title: '① 가속도 <span class="v" style="color:#DB2777">a<sub style="font-size:15px">x</sub></span>, <span class="v" style="color:#DB2777">a<sub style="font-size:15px">y</sub></span>',
+  section: '3 · 전체 수식',
+  size: 38,
+  tex: String.raw`\cA{a_x} = \frac{\Delta \cS{v}}{\cS{\Delta t}}, \qquad \cA{a_y} = \cS{v}\,\cW{\omega}`,
+  legend: [
+    { v: 'A', tex: String.raw`\cA{a_x}`, text: '앞뒤 가속도', sub: '속도 변화 ÷ 1초' },
+    { v: 'A', tex: String.raw`\cA{a_y}`, text: '옆 가속도', sub: '속도 × 회전 속도' },
+    { v: 'S', tex: String.raw`\cS{v}`, text: '속도', sig: true },
+    { v: 'S', tex: String.raw`\cS{\Delta t}`, text: '1초', sub: '차 신호 주기', sig: true },
+    { v: 'W', tex: String.raw`\cW{\omega}`, text: '회전 속도 (진행 방향 변화율)', sub: '②에서 핸들 각도로 앞당김' },
+  ],
+};
+</script>
+</body></html>

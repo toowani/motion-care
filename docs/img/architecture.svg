@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="13">
-<rect width="960" height="400" fill="#fff"/>
+<rect x="0.75" y="0.75" width="958.5" height="398.5" rx="16" fill="#fff" stroke="#E3E4EE" stroke-width="1.5"/>
 <text x="480.0" y="26.0" font-size="15" fill="#1F2340" text-anchor="middle" font-weight="700">앱 구조 · 계산은 뒤에서 계속, 화면은 볼 때만</text>
 <rect x="20.0" y="50.0" width="230.0" height="320.0" rx="16" fill="#F8FAFC" stroke="#E3E4EE"/>
 <text x="135.0" y="78.0" font-size="15" fill="#1F2340" text-anchor="middle" font-weight="700">Pleos 차량</text>

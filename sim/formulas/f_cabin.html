@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>f_cabin</title><script src="common.js"></script></head>
+<body>
+<script>
+window.F = {
+  title: '환경 계수 <span class="v" style="color:#0D9488">m</span>',
+  section: '3 · 멀미 지수 계산',
+  size: 29,
+  tex: String.raw`\cM{m} = 1 - \cK{\gamma_T} \max(0,\ \cS{T} - \cK{22}) - \cK{\gamma_V} \min\left(1,\ \frac{\cS{t_{\mathrm{recirc}}}}{\cK{3600}}\right)`,
+  legend: [
+    { v: 'M', tex: String.raw`\cM{m}`, text: '환경 계수', sub: '1 = 쾌적 · 최솟값 0.6' },
+    { v: 'S', tex: String.raw`\cS{T}`, text: '실내 온도', sub: '22°C를 넘는 만큼', sig: true },
+    { v: 'S', tex: String.raw`\cS{t_{\mathrm{recirc}}}`, text: '내기순환 시간', sub: '초 · 1시간(3600초)에서 포화', sig: true },
+    { v: 'K', tex: String.raw`\cK{\gamma_T}`, text: '온도 계수', k: '상수 0.04' },
+    { v: 'K', tex: String.raw`\cK{\gamma_V}`, text: '내기순환 계수', k: '상수 0.15' },
+    { v: 'K', tex: String.raw`\cK{22}`, text: '기준 온도', k: '22°C' },
+  ],
+  foot: icon('thermo', '#334155', '#E2E8F0') + `<div class="t" style="font-weight:600">더움</div>
+    <div style="color:#6B6E86;font-size:20px">+</div>` + icon('recirc', '#334155', '#E2E8F0') + `<div class="t" style="font-weight:600">긴 내기순환</div>
+    <svg width="54" height="20" viewBox="0 0 54 20"><path d="M2 10h44" stroke="#6B6E86" stroke-width="2" stroke-linecap="round"/><path d="M40 4l7 6-7 6" fill="none" stroke="#6B6E86" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>` +
+    icon('down', '#0D9488', '#CCFBF1') + `<div class="t" style="font-weight:700;color:#0D9488;font-size:18px"><span class="v" style="font-size:22px">m</span> 감소</div>
+    <svg width="54" height="20" viewBox="0 0 54 20"><path d="M2 10h44" stroke="#6B6E86" stroke-width="2" stroke-linecap="round"/><path d="M40 4l7 6-7 6" fill="none" stroke="#6B6E86" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>` +
+    icon('alert', '#DC2626', '#FEE2E2') + `<div class="t" style="font-weight:700;color:#DC2626">같은 흔들림에도 더 일찍 위험</div>`,
+};
+</script>
+</body></html>

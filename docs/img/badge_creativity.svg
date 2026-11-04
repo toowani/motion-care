@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 119 44" width="119" height="44" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="14">
+<rect x="0.75" y="0.75" width="117.5" height="42.5" rx="22" fill="#FFFFFF" stroke="#C2410C" stroke-width="1.5"/>
+<circle cx="22" cy="22" r="18.0" fill="#C2410C"/>
+<g transform="translate(12.00,12.00) scale(0.8333)" fill="none" stroke="#FFFFFF" stroke-width="2.40" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.1V16h5v-.1c0-.8.4-1.6 1.1-2.1A6 6 0 0 0 12 3z"/><path d="M9.5 19h5"/><path d="M10.5 21.5h3"/></g>
+<text x="48.0" y="28.5" font-size="17" fill="#C2410C" text-anchor="start" font-weight="700">창의성</text>
+</svg>

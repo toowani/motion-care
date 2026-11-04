@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 290" width="960" height="290" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="14" role="img"><title>승차감 정량 지표 쓰임</title>
+
+<rect x="0.75" y="0.75" width="958.5" height="288.5" rx="16" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1.5"/>
+<rect x="28.0" y="28.0" width="904.0" height="56.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<circle cx="64.0" cy="56.0" r="18" fill="#DBEAFE"/>
+<text x="64.0" y="64.0" font-size="22" fill="#2563EB" text-anchor="middle" font-weight="700" font-style="italic" font-family="Times New Roman, STIX Two Text, Georgia, serif">I</text>
+<circle cx="110.0" cy="56.0" r="18" fill="#EDE9FE"/>
+<text x="110.0" y="64.0" font-size="22" fill="#7C3AED" text-anchor="middle" font-weight="700" font-style="italic" font-family="Times New Roman, STIX Two Text, Georgia, serif">D</text>
+<text x="140.0" y="61.0" font-size="16" fill="#1F2340" text-anchor="start" font-weight="700">= 차 신호만으로 누구나 같은 값을 내는 승차감 숫자</text>
+<rect x="28.0" y="100.0" width="290.7" height="162.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<circle cx="70.0" cy="140.0" r="22" fill="#DBEAFE"/>
+<g transform="translate(58.0 128.0) scale(1.000)" fill="none" stroke="#2563EB" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10l1.5-4h7L12 10v3H2z M12 18l1.5-4h7L22 18v3H12z M4 13v1.5 M10 13v1.5 M14 21v1 M20 21v1"/></g>
+<text x="50.0" y="192.0" font-size="16" fill="#1F2340" text-anchor="start" font-weight="700">차종 비교</text>
+<text x="50.0" y="216.0" font-size="13" fill="#6B6E86" text-anchor="start" font-weight="400">같은 길에서 차종 · 서스펜션별 지수</text>
+<rect x="334.7" y="100.0" width="290.7" height="162.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<circle cx="376.7" cy="140.0" r="22" fill="#DBEAFE"/>
+<g transform="translate(364.7 128.0) scale(1.000)" fill="none" stroke="#2563EB" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></g>
+<text x="356.7" y="192.0" font-size="16" fill="#1F2340" text-anchor="start" font-weight="700">택시 · 기사 평가</text>
+<text x="356.7" y="216.0" font-size="13" fill="#6B6E86" text-anchor="start" font-weight="400">주행마다 부드러움 점수</text>
+<rect x="641.3" y="100.0" width="290.7" height="162.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<circle cx="683.3" cy="140.0" r="22" fill="#DBEAFE"/>
+<g transform="translate(671.3 128.0) scale(1.000)" fill="none" stroke="#2563EB" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 1 0 12 0a6 6 0 1 0-12 0 M8.5 14L7 21l5-3 5 3-1.5-7"/></g>
+<text x="663.3" y="192.0" font-size="16" fill="#1F2340" text-anchor="start" font-weight="700">업계 표준</text>
+<text x="663.3" y="216.0" font-size="13" fill="#6B6E86" text-anchor="start" font-weight="400">ISO 2631-1 형태 → 차량 데이터 표준 지표로</text>
+<text x="663.3" y="235.0" font-size="13" fill="#6B6E86" text-anchor="start" font-weight="400">제안</text>
+</svg>

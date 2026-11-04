@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 506" width="960" height="506" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="14" role="img"><title>두 가지 값: 흔들림 지수 I와 멀미 가능성 P</title>
+<defs><linearGradient id="scale" x1="0" x2="1"><stop offset="0" stop-color="#16A34A"/><stop offset="0.5" stop-color="#CA8A04"/><stop offset="1" stop-color="#DC2626"/></linearGradient></defs>
+<rect x="0.75" y="0.75" width="958.5" height="504.5" rx="16" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1.5"/>
+<text x="28.0" y="46.0" font-size="20" fill="#1F2340" text-anchor="start" font-weight="700">두 가지 값</text>
+<rect x="28.0" y="64.0" width="442.0" height="334.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<rect x="48.0" y="84.0" width="142.3" height="36.0" rx="18.0" fill="#DBEAFE"/>
+<text x="70.0" y="110.0" font-size="24" fill="#2563EB" text-anchor="middle" font-weight="700" font-style="italic" font-family="Times New Roman, STIX Two Text, Georgia, serif">I</text>
+<text x="92.0" y="108.0" font-size="16" fill="#1F2340" text-anchor="start" font-weight="700">흔들림 지수</text>
+<text x="50.0" y="152.0" font-size="14" fill="#1F2340" text-anchor="start" font-weight="400">지금 얼마나 흔들리나 (최근 60초)</text>
+<clipPath id="cb50172"><rect x="50" y="172" width="398" height="32" rx="16.0"/></clipPath>
+<g clip-path="url(#cb50172)">
+<rect x="50.0" y="172.0" width="179.1" height="32.0" rx="0" fill="#16A34A"/>
+<text x="139.6" y="193.0" font-size="13" fill="#FFFFFF" text-anchor="middle" font-weight="700">잔잔</text>
+<rect x="229.1" y="172.0" width="119.4" height="32.0" rx="0" fill="#CA8A04"/>
+<text x="288.8" y="193.0" font-size="13" fill="#FFFFFF" text-anchor="middle" font-weight="700">흔들림</text>
+<rect x="348.5" y="172.0" width="99.5" height="32.0" rx="0" fill="#DC2626"/>
+<text x="398.2" y="193.0" font-size="13" fill="#FFFFFF" text-anchor="middle" font-weight="700">흔들림 많음</text>
+</g>
+<line x1="229.1" y1="172.0" x2="229.1" y2="204.0" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+<line x1="348.5" y1="172.0" x2="348.5" y2="204.0" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+<line x1="229.1" y1="206.0" x2="229.1" y2="214.0" stroke="#6B6E86" stroke-width="1.2" stroke-linecap="round"/>
+<text x="229.1" y="230.0" font-size="13" fill="#6B6E86" font-weight="400" text-anchor="middle"><tspan>0.9·</tspan><tspan fill="#0D9488" font-family="Times New Roman, STIX Two Text, Georgia, serif" font-style="italic" font-weight="700" font-size="15">m</tspan></text>
+<line x1="348.5" y1="206.0" x2="348.5" y2="214.0" stroke="#6B6E86" stroke-width="1.2" stroke-linecap="round"/>
+<text x="348.5" y="230.0" font-size="13" fill="#6B6E86" font-weight="400" text-anchor="middle"><tspan>1.5·</tspan><tspan fill="#0D9488" font-family="Times New Roman, STIX Two Text, Georgia, serif" font-style="italic" font-weight="700" font-size="15">m</tspan></text>
+<text x="50.0" y="264.0" font-size="12" fill="#6B6E86" text-anchor="start" font-weight="700">쓰는 곳</text>
+<rect x="50.0" y="278.0" width="398.0" height="32.0" rx="16" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<circle cx="68.0" cy="294.0" r="13" fill="#DBEAFE"/>
+<g transform="translate(60.9 286.9) scale(0.591)" fill="none" stroke="#2563EB" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0-18 0 M9 9.5v1 M15 9.5v1 M8.5 14.5c2 2 5 2 7 0"/></g>
+<text x="90.0" y="299.0" font-size="14" fill="#1F2340" text-anchor="start" font-weight="400">한 화면 모드 지금 흔들림</text>
+<rect x="50.0" y="316.0" width="398.0" height="32.0" rx="16" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<circle cx="68.0" cy="332.0" r="13" fill="#DBEAFE"/>
+<g transform="translate(60.9 324.9) scale(0.591)" fill="none" stroke="#2563EB" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16 M7 15l4-5 3 3 5-6"/></g>
+<text x="90.0" y="337.0" font-size="14" fill="#1F2340" text-anchor="start" font-weight="400">분석 탭 그래프</text>
+<rect x="490.0" y="64.0" width="442.0" height="334.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<rect x="510.0" y="84.0" width="142.3" height="36.0" rx="18.0" fill="#FEE2E2"/>
+<text x="532.0" y="110.0" font-size="24" fill="#DC2626" text-anchor="middle" font-weight="700" font-style="italic" font-family="Times New Roman, STIX Two Text, Georgia, serif">P</text>
+<text x="554.0" y="108.0" font-size="16" fill="#1F2340" text-anchor="start" font-weight="700">멀미 가능성</text>
+<text x="512.0" y="152.0" font-size="14" fill="#1F2340" font-weight="400" text-anchor="start"><tspan>누적 </tspan><tspan fill="#7C3AED" font-family="Times New Roman, STIX Two Text, Georgia, serif" font-style="italic" font-weight="700" font-size="17">D</tspan><tspan>가 기준선 </tspan><tspan fill="#EA580C" font-family="Times New Roman, STIX Two Text, Georgia, serif" font-style="italic" font-weight="700" font-size="17">τ</tspan><tspan>·</tspan><tspan fill="#0D9488" font-family="Times New Roman, STIX Two Text, Georgia, serif" font-style="italic" font-weight="700" font-size="17">m</tspan><tspan>을 넘을수록 커짐</tspan></text>
+<clipPath id="cb512172"><rect x="512" y="172" width="398" height="32" rx="16.0"/></clipPath>
+<g clip-path="url(#cb512172)">
+<rect x="512.0" y="172.0" width="99.5" height="32.0" rx="0" fill="#16A34A"/>
+<text x="561.8" y="193.0" font-size="13" fill="#FFFFFF" text-anchor="middle" font-weight="700">낮음</text>
+<rect x="611.5" y="172.0" width="99.5" height="32.0" rx="0" fill="#CA8A04"/>
+<text x="661.2" y="193.0" font-size="13" fill="#FFFFFF" text-anchor="middle" font-weight="700">보통</text>
+<rect x="711.0" y="172.0" width="199.0" height="32.0" rx="0" fill="#DC2626"/>
+<text x="810.5" y="193.0" font-size="13" fill="#FFFFFF" text-anchor="middle" font-weight="700">높음</text>
+</g>
+<line x1="611.5" y1="172.0" x2="611.5" y2="204.0" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+<line x1="711.0" y1="172.0" x2="711.0" y2="204.0" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+<line x1="611.5" y1="206.0" x2="611.5" y2="214.0" stroke="#6B6E86" stroke-width="1.2" stroke-linecap="round"/>
+<text x="611.5" y="230.0" font-size="13" fill="#6B6E86" text-anchor="middle" font-weight="400">25%</text>
+<line x1="711.0" y1="206.0" x2="711.0" y2="214.0" stroke="#6B6E86" stroke-width="1.2" stroke-linecap="round"/>
+<text x="711.0" y="230.0" font-size="13" fill="#6B6E86" text-anchor="middle" font-weight="400">50%</text>
+<text x="512.0" y="264.0" font-size="12" fill="#6B6E86" text-anchor="start" font-weight="700">쓰는 곳</text>
+<rect x="512.0" y="278.0" width="398.0" height="32.0" rx="16" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<circle cx="530.0" cy="294.0" r="13" fill="#FEE2E2"/>
+<g transform="translate(522.9 286.9) scale(0.591)" fill="none" stroke="#DC2626" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12a7 7 0 1 0 14 0a7 7 0 1 0-14 0 M12 2v3"/></g>
+<text x="552.0" y="299.0" font-size="14" fill="#1F2340" text-anchor="start" font-weight="400">캐릭터 둘레 링 (차오르는 양 · 색)</text>
+<rect x="512.0" y="316.0" width="398.0" height="32.0" rx="16" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<circle cx="530.0" cy="332.0" r="13" fill="#FEE2E2"/>
+<g transform="translate(522.9 324.9) scale(0.591)" fill="none" stroke="#DC2626" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17a8 8 0 1 1 16 0 M12 17l4-5"/></g>
+<text x="552.0" y="337.0" font-size="14" fill="#1F2340" text-anchor="start" font-weight="400">분석 탭 게이지</text>
+<rect x="512.0" y="354.0" width="398.0" height="32.0" rx="16" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<circle cx="530.0" cy="370.0" r="13" fill="#FEE2E2"/>
+<g transform="translate(522.9 362.9) scale(0.591)" fill="none" stroke="#DC2626" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8h10a4 4 0 0 1 0 8H7a4 4 0 0 1 0-8z M12 8v8"/></g>
+<text x="552.0" y="375.0" font-size="14" fill="#1F2340" text-anchor="start" font-weight="400">한 화면 % 알약</text>
+<rect x="28.0" y="414.0" width="904.0" height="64.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<text x="50.0" y="452.0" font-size="15" fill="#1F2340" text-anchor="start" font-weight="700">하나의 색 척도</text>
+<rect x="180.0" y="437.0" width="300.0" height="18.0" rx="9" fill="url(#scale)"/>
+<rect x="504.0" y="434.0" width="65.9" height="26.0" rx="13.0" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<text x="536.9" y="451.7" font-size="13" fill="#1F2340" text-anchor="middle" font-weight="400">테마 4종</text>
+<rect x="577.9" y="434.0" width="31.7" height="26.0" rx="13.0" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<text x="593.7" y="451.7" font-size="13" fill="#1F2340" text-anchor="middle" font-weight="400">링</text>
+<rect x="617.6" y="434.0" width="55.1" height="26.0" rx="13.0" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<text x="645.1" y="451.7" font-size="13" fill="#1F2340" text-anchor="middle" font-weight="400">게이지</text>
+<rect x="680.7" y="434.0" width="55.1" height="26.0" rx="13.0" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<text x="708.2" y="451.7" font-size="13" fill="#1F2340" text-anchor="middle" font-weight="400">그래프</text>
+</svg>

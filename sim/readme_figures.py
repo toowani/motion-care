@@ -14,18 +14,33 @@ IMG = ROOT / "docs" / "img"
 
 FONT = "Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif"
 INK, MUTED, GRID = "#1F2340", "#6B6E86", "#E3E4EE"
-INDEX = "#453ECE"
+INDEX = "#2563EB"          # flicker index I (same blue as the README formula images)
+DOSE = "#7C3AED"           # accumulated dose D
+VAR = {"I": INDEX, "D": DOSE, "m": "#0D9488", "τ": "#EA580C", "P": "#DC2626", "a": "#DB2777"}
+
+
+def v(sym, sub=None, size=None):
+    """A variable letter as a coloured math tspan (same colours as the formula images)."""
+    fs = f' font-size="{size * 1.1:.1f}"' if size else ""
+    out = (f'<tspan fill="{VAR[sym]}" font-family="Times New Roman, Times, serif" font-style="italic" '
+           f'font-weight="700"{fs}>{sym}</tspan>')
+    if sub:
+        out += (f'<tspan fill="{VAR[sym]}" font-family="Times New Roman, Times, serif" font-style="italic" '
+                f'font-size="{(size or 12) * 0.75:.1f}" dy="3">{sub}</tspan><tspan dy="-3">\u200a</tspan>')
+    return out
 # one risk scale for the app and the figures: green → yellow → red (yellow is darkened for lines/text on white)
 LOW, CAUTION, HIGH = "#16A34A", "#CA8A04", "#DC2626"
 APP, NO_APP = "#0F766E", "#9CA3AF"
-KIDS = {"민준": "#DC2626", "서연": "#0F766E"}
+KIDS = {"민준": ("#EA580C", "6 4"), "서연": ("#9A3412", "2 4")}   # both tau: orange family, told apart by dash
+TH_C, TH_H = "#9CA3AF", "#1F2340"   # alert thresholds: neutral grey / black dashes (amber and red are stage / P colours)
+TAU = VAR["τ"]
 
 
 class Svg:
     def __init__(self, w, h):
         self.w, self.h = w, h
         self.parts = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" font-family="{FONT}" font-size="13">',
-                      f'<rect width="{w}" height="{h}" fill="#fff"/>']
+                      f'<rect x="0.75" y="0.75" width="{w - 1.5}" height="{h - 1.5}" rx="16" fill="#fff" stroke="{GRID}" stroke-width="1.5"/>']
 
     def add(self, s):
         self.parts.append(s)
@@ -90,46 +105,6 @@ def legend(svg, x, y, items):
         x += 52 + 12 * len(label)
 
 
-def how_it_works():
-    """Car signals → the Pleos SDK that delivers each → what the app computes → what the car does."""
-    s = Svg(1140, 500)
-    car, sdk, calc, act = ("#EEF2FF", "#3730A3"), ("#F1F5F9", "#334155"), ("#F5F3FF", "#5B21B6"), ("#ECFDF5", "#065F46")
-    cols = [
-        (20, 250, "차가 아는 것", car,
-         ["방향지시등 · 핸들 각도", "실내 온도 · 내기순환", "속도 · 위치", "다음 회전 · 경로", "목소리 (응 / 아니)"]),
-        (300, 250, "Pleos SDK", sdk,
-         ["Vehicle (TurnSignal, SteeringWheel)", "Vehicle (HVAC)", "위치 (GNSS) · Vehicle", "NaviHelper", "TextToSpeech · SpeechToText"]),
-        (600, 250, "앱이 계산하는 것", calc,
-         ["흔들림 지수 I (최근 1분)", "누적 흔들림 D", "환경 계수 m (덥고 탁하면 ↓)", "개인 기준선 τ", "멀미 가능성 P"]),
-        (880, 240, "차가 하는 일", act,
-         ["외기 전환 · 온도 낮춤", "창문 조금 열기 (멀미 완화 버튼)", "음성 안내 한 줄", "버튼 누른 순간으로 기준 학습", "정지하면 공조 되돌림"]),
-    ]
-    rows = [92 + i * 50 for i in range(5)]
-    for x, w, title, (fill, ink), items in cols:
-        s.rect(x, 40, w, 320, fill, 14)
-        s.text(x + w / 2, 72, title, 16, ink, "middle", 700)
-        for y, it in zip(rows, items):
-            s.rect(x + 12, y, w - 24, 38, "#fff", 8)
-            s.text(x + w / 2, y + 24, it, 12.5 if len(it) > 16 else 13, INK, "middle")
-    # each car signal goes through the SDK that provides it
-    for y in rows:
-        arrow(s, [(258, y + 19), (308, y + 19)], "#3730A3", 2)
-    # SDK rows join one bus into the engine
-    for y in rows:
-        s.line(538, y + 19, 566, y + 19, MUTED, 2)
-    s.line(566, rows[0] + 19, 566, rows[-1] + 19, MUTED, 2)
-    arrow(s, [(566, 210), (606, 210)], MUTED, 3)
-    arrow(s, [(842, 210), (888, 210)], MUTED, 3)
-    # closed loop: fresh air changes what the car reports
-    s.add(f'<path d="M1000 360 L1000 412 L145 412 L145 360" stroke="{APP}" stroke-width="2.5" fill="none" stroke-dasharray="7 5"/>'
-          f'<path d="M137 370 L145 358 L153 370" fill="{APP}"/>')
-    s.text(570, 400, "닫힌 고리: 공기를 바꾸면 실내 온도·환기가 바뀌고, 그 값이 다시 계산에 들어갑니다", 13, APP, "middle")
-    s.text(570, 24, "멀미 케어가 하는 일 · Pleos SDK로 차 신호를 읽고 차를 움직입니다", 15, INK, "middle", 700)
-    s.text(570, 446, "앱을 닫아도 뒤에서 계속 계산 · 내비가 앞 화면이어도 소리·공조로 안내", 13, MUTED, "middle")
-    s.text(570, 470, "멀미 완화 버튼: 한 번 누르면 창문 조금 · 바깥 공기 · 음성 한 줄 · 내 기준 기록", 13, MUTED, "middle")
-    s.save("how_it_works.svg")
-
-
 def arrow(s, pts, color=MUTED, width=2.5, dash=None):
     """Polyline with an arrowhead at the last point."""
     s.poly(pts, color, width, dash)
@@ -152,13 +127,14 @@ def box(s, x, y, w, h, title, sub=None, fill="#F5F3FF", ink="#5B21B6", size=14):
 
 def index_flow():
     """How the sickness index is computed, left to right (replaces a mermaid chart)."""
-    s = Svg(960, 330)
+    s = Svg(960, 356)
     s.text(480, 26, "멀미 지수 계산 · 1초마다", 15, INK, "middle", 700)
     car, calc, out = ("#EEF2FF", "#3730A3"), ("#F5F3FF", "#5B21B6"), ("#ECFDF5", "#065F46")
     y, h = 120, 64
-    row = [(20, 130, "속도 · 진행 방향", "차 신호", car), (180, 130, "가속도", "앞뒤 aₓ · 옆 aᵧ", calc),
-           (340, 140, "느린 흔들림만", "10초 평균 제거", calc), (510, 140, "지수 I · 누적 D", "최근 60초 · 주행 전체", calc),
-           (680, 100, "판단", None, calc), (810, 130, "흔들림 단계", "멀미 가능성 P", out)]
+    row = [(20, 130, "속도 · 진행 방향", "차 신호", car), (180, 130, "가속도", f"앞뒤 {v('a', 'x', 12)} · 옆 {v('a', 'y', 12)}", calc),
+           (340, 140, "느린 흔들림만", "10초 평균 제거", calc),
+           (510, 140, f"지수 {v('I', size=13)} · 누적 {v('D', size=13)}", "최근 60초 · 주행 전체", calc),
+           (680, 100, "판단", None, calc), (810, 130, "흔들림 단계", f"멀미 가능성 {v('P', size=12)}", out)]
     for x, w, t, sub, (f, ink) in row:
         box(s, x, y, w, h, t, sub, f, ink, 13 if len(t) > 7 else 14)
     for (x, w, *_), (nx, *_) in zip(row, row[1:]):
@@ -167,12 +143,17 @@ def index_flow():
     arrow(s, [(85, 90), (85, y - 4)], "#3730A3", 2, "6 4")
     s.text(96, 108, "방향을 1–2초 앞당김", 11, "#3730A3")
     box(s, 470, 236, 150, 52, "실내 온도 · 내기순환", None, *car, size=13)
-    box(s, 650, 236, 120, 52, "환경 계수 m", "덥고 탁하면 ↓", *calc, size=13)
-    box(s, 800, 236, 140, 52, "개인 기준선 τ", "완화 버튼으로 학습", *calc, size=13)
+    box(s, 650, 236, 120, 52, f"환경 계수 {v('m', size=13)}", "덥고 탁하면 ↓", "#CCFBF1", "#0F766E", size=13)
+    box(s, 800, 236, 140, 52, f"개인 기준선 {v('τ', size=13)}", "완화 버튼으로 학습", "#FFEDD5", "#C2410C", size=13)
     arrow(s, [(624, 262), (646, 262)])
-    arrow(s, [(710, 234), (725, y + h + 4)])
-    arrow(s, [(870, 234), (750, y + h + 4)])
-    s.text(480, 318, "지수가 기준선 × m을 넘으면 공기를 바꾸고, 멀미 완화 버튼을 누르면 창문까지 엶", 13, MUTED, "middle")
+    # orthogonal routes straight up into the decision box
+    arrow(s, [(710, 234), (710, 214), (718, 214), (718, y + h + 4)])
+    arrow(s, [(870, 234), (870, 214), (762, 214), (762, y + h + 4)])
+    for x, w, label, sub, ink, fill in [(150, 300, f"지수 {v('I', size=14)} &gt; 기준선 × {v('m', size=14)}", "외기 전환 · 22°C", "#065F46", "#ECFDF5"),
+                                        (510, 300, "멀미 완화 버튼", "창문 · 바람 · 음성", "#C2410C", "#FFEDD5")]:
+        s.rect(x, 300, w, 38, fill, 19)
+        s.text(x + 20, 324, label, 14, ink, "start", 700)
+        s.text(x + w - 20, 324, "→ " + sub, 14, INK, "end", 700)
     s.save("index_flow.svg")
 
 
@@ -205,66 +186,109 @@ def architecture():
 def scenario_bars():
     rows = list(csv.DictReader(open(ROOT / "sim" / "out" / "summary.csv")))
     order = [("C_highway", "고속도로"), ("A_city_smooth", "도심 · 부드럽게"), ("A_city_rough", "도심 · 거칠게"),
-             ("B_winding_smooth", "굽은 길 · 부드럽게"), ("B_winding_rough", "굽은 길 · 거칠게")]
+             ("D_family", "나들이길 (34분)"), ("B_winding_smooth", "굽은 길 · 부드럽게"), ("B_winding_rough", "굽은 길 · 거칠게")]
     by = {r["scenario"]: r for r in rows}
-    s = Svg(960, 360)
-    s.text(30, 30, "같은 엔진, 다섯 가지 도로 · 평균 흔들림 지수와 알림이 켜진 시간", 15, INK, weight=700)
-    x0, y0, w, h, vmax = 200, 60, 520, 250, 3.0
-    for v in (0, 0.9, 1.5, 3.0):
-        x = x0 + w * v / vmax
-        s.line(x, y0 - 6, x, y0 + h, GRID if v in (0, 3.0) else (CAUTION if v == 0.9 else HIGH), 1, None if v in (0, 3.0) else "5 4")
-        s.text(x, y0 + h + 18, f"{v:g}", 12, MUTED, "middle")
-    s.text(x0 + w * 0.9 / vmax + 4, y0 + h + 34, "주의 0.9", 12, CAUTION)
-    s.text(x0 + w * 1.5 / vmax + 4, y0 + h + 34, "높음 1.5", 12, HIGH)
-    bh = h / len(order)
+    s = Svg(960, 470)
+    s.text(28, 46, "도로 4종 · 주행 6개 · 같은 엔진", 20, INK, weight=700)
+    # legend chips
+    lx = 28
+    for kind, label in [("bar", "평균 지수 I"), ("tick", "최댓값"), ("c", "주의 0.9"), ("h", "높음 1.5")]:
+        w = 40 + 13 * len(label) * 0.8
+        s.rect(lx, 66, w, 28, "#F8FAFC", 14, GRID)
+        if kind == "bar":
+            s.rect(lx + 10, 74, 18, 12, LOW, 3)
+        elif kind == "tick":
+            s.line(lx + 19, 72, lx + 19, 88, INK, 3)
+        else:
+            s.line(lx + 19, 71, lx + 19, 89, TH_C if kind == "c" else TH_H, 2, "4 3")
+        s.text(lx + 34, 85, label, 13, INK)
+        lx += w + 8
+    s.text(932, 85, "알림 켜진 시간 / 주행 시간", 13, MUTED, "end")
+    x0, y0, w, vmax, rh = 220, 116, 470, 3.0, 50
+    h = rh * len(order)
+    for t in (0, 0.9, 1.5, 3.0):
+        x = x0 + w * t / vmax
+        dash = None if t in (0, 3.0) else "5 4"
+        col = GRID if t in (0, 3.0) else (TH_C if t == 0.9 else TH_H)
+        s.line(x, y0 - 4, x, y0 + h, col, 1.5 if dash else 1, dash)
+        s.text(x, y0 + h + 20, f"{t:g}", 12, MUTED, "middle")
+    s.text(x0 + w, y0 + h + 38, "흔들림 지수 (m/s²)", 12, MUTED, "end")
     for i, (key, label) in enumerate(order):
         r = by[key]
-        y = y0 + i * bh + 10
+        y = y0 + i * rh
+        if i % 2 == 0:
+            s.rect(28, y, 904, rh, "#F8FAFC", 8)
         mean, mx = float(r["mean_index"]), float(r["max_index"])
         color = HIGH if mean >= 1.5 else CAUTION if mean >= 0.9 else LOW
-        s.text(x0 - 12, y + bh / 2, label, 13, INK, "end")
-        s.rect(x0, y + 6, w * mean / vmax, bh - 30, color, 4)
-        s.line(x0 + w * mx / vmax, y + 2, x0 + w * mx / vmax, y + bh - 20, INK, 2)
-        s.text(x0 + w * mean / vmax + 6, y + bh / 2 - 2, f"{mean:.2f}", 12, INK)
+        s.text(x0 - 14, y + rh / 2 + 5, label, 14, INK, "end", 700)
+        s.rect(x0, y + 14, w * mean / vmax, rh - 28, color, 4)
+        s.line(x0 + w * mx / vmax, y + 8, x0 + w * mx / vmax, y + rh - 8, INK, 3)
+        s.text(x0 + w * mean / vmax + 8, y + rh / 2 + 5, f"{mean:.2f}", 13, INK, weight=700)
         alert = int(r["caution_s"]) + int(r["high_s"])
         mins = float(r["minutes"])
-        s.text(760, y + bh / 2 - 2, f"알림 {alert}초 / {mins:g}분", 13, INK if alert else MUTED)
-    s.text(760, y0 - 10, "알림이 켜진 시간", 12, MUTED)
-    s.text(x0, y0 - 10, "막대: 평균 지수 I · 세로선: 최댓값 (m/s²)", 12, MUTED)
+        frac = min(1.0, alert / (mins * 60))
+        bx, bw = 726, 120
+        s.rect(bx, y + 18, bw, 14, "#E5E7EB", 7)
+        if alert:
+            s.rect(bx, y + 18, max(14, bw * frac), 14, CAUTION if int(r["high_s"]) < int(r["caution_s"]) else HIGH, 7)
+        s.text(932, y + rh / 2 + 5, f"{alert / 60:.1f}분 / {mins:g}분" if alert else f"0 / {mins:g}분", 13,
+               INK if alert else MUTED, "end", 700 if alert else 400)
     s.save("scenario_bars.svg")
 
 
 def index_timeline(name, title, out, cues=False):
     rows = run(name)
     ts = [r[0]["t"] for r in rows]
-    s = Svg(960, 370)
+    s = Svg(960, 380)
     # guidance points (turns, bends), not cue count: a red light at a turn earns one extra cue
     turns = next(m["turns"] for m in json.loads((ROOT / "sim" / "scenarios" / "scenarios.json").read_text())
                  if m["name"] == name)
     s.text(30, 28, title.format(min=round(len(rows) / 60), turns=turns), 15, INK, weight=700)
-    pl = Plot(s, 70, 100, 860, 220, ts[-1], 0, 3.4, (0, 1, 2, 3), "흔들림 지수 I (m/s²)")
+    pl = Plot(s, 70, 110, 860, 220, ts[-1], 0, 3.4, (0, 1, 2, 3), "흔들림 지수 I (m/s²)")
     bands = {"CAUTION": "#FEF9C3", "HIGH": "#FEE2E2"}
     for (smp, o) in rows:
         if o["state"] in bands:
             s.rect(pl.X(smp["t"]), pl.y0, pl.w / len(rows) + 0.6, pl.h, bands[o["state"]])
-    pl.series(ts, [o["th_c"] for _, o in rows], CAUTION, 1.5, "6 4")
-    pl.series(ts, [o["th_h"] for _, o in rows], HIGH, 1.5, "6 4")
-    pl.series(ts, [o["index"] for _, o in rows], INDEX, 2.2)
-    # one row per action type so markers at the same second don't overlap
-    marks = {"TTS_DRIVER": ("◆", INDEX, 1), "HVAC_FRESH": ("■", APP, 2)}
-    if cues:
-        marks["CUE"] = ("●", INK, 0)
+    pl.series(ts, [o["th_c"] for _, o in rows], TH_C, 1.8, "6 4")
+    pl.series(ts, [o["th_h"] for _, o in rows], TH_H, 1.5, "6 4")
+    # events: labelled vertical lines inside the plot
+    events = {}
     for smp, o in rows:
         for a in o["actions"]:
-            key = "CUE" if a.startswith("CUE_") else a
-            if key in marks:
-                g, c, row = marks[key]
-                s.text(pl.X(smp["t"]), pl.y0 + 14 + row * 14, g, 12, c, "middle")
-    legend(s, 70, 56, [("지수 I", INDEX, None), ("주의 기준 × m", CAUTION, "6 4"), ("높음 기준 × m", HIGH, "6 4")])
-    key = "◆ 음성 안내  ■ 공조 외기 전환"
+            if a.startswith("CUE_") and cues:
+                events.setdefault(int(smp["t"]), set()).add("cue")
+            elif a == "TTS_DRIVER":
+                events.setdefault(int(smp["t"]), set()).add("음성 안내")
+            elif a == "HVAC_FRESH":
+                events.setdefault(int(smp["t"]), set()).add("공조")
+    last_end, row = -1e9, 0
+    for t, kinds in sorted(events.items()):
+        x = pl.X(t)
+        if kinds == {"cue"}:
+            s.line(x, pl.y0 + 22, x, pl.y0 + pl.h, MUTED, 1.2, "2 3")
+            s.add(f'<circle cx="{x:.1f}" cy="{pl.y0 + 14}" r="7" fill="{INK}" stroke="#fff" stroke-width="2"/>')
+            continue
+        labels = [k for k in ("음성 안내", "공조") if k in kinds]
+        s.line(x, pl.y0, x, pl.y0 + pl.h, APP, 2)
+        lab = f"{t}초 " + " · ".join(labels)
+        lw = 24 + 12.5 * len(lab) * 0.78
+        row = row + 1 if x + 6 < last_end else 0
+        ly = pl.y0 + 6 + row * 32
+        s.rect(x + 6, ly, lw, 26, APP, 13)
+        s.text(x + 6 + lw / 2, ly + 18, lab, 12.5, "#fff", "middle", 700)
+        last_end = x + 6 + lw + 4
+    pl.series(ts, [o["index"] for _, o in rows], INDEX, 2.4)
+    items = [("지수 I", INDEX, None), ("주의 기준 × m", TH_C, "6 4"), ("높음 기준 × m", TH_H, "6 4")]
+    legend(s, 70, 62, items)
+    x = 930
+    chips = [("배경: 주의 · 높음", None)]
     if cues:
-        key = "● 엔진의 예고 시점 (앱에서는 꺼 둠)  ◆ 음성 안내"
-    s.text(930, 56, key + " · 배경: 주의/높음", 12, MUTED, "end")
+        chips.insert(0, ("● 엔진 예고 시점 (앱에서 꺼 둠)", INK))
+    for lab, _ in reversed(chips):
+        w = 20 + 12 * len(lab) * 0.8
+        s.rect(x - w, 46, w, 26, "#F8FAFC", 13, GRID)
+        s.text(x - w / 2, 63, lab, 12, INK, "middle")
+        x -= w + 8
     s.save(out)
 
 
@@ -286,7 +310,7 @@ def closed_loop():
     legend(s, 70, 56, [("앱이 공조를 바꿈", APP, None), ("앱 없음", NO_APP, "6 4")])
     m0, m_end, m_no = min(o["m"] for _, o in app), app[-1][1]["m"], no_app[-1][1]["m"]
     s.text(left.x0 + left.w, left.Y(m_end) - 8, f"{m0:.2f} → {m_end:.2f}", 12, APP, "end")
-    s.text(left.x0 + left.w, left.Y(m_no) + 18, f"{m_no:.2f}에 머묾", 12, MUTED, "end")
+    s.text(left.x0 + left.w, left.Y(m_no) + 18, f"앱 없으면 {m_no:.3f}에 머묾", 12, MUTED, "end")
     s.save("closed_loop.svg")
 
 
@@ -300,15 +324,16 @@ def family():
     s.text(30, 28, "확장 · 아이별 기준선 · 같은 나들이길(경부고속도로 → 남한산성로)", 15, INK, weight=700)
     pl = Plot(s, 70, 100, 800, 220, ts[-1], 0, 45, (0, 15, 30, 45), "누적 흔들림 D")
     for who, tau in taus.items():
-        pl.series(ts, [tau * max(P["cabinFactorFloor"], o["m"]) for _, o in rows], KIDS[who], 1.6, "6 4")
+        col, dash = KIDS[who]
+        pl.series(ts, [tau * max(P["cabinFactorFloor"], o["m"]) for _, o in rows], col, 2, dash)
         t_hit = next((smp["t"] for smp, o in rows if sickness_probability(P, o["dose"], tau, o["m"]) >= 0.5), None)
-        s.text(pl.x0 + 6, pl.Y(tau * rows[0][1]["m"]) - 8, f"{who} 기준선 τ = {tau:.1f}", 12, KIDS[who])
+        s.text(pl.x0 + 6, pl.Y(tau * rows[0][1]["m"]) - 8, f"{who} 기준선 τ = {tau:.1f}", 12, col, weight=700)
         hits[who] = t_hit
         if t_hit is not None:
-            s.line(pl.X(t_hit), pl.y0, pl.X(t_hit), pl.y0 + pl.h, KIDS[who], 1, "2 3")
-            s.text(pl.X(t_hit) - 6, pl.y0 + (14 if who == "민준" else 32), f"{who} 도달 {t_hit / 60:.1f}분", 12, KIDS[who], "end")
-    pl.series(ts, [o["dose"] for _, o in rows], INDEX, 2.4)
-    legend(s, 70, 56, [("누적 흔들림 D", INDEX, None), ("아이별 기준선 × 환경 계수", MUTED, "6 4")])
+            s.line(pl.X(t_hit), pl.y0, pl.X(t_hit), pl.y0 + pl.h, col, 1.2, dash)
+            s.text(pl.X(t_hit) - 6, pl.y0 + (14 if who == "민준" else 32), f"{who} 도달 {t_hit / 60:.1f}분", 12, col, "end", 700)
+    pl.series(ts, [o["dose"] for _, o in rows], DOSE, 2.4)
+    legend(s, 70, 56, [("누적 흔들림 D", DOSE, None), ("민준 τ × m", KIDS["민준"][0], KIDS["민준"][1]), ("서연 τ × m", KIDS["서연"][0], KIDS["서연"][1])])
     if hits.get("민준") is not None and hits.get("서연") is not None:
         s.text(930, 56, f"민준(멀미 기록 10번, 약함)에게 {mmss(hits['서연'] - hits['민준'])} 먼저 대응", 12, MUTED, "end")
     s.save("family.svg")
@@ -339,7 +364,6 @@ def real_vs_sim():
 
 
 def main():
-    how_it_works()
     index_flow()
     architecture()
     scenario_bars()

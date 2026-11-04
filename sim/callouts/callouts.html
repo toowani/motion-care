@@ -1,0 +1,51 @@
+<!doctype html>
+<!-- Numbered callouts over an app screenshot (docs/img/ui_r6_*.jpg).
+     Render: sh sim/callouts/render.sh   ->  docs/img/<name>_callouts.jpg -->
+<html lang="ko"><head><meta charset="utf-8"><title>callouts</title>
+<style>
+html,body{margin:0;background:transparent}
+*{box-sizing:border-box}
+.card{width:960px;background:#fff;padding:24px;
+  font-family:"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;color:#1F2340}
+.shot{position:relative;width:912px;height:513px;border-radius:10px;overflow:hidden;border:1px solid #E3E4EE}
+.shot img{width:100%;height:100%;display:block}
+.n{position:absolute;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;background:#1F2340;color:#fff;
+  font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center;border:3px solid #fff;
+  box-shadow:0 1px 4px rgba(0,0,0,.35)}
+.legend{display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));gap:10px;margin-top:16px}
+.li{display:flex;align-items:center;gap:10px;background:#F8FAFC;border:1px solid #E3E4EE;border-radius:12px;padding:10px 12px;min-height:52px}
+.li b{flex:0 0 26px;height:26px;border-radius:50%;background:#1F2340;color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center}
+.li span{font-size:14.5px;font-weight:700;line-height:1.3}
+.li small{display:block;font-size:12.5px;font-weight:400;color:#6B6E86}
+</style></head><body>
+<div class="card" id="card"><div class="shot" id="shot"><img id="img"></div><div class="legend" id="legend"></div></div>
+<script>
+const SETS = {
+  analysis: { img: 'ui_r6_analysis.jpg', cols: 4, marks: [
+    [905, 165, '멀미 가능성 게이지', '% · 낮음 / 보통 / 높음'],
+    [905, 440, '이번 주행 타일 4개', '시간 · 공기 · 버튼 · 최고'],
+    [1100, 162, '그래프 전환', '흔들림 지수 ↔ 멀미 가능성'],
+    [1545, 262, '그래프 + 기준선', '주의선 · 높음선 · 바람'],
+    [1540, 646, '멀미 줄이는 습관', '아이콘 타일 4개'],
+    [1336, 94, '멀미 완화 버튼', '어느 탭에서나'],
+    [1310, 780, '시연 패널', '시나리오 재생 · 실차 신호'],
+  ]},
+  settings: { img: 'ui_r6_settings.jpg', cols: 3, marks: [
+    [1059, 352, '아이콘 테마 4종', '주행 중 변경 잠금'],
+    [1445, 546, '소리 안내', '질문 · 위험 안내'],
+    [1445, 607, '공조 자동 조절', '바깥 공기 · 22°C'],
+    [1445, 668, '시연 패널', '시나리오 버튼'],
+    [842, 771, '만든 팀 CRAVE', ''],
+  ]},
+};
+const set = SETS[new URLSearchParams(location.search).get('s') || 'analysis'];
+document.getElementById('img').src = '../../docs/img/' + set.img;
+const k = 912 / 1600, shot = document.getElementById('shot'), lg = document.getElementById('legend');
+lg.style.setProperty('--cols', set.cols);
+set.marks.forEach(([x, y, t, s], i) => {
+  const d = document.createElement('div'); d.className = 'n'; d.textContent = i + 1;
+  d.style.left = (x * k) + 'px'; d.style.top = (y * k) + 'px'; shot.appendChild(d);
+  lg.insertAdjacentHTML('beforeend', `<div class="li"><b>${i + 1}</b><span>${t}${s ? `<small>${s}</small>` : ''}</span></div>`);
+});
+document.getElementById('img').onload = () => { document.title = 'H=' + Math.ceil(document.getElementById('card').getBoundingClientRect().height); };
+</script></body></html>

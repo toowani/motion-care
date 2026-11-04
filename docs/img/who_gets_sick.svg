@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 260" width="960" height="260" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="14">
+<rect x="0.75" y="0.75" width="958.5" height="258.5" rx="16" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1.5"/>
+<text x="40.0" y="44.0" font-size="16" fill="#1F2340" text-anchor="start" font-weight="700">운전자 vs 동승자</text>
+<rect x="48.0" y="64.0" width="250.0" height="150.0" rx="46" fill="#F1F5F9" stroke="#94A3B8" stroke-width="2"/>
+<path d="M244 86 q22 53 0 106" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M96 90 q-14 49 0 98" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="164.0" y="78.0" width="44.0" height="44.0" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+<rect x="164.0" y="156.0" width="44.0" height="44.0" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+<rect x="100.0" y="78.0" width="44.0" height="44.0" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+<rect x="100.0" y="156.0" width="44.0" height="44.0" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+<circle cx="186.0" cy="100.0" r="20" fill="#DCFCE7"/>
+<g transform="translate(174.0 88.0) scale(1.0)" fill="none" stroke="#16A34A" stroke-width="2.00" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></g>
+<circle cx="122.0" cy="178.0" r="20" fill="#FEE2E2"/>
+<g transform="translate(110.0 166.0) scale(1.0)" fill="none" stroke="#DC2626" stroke-width="2.00" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5.5" r="2.8"/><path d="M12 8.5v7M7.5 11.5h9M12 15.5l-3.2 5.5M12 15.5l3.2 5.5"/></g>
+<circle cx="140" cy="160" r="10" fill="#DC2626"/>
+<text x="140.0" y="164.5" font-size="13" fill="#FFFFFF" text-anchor="middle" font-weight="700">?</text>
+<path d="M168.0 236.0 L240.0 236.0" fill="none" stroke="#6B6E86" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M248.0 236.0 L239.0 240.3 L239.0 231.7 Z" fill="#6B6E86"/>
+<text x="158.0" y="240.0" font-size="12" fill="#6B6E86" text-anchor="end" font-weight="400">진행 방향</text>
+<line x1="210.0" y1="100.0" x2="330.0" y2="100.0" stroke="#16A34A" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 3"/>
+<text x="338.0" y="97.0" font-size="15" fill="#16A34A" text-anchor="start" font-weight="700">운전자</text>
+<text x="338.0" y="117.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">다음 움직임을 앎</text>
+<line x1="146.0" y1="178.0" x2="330.0" y2="178.0" stroke="#DC2626" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 3"/>
+<text x="338.0" y="175.0" font-size="15" fill="#DC2626" text-anchor="start" font-weight="700">동승자</text>
+<text x="338.0" y="195.0" font-size="13" fill="#1F2340" text-anchor="start" font-weight="400">모름</text>
+<line x1="492.0" y1="30.0" x2="492.0" y2="230.0" stroke="#E3E4EE" stroke-width="1.5" stroke-linecap="round"/>
+<text x="530.0" y="44.0" font-size="16" fill="#1F2340" text-anchor="start" font-weight="700">멀미가 가장 흔한 나이</text>
+<rect x="624.4" y="72.0" width="190.0" height="118.0" rx="10" fill="#FEE2E2"/>
+<circle cx="719.4" cy="104.0" r="22" fill="#FFFFFF"/>
+<g transform="translate(707.4 92.0) scale(1.0)" fill="none" stroke="#DC2626" stroke-width="2.00" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5.5" r="2.8"/><path d="M12 8.5v7M7.5 11.5h9M12 15.5l-3.2 5.5M12 15.5l3.2 5.5"/></g>
+<text x="719.4" y="152.0" font-size="16" fill="#DC2626" text-anchor="middle" font-weight="700">가장 약함 · 4–13세</text>
+<text x="719.4" y="174.0" font-size="12.5" fill="#6B6E86" text-anchor="middle" font-weight="400">Huppert 외, 2019</text>
+<path d="M540.0 196.0 L920.0 196.0" fill="none" stroke="#6B6E86" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M928.0 196.0 L919.0 200.3 L919.0 191.7 Z" fill="#6B6E86"/>
+<line x1="540.0" y1="190.0" x2="540.0" y2="202.0" stroke="#6B6E86" stroke-width="2" stroke-linecap="round"/>
+<text x="540.0" y="222.0" font-size="13" fill="#6B6E86" text-anchor="middle" font-weight="400">0세</text>
+<line x1="624.4" y1="190.0" x2="624.4" y2="202.0" stroke="#1F2340" stroke-width="2" stroke-linecap="round"/>
+<text x="624.4" y="222.0" font-size="13" fill="#DC2626" text-anchor="middle" font-weight="700">4세</text>
+<line x1="814.4" y1="190.0" x2="814.4" y2="202.0" stroke="#1F2340" stroke-width="2" stroke-linecap="round"/>
+<text x="814.4" y="222.0" font-size="13" fill="#DC2626" text-anchor="middle" font-weight="700">13세</text>
+<line x1="920.0" y1="190.0" x2="920.0" y2="202.0" stroke="#6B6E86" stroke-width="2" stroke-linecap="round"/>
+<text x="920.0" y="222.0" font-size="13" fill="#6B6E86" text-anchor="middle" font-weight="400">18세</text>
+</svg>

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 180" width="960" height="180" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="14" role="img"><title>개발 환경</title>
+
+<rect x="0.75" y="0.75" width="958.5" height="178.5" rx="16" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1.5"/>
+<rect x="28.0" y="28.0" width="290.7" height="54.0" rx="10" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<text x="46.0" y="50.0" font-size="12" fill="#6B6E86" text-anchor="start" font-weight="400">Android Studio</text>
+<text x="46.0" y="72.0" font-size="18" fill="#1F2340" text-anchor="start" font-weight="700">2026.2</text>
+<rect x="334.7" y="28.0" width="290.7" height="54.0" rx="10" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<text x="352.7" y="50.0" font-size="12" fill="#6B6E86" text-anchor="start" font-weight="400">AGP · Gradle</text>
+<text x="352.7" y="72.0" font-size="18" fill="#1F2340" text-anchor="start" font-weight="700">9.4.1 · 9.8.2</text>
+<rect x="641.3" y="28.0" width="290.7" height="54.0" rx="10" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<text x="659.3" y="50.0" font-size="12" fill="#6B6E86" text-anchor="start" font-weight="400">Kotlin · compileSdk</text>
+<text x="659.3" y="72.0" font-size="18" fill="#1F2340" text-anchor="start" font-weight="700">2.4 · 34</text>
+<rect x="28.0" y="96.0" width="290.7" height="54.0" rx="10" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<text x="46.0" y="118.0" font-size="12" fill="#6B6E86" text-anchor="start" font-weight="400">Pleos Vehicle</text>
+<text x="46.0" y="140.0" font-size="18" fill="#1F2340" text-anchor="start" font-weight="700">2.3.2</text>
+<rect x="334.7" y="96.0" width="290.7" height="54.0" rx="10" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<text x="352.7" y="118.0" font-size="12" fill="#6B6E86" text-anchor="start" font-weight="400">NaviHelper</text>
+<text x="352.7" y="140.0" font-size="18" fill="#1F2340" text-anchor="start" font-weight="700">3.0.5</text>
+<rect x="641.3" y="96.0" width="290.7" height="54.0" rx="10" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<text x="659.3" y="118.0" font-size="12" fill="#6B6E86" text-anchor="start" font-weight="400">TextToSpeech / SpeechToText</text>
+<text x="659.3" y="140.0" font-size="18" fill="#1F2340" text-anchor="start" font-weight="700">3.3.1</text>
+</svg>

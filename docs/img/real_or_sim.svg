@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 300" width="960" height="300" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="14">
+<rect x="0.75" y="0.75" width="958.5" height="298.5" rx="16" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1.5"/>
+<rect x="245.5" y="22.0" width="469.1" height="32.0" rx="16.0" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1.5"/>
+<text x="480.0" y="42.9" font-size="13.5" fill="#1F2340" text-anchor="middle" font-weight="700">Pleos Connect Emulator v2.1 · Android Automotive API 34 · 실제 실행</text>
+<rect x="28.0" y="72.0" width="436.0" height="172.0" rx="14" fill="#FFFFFF" stroke="#16A34A" stroke-width="2"/>
+<circle cx="62.0" cy="106.0" r="22" fill="#DCFCE7"/>
+<g transform="translate(50.0 94.0) scale(1.0)" fill="none" stroke="#16A34A" stroke-width="2.00" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></g>
+<text x="94.0" y="112.0" font-size="16" fill="#16A34A" text-anchor="start" font-weight="700">진짜 · Pleos SDK</text>
+<text x="46.0" y="156.0" font-size="12" fill="#6B6E86" text-anchor="start" font-weight="700">차를 움직임</text>
+<rect x="136.0" y="134.0" width="54.6" height="34.0" rx="17.0" fill="#ECFDF5"/>
+<text x="163.3" y="156.0" font-size="14" fill="#065F46" text-anchor="middle" font-weight="700">공조</text>
+<rect x="200.6" y="134.0" width="54.6" height="34.0" rx="17.0" fill="#ECFDF5"/>
+<text x="227.9" y="156.0" font-size="14" fill="#065F46" text-anchor="middle" font-weight="700">창문</text>
+<rect x="265.2" y="134.0" width="54.6" height="34.0" rx="17.0" fill="#ECFDF5"/>
+<text x="292.5" y="156.0" font-size="14" fill="#065F46" text-anchor="middle" font-weight="700">음성</text>
+<text x="46.0" y="208.0" font-size="12" fill="#6B6E86" text-anchor="start" font-weight="700">차 신호</text>
+<rect x="136.0" y="186.0" width="94.5" height="34.0" rx="17.0" fill="#E2E8F0"/>
+<text x="183.2" y="208.0" font-size="14" fill="#334155" text-anchor="middle" font-weight="700">방향지시등</text>
+<rect x="240.5" y="186.0" width="85.4" height="34.0" rx="17.0" fill="#E2E8F0"/>
+<text x="283.2" y="208.0" font-size="14" fill="#334155" text-anchor="middle" font-weight="700">핸들 각도</text>
+<rect x="335.9" y="186.0" width="85.4" height="34.0" rx="17.0" fill="#E2E8F0"/>
+<text x="378.6" y="208.0" font-size="14" fill="#334155" text-anchor="middle" font-weight="700">실내 온도</text>
+<rect x="496.0" y="72.0" width="436.0" height="172.0" rx="14" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="2" stroke-dasharray="7 5"/>
+<circle cx="530.0" cy="106.0" r="22" fill="#F3F4F6"/>
+<g transform="translate(518.0 94.0) scale(1.0)" fill="none" stroke="#6B6E86" stroke-width="2.00" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4.5h4.5"/><path d="M10.5 9.5l4 2.5-4 2.5z"/></g>
+<text x="562.0" y="112.0" font-size="16" fill="#4B5563" text-anchor="start" font-weight="700">시뮬레이션 · 실제 도로 경로 재생</text>
+<rect x="514.0" y="140.0" width="54.6" height="34.0" rx="17.0" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="541.3" y="162.0" font-size="14" fill="#4B5563" text-anchor="middle" font-weight="700">속도</text>
+<rect x="578.6" y="140.0" width="85.4" height="34.0" rx="17.0" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="621.3" y="162.0" font-size="14" fill="#4B5563" text-anchor="middle" font-weight="700">진행 방향</text>
+<rect x="674.0" y="140.0" width="54.6" height="34.0" rx="17.0" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="701.3" y="162.0" font-size="14" fill="#4B5563" text-anchor="middle" font-weight="700">경로</text>
+<rect x="738.6" y="140.0" width="116.2" height="34.0" rx="17.0" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="796.7" y="162.0" font-size="14" fill="#4B5563" text-anchor="middle" font-weight="700">회전 안내 카드</text>
+<rect x="514.0" y="184.0" width="85.4" height="34.0" rx="17.0" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="556.7" y="206.0" font-size="14" fill="#4B5563" text-anchor="middle" font-weight="700">도착 시간</text>
+<g transform="translate(39.2 261.2) scale(0.9)" fill="none" stroke="#334155" stroke-width="2.22" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2" fill="#fff"/><circle cx="15" cy="12" r="2" fill="#fff"/><circle cx="7" cy="18" r="2" fill="#fff"/></g>
+<text x="72.0" y="277.0" font-size="13.5" fill="#1F2340" text-anchor="start" font-weight="700">차 신호 조작: Virtual Console</text>
+<text x="263.7" y="277.0" font-size="13" fill="#6B6E86" text-anchor="start" font-weight="400">Pleos 제공, 우리 앱 아님</text>
+</svg>

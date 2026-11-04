@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 446" width="960" height="446" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="14" role="img"><title>지도 탭 요소와 둘레 링</title>
+
+<rect x="0.75" y="0.75" width="958.5" height="444.5" rx="16" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1.5"/>
+<text x="28.0" y="46.0" font-size="20" fill="#1F2340" text-anchor="start" font-weight="700">지도 탭</text>
+<rect x="108.6" y="26.0" width="210.0" height="30.0" rx="15" fill="#F1F5F9" stroke="#E3E4EE" stroke-width="1"/>
+<rect x="111.6" y="29.0" width="116.0" height="24.0" rx="12" fill="#FFFFFF" stroke="#2563EB" stroke-width="1.5"/>
+<text x="169.6" y="46.0" font-size="13" fill="#2563EB" text-anchor="middle" font-weight="700">지도 (기본)</text>
+<text x="272.6" y="46.0" font-size="13" fill="#6B6E86" text-anchor="middle" font-weight="400">분석</text>
+<rect x="28.0" y="76.0" width="540.0" height="72.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<circle cx="52.0" cy="112.0" r="12" fill="#1F2340"/>
+<text x="52.0" y="117.0" font-size="13" fill="#FFFFFF" text-anchor="middle" font-weight="700">1</text>
+<circle cx="96.0" cy="112.0" r="20" fill="#DBEAFE"/>
+<g transform="translate(85.1 101.1) scale(0.909)" fill="none" stroke="#2563EB" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z M9 3v15 M15 6v15"/></g>
+<text x="130.0" y="106.0" font-size="15" fill="#1F2340" text-anchor="start" font-weight="700">지도</text>
+<text x="130.0" y="128.0" font-size="13" fill="#6B6E86" text-anchor="start" font-weight="400">진행 방향이 위 · 한글 도로 이름 · 줌 고정</text>
+<rect x="28.0" y="156.0" width="540.0" height="72.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<circle cx="52.0" cy="192.0" r="12" fill="#1F2340"/>
+<text x="52.0" y="197.0" font-size="13" fill="#FFFFFF" text-anchor="middle" font-weight="700">2</text>
+<circle cx="96.0" cy="192.0" r="20" fill="#DBEAFE"/>
+<g transform="translate(85.1 181.1) scale(0.909)" fill="none" stroke="#2563EB" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18a2 2 0 1 0 4 0a2 2 0 1 0-4 0 M16 6a2 2 0 1 0 4 0a2 2 0 1 0-4 0 M6 16v-5a3 3 0 0 1 3-3h7"/></g>
+<text x="130.0" y="186.0" font-size="15" fill="#1F2340" text-anchor="start" font-weight="700">경로</text>
+<line x1="172.3" y1="181.0" x2="232.3" y2="181.0" stroke="#2563EB" stroke-width="5" stroke-linecap="round"/>
+<text x="130.0" y="208.0" font-size="13" fill="#6B6E86" text-anchor="start" font-weight="400">앞으로 갈 길만 파란 선 (지나온 길 안 그림)</text>
+<rect x="28.0" y="236.0" width="540.0" height="72.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<circle cx="52.0" cy="272.0" r="12" fill="#1F2340"/>
+<text x="52.0" y="277.0" font-size="13" fill="#FFFFFF" text-anchor="middle" font-weight="700">3</text>
+<circle cx="96.0" cy="272.0" r="20" fill="#DBEAFE"/>
+<g transform="translate(85.1 261.1) scale(0.909)" fill="none" stroke="#2563EB" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20v-8a4 4 0 0 1 4-4h8 M14 4l4 4-4 4"/></g>
+<text x="130.0" y="266.0" font-size="15" fill="#1F2340" text-anchor="start" font-weight="700">회전 안내 카드 · 도착 바</text>
+<rect x="130.0" y="274.0" width="95.1" height="24.0" rx="12.0" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<text x="177.6" y="290.3" font-size="12" fill="#1F2340" text-anchor="middle" font-weight="400">시연: 경로 파일</text>
+<rect x="231.1" y="274.0" width="209.0" height="24.0" rx="12.0" fill="#E2E8F0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="335.6" y="290.3" font-size="12" fill="#334155" text-anchor="middle" font-weight="400">실차: NaviHelper (TBT, DrivingInfo)</text>
+<rect x="28.0" y="316.0" width="540.0" height="72.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<circle cx="52.0" cy="352.0" r="12" fill="#1F2340"/>
+<text x="52.0" y="357.0" font-size="13" fill="#FFFFFF" text-anchor="middle" font-weight="700">4</text>
+<circle cx="96.0" cy="352.0" r="20" fill="#FEE2E2"/>
+<g transform="translate(85.1 341.1) scale(0.909)" fill="none" stroke="#DC2626" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0-18 0 M9 9.5v1 M15 9.5v1 M8.5 14.5c2 2 5 2 7 0"/></g>
+<text x="130.0" y="346.0" font-size="15" fill="#1F2340" text-anchor="start" font-weight="700">캐릭터</text>
+<text x="130.0" y="368.0" font-size="13" fill="#6B6E86" font-weight="400" text-anchor="start"><tspan>오른쪽 위, 둘레 링 = </tspan><tspan fill="#DC2626" font-weight="700">멀미 가능성</tspan><tspan> (숫자 없음)</tspan></text>
+<rect x="588.0" y="76.0" width="344.0" height="312.0" rx="12" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
+<circle cx="760" cy="226" r="100" fill="none" stroke="#E3E4EE" stroke-width="20"/>
+<path d="M761.88 126.02A100 100 0 0 1 859.98 224.12" fill="none" stroke="#16A34A" stroke-width="20" stroke-linecap="butt" stroke-linejoin="round"/>
+<path d="M859.98 227.88A100 100 0 0 1 761.88 325.98" fill="none" stroke="#CA8A04" stroke-width="20" stroke-linecap="butt" stroke-linejoin="round"/>
+<path d="M758.12 325.98A100 100 0 0 1 662.14 246.59" fill="none" stroke="#DC2626" stroke-width="20" stroke-linecap="butt" stroke-linejoin="round"/>
+<circle cx="760.0" cy="226.0" r="58" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<g transform="translate(738.0 198.0) scale(1.833)" fill="none" stroke="#1F2340" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0-18 0 M9 9.5v1 M15 9.5v1 M8.5 14.5c2 2 5 2 7 0"/></g>
+<text x="760.0" y="266.0" font-size="12" fill="#6B6E86" font-weight="400" text-anchor="middle"><tspan fill="#DC2626" font-family="Times New Roman, STIX Two Text, Georgia, serif" font-style="italic" font-weight="700" font-size="14">P</tspan><tspan> 만큼 차오름</tspan></text>
+<line x1="848.0" y1="226.0" x2="873.0" y2="226.0" stroke="#1F2340" stroke-width="1.5" stroke-linecap="round"/>
+<text x="900.0" y="231.0" font-size="13" fill="#1F2340" text-anchor="middle" font-weight="700">25%</text>
+<line x1="760.0" y1="314.0" x2="760.0" y2="339.0" stroke="#1F2340" stroke-width="1.5" stroke-linecap="round"/>
+<text x="760.0" y="366.0" font-size="13" fill="#1F2340" text-anchor="middle" font-weight="700">50%</text>
+<line x1="760.0" y1="112.0" x2="760.0" y2="138.0" stroke="#1F2340" stroke-width="1.5" stroke-linecap="round"/>
+<path d="M782.86 106.16A122 122 0 0 1 843.51 137.07" fill="none" stroke="#6B6E86" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M835.5 133.1L843.5 137.1L840.5 128.1" fill="none" stroke="#6B6E86" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="794.0" y="96.0" font-size="12" fill="#6B6E86" text-anchor="start" font-weight="400">12시부터 시계 방향</text>
+<text x="28.0" y="418.0" font-size="12" fill="#6B6E86" text-anchor="start" font-weight="400">지도: OpenFreeMap 벡터 지도 · 에뮬레이터는 WebGL이 없어 2D</text>
+</svg>
