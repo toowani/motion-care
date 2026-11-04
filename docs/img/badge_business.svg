@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 119 44" width="119" height="44" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="14">
-<rect x="0.75" y="0.75" width="117.5" height="42.5" rx="22" fill="#FFFFFF" stroke="#6D28D9" stroke-width="1.5"/>
-<circle cx="22" cy="22" r="18.0" fill="#6D28D9"/>
-<g transform="translate(12.00,12.00) scale(0.8333)" fill="none" stroke="#FFFFFF" stroke-width="2.40" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20.5h16"/><path d="M7 20.5v-4M12 20.5v-6.5M17 20.5v-9"/><path d="M4.5 11l5-4 3 2.2L19 4"/><path d="M15.5 4H19v3.5"/></g>
-<text x="48.0" y="28.5" font-size="17" fill="#6D28D9" text-anchor="start" font-weight="700">사업성</text>
-</svg>

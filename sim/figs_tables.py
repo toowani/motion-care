@@ -622,13 +622,42 @@ def market_compare():
     s.save("market_compare.svg", "다른 멀미 대응 서비스와 기능 비교")
 
 
+SUBT = "#3F4660"   # secondary text, dark enough to survive scaling
+ICONS.update({
+    "hush": "M4 4.5h16v11H11l-4.5 4v-4H4z M9.5 7.5l5 5 M14.5 7.5l-5 5",
+    "sprout": "M12 21v-9 M12 12c0-4 3-7 8-7 0 5-3 7-8 7z M12 14c0-3-2.5-5-7-5 0 4 2.5 5 7 5z",
+    "info": "M3 12a9 9 0 1 0 18 0a9 9 0 1 0-18 0 M12 11v6 M12 7.5h.01",
+})
+
+
+def target():
+    s = Svg(960, 300)
+    s.icon("family", 62, 62, "#FFFFFF", C_BIZ, 30)
+    s.text(110, 72, "어린 자녀(4–13세)를 둔 가족 운전자", 28, INK, "start", 800)
+    why = [("child", ["4–13세가", "멀미에 가장 약함"], "Huppert 외, 2019"),
+           ("hush", ["아이는 참거나", "말로 표현하기 어려움"], "그래서 차가 먼저 알아차림"),
+           ("sprout", ["가족은 계속", "새로 생김"], "아이가 자라도 다음 가족 → 지속 확대")]
+    cw = (904 - 2 * 16) / 3
+    for i, (ic, rows, note) in enumerate(why):
+        x = 28 + i * (cw + 16)
+        s.card(x, 116, cw, 112, CARD, LINE)
+        s.icon(ic, x + 42, 156, C_BIZ, C_BIZ_T, 24)
+        for j, r in enumerate(rows):
+            s.text(x + 80, 150 + j * 24, r, 18, INK, "start", 700)
+        s.text(x + 22, 208, note, 13.5, SUBT)
+    s.glyph("turn", 46, 260, C_BIZ, 22)
+    s.text(70, 266, "2차 확대", 15, C_BIZ, "start", 700)
+    s.text(70 + tw("2차 확대", 15, True) + 14, 266, "멀미하는 성인 동승자", 18, INK, "start", 700)
+    s.save("target.svg", "타깃: 어린 자녀(4–13세)를 둔 가족 운전자")
+
+
 def mau_funnel():
     cars = 71775 + 79335
     steps = [
-        ("탑재 차량 · 그랜저 + 아반떼 2025 판매", f"{cars:,}대", None, 1.0),
-        ("× 18세 이하 자녀 가구 20.3%", None, None, 0.203),
-        ("× 설치율 10%", None, "가정", 0.10),
-        ("× 월 사용 60%", None, "가정", 0.60),
+        ("Pleos 탑재 차종 2025년 판매", "그랜저 + 아반떼", None, None, 1.0),
+        ("× 18세 이하 자녀 가구", "4–13세 가족이 이 안에 포함", "20.3%", None, 0.203),
+        ("× 설치율", None, "10%", "가정", 0.10),
+        ("× 월 사용", "아이를 태운 달", "60%", "가정", 0.60),
     ]
     vals, v = [], cars
     for *_, f in steps:
@@ -636,83 +665,75 @@ def mau_funnel():
         vals.append(v)
     mau = vals[-1]
     assert 1750 < mau < 1900, mau
-    s = Svg(960, 470)
-    w = s.chip(28, 26, "타깃 · 아이가 있는 30–40대 가족 운전자 (장거리 귀성 · 여행)", C_BIZ, C_BIZ_T, C_BIZ_T, 14, 34, bold=True, pad=46)
-    s.glyph("family", 28 + 26, 43, C_BIZ, 20)
-    s.chip(28 + w + 10, 26, "멀미가 잦은 동승자", C_BIZ, "#FFFFFF", C_BIZ_T, 13, 34, pad=40)
-    s.glyph("person", 28 + w + 10 + 22, 43, C_BIZ, 18)
-    # bars on a log scale so the drop is visible end to end
-    lo, hi, bw = math.log10(300), math.log10(cars), 560
-    L = lambda x: bw * (math.log10(x) - lo) / (hi - lo)
-    fills = ["#C4B5FD", "#A78BFA", "#8B5CF6", "#7C3AED"]
-    x0, y = 28, 86
-    for (lab, val, tag, _), n, fcol in zip(steps, vals, fills):
-        s.text(x0, y + 14, lab, 13.5, INK, "start", 700)
+    s = Svg(960, 428)
+    s.text(28, 50, "출시 1년 예상 MAU", 20, INK, "start", 700)
+    y = 76
+    for (lab, sub, rate, tag, _), n in zip(steps, vals):
+        s.line(28, y, 620, y, LINE)
+        s.text(28, y + 30, lab, 16, INK, "start", 700)
+        if sub:
+            s.text(28, y + 52, sub, 13.5, SUBT)
+        if rate:
+            s.text(410, y + 36, rate, 20, C_BIZ, "end", 700)
         if tag:
-            s.tag_assume(x0 + tw(lab, 13.5, True) + 10, y - 2)
-        s.rect(x0, y + 22, L(n), 26, fcol, 6)
-        s.text(x0 + L(n) + 10, y + 41, f"{n:,.0f}", 15, INK, "start", 700)
+            s.tag_assume(420, y + 20)
+        s.text(620, y + 36, f"{n:,.0f}" + ("대" if n == cars else ""), 20, INK, "end", 700)
         y += 66
-    s.chip(x0 + bw, 80, "막대 길이: 로그 눈금", MUTED, "#FFFFFF", LINE, 11.5, 22, anchor="end", pad=8)
-    s.rect(x0, y + 4, 600, 64, C_BIZ, 12)
-    s.text(x0 + 20, y + 42, "출시 1년 예상 MAU", 16, "#FFFFFF", "start", 700)
-    s.text(x0 + 580, y + 47, "≈ 1,800명", 30, "#FFFFFF", "end", 700)
-    rx_, rw = 672, 260
-    s.card(rx_, 86, rw, 150)
-    s.icon("car", rx_ + 38, 124, C_BIZ, C_BIZ_T, 20)
-    s.text(rx_ + 20, 172, "지금 깔린 차 기준 (2026.9 말)", 13, MUTED)
-    s.text(rx_ + 20, 210, "약 560명", 28, C_BIZ, "start", 700)
-    s.card(rx_, 248, rw, 182)
-    s.icon("signal", rx_ + 38, 286, C_BIZ, C_BIZ_T, 20)
-    s.text(rx_ + 20, 334, "Pleos Connect 적용 계획", 13, MUTED)
-    s.text(rx_ + 20, 372, "2030년 약 2천만 대", 22, C_BIZ, "start", 700)
-    s.text(rx_ + 20, 404, "현대차그룹, 2026.4.30", 12, MUTED)
-    s.save("mau_funnel.svg", "타깃과 예상 MAU")
+    s.rect(28, y + 6, 592, 56, C_BIZ_T, 12, "#C4B5FD")
+    s.text(48, y + 41, "출시 1년 예상 MAU", 17, C_BIZ, "start", 700)
+    s.text(600, y + 43, "≈ 1,800명", 24, C_BIZ, "end", 800)
+    rx_, rw = 652, 280
+    s.card(rx_, 76, rw, 324)
+    s.glyph("info", rx_ + 30, 108, SUBT, 22)
+    s.text(rx_ + 50, 114, "읽는 법", 16, INK, "start", 700)
+    notes = [("1,800명", "2025년 판매 대수를 1년 탑재량으로 본 값"),
+             ("약 560명", "2026.9 말까지 실제 깔린 차만 세면"),
+             ("차량 2천만 대", "Pleos Connect 2030 적용 목표 (현대차그룹, 2026.4.30) · 차종이 늘수록 커짐")]
+    yy = 150
+    for big, why in notes:
+        s.text(rx_ + 22, yy, big, 18, C_BIZ, "start", 700)
+        for j, ln in enumerate(wrap(why, 13.5, rw - 44)):
+            s.text(rx_ + 22, yy + 22 + j * 19, ln, 13.5, SUBT)
+        yy += 22 + 19 * len(wrap(why, 13.5, rw - 44)) + 22
+    s.save("mau_funnel.svg", "예상 MAU 계산")
 
 
 def retention_revenue():
     s = Svg(960, 384)
     s.card(28, 28, 442, 328, "#FFFFFF")
-    s.text(48, 62, "Retention 장치 · 다시 쓰게 하는 고리", 16, INK, "start", 700)
-    nodes = [(249, 104, ["멀미 완화 버튼 누름"]), (360, 214, [("누른 순간 ", None), ("D", V_D), (" 기록", None)]),
-             (138, 214, [("내 기준선 ", None), ("τ", V_TAU), (" 정확해짐", None)])]
-    pw = 178
-    for i, (x, y, lab) in enumerate(nodes):
-        s.rect(x - pw / 2, y - 20, pw, 40, CARD, 20, LINE)
-        if i == 0:
-            s.text(x, y + 5, lab[0], 14, INK, "middle", 700)
-        else:
-            s.rich(x, y + 5, [(t, c, "var") if c else (t, INK, "bold") for t, c in lab], 14, "middle")
-    # arrows: curved between nodes
-    s.path("M318 126 Q350 160 356 190", V_D, 1.8)
-    s.path("M350 186 L356 192 L360 184", V_D, 1.8)
-    s.path("M270 218 L230 218", V_TAU, 1.8)
-    s.path("M236 213 L229 218 L236 223", V_TAU, 1.8)
-    s.path("M134 192 Q140 150 178 126", MUTED, 1.8)
-    s.path("M170 124 L179 125 L176 133", MUTED, 1.8)
-    s.text(249, 168, "누를수록 정확", 13, MUTED, "middle", 700)
-    s.chip(48, 262, "한 번 켜 두면 뒤에서 계속", INK, CARD, LINE, 12, 26)
-    s.tag_pleos(48 + tw("한 번 켜 두면 뒤에서 계속", 12) + 28, 264, "시동 자동 시작은 Pleos 협의 후")
-    w = s.chip(48, 304, "MAU 식의 월 사용 60%", INK, "#FFFFFF", MUTED, 12.5, 30, bold=True, dash="4 3", pad=12)
-    s.tag_assume(48 + w + 8, 308)
-    # revenue
+    s.text(48, 62, "다시 쓰게 하는 고리 (Retention)", 17, INK, "start", 700)
+    pw = 196
+    nodes = [(249, 108, "멀미 완화 버튼 누름"), (362, 214, "누른 순간 흔들림 기록"), (136, 214, "우리 아이 기준 정확해짐")]
+    for x, y, lab in nodes:
+        s.rect(x - pw / 2, y - 22, pw, 44, C_BIZ_T, 22)
+        s.text(x, y + 5.5, lab, 15, C_BIZ, "middle", 700)
+    s.path("M318 132 Q350 160 356 188", C_BIZ, 2)
+    s.path("M349 183 L356 191 L361 182", C_BIZ, 2)
+    s.path("M262 214 L240 214", C_BIZ, 2)
+    s.path("M247 208 L239 214 L247 220", C_BIZ, 2)
+    s.path("M124 190 Q132 150 168 132", C_BIZ, 2)
+    s.path("M160 130 L169 131 L166 140", C_BIZ, 2)
+    s.text(249, 172, "누를수록 정확", 14, SUBT, "middle", 700)
+    s.glyph("power", 58, 280, C_BIZ, 22)
+    s.text(80, 286, "한 번 켜 두면 주행마다 뒤에서 계속", 15, INK, "start", 700)
+    s.text(80, 310, "시동 자동 시작은 Pleos 협의 후", 13.5, SUBT)
+    s.text(80, 332, "→ MAU 식의 월 사용 60%(가정) 근거", 13.5, SUBT)
     x0 = 490
     s.card(x0, 28, 442, 328, "#FFFFFF")
-    s.text(x0 + 20, 62, "수익 모델 · 엔터테인먼트 연계", 16, INK, "start", 700)
-    s.rect(x0 + 20, 92, 250, 56, C_BIZ_T, 10, "#C4B5FD")
-    s.icon("palette", x0 + 48, 120, C_BIZ, "#FFFFFF", 16)
-    s.text(x0 + 72, 125, "캐릭터 · 가상 아이돌 IP 테마", 13, C_BIZ, "start", 700)
-    s.rect(x0 + 280, 92, 92, 56, C_BIZ_T, 10, "#C4B5FD")
-    s.glyph("mic", x0 + 300, 120, C_BIZ, 18)
-    s.text(x0 + 314, 125, "음성 팩", 13, C_BIZ, "start", 700)
-    s.path(f"M{x0 + 384} 94h8v52h-8", C_BIZ, 1.6)
-    s.text(x0 + 400, 125, "판매", 14, C_BIZ, "start", 700)
-    s.rect(x0 + 20, 158, 352, 52, "#F3F4F6", 10, "#E5E7EB")
-    s.icon("gift", x0 + 48, 184, "#6B7280", "#FFFFFF", 16)
-    s.text(x0 + 72, 189, "기본 기능 무료", 14, INK, "start", 700)
-    s.path(f"M{x0 + 384} 160h8v48h-8", "#9CA3AF", 1.6)
-    s.text(x0 + 400, 189, "무료", 14, "#6B7280", "start", 700)
-    s.chip(x0 + 20, 304, "루미 = 오리지널 예시, IP 계약 없음", MUTED, "#FFFFFF", MUTED, 12, 26, dash="4 3")
+    s.text(x0 + 20, 62, "수익 모델 · 엔터테인먼트 연계", 17, INK, "start", 700)
+    s.text(x0 + 20, 100, "판매", 14.5, C_BIZ, "start", 700)
+    s.rect(x0 + 20, 110, 270, 60, C_BIZ_T, 10, "#C4B5FD")
+    s.icon("palette", x0 + 48, 140, C_BIZ, "#FFFFFF", 17)
+    s.text(x0 + 74, 146, "캐릭터 · 가상 아이돌 IP 테마", 15, C_BIZ, "start", 700)
+    s.rect(x0 + 300, 110, 122, 60, C_BIZ_T, 10, "#C4B5FD")
+    s.glyph("mic", x0 + 326, 140, C_BIZ, 20)
+    s.text(x0 + 344, 146, "음성 팩", 15, C_BIZ, "start", 700)
+    s.text(x0 + 20, 204, "무료", 14.5, "#4B5563", "start", 700)
+    s.rect(x0 + 20, 214, 402, 54, "#F3F4F6", 10, "#E5E7EB")
+    s.icon("gift", x0 + 48, 241, "#4B5563", "#FFFFFF", 17)
+    s.text(x0 + 74, 246, "멀미 계산 · 공기 · 창문 · 음성 기본 기능", 15, INK, "start", 700)
+    s.glyph("info", x0 + 32, 310, SUBT, 20)
+    s.text(x0 + 52, 315, "앱 속 루미 테마는 오리지널 예시 · 실제 IP 계약 없음", 13.5, SUBT)
     s.save("retention_revenue.svg", "재사용 고리와 수익 모델")
 
 
@@ -734,7 +755,7 @@ def b2b_targets():
             s.text(x + 20, 194 + d, big, 28, C_BIZ, "start", 700)
             s.text(x + 20, 216 + d, small, 12, MUTED)
         else:
-            s.tag_pleos(x + 20, 168 + d, "Pleos 협의", size=15, h=32)
+            s.text(x + 20, 194 + d, "Pleos 협의 후", 22, SLATE, "start", 700)
         s.line(x + 20, 236 + d, x + tw_ - 20, 236 + d, LINE)
         for j, ln in enumerate(wrap(why, 13, tw_ - 40)):
             s.text(x + 20, 260 + d + j * 19, ln, 13, INK)
@@ -822,7 +843,7 @@ def remaining_work():
 
 
 FIGS = [evidence, two_values, scenario_cards, emulator_checks, theme_names, map_elements, phone_vs_car,
-        market_compare, mau_funnel, retention_revenue, b2b_targets, ride_quality_uses, limits, dev_env, remaining_work]
+        market_compare, target, mau_funnel, retention_revenue, b2b_targets, ride_quality_uses, limits, dev_env, remaining_work]
 
 if __name__ == "__main__":
     for f in FIGS:

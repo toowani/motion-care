@@ -2,45 +2,39 @@
 
 <rect x="0.75" y="0.75" width="958.5" height="382.5" rx="16" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1.5"/>
 <rect x="28.0" y="28.0" width="442.0" height="328.0" rx="12" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
-<text x="48.0" y="62.0" font-size="16" fill="#1F2340" text-anchor="start" font-weight="700">Retention 장치 · 다시 쓰게 하는 고리</text>
-<rect x="160.0" y="84.0" width="178.0" height="40.0" rx="20" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
-<text x="249.0" y="109.0" font-size="14" fill="#1F2340" text-anchor="middle" font-weight="700">멀미 완화 버튼 누름</text>
-<rect x="271.0" y="194.0" width="178.0" height="40.0" rx="20" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
-<text x="360.0" y="219.0" font-size="14" fill="#1F2340" font-weight="400" text-anchor="middle"><tspan fill="#1F2340" font-weight="700">누른 순간 </tspan><tspan fill="#7C3AED" font-family="Times New Roman, STIX Two Text, Georgia, serif" font-style="italic" font-weight="700" font-size="17">D</tspan><tspan fill="#1F2340" font-weight="700"> 기록</tspan></text>
-<rect x="49.0" y="194.0" width="178.0" height="40.0" rx="20" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
-<text x="138.0" y="219.0" font-size="14" fill="#1F2340" font-weight="400" text-anchor="middle"><tspan fill="#1F2340" font-weight="700">내 기준선 </tspan><tspan fill="#EA580C" font-family="Times New Roman, STIX Two Text, Georgia, serif" font-style="italic" font-weight="700" font-size="17">τ</tspan><tspan fill="#1F2340" font-weight="700"> 정확해짐</tspan></text>
-<path d="M318 126 Q350 160 356 190" fill="none" stroke="#7C3AED" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M350 186 L356 192 L360 184" fill="none" stroke="#7C3AED" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M270 218 L230 218" fill="none" stroke="#EA580C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M236 213 L229 218 L236 223" fill="none" stroke="#EA580C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M134 192 Q140 150 178 126" fill="none" stroke="#6B6E86" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M170 124 L179 125 L176 133" fill="none" stroke="#6B6E86" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-<text x="249.0" y="168.0" font-size="13" fill="#6B6E86" text-anchor="middle" font-weight="700">누를수록 정확</text>
-<rect x="48.0" y="262.0" width="144.8" height="26.0" rx="13.0" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
-<text x="120.4" y="279.3" font-size="12" fill="#1F2340" text-anchor="middle" font-weight="400">한 번 켜 두면 뒤에서 계속</text>
-<rect x="200.8" y="264.0" width="179.2" height="22.0" rx="11.0" fill="#FFFFFF" stroke="#334155" stroke-width="1"/>
-<text x="290.4" y="279.3" font-size="12" fill="#334155" text-anchor="middle" font-weight="700">시동 자동 시작은 Pleos 협의 후</text>
-<rect x="48.0" y="304.0" width="144.8" height="30.0" rx="15.0" fill="#FFFFFF" stroke="#6B6E86" stroke-width="1" stroke-dasharray="4 3"/>
-<text x="120.4" y="323.5" font-size="12.5" fill="#1F2340" text-anchor="middle" font-weight="700">MAU 식의 월 사용 60%</text>
-<rect x="200.8" y="308.0" width="37.6" height="22.0" rx="11.0" fill="#FFFFFF" stroke="#6B6E86" stroke-width="1" stroke-dasharray="4 3"/>
-<text x="219.6" y="323.3" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">가정</text>
+<text x="48.0" y="62.0" font-size="17" fill="#1F2340" text-anchor="start" font-weight="700">다시 쓰게 하는 고리 (Retention)</text>
+<rect x="151.0" y="86.0" width="196.0" height="44.0" rx="22" fill="#EDE9FE"/>
+<text x="249.0" y="113.5" font-size="15" fill="#6D28D9" text-anchor="middle" font-weight="700">멀미 완화 버튼 누름</text>
+<rect x="264.0" y="192.0" width="196.0" height="44.0" rx="22" fill="#EDE9FE"/>
+<text x="362.0" y="219.5" font-size="15" fill="#6D28D9" text-anchor="middle" font-weight="700">누른 순간 흔들림 기록</text>
+<rect x="38.0" y="192.0" width="196.0" height="44.0" rx="22" fill="#EDE9FE"/>
+<text x="136.0" y="219.5" font-size="15" fill="#6D28D9" text-anchor="middle" font-weight="700">우리 아이 기준 정확해짐</text>
+<path d="M318 132 Q350 160 356 188" fill="none" stroke="#6D28D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M349 183 L356 191 L361 182" fill="none" stroke="#6D28D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M262 214 L240 214" fill="none" stroke="#6D28D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M247 208 L239 214 L247 220" fill="none" stroke="#6D28D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M124 190 Q132 150 168 132" fill="none" stroke="#6D28D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M160 130 L169 131 L166 140" fill="none" stroke="#6D28D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="249.0" y="172.0" font-size="14" fill="#3F4660" text-anchor="middle" font-weight="700">누를수록 정확</text>
+<g transform="translate(47.0 269.0) scale(0.917)" fill="none" stroke="#6D28D9" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v8 M6.3 6.8a8 8 0 1 0 11.4 0"/></g>
+<text x="80.0" y="286.0" font-size="15" fill="#1F2340" text-anchor="start" font-weight="700">한 번 켜 두면 주행마다 뒤에서 계속</text>
+<text x="80.0" y="310.0" font-size="13.5" fill="#3F4660" text-anchor="start" font-weight="400">시동 자동 시작은 Pleos 협의 후</text>
+<text x="80.0" y="332.0" font-size="13.5" fill="#3F4660" text-anchor="start" font-weight="400">→ MAU 식의 월 사용 60%(가정) 근거</text>
 <rect x="490.0" y="28.0" width="442.0" height="328.0" rx="12" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
-<text x="510.0" y="62.0" font-size="16" fill="#1F2340" text-anchor="start" font-weight="700">수익 모델 · 엔터테인먼트 연계</text>
-<rect x="510.0" y="92.0" width="250.0" height="56.0" rx="10" fill="#EDE9FE" stroke="#C4B5FD" stroke-width="1"/>
-<circle cx="538.0" cy="120.0" r="16" fill="#FFFFFF"/>
-<g transform="translate(529.3 111.3) scale(0.727)" fill="none" stroke="#6D28D9" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.5 0 2-1 2-2s-1-1.5-1-2.5 1-1.5 2-1.5h2a4 4 0 0 0 4-4c0-4.5-4-8-9-8z M7.5 11h.01 M10 7h.01 M15 7h.01"/></g>
-<text x="562.0" y="125.0" font-size="13" fill="#6D28D9" text-anchor="start" font-weight="700">캐릭터 · 가상 아이돌 IP 테마</text>
-<rect x="770.0" y="92.0" width="92.0" height="56.0" rx="10" fill="#EDE9FE" stroke="#C4B5FD" stroke-width="1"/>
-<g transform="translate(781.0 111.0) scale(0.750)" fill="none" stroke="#6D28D9" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5a3 3 0 0 1 6 0v6a3 3 0 0 1-6 0z M5 11a7 7 0 0 0 14 0 M12 18v3"/></g>
-<text x="804.0" y="125.0" font-size="13" fill="#6D28D9" text-anchor="start" font-weight="700">음성 팩</text>
-<path d="M874 94h8v52h-8" fill="none" stroke="#6D28D9" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-<text x="890.0" y="125.0" font-size="14" fill="#6D28D9" text-anchor="start" font-weight="700">판매</text>
-<rect x="510.0" y="158.0" width="352.0" height="52.0" rx="10" fill="#F3F4F6" stroke="#E5E7EB" stroke-width="1"/>
-<circle cx="538.0" cy="184.0" r="16" fill="#FFFFFF"/>
-<g transform="translate(529.3 175.3) scale(0.727)" fill="none" stroke="#6B7280" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11h16v10H4z M3 7h18v4H3z M12 7v14 M12 7c-2-4-6-3-5 0 M12 7c2-4 6-3 5 0"/></g>
-<text x="562.0" y="189.0" font-size="14" fill="#1F2340" text-anchor="start" font-weight="700">기본 기능 무료</text>
-<path d="M874 160h8v48h-8" fill="none" stroke="#9CA3AF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-<text x="890.0" y="189.0" font-size="14" fill="#6B7280" text-anchor="start" font-weight="700">무료</text>
-<rect x="510.0" y="304.0" width="194.1" height="26.0" rx="13.0" fill="#FFFFFF" stroke="#6B6E86" stroke-width="1" stroke-dasharray="4 3"/>
-<text x="607.1" y="321.3" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">루미 = 오리지널 예시, IP 계약 없음</text>
+<text x="510.0" y="62.0" font-size="17" fill="#1F2340" text-anchor="start" font-weight="700">수익 모델 · 엔터테인먼트 연계</text>
+<text x="510.0" y="100.0" font-size="14.5" fill="#6D28D9" text-anchor="start" font-weight="700">판매</text>
+<rect x="510.0" y="110.0" width="270.0" height="60.0" rx="10" fill="#EDE9FE" stroke="#C4B5FD" stroke-width="1"/>
+<circle cx="538.0" cy="140.0" r="17" fill="#FFFFFF"/>
+<g transform="translate(528.7 130.7) scale(0.773)" fill="none" stroke="#6D28D9" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.5 0 2-1 2-2s-1-1.5-1-2.5 1-1.5 2-1.5h2a4 4 0 0 0 4-4c0-4.5-4-8-9-8z M7.5 11h.01 M10 7h.01 M15 7h.01"/></g>
+<text x="564.0" y="146.0" font-size="15" fill="#6D28D9" text-anchor="start" font-weight="700">캐릭터 · 가상 아이돌 IP 테마</text>
+<rect x="790.0" y="110.0" width="122.0" height="60.0" rx="10" fill="#EDE9FE" stroke="#C4B5FD" stroke-width="1"/>
+<g transform="translate(806.0 130.0) scale(0.833)" fill="none" stroke="#6D28D9" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5a3 3 0 0 1 6 0v6a3 3 0 0 1-6 0z M5 11a7 7 0 0 0 14 0 M12 18v3"/></g>
+<text x="834.0" y="146.0" font-size="15" fill="#6D28D9" text-anchor="start" font-weight="700">음성 팩</text>
+<text x="510.0" y="204.0" font-size="14.5" fill="#4B5563" text-anchor="start" font-weight="700">무료</text>
+<rect x="510.0" y="214.0" width="402.0" height="54.0" rx="10" fill="#F3F4F6" stroke="#E5E7EB" stroke-width="1"/>
+<circle cx="538.0" cy="241.0" r="17" fill="#FFFFFF"/>
+<g transform="translate(528.7 231.7) scale(0.773)" fill="none" stroke="#4B5563" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11h16v10H4z M3 7h18v4H3z M12 7v14 M12 7c-2-4-6-3-5 0 M12 7c2-4 6-3 5 0"/></g>
+<text x="564.0" y="246.0" font-size="15" fill="#1F2340" text-anchor="start" font-weight="700">멀미 계산 · 공기 · 창문 · 음성 기본 기능</text>
+<g transform="translate(512.0 300.0) scale(0.833)" fill="none" stroke="#3F4660" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0-18 0 M12 11v6 M12 7.5h.01"/></g>
+<text x="542.0" y="315.0" font-size="13.5" fill="#3F4660" text-anchor="start" font-weight="400">앱 속 루미 테마는 오리지널 예시 · 실제 IP 계약 없음</text>
 </svg>

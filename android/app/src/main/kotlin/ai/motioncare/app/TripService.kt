@@ -31,6 +31,8 @@ private const val MIN_LEARN_DOSE = 5.0
 private const val HISTORY = 900
 /** One 멀미 완화 press per this long; the car is still opening windows and changing the air. */
 private const val RELIEF_DEBOUNCE_MS = 20_000L
+/** On-screen (or card) line for the driver advice; the voice says it in full ([Voice.phrase]). */
+private const val DRIVER_LINE = "브레이크 부드럽게"
 /**
  * Family mode and its prompts are parked (team decision): no 가족 모드 button, no rear-seat
  * question, no post-trip question. The logic stays; set true to bring the prompts back with the UI
@@ -534,6 +536,7 @@ class TripService : Service() {
         if (a == Action.SUGGEST_REST_STOP) { Log.i(TAG, "t=${sample.t.toInt()}s engine rest stop (not offered)"); return }
         say(Voice.phrase(a))
         note("t=${sample.t.toInt()}s  ${Voice.phrase(a)}")
+        if (a == Action.TTS_DRIVER) action(DRIVER_LINE)
         if (a == Action.HVAC_FRESH) {
             if (settings.autoClimateOn) {
                 // counted and announced only once the car confirms; with the climate off, ask for a window

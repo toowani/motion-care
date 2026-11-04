@@ -1,38 +1,28 @@
 # 멀미 케어
 
-**멀미 지수로 높이는 탑승 쾌적함**
+### 멀미 지수 계산을 통한 탑승감 개선
 
-> <img src="docs/img/crave_logo.svg" width="28" align="absmiddle"> 현대자동차그룹 차량용 앱 개발 공모전 (Pleos Connect) · 팀 CRAVE
+**뒷좌석 아이가 멀미하기 전에, 차가 먼저 공기 · 창문 · 운전을 바꿉니다.**
 
-<img src="docs/img/demo.webp" width="100%" alt="북악스카이웨이 실제 도로 경로를 시뮬레이션으로 재생 (에뮬레이터, 3배속): 지도 탭, 캐릭터 둘레가 멀미 가능성 색으로 바뀜, 멀미 완화 버튼 → 창문 열고 바람 넣었어요">
+<img src="docs/img/ai_ad_draft.webp" width="100%" alt="광고 초안(AI 생성 영상): 뒷좌석 시점, 대시보드 화면의 캐릭터 둘레 링이 빨강으로 차오름 → 손가락이 주황 버튼을 누름 → 링이 꺼지고 창밖 풍경">
 
-**에뮬레이터 시연** · 실제 도로 경로 재생 · 3배속
+<sub>광고 초안 · AI 생성 영상 (Gemini) · 화면은 실제 앱과 다름</sub>
 
-<a href="docs/demo-script.md"><img src="docs/img/link_video.svg" height="36" alt="시연 영상 v3 · 촬영 예정 (콘티 보기)"></a> <a href="https://github.com/toowani/motion-care/releases"><img src="docs/img/link_apk.svg" height="36" alt="APK 받기 · GitHub Releases"></a> <a href="#8-부록-한계--실행-방법--문서"><img src="docs/img/link_repo.svg" height="36" alt="실행 방법 · 에뮬레이터 4단계"></a>
+<img src="docs/img/at_a_glance.svg" width="100%" alt="켜 두면 차가 알아서, 힘들면 버튼 하나 · 뒷좌석 아이(4–13세)를 태운 가족 차. 가운데 멀미 케어 앱 아이콘. 왼쪽 ① 차가 알아서(켜 두기만 하면): 아이 멀미 위험 오름(흔들림·더위로 멀미 지수 계산) → 화면·소리로 알림 → 더 오르면 바깥 공기(외기 순환)·온도 낮춤 + 운전자에게 &quot;브레이크 부드럽게&quot; → 실내가 나아지면 다시 계산. 오른쪽 ② 버튼 하나(아이가 힘들어하면): 멀미 완화 버튼 → 차가 바로 창문·바람·음성 → 누른 순간 기록 → 우리 아이에 맞춘 멀미 가능성 → 다음 주행엔 더 일찍 알림">
 
-<img src="docs/img/at_a_glance.svg" width="100%" alt="자동: 흔들림 지수 I가 오르면 차가 외기 전환·온도 낮춤, 바뀐 실내가 다시 계산으로 / 버튼: 멀미 완화를 누르면 창문·바람·음성, 그 순간의 D → 나만의 기준선 τ → 멀미 가능성 P">
+<img src="docs/img/demo.webp" width="100%" alt="북악스카이웨이 실제 도로 경로를 시뮬레이션으로 재생 (Pleos 에뮬레이터, 3배속): 캐릭터 둘레가 멀미 가능성 색으로 바뀜, 멀미 완화 버튼 → 창문 열고 바람 넣었어요">
 
-[심사 기준](#심사-기준) · [1 멀미 조건](#1-우리가-판단한-멀미-조건) · [2 근거](#2-근거) · [3 멀미 지수](#3-멀미-지수-계산) · [4 구현 방법](#4-구현-방법) · [5 실제 구현](#5-실제-구현) · [6 가치](#6-가치) · [7 확장](#7-확장-가능성) · [8 부록](#8-부록-한계--실행-방법--문서)
+**실제 도로 경로 재생 · 3배속** · 캐릭터 둘레 색 = 아이의 멀미 가능성 · 맨 아래 줄은 시연용 주행 선택 · Pleos 에뮬레이터
 
----
+<a href="docs/demo-script.md"><img src="docs/img/link_video.svg" height="40" alt="시연 콘티 · 영상은 촬영 예정"></a> <a href="https://github.com/toowani/motion-care/releases"><img src="docs/img/link_apk.svg" height="40" alt="APK 받기 · Releases · 이메일 첨부"></a> <a href="#8-부록-한계--실행-방법--문서"><img src="docs/img/link_repo.svg" height="40" alt="실행 방법 · 에뮬레이터 4단계"></a>
 
-## 심사 기준
+<sub><img src="docs/img/crave_logo.svg" width="16" align="absmiddle"> 현대자동차그룹 차량용 앱 개발 공모전 (Pleos Connect) · 팀 CRAVE</sub>
 
-<a href="#왜-폰이-아니라-차여야-하나"><img src="docs/img/crit_vehicle.svg" width="100%" alt="차량특화성: 차 신호로 계산하고, 차가 직접 공조·창문을 바꿈 · 핸들 각도로 1–2초 먼저, 외기·22°C 닫힌 고리, 버튼 하나로 뒷창문 20% · §4 §5 §6"></a>
-
-<a href="#1-우리가-판단한-멀미-조건"><img src="docs/img/crit_creativity.svg" width="100%" alt="창의성: 동승자는 다음 움직임을 모름 → 계산·공기·창문·학습을 한 고리로 · 4–13세에서 가장 흔함, 같은 조합의 양산 서비스 없음(조사 범위), 버튼 = 학습 데이터 · §1 §2 §3 §6"></a>
-
-<a href="#4-구현-방법"><img src="docs/img/crit_tech.svg" width="100%" alt="기술 활용성: Vehicle(HVAC·Window·SteeringWheel·TurnSignal)·NaviHelper·TTS · 에뮬레이터 실제 SDK 11항목 점검·9 확인, 파이썬 = Kotlin 2,162개 샘플 일치 · §4 §5"></a>
-
-<a href="#6-가치"><img src="docs/img/crit_business.svg" width="100%" alt="사업성: 아이가 있는 가족 운전자 · 출시 1년 MAU 약 1,800명 · Retention: 누를수록 내 기준 정확, 무료 + IP 테마·음성 팩, 택시 24만·통학 4만 대 · §6 §7"></a>
-
-<a href="#멀미-케어"><img src="docs/img/crit_bonus.svg" width="100%" alt="가산점 개발 산출물: 에뮬레이터 실제 실행 시연 + 저장소 + 서명된 APK · 시연 애니메이션·영상 v3 예정, APK: GitHub Releases, CI 점검·테스트·빌드 · 맨 위 §8"></a>
+[1 멀미 조건](#1-우리가-판단한-멀미-조건) · [2 근거](#2-근거) · [3 멀미 지수](#3-멀미-지수-계산) · [4 구현 방법](#4-구현-방법) · [5 실제 구현](#5-실제-구현) · [6 가치](#6-가치) · [7 확장](#7-확장-가능성) · [8 부록](#8-부록-한계--실행-방법--문서)
 
 ---
 
 ## 1. 우리가 판단한 멀미 조건
-
-<a href="#심사-기준"><img src="docs/img/badge_creativity.svg" height="36" alt="심사 기준: 창의성"></a>
 
 <img src="docs/img/conditions.svg" width="100%" alt="멀미 조건 4가지: ① 예고 없는 움직임(핸들 각도·방향지시등·다음 회전 → 1–2초 먼저 계산) ② 느린 흔들림 누적(속도·진행 방향 → 흔들림 지수 I·누적량 D) ③ 덥고 답답한 실내(실내 온도·내기순환 → 외기 전환·온도 낮춤) ④ 사람마다 다른 기준(멀미 완화 버튼 누른 순간 → 개인 기준선 τ 학습)">
 
@@ -40,15 +30,11 @@
 
 ## 2. 근거
 
-<a href="#심사-기준"><img src="docs/img/badge_creativity.svg" height="36" alt="심사 기준: 창의성"></a>
-
 <img src="docs/img/evidence.svg" width="100%" alt="조건별 근거: 1초 전 음성 예고(Kuiper 외, 2020), 0.5 Hz 미만 옆 흔들림과 누적량 형태(Turner & Griffin, 1999 · ISO 2631-1), 바람(D'Amour 외, 2017), 4–13세·뒤쪽 좌석(Huppert 외, 2019 · Turner & Griffin, 1999)">
 
 DOI와 한계: [research/literature.md](research/literature.md)
 
 ## 3. 멀미 지수 계산
-
-<a href="#심사-기준"><img src="docs/img/badge_creativity.svg" height="36" alt="심사 기준: 창의성"></a> <a href="#심사-기준"><img src="docs/img/badge_tech.svg" height="36" alt="심사 기준: 기술 활용성"></a>
 
 <img src="docs/img/index_flow.svg" width="100%" alt="멀미 지수 계산 흐름: 속도·진행 방향(핸들 각도로 앞당김) → 가속도 → 느린 흔들림 → 지수 I·누적 D → 판단(환경 계수 m, 개인 기준선 τ) → 흔들림 단계·멀미 가능성 P · 지수 > 기준선 × m → 외기 전환·22°C, 멀미 완화 버튼 → 창문·바람·음성">
 
@@ -85,8 +71,6 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 ## 4. 구현 방법
 
-<a href="#심사-기준"><img src="docs/img/badge_tech.svg" height="36" alt="심사 기준: 기술 활용성"></a> <a href="#심사-기준"><img src="docs/img/badge_vehicle.svg" height="36" alt="심사 기준: 차량특화성"></a>
-
 <img src="docs/img/sdk_map.svg" width="100%" alt="읽기(1초마다): Vehicle SteeringWheel(CAR_DRIVE)·TurnSignal·HVAC, 위치(GNSS)·CarPropertyManager, NaviHelper(TBT, DrivingInfo) → 계산: SDK와 분리된 순수 Kotlin 엔진(I·D·m·τ·P) → 행동: Vehicle HVAC(외기·22°C), Vehicle Window(뒷창문 20%, CONTROL_CAR_WINDOWS), TextToSpeech(HYBRID), SpeechToText(확장) · 닫힌 고리: 바뀐 실내 온도·환기가 다시 계산으로">
 
 <img src="docs/img/architecture.svg" width="100%" alt="앱 구조: Pleos 차량 신호 읽기 → 주행 지킴이(앱을 닫아도 뒤에서 계속 계산) ↔ 계산 엔진(시뮬레이터와 같은 계산) → 공기·창문·음성, 화면은 볼 때만, 내비를 보는 동안은 알림 카드">
@@ -102,8 +86,6 @@ DOI와 한계: [research/literature.md](research/literature.md)
 ---
 
 ## 5. 실제 구현
-
-<a href="#심사-기준"><img src="docs/img/badge_tech.svg" height="36" alt="심사 기준: 기술 활용성"></a> <a href="#심사-기준"><img src="docs/img/badge_vehicle.svg" height="36" alt="심사 기준: 차량특화성"></a> <a href="#심사-기준"><img src="docs/img/badge_bonus.svg" height="36" alt="심사 기준: 가산점 개발 산출물"></a>
 
 <img src="docs/img/real_or_sim.svg" width="100%" alt="Pleos Connect Emulator v2.1(Android Automotive API 34)에서 실제 실행 · 진짜 Pleos SDK: 공조·창문·음성, 방향지시등·핸들 각도·실내 온도 / 시뮬레이션(실제 도로 경로 재생): 속도·진행 방향·경로·회전 안내 카드·도착 시간 · 차 신호 조작은 Pleos 제공 Virtual Console">
 
@@ -163,7 +145,9 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 ## 6. 가치
 
-<a href="#심사-기준"><img src="docs/img/badge_vehicle.svg" height="36" alt="심사 기준: 차량특화성"></a> <a href="#심사-기준"><img src="docs/img/badge_business.svg" height="36" alt="심사 기준: 사업성"></a> <a href="#심사-기준"><img src="docs/img/badge_creativity.svg" height="36" alt="심사 기준: 창의성"></a>
+### 타깃
+
+<img src="docs/img/target.svg" width="100%" alt="타깃: 어린 자녀(4–13세)를 둔 가족 운전자 · 4–13세가 멀미에 가장 약함(Huppert 외, 2019) · 아이는 참거나 말로 표현하기 어려움 → 차가 먼저 알아차림 · 가족은 계속 새로 생김 → 지속 확대 · 2차 확대: 멀미하는 성인 동승자">
 
 ### 왜 폰이 아니라 차여야 하나
 
@@ -175,25 +159,23 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 [기획서 4절](docs/proposal.md) · [research/market.md](research/market.md)
 
-### 타깃 · MAU · Retention
+### MAU · Retention · 수익
 
-<img src="docs/img/mau_funnel.svg" width="100%" alt="타깃과 예상 MAU(막대는 로그 눈금): 탑재 차량 151,110대 × 자녀 가구 20.3% = 30,675 × 설치율 10%(가정) = 3,068 × 월 사용 60%(가정) = 1,841 ≈ 1,800명 · 지금 깔린 차 기준 약 560명 · 2030년 약 2천만 대">
+<img src="docs/img/mau_funnel.svg" width="100%" alt="출시 1년 예상 MAU: Pleos 탑재 차종 2025년 판매(그랜저 + 아반떼) 151,110대 × 18세 이하 자녀 가구 20.3%(4–13세 가족 포함) = 30,675 × 설치율 10%(가정) = 3,068 × 월 사용 60%(가정) = 1,841 ≈ 1,800명 · 읽는 법: 2026.9 말까지 실제 깔린 차만 세면 약 560명, Pleos Connect 2030 적용 목표 차량 2천만 대">
 
-<img src="docs/img/retention_revenue.svg" width="100%" alt="Retention 장치(멀미 완화 버튼 → 누른 순간 D 기록 → 내 기준선 τ 정확해짐, 한 번 켜 두면 뒤에서 계속, MAU 식의 월 사용 60% 가정)와 수익 모델(기본 무료, 캐릭터·가상 아이돌 IP 테마와 음성 팩 판매)">
+<img src="docs/img/retention_revenue.svg" width="100%" alt="다시 쓰게 하는 고리: 멀미 완화 버튼 누름 → 누른 순간 흔들림 기록 → 우리 아이 기준 정확해짐, 한 번 켜 두면 주행마다 뒤에서 계속(월 사용 60% 가정의 근거) · 수익 모델: 캐릭터·가상 아이돌 IP 테마와 음성 팩 판매, 기본 기능 무료, 루미는 오리지널 예시 · IP 계약 없음">
 
 [기획서 8절](docs/proposal.md)
 
 ### 확장 대상
 
-<img src="docs/img/b2b_targets.svg" width="100%" alt="확장 대상: 택시·호출 약 24만 대, 통학 차량 약 4만 대, 자율주행 시범운행지구 42곳, Pleos MiniApp·계기판(Pleos 협의)">
+<img src="docs/img/b2b_targets.svg" width="100%" alt="확장 대상: 택시·호출 약 24만 대, 통학 차량 약 4만 대, 자율주행 시범운행지구 42곳, Pleos MiniApp·계기판(Pleos 협의 후)">
 
 [협의 문의 초안](docs/pleos-inquiry.md)
 
 ---
 
 ## 7. 확장 가능성
-
-<a href="#심사-기준"><img src="docs/img/badge_business.svg" height="36" alt="심사 기준: 사업성"></a> <a href="#심사-기준"><img src="docs/img/badge_creativity.svg" height="36" alt="심사 기준: 창의성"></a>
 
 <img src="docs/img/extension_map.svg" width="100%" alt="같은 엔진(I·D·m·τ·P)에서 확장 4가지: ① 예측 음성 안내(엔진 계산 중, 앱에서 꺼 둠, 근거 Kuiper 외 2020, 동승 실험 뒤 켬) ② 휴게소 추천(제안 시점 3분 45초, 확장 LLM+POI 검색 API) ③ 가족 모드(아이마다 기준선) ④ 승차감 정량 지표(차종 비교·택시 평가·업계 표준, 제안)">
 
@@ -220,8 +202,6 @@ DOI와 한계: [research/literature.md](research/literature.md)
 ---
 
 ## 8. 부록: 한계 · 실행 방법 · 문서
-
-<a href="#심사-기준"><img src="docs/img/badge_bonus.svg" height="36" alt="심사 기준: 가산점 개발 산출물"></a>
 
 ### 심사용 빠른 실행
 

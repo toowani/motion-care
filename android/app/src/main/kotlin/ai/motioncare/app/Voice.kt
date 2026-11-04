@@ -166,7 +166,7 @@ class Voice(private val context: Context, private val log: (String) -> Unit) {
         fun phrase(a: Action): String = when (a) {
             Action.CUE_LEFT -> "곧 왼쪽으로 돌아요."
             Action.CUE_RIGHT -> "곧 오른쪽으로 돌아요."
-            Action.TTS_DRIVER -> "뒷좌석이 흔들리고 있어요. 조금만 부드럽게 가 볼까요?"
+            Action.TTS_DRIVER -> "뒷좌석이 흔들려요. 브레이크를 부드럽게 밟아 주세요."
             Action.HVAC_FRESH -> "바깥 공기로 바꾸고 온도를 조금 낮출게요."
             Action.SUGGEST_REST_STOP -> "흔들림이 계속돼요. 가까운 휴게소에 들를까요?"
         }

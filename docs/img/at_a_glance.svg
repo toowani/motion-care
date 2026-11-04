@@ -1,48 +1,71 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 360" width="960" height="360" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="14">
-<rect x="0.75" y="0.75" width="958.5" height="358.5" rx="16" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1.5"/>
-<rect x="28.0" y="28.0" width="904.0" height="144.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1.5"/>
-<rect x="44.0" y="84.0" width="64.0" height="32.0" rx="16.0" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1.5"/>
-<text x="76.0" y="105.0" font-size="14" fill="#1F2340" text-anchor="middle" font-weight="700">자동</text>
-<rect x="136.0" y="52.0" width="270.0" height="64.0" rx="12" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.8"/>
-<circle cx="172.0" cy="84.0" r="22" fill="#FFFFFF"/>
-<g transform="translate(160.0 72.0) scale(1.0)" fill="none" stroke="#2563EB" stroke-width="2.00" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12c1.7-5 3.3-5 5 0s3.3 5 5 0 3.3-5 5 0 2.5 3.5 5 1.5"/></g>
-<text x="290.0" y="90.0" font-size="17" fill="#1F2340" text-anchor="middle" font-weight="700">흔들림 지수 <tspan fill="#2563EB" font-family="Times New Roman, Times, serif" font-style="italic" font-weight="700" font-size="19.0">I</tspan> ↑</text>
-<path d="M410.0 84.0 L468.0 84.0" fill="none" stroke="#6B6E86" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M476.0 84.0 L467.0 88.3 L467.0 79.7 Z" fill="#6B6E86"/>
-<rect x="480.0" y="52.0" width="360.0" height="64.0" rx="12" fill="#ECFDF5" stroke="#065F46" stroke-width="1.8"/>
-<circle cx="516.0" cy="84.0" r="22" fill="#FFFFFF"/>
-<g transform="translate(504.0 72.0) scale(1.0)" fill="none" stroke="#065F46" stroke-width="2.00" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5h10.5a3 3 0 1 0-3-3"/><path d="M3 12.5h15a3 3 0 1 1-3 3"/><path d="M3 16.5h7"/></g>
-<text x="680.0" y="90.0" font-size="17" fill="#065F46" text-anchor="middle" font-weight="700">차가 외기 전환 · 온도 낮춤</text>
-<path d="M660.0 118.0 L660.0 150.0 L272.0 150.0 L272.0 129.0" fill="none" stroke="#065F46" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M272.0 121.0 L276.3 130.0 L267.7 130.0 Z" fill="#065F46"/>
-<rect x="372.0" y="138.0" width="200.0" height="24.0" rx="6" fill="#F8FAFC"/>
-<text x="472.0" y="155.0" font-size="13" fill="#065F46" text-anchor="middle" font-weight="700">바뀐 실내가 다시 계산으로</text>
-<rect x="28.0" y="186.0" width="904.0" height="146.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1.5"/>
-<rect x="44.0" y="243.0" width="64.0" height="32.0" rx="16.0" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1.5"/>
-<text x="76.0" y="264.0" font-size="14" fill="#1F2340" text-anchor="middle" font-weight="700">버튼</text>
-<rect x="136.0" y="233.0" width="176.0" height="52.0" rx="26" fill="#EA580C"/>
-<g transform="translate(152.0 247.0) scale(1.0)" fill="none" stroke="#FFFFFF" stroke-width="2.00" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5.5"/><path d="M12 14.5V21M9 18l3 3 3-3"/></g>
-<text x="244.0" y="265.0" font-size="16" fill="#FFFFFF" text-anchor="middle" font-weight="700">멀미 완화 누름</text>
-<line x1="312.0" y1="259.0" x2="340.0" y2="259.0" stroke="#6B6E86" stroke-width="2" stroke-linecap="round"/>
-<line x1="340.0" y1="225.0" x2="340.0" y2="293.0" stroke="#6B6E86" stroke-width="2" stroke-linecap="round"/>
-<path d="M340.0 225.0 L362.0 225.0" fill="none" stroke="#6B6E86" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M370.0 225.0 L361.0 229.3 L361.0 220.7 Z" fill="#6B6E86"/>
-<path d="M340.0 293.0 L362.0 293.0" fill="none" stroke="#6B6E86" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M370.0 293.0 L361.0 297.3 L361.0 288.7 Z" fill="#6B6E86"/>
-<rect x="374.0" y="199.0" width="300.0" height="52.0" rx="12" fill="#ECFDF5" stroke="#065F46" stroke-width="1.8"/>
-<g transform="translate(387.8 214.8) scale(0.85)" fill="none" stroke="#065F46" stroke-width="2.35" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V10l5-5h11v14z"/><path d="M4 13h16"/></g>
-<g transform="translate(417.8 214.8) scale(0.85)" fill="none" stroke="#065F46" stroke-width="2.35" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5h10.5a3 3 0 1 0-3-3"/><path d="M3 12.5h15a3 3 0 1 1-3 3"/><path d="M3 16.5h7"/></g>
-<g transform="translate(447.8 214.8) scale(0.85)" fill="none" stroke="#065F46" stroke-width="2.35" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5M18.5 6.5a7.5 7.5 0 0 1 0 11"/></g>
-<text x="586.0" y="231.0" font-size="16" fill="#065F46" text-anchor="middle" font-weight="700">창문 · 바람 · 음성</text>
-<text x="690.0" y="231.0" font-size="13" fill="#6B6E86" text-anchor="start" font-weight="400">차가 바로</text>
-<rect x="374.0" y="267.0" width="150.0" height="52.0" rx="12" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1.8"/>
-<text x="449.0" y="298.8" font-size="16" fill="#1F2340" text-anchor="middle" font-weight="700">그 순간의 <tspan fill="#7C3AED" font-family="Times New Roman, Times, serif" font-style="italic" font-weight="700" font-size="17.9">D</tspan></text>
-<path d="M528.0 293.0 L554.0 293.0" fill="none" stroke="#6B6E86" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M562.0 293.0 L553.0 297.3 L553.0 288.7 Z" fill="#6B6E86"/>
-<rect x="566.0" y="267.0" width="186.0" height="52.0" rx="12" fill="#FFEDD5" stroke="#EA580C" stroke-width="1.8"/>
-<text x="659.0" y="298.8" font-size="16" fill="#1F2340" text-anchor="middle" font-weight="700">나만의 기준선 <tspan fill="#EA580C" font-family="Times New Roman, Times, serif" font-style="italic" font-weight="700" font-size="17.9">τ</tspan></text>
-<path d="M756.0 293.0 L782.0 293.0" fill="none" stroke="#6B6E86" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M790.0 293.0 L781.0 297.3 L781.0 288.7 Z" fill="#6B6E86"/>
-<rect x="794.0" y="267.0" width="122.0" height="52.0" rx="12" fill="#FEE2E2" stroke="#DC2626" stroke-width="1.8"/>
-<text x="855.0" y="298.4" font-size="15" fill="#1F2340" text-anchor="middle" font-weight="700">멀미 가능성 <tspan fill="#DC2626" font-family="Times New Roman, Times, serif" font-style="italic" font-weight="700" font-size="16.8">P</tspan></text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 712" width="1000" height="712" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="14">
+<rect x="0.75" y="0.75" width="998.5" height="710.5" rx="16" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1.5"/>
+<text x="32.0" y="54.0" font-size="30" fill="#1F2340" text-anchor="start" font-weight="800">켜 두면 차가 알아서, 힘들면 버튼 하나</text>
+<text x="32.0" y="90.0" font-size="17.5" fill="#3F4660" text-anchor="start" font-weight="400">뒷좌석 아이(4–13세)를 태운 가족 차 · 운전자가 한 번 켜 두면 주행 내내 뒤에서 계산</text>
+<rect x="20.0" y="122.0" width="425.0" height="570.0" rx="20" fill="#F0FDFA" stroke="#CCFBF1" stroke-width="2"/>
+<rect x="42.0" y="142.0" width="155.8" height="42.0" rx="21.0" fill="#0F766E"/>
+<text x="119.9" y="170.2" font-size="20" fill="#FFFFFF" text-anchor="middle" font-weight="700">① 차가 알아서</text>
+<text x="211.8" y="170.0" font-size="18" fill="#0F766E" text-anchor="start" font-weight="700">켜 두기만 하면</text>
+<rect x="66.0" y="200.0" width="140.0" height="80.0" rx="22" fill="#FEE2E2"/>
+<g transform="translate(91.0 219.0) scale(1.75)" fill="none" stroke="#B91C1C" stroke-width="1.37" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5.5" r="2.8"/><path d="M12 8.5v7M7.5 11.5h9M12 15.5l-3.2 5.5M12 15.5l3.2 5.5"/></g>
+<g transform="translate(139.0 219.0) scale(1.75)" fill="none" stroke="#B91C1C" stroke-width="1.37" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18l5.5-5.5 4 3.5L20 8.5"/><path d="M14.5 8.5H20V14"/></g>
+<text x="238.0" y="236.0" font-size="20" fill="#B91C1C" text-anchor="start" font-weight="700">아이 멀미 위험 오름</text>
+<text x="238.0" y="262.0" font-size="15.5" fill="#3F4660" text-anchor="start" font-weight="400">흔들림 · 더위로 멀미 지수 계산</text>
+<rect x="66.0" y="316.0" width="140.0" height="80.0" rx="22" fill="#FEF3C7"/>
+<g transform="translate(91.0 335.0) scale(1.75)" fill="none" stroke="#92400E" stroke-width="1.37" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="12" rx="2"/><path d="M9 20.5h6M12 16.5v4"/></g>
+<g transform="translate(139.0 335.0) scale(1.75)" fill="none" stroke="#92400E" stroke-width="1.37" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16.5v-5.5a6 6 0 0 1 12 0v5.5l1.8 1.8H4.2z"/><path d="M10 21a2.2 2.2 0 0 0 4 0"/></g>
+<text x="238.0" y="352.0" font-size="20" fill="#92400E" text-anchor="start" font-weight="700">화면 · 소리로 알림</text>
+<text x="238.0" y="378.0" font-size="15.5" fill="#3F4660" text-anchor="start" font-weight="400">가족 모두 바로 알게</text>
+<rect x="66.0" y="432.0" width="140.0" height="80.0" rx="22" fill="#CCFBF1"/>
+<g transform="translate(91.0 451.0) scale(1.75)" fill="none" stroke="#0F766E" stroke-width="1.37" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5h10.5a3 3 0 1 0-3-3"/><path d="M3 12.5h15a3 3 0 1 1-3 3"/><path d="M3 16.5h7"/></g>
+<g transform="translate(139.0 451.0) scale(1.75)" fill="none" stroke="#0F766E" stroke-width="1.37" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4.5a2 2 0 0 1 4 0V14a4 4 0 1 1-4 0z"/><path d="M12 9v8"/></g>
+<text x="238.0" y="468.0" font-size="20" fill="#1F2340" text-anchor="start" font-weight="700">바깥 공기 · 온도 낮춤</text>
+<text x="238.0" y="494.0" font-size="15.5" fill="#3F4660" text-anchor="start" font-weight="400">더 오르면 외기 순환 · 22°C</text>
+<rect x="66.0" y="548.0" width="140.0" height="80.0" rx="22" fill="#CCFBF1"/>
+<g transform="translate(91.0 567.0) scale(1.75)" fill="none" stroke="#0F766E" stroke-width="1.37" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/><path d="M3.2 11h6.4M14.4 11h6.4M12 14.5V21"/></g>
+<g transform="translate(139.0 567.0) scale(1.75)" fill="none" stroke="#0F766E" stroke-width="1.37" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5h16v11H11l-4.5 4v-4H4z"/><path d="M8 9h8M8 12h5"/></g>
+<text x="238.0" y="584.0" font-size="20" fill="#1F2340" text-anchor="start" font-weight="700">운전자에게 권고</text>
+<text x="238.0" y="610.0" font-size="15.5" fill="#3F4660" text-anchor="start" font-weight="400">“브레이크 부드럽게”</text>
+<path d="M136.0 285.0 L136.0 301.4" fill="none" stroke="#0F766E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M136.0 311.0 L130.8 300.2 L141.2 300.2 Z" fill="#0F766E"/>
+<path d="M136.0 401.0 L136.0 417.4" fill="none" stroke="#0F766E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M136.0 427.0 L130.8 416.2 L141.2 416.2 Z" fill="#0F766E"/>
+<text x="136.0" y="539.0" font-size="26" fill="#0F766E" text-anchor="middle" font-weight="700">+</text>
+<path d="M136.0 633.0 L136.0 662.0 L36.0 662.0 L36.0 240.0 L50.4 240.0" fill="none" stroke="#0F766E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 6"/>
+<path d="M60.0 240.0 L49.2 245.2 L49.2 234.8 Z" fill="#0F766E"/>
+<text x="154.0" y="669.0" font-size="19" fill="#0F766E" text-anchor="start" font-weight="700">실내가 나아지면 다시 계산</text>
+<g transform="translate(452.0 352.0) scale(0.8889)"><rect width="108" height="108" rx="24" fill="#363636"/><g transform="translate(0 4.24) translate(54 54) scale(1.06) translate(-54 -54)"><path d="M33,60 L33,54 Q33,50 37,49.5 L41,49 Q44,40 52,40 L58,40 Q64,40 68,49 L71,49.5 Q75,50.5 75,55 L75,60 Q75,63 72,63 L70.5,63 A6,6 0 0 0 58.5,63 L49.5,63 A6,6 0 0 0 37.5,63 L36,63 Q33,63 33,60 Z M48.2,53.5 a1.5,1.5 0 1,0 3,0 a1.5,1.5 0 1,0 -3,0 Z M58.8,53.5 a1.5,1.5 0 1,0 3,0 a1.5,1.5 0 1,0 -3,0 Z M50.4,56.8 Q55,62.2 59.6,56.8 Q55,59.4 50.4,56.8 Z" fill="#FFFFFF" fill-rule="evenodd"/><path d="M39.3,64 a4.2,4.2 0 1,0 8.4,0 a4.2,4.2 0 1,0 -8.4,0 Z M60.3,64 a4.2,4.2 0 1,0 8.4,0 a4.2,4.2 0 1,0 -8.4,0 Z" fill="#FFFFFF"/><path d="M57,36.5 Q62,31 68,33.5" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round"/><path d="M68,33.5 Q70,26.5 77,26.5 Q76,34 68,33.5 Z" fill="#FFFFFF"/></g></g>
+<text x="500.0" y="476.0" font-size="20" fill="#1F2340" text-anchor="middle" font-weight="800">멀미 케어</text>
+<text x="500.0" y="500.0" font-size="14.5" fill="#3F4660" text-anchor="middle" font-weight="400">Pleos 차량 앱</text>
+<rect x="555.0" y="122.0" width="425.0" height="570.0" rx="20" fill="#EFF6FF" stroke="#DBEAFE" stroke-width="2"/>
+<rect x="577.0" y="142.0" width="136.8" height="42.0" rx="21.0" fill="#1D4ED8"/>
+<text x="645.4" y="170.2" font-size="20" fill="#FFFFFF" text-anchor="middle" font-weight="700">② 버튼 하나</text>
+<text x="727.8" y="170.0" font-size="18" fill="#1D4ED8" text-anchor="start" font-weight="700">아이가 힘들어하면</text>
+<rect x="625.0" y="200.0" width="92.0" height="80.0" rx="40.0" fill="#EA580C"/>
+<g transform="translate(650.0 219.0) scale(1.75)" fill="none" stroke="#FFFFFF" stroke-width="1.37" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12.5V5a1.6 1.6 0 0 1 3.2 0v6"/><path d="M12.2 10.5V9a1.6 1.6 0 0 1 3.2 0v2"/><path d="M15.4 11a1.6 1.6 0 0 1 3.2 0v3.5a6.5 6.5 0 0 1-6.5 6.5h-.6a6 6 0 0 1-5-2.6l-2.4-3.6a1.6 1.6 0 0 1 2.6-1.8L9 15"/><path d="M5.2 4.2A5 5 0 0 1 7 2.6M16 2.6a5 5 0 0 1 1.8 1.6"/></g>
+<text x="773.0" y="236.0" font-size="20" fill="#EA580C" text-anchor="start" font-weight="700">“멀미 완화” 버튼</text>
+<text x="773.0" y="262.0" font-size="15.5" fill="#3F4660" text-anchor="start" font-weight="400">화면에서 한 번 누름</text>
+<rect x="583.0" y="316.0" width="176.0" height="80.0" rx="22" fill="#DBEAFE"/>
+<g transform="translate(607.8 336.8) scale(1.6)" fill="none" stroke="#1D4ED8" stroke-width="1.50" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 16.5v-4l2.8-5.5h10.2l3.8 5.5h2.2v4z"/><circle cx="7" cy="16.8" r="2"/><circle cx="17" cy="16.8" r="2"/><path d="M7 11.5l1.6-3h3.4v3z"/><path d="M14 3.5h5M15.5 6h5"/></g>
+<g transform="translate(651.8 336.8) scale(1.6)" fill="none" stroke="#1D4ED8" stroke-width="1.50" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5h10.5a3 3 0 1 0-3-3"/><path d="M3 12.5h15a3 3 0 1 1-3 3"/><path d="M3 16.5h7"/></g>
+<g transform="translate(695.8 336.8) scale(1.6)" fill="none" stroke="#1D4ED8" stroke-width="1.50" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5M18.5 6.5a7.5 7.5 0 0 1 0 11"/></g>
+<text x="773.0" y="352.0" font-size="20" fill="#1F2340" text-anchor="start" font-weight="700">차가 바로 해 줌</text>
+<text x="773.0" y="378.0" font-size="15.5" fill="#3F4660" text-anchor="start" font-weight="400">창문 · 바람 · 음성 안내</text>
+<rect x="625.0" y="432.0" width="92.0" height="80.0" rx="22" fill="#DBEAFE"/>
+<g transform="translate(650.0 451.0) scale(1.75)" fill="none" stroke="#1D4ED8" stroke-width="1.37" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h12v17l-6-4-6 4z"/><path d="M9 9.5l2 2 4-4"/></g>
+<text x="773.0" y="468.0" font-size="20" fill="#1F2340" text-anchor="start" font-weight="700">그 순간을 기억</text>
+<text x="773.0" y="494.0" font-size="15.5" fill="#3F4660" text-anchor="start" font-weight="400">누른 순간 흔들림 기록</text>
+<rect x="625.0" y="548.0" width="92.0" height="80.0" rx="22" fill="#DBEAFE"/>
+<g transform="translate(650.0 567.0) scale(1.75)" fill="none" stroke="#1D4ED8" stroke-width="1.37" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="7" r="3"/><path d="M2.5 20c0-4 2.5-6.5 5.5-6.5s5.5 2.5 5.5 6.5"/><path d="M16 8h6M16 15h6"/><circle cx="18.5" cy="8" r="1.6"/><circle cx="20" cy="15" r="1.6"/></g>
+<text x="773.0" y="584.0" font-size="20" fill="#1F2340" text-anchor="start" font-weight="700">우리 아이에 맞춤</text>
+<text x="773.0" y="610.0" font-size="15.5" fill="#3F4660" text-anchor="start" font-weight="400">나에게 맞춘 멀미 가능성</text>
+<path d="M671.0 285.0 L671.0 301.4" fill="none" stroke="#1D4ED8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M671.0 311.0 L665.8 300.2 L676.2 300.2 Z" fill="#1D4ED8"/>
+<path d="M671.0 401.0 L671.0 417.4" fill="none" stroke="#1D4ED8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M671.0 427.0 L665.8 416.2 L676.2 416.2 Z" fill="#1D4ED8"/>
+<path d="M671.0 517.0 L671.0 533.4" fill="none" stroke="#1D4ED8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M671.0 543.0 L665.8 532.2 L676.2 532.2 Z" fill="#1D4ED8"/>
+<path d="M671.0 633.0 L671.0 662.0 L571.0 662.0 L571.0 240.0 L609.4 240.0" fill="none" stroke="#1D4ED8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 6"/>
+<path d="M619.0 240.0 L608.2 245.2 L608.2 234.8 Z" fill="#1D4ED8"/>
+<text x="689.0" y="669.0" font-size="19" fill="#1D4ED8" text-anchor="start" font-weight="700">다음 주행엔 더 일찍 알림</text>
 </svg>

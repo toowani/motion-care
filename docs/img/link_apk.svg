@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 267 44" width="267" height="44" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="14">
-<rect x="0.75" y="0.75" width="265.5" height="42.5" rx="22" fill="#FFFFFF" stroke="#047857" stroke-width="1.5"/>
-<circle cx="22" cy="22" r="18.0" fill="#047857"/>
-<g transform="translate(12.00,12.00) scale(0.8333)" fill="none" stroke="#FFFFFF" stroke-width="2.40" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="M7 10.5l5 5 5-5"/><path d="M5 20h14"/></g>
-<text x="48.0" y="28.0" font-size="16" fill="#047857" text-anchor="start" font-weight="700">APK 받기</text>
-<text x="129.9" y="27.5" font-size="13" fill="#6B6E86" text-anchor="start" font-weight="400">GitHub Releases</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 336 52" width="336" height="52" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="14">
+<rect x="0.75" y="0.75" width="334.5" height="50.5" rx="26" fill="#FFFFFF" stroke="#047857" stroke-width="1.5"/>
+<circle cx="26" cy="26" r="20.0" fill="#047857"/>
+<g transform="translate(15.00,15.00) scale(0.9167)" fill="none" stroke="#FFFFFF" stroke-width="2.18" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="M7 10.5l5 5 5-5"/><path d="M5 20h14"/></g>
+<text x="56.0" y="33.0" font-size="19" fill="#047857" text-anchor="start" font-weight="700">APK 받기</text>
+<text x="151.0" y="32.5" font-size="15" fill="#3F4660" text-anchor="start" font-weight="400">Releases · 이메일 첨부</text>
 </svg>

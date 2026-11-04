@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 296 44" width="296" height="44" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="14">
-<rect x="0.75" y="0.75" width="294.5" height="42.5" rx="22" fill="#FFFFFF" stroke="#B91C1C" stroke-width="1.5"/>
-<circle cx="22" cy="22" r="18.0" fill="#B91C1C"/>
-<g transform="translate(12.00,12.00) scale(0.8333)" fill="none" stroke="#FFFFFF" stroke-width="2.40" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l5.5 3.5-5.5 3.5z"/></g>
-<text x="48.0" y="28.0" font-size="16" fill="#B91C1C" text-anchor="start" font-weight="700">시연 영상 v3</text>
-<text x="149.2" y="27.5" font-size="13" fill="#6B6E86" text-anchor="start" font-weight="400">촬영 예정 · 콘티 보기</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 285 52" width="285" height="52" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="14">
+<rect x="0.75" y="0.75" width="283.5" height="50.5" rx="26" fill="#FFFFFF" stroke="#4338CA" stroke-width="1.5"/>
+<circle cx="26" cy="26" r="20.0" fill="#4338CA"/>
+<g transform="translate(15.00,15.00) scale(0.9167)" fill="none" stroke="#FFFFFF" stroke-width="2.18" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/><path d="M9 13h7M9 17h5"/></g>
+<text x="56.0" y="33.0" font-size="19" fill="#4338CA" text-anchor="start" font-weight="700">시연 콘티</text>
+<text x="146.1" y="32.5" font-size="15" fill="#3F4660" text-anchor="start" font-weight="400">영상은 촬영 예정</text>
 </svg>

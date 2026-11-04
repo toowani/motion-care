@@ -1,42 +1,41 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 470" width="960" height="470" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="14" role="img"><title>타깃과 예상 MAU</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 428" width="960" height="428" font-family="Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif" font-size="14" role="img"><title>예상 MAU 계산</title>
 
-<rect x="0.75" y="0.75" width="958.5" height="468.5" rx="16" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1.5"/>
-<rect x="28.0" y="26.0" width="456.4" height="34.0" rx="17.0" fill="#EDE9FE" stroke="#EDE9FE" stroke-width="1"/>
-<text x="256.2" y="48.0" font-size="14" fill="#6D28D9" text-anchor="middle" font-weight="700">타깃 · 아이가 있는 30–40대 가족 운전자 (장거리 귀성 · 여행)</text>
-<g transform="translate(44.0 33.0) scale(0.833)" fill="none" stroke="#6D28D9" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6a2 2 0 1 0 4 0a2 2 0 1 0-4 0 M15 6a2 2 0 1 0 4 0a2 2 0 1 0-4 0 M10.5 12a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0-3 0 M4 20v-7a3 3 0 0 1 6 0 M14 13a3 3 0 0 1 6 0v7 M10 20v-3a2 2 0 0 1 4 0v3"/></g>
-<rect x="494.4" y="26.0" width="180.9" height="34.0" rx="17.0" fill="#FFFFFF" stroke="#EDE9FE" stroke-width="1"/>
-<text x="584.9" y="47.7" font-size="13" fill="#6D28D9" text-anchor="middle" font-weight="400">멀미가 잦은 동승자</text>
-<g transform="translate(507.4 34.0) scale(0.750)" fill="none" stroke="#6D28D9" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7a3 3 0 1 0 6 0a3 3 0 1 0-6 0 M5 21v-2a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v2"/></g>
-<text x="28.0" y="100.0" font-size="13.5" fill="#1F2340" text-anchor="start" font-weight="700">탑재 차량 · 그랜저 + 아반떼 2025 판매</text>
-<rect x="28.0" y="108.0" width="560.0" height="26.0" rx="6" fill="#C4B5FD"/>
-<text x="598.0" y="127.0" font-size="15" fill="#1F2340" text-anchor="start" font-weight="700">151,110</text>
-<text x="28.0" y="166.0" font-size="13.5" fill="#1F2340" text-anchor="start" font-weight="700">× 18세 이하 자녀 가구 20.3%</text>
-<rect x="28.0" y="174.0" width="416.5" height="26.0" rx="6" fill="#A78BFA"/>
-<text x="454.5" y="193.0" font-size="15" fill="#1F2340" text-anchor="start" font-weight="700">30,675</text>
-<text x="28.0" y="232.0" font-size="13.5" fill="#1F2340" text-anchor="start" font-weight="700">× 설치율 10%</text>
-<rect x="115.5" y="216.0" width="37.6" height="22.0" rx="11.0" fill="#FFFFFF" stroke="#6B6E86" stroke-width="1" stroke-dasharray="4 3"/>
-<text x="134.3" y="231.3" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">가정</text>
-<rect x="28.0" y="240.0" width="209.2" height="26.0" rx="6" fill="#8B5CF6"/>
-<text x="247.2" y="259.0" font-size="15" fill="#1F2340" text-anchor="start" font-weight="700">3,068</text>
-<text x="28.0" y="298.0" font-size="13.5" fill="#1F2340" text-anchor="start" font-weight="700">× 월 사용 60%</text>
-<rect x="119.5" y="282.0" width="37.6" height="22.0" rx="11.0" fill="#FFFFFF" stroke="#6B6E86" stroke-width="1" stroke-dasharray="4 3"/>
-<text x="138.3" y="297.3" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">가정</text>
-<rect x="28.0" y="306.0" width="163.3" height="26.0" rx="6" fill="#7C3AED"/>
-<text x="201.3" y="325.0" font-size="15" fill="#1F2340" text-anchor="start" font-weight="700">1,841</text>
-<rect x="476.1" y="80.0" width="111.9" height="22.0" rx="11.0" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1"/>
-<text x="532.0" y="95.1" font-size="11.5" fill="#6B6E86" text-anchor="middle" font-weight="400">막대 길이: 로그 눈금</text>
-<rect x="28.0" y="354.0" width="600.0" height="64.0" rx="12" fill="#6D28D9"/>
-<text x="48.0" y="392.0" font-size="16" fill="#FFFFFF" text-anchor="start" font-weight="700">출시 1년 예상 MAU</text>
-<text x="608.0" y="397.0" font-size="30" fill="#FFFFFF" text-anchor="end" font-weight="700">≈ 1,800명</text>
-<rect x="672.0" y="86.0" width="260.0" height="150.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
-<circle cx="710.0" cy="124.0" r="20" fill="#EDE9FE"/>
-<g transform="translate(699.1 113.1) scale(0.909)" fill="none" stroke="#6D28D9" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l2-5h10l2 5 M3 12h18v5H3z M6 17v2 M18 17v2 M7 14.5h.01 M17 14.5h.01"/></g>
-<text x="692.0" y="172.0" font-size="13" fill="#6B6E86" text-anchor="start" font-weight="400">지금 깔린 차 기준 (2026.9 말)</text>
-<text x="692.0" y="210.0" font-size="28" fill="#6D28D9" text-anchor="start" font-weight="700">약 560명</text>
-<rect x="672.0" y="248.0" width="260.0" height="182.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
-<circle cx="710.0" cy="286.0" r="20" fill="#EDE9FE"/>
-<g transform="translate(699.1 275.1) scale(0.909)" fill="none" stroke="#6D28D9" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V14 M10 20V10 M15 20V6 M20 20V3"/></g>
-<text x="692.0" y="334.0" font-size="13" fill="#6B6E86" text-anchor="start" font-weight="400">Pleos Connect 적용 계획</text>
-<text x="692.0" y="372.0" font-size="22" fill="#6D28D9" text-anchor="start" font-weight="700">2030년 약 2천만 대</text>
-<text x="692.0" y="404.0" font-size="12" fill="#6B6E86" text-anchor="start" font-weight="400">현대차그룹, 2026.4.30</text>
+<rect x="0.75" y="0.75" width="958.5" height="426.5" rx="16" fill="#FFFFFF" stroke="#E3E4EE" stroke-width="1.5"/>
+<text x="28.0" y="50.0" font-size="20" fill="#1F2340" text-anchor="start" font-weight="700">출시 1년 예상 MAU</text>
+<line x1="28.0" y1="76.0" x2="620.0" y2="76.0" stroke="#E3E4EE" stroke-width="1" stroke-linecap="round"/>
+<text x="28.0" y="106.0" font-size="16" fill="#1F2340" text-anchor="start" font-weight="700">Pleos 탑재 차종 2025년 판매</text>
+<text x="28.0" y="128.0" font-size="13.5" fill="#3F4660" text-anchor="start" font-weight="400">그랜저 + 아반떼</text>
+<text x="620.0" y="112.0" font-size="20" fill="#1F2340" text-anchor="end" font-weight="700">151,110대</text>
+<line x1="28.0" y1="142.0" x2="620.0" y2="142.0" stroke="#E3E4EE" stroke-width="1" stroke-linecap="round"/>
+<text x="28.0" y="172.0" font-size="16" fill="#1F2340" text-anchor="start" font-weight="700">× 18세 이하 자녀 가구</text>
+<text x="28.0" y="194.0" font-size="13.5" fill="#3F4660" text-anchor="start" font-weight="400">4–13세 가족이 이 안에 포함</text>
+<text x="410.0" y="178.0" font-size="20" fill="#6D28D9" text-anchor="end" font-weight="700">20.3%</text>
+<text x="620.0" y="178.0" font-size="20" fill="#1F2340" text-anchor="end" font-weight="700">30,675</text>
+<line x1="28.0" y1="208.0" x2="620.0" y2="208.0" stroke="#E3E4EE" stroke-width="1" stroke-linecap="round"/>
+<text x="28.0" y="238.0" font-size="16" fill="#1F2340" text-anchor="start" font-weight="700">× 설치율</text>
+<text x="410.0" y="244.0" font-size="20" fill="#6D28D9" text-anchor="end" font-weight="700">10%</text>
+<rect x="420.0" y="228.0" width="37.6" height="22.0" rx="11.0" fill="#FFFFFF" stroke="#6B6E86" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="438.8" y="243.3" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">가정</text>
+<text x="620.0" y="244.0" font-size="20" fill="#1F2340" text-anchor="end" font-weight="700">3,068</text>
+<line x1="28.0" y1="274.0" x2="620.0" y2="274.0" stroke="#E3E4EE" stroke-width="1" stroke-linecap="round"/>
+<text x="28.0" y="304.0" font-size="16" fill="#1F2340" text-anchor="start" font-weight="700">× 월 사용</text>
+<text x="28.0" y="326.0" font-size="13.5" fill="#3F4660" text-anchor="start" font-weight="400">아이를 태운 달</text>
+<text x="410.0" y="310.0" font-size="20" fill="#6D28D9" text-anchor="end" font-weight="700">60%</text>
+<rect x="420.0" y="294.0" width="37.6" height="22.0" rx="11.0" fill="#FFFFFF" stroke="#6B6E86" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="438.8" y="309.3" font-size="12" fill="#6B6E86" text-anchor="middle" font-weight="400">가정</text>
+<text x="620.0" y="310.0" font-size="20" fill="#1F2340" text-anchor="end" font-weight="700">1,841</text>
+<rect x="28.0" y="346.0" width="592.0" height="56.0" rx="12" fill="#EDE9FE" stroke="#C4B5FD" stroke-width="1"/>
+<text x="48.0" y="381.0" font-size="17" fill="#6D28D9" text-anchor="start" font-weight="700">출시 1년 예상 MAU</text>
+<text x="600.0" y="383.0" font-size="24" fill="#6D28D9" text-anchor="end" font-weight="800">≈ 1,800명</text>
+<rect x="652.0" y="76.0" width="280.0" height="324.0" rx="12" fill="#F8FAFC" stroke="#E3E4EE" stroke-width="1"/>
+<g transform="translate(671.0 97.0) scale(0.917)" fill="none" stroke="#3F4660" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0-18 0 M12 11v6 M12 7.5h.01"/></g>
+<text x="702.0" y="114.0" font-size="16" fill="#1F2340" text-anchor="start" font-weight="700">읽는 법</text>
+<text x="674.0" y="150.0" font-size="18" fill="#6D28D9" text-anchor="start" font-weight="700">1,800명</text>
+<text x="674.0" y="172.0" font-size="13.5" fill="#3F4660" text-anchor="start" font-weight="400">2025년 판매 대수를 1년 탑재량으로 본 값</text>
+<text x="674.0" y="213.0" font-size="18" fill="#6D28D9" text-anchor="start" font-weight="700">약 560명</text>
+<text x="674.0" y="235.0" font-size="13.5" fill="#3F4660" text-anchor="start" font-weight="400">2026.9 말까지 실제 깔린 차만 세면</text>
+<text x="674.0" y="276.0" font-size="18" fill="#6D28D9" text-anchor="start" font-weight="700">차량 2천만 대</text>
+<text x="674.0" y="298.0" font-size="13.5" fill="#3F4660" text-anchor="start" font-weight="400">Pleos Connect 2030 적용 목표</text>
+<text x="674.0" y="317.0" font-size="13.5" fill="#3F4660" text-anchor="start" font-weight="400">(현대차그룹, 2026.4.30) · 차종이 늘수록</text>
+<text x="674.0" y="336.0" font-size="13.5" fill="#3F4660" text-anchor="start" font-weight="400">커짐</text>
 </svg>

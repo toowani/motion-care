@@ -213,45 +213,6 @@ def varbox(f, x, y, w, h, label, key, size=16):
 
 # ---------------------------------------------------------------- figures
 
-def at_a_glance():
-    f = Fig(960, 360)
-    out_ink, out_bg = LAYER["out"]
-    # lane A: automatic loop
-    f.rect(28, 28, 904, 144, CARD, LINE)
-    f.chip(76, 84, "자동", INK, WHITE, 14, 32, anchor="middle", stroke=LINE, weight=700, w=64)
-    f.rect(136, 52, 270, 64, V["I"][1], V["I"][0], 12, 1.8)
-    f.icon(172, 84, "wave", V["I"][0], WHITE)
-    f.text(290, 90, "흔들림 지수 {I} ↑", 17, INK, "middle", 700)
-    f.arrow([(410, 84), (476, 84)], MUTED, 2.5)
-    f.rect(480, 52, 360, 64, out_bg, out_ink, 12, 1.8)
-    f.icon(516, 84, "wind", out_ink, WHITE)
-    f.text(680, 90, "차가 외기 전환 · 온도 낮춤", 17, out_ink, "middle", 700)
-    f.arrow([(660, 118), (660, 150), (272, 150), (272, 121)], out_ink, 2)
-    f.rect(372, 138, 200, 24, CARD, None, 6)
-    f.text(472, 155, "바뀐 실내가 다시 계산으로", 13, out_ink, "middle", 700)
-    # lane B: the relief button
-    f.rect(28, 186, 904, 146, CARD, LINE)
-    f.chip(76, 243, "버튼", INK, WHITE, 14, 32, anchor="middle", stroke=LINE, weight=700, w=64)
-    f.rect(136, 233, 176, 52, ORANGE, None, 26)
-    f.icon(164, 259, "touch", WHITE, None)
-    f.text(244, 265, "멀미 완화 누름", 16, WHITE, "middle", 700)
-    f.line(312, 259, 340, 259, MUTED, 2)
-    f.line(340, 225, 340, 293, MUTED, 2)
-    f.arrow([(340, 225), (370, 225)], MUTED, 2)
-    f.arrow([(340, 293), (370, 293)], MUTED, 2)
-    f.rect(374, 199, 300, 52, out_bg, out_ink, 12, 1.8)
-    for i, ic in enumerate(("window", "wind", "speaker")):
-        f.icon(398 + i * 30, 225, ic, out_ink, None, scale=0.85)
-    f.text(586, 231, "창문 · 바람 · 음성", 16, out_ink, "middle", 700)
-    f.text(690, 231, "차가 바로", 13, MUTED)
-    varbox(f, 374, 267, 150, 52, "그 순간의 {D}", "D")
-    f.arrow([(528, 293), (562, 293)], MUTED, 2)
-    varbox(f, 566, 267, 186, 52, "나만의 기준선 {tau}", "tau")
-    f.arrow([(756, 293), (790, 293)], MUTED, 2)
-    varbox(f, 794, 267, 122, 52, "멀미 가능성 {P}", "P", 15)
-    f.save("at_a_glance.svg")
-
-
 def conditions():
     f = Fig(960, 560)
     cards = [
@@ -824,7 +785,6 @@ def quick_run():
 def main():
     nav_front()
     quick_run()
-    at_a_glance()
     conditions()
     who_gets_sick()
     steering_lead()
