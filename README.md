@@ -10,9 +10,9 @@
 
 <img src="docs/img/at_a_glance.svg" width="100%" alt="켜 두면 차가 알아서, 힘들면 버튼 하나 · 뒷좌석 아이(4–13세)를 태운 가족 차. 가운데 멀미 케어 앱 아이콘. 왼쪽 ① 차가 알아서(켜 두기만 하면): 아이 멀미 위험 오름(흔들림·더위로 멀미 지수 계산) → 화면·소리로 알림 → 더 오르면 바깥 공기(외기 순환)·온도 낮춤 + 운전자에게 &quot;브레이크 부드럽게&quot; → 실내가 나아지면 다시 계산. 오른쪽 ② 버튼 하나(아이가 힘들어하면): 멀미 완화 버튼 → 차가 바로 창문·바람·음성 → 누른 순간 기록 → 우리 아이에 맞춘 멀미 가능성 → 다음 주행엔 더 일찍 알림">
 
-<img src="docs/img/demo.webp" width="100%" alt="북악스카이웨이 실제 도로 경로를 시뮬레이션으로 재생 (Pleos 에뮬레이터, 3배속): 캐릭터 둘레가 멀미 가능성 색으로 바뀜, 멀미 완화 버튼 → 창문 열고 바람 넣었어요">
+<img src="docs/img/demo.webp" width="100%" alt="북악스카이웨이 실제 도로 경로를 시뮬레이션으로 재생 (Pleos 에뮬레이터, 2배속, 말랑 3D 친구 몽글이): 캐릭터 표정과 둘레 링이 노랑 → 빨강, 멀미 완화 버튼 → 창문 열고 바람 넣었어요">
 
-**실제 도로 경로 재생 · 3배속** · 캐릭터 둘레 색 = 아이의 멀미 가능성 · 맨 아래 줄은 시연용 주행 선택 · Pleos 에뮬레이터
+**실제 도로 경로 재생 · 2배속** · 캐릭터 둘레 링 = 아이의 멀미 가능성 · Pleos 에뮬레이터
 
 <a href="docs/demo-script.md"><img src="docs/img/link_video.svg" height="40" alt="시연 콘티 · 영상은 촬영 예정"></a> <a href="https://github.com/toowani/motion-care/releases"><img src="docs/img/link_apk.svg" height="40" alt="APK 받기 · Releases · 이메일 첨부"></a> <a href="#8-부록-한계--실행-방법--문서"><img src="docs/img/link_repo.svg" height="40" alt="실행 방법 · 에뮬레이터 4단계"></a>
 
@@ -97,13 +97,13 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 ### ② 지도 탭 (기본 화면)
 
-<img src="docs/img/ui_r6_map.jpg" width="100%" alt="지도 탭: 회전 안내 카드, 앞으로 갈 파란 경로, 오른쪽 위 멀미 가능성 링을 두른 캐릭터, 위쪽 주황 멀미 완화 버튼">
+<img src="docs/img/ui_r6_map.jpg" width="100%" alt="지도 탭: 회전 안내 카드, 앞으로 갈 파란 경로, 오른쪽 위 멀미 가능성 링을 두른 캐릭터(몽글이, 노랑), 위쪽 주황 멀미 완화 버튼">
 
 <img src="docs/img/map_elements.svg" width="100%" alt="지도 탭 요소: 진행 방향 위 지도, 앞으로 갈 길만 그리는 파란 경로, 회전 안내 카드·도착 바, 캐릭터 둘레 링(멀미 가능성, 12시부터 시계 방향, 25%·50% 경계)">
 
 ### ③ 멀미 완화 버튼: 한 번 누르면 바로
 
-<img src="docs/img/ui_r6_relief.jpg" width="100%" alt="멀미 완화 버튼을 누른 뒤: 지도 위 '창문 열고 바람 넣었어요', 캐릭터 링은 빨강">
+<img src="docs/img/ui_r6_relief.jpg" width="100%" alt="멀미 완화 버튼을 누른 뒤: 지도 위 '창문 열고 바람 넣었어요', 몽글이 표정과 링은 빨강">
 
 <img src="docs/img/relief_sequence.svg" width="100%" alt="멀미 완화 버튼(지도·분석·한 화면 모드 어디서나): 1 뒷창문 20%(Vehicle Window) 2 바깥 공기+22°C(Vehicle HVAC) 3 '창문 열고 바람 넣을게요. 먼 곳을 보세요.'(TextToSpeech) 4 누른 순간 D → 내 기준선 τ · 안 될 때: 창문 불가 → 화면+음성 안내, 공조 꺼짐 → 그대로, 20초 안 다시 누름 → '바람 넣는 중이에요'만">
 
