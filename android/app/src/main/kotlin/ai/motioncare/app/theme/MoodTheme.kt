@@ -22,8 +22,8 @@ enum class Mood { CALM, UNEASY, SICK;
 
 /**
  * A look for the status icon that changes with the sickness index. Themes only draw; the engine,
- * alerts and voice logic stay the same. Draw with [android.graphics.Canvas] primitives only
- * (no bitmaps), so every theme scales to any panel size and stays light.
+ * alerts and voice logic stay the same. Clean, Clay and Toon draw with [android.graphics.Canvas]
+ * primitives so they scale to any panel size; Idol shows three rendered portraits (see [IdolTheme]).
  *
  * - [level]: 0 = calm … 1 = at the high threshold … up to 1.5; use it to scale intensity smoothly.
  * - [t]: seconds since the view started; animated themes use it for idle motion (bobbing, blinking).

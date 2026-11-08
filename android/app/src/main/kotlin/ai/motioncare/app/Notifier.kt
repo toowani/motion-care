@@ -1,6 +1,7 @@
 package ai.motioncare.app
 
 import ai.motioncare.app.theme.Mood
+import ai.motioncare.app.theme.IdolTheme
 import ai.motioncare.app.theme.MoodTheme
 import android.app.Notification
 import android.app.NotificationChannel
@@ -90,6 +91,7 @@ class Notifier(private val context: Context) {
 
     /** The theme character as the card picture, so a child sees 루미 or 부릉이 over the map. */
     private fun themeIcon(theme: MoodTheme, mood: Mood): Bitmap {
+        IdolTheme.attach(context)
         val px = (96 * context.resources.displayMetrics.density).toInt().coerceAtLeast(96)
         val bmp = Bitmap.createBitmap(px, px, Bitmap.Config.ARGB_8888)
         theme.draw(Canvas(bmp), px / 2f, px / 2f, px.toFloat(), mood, when (mood) { Mood.CALM -> 0.2f; Mood.UNEASY -> 0.75f; Mood.SICK -> 1.2f }, 0f)

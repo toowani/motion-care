@@ -1,5 +1,13 @@
 # 에뮬레이터 확인 기록
 
+
+## 확인 완료 (11.8 · 링 색 = 표정)
+
+- 첫 경고(브레이크 안내) 때 표정은 노랑인데 링은 초록이던 문제: 링 길이는 그대로 멀미 가능성, 색은 표정(`Mood`)을 따름 (`ui/RiskRing.kt` `mood`, `MoodIconView`가 그릴 때 넘김)
+- 에뮬레이터 확인: 굽은 길 재생 16초 브레이크 안내 = 노란 표정 + 노란 링, 멀미 완화 = 빨간 표정 + 빨간 링
+- 가상 아이돌 테마는 Higgsfield로 만든 표정 3장 (`res/drawable-nodpi/lumi_*.webp`)
+- 다시 찍음: `demo.webp`, `gif_compact.webp`, `ui_r6_map.jpg`, `ui_r6_relief.jpg`, `explainer.webp`
+
 ## 확인 완료 (11.1)
 
 | 항목 | 결과 |

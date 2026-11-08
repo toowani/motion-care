@@ -7,7 +7,7 @@ import android.graphics.RectF
 
 /**
  * The character's border: a thick ring that fills clockwise from the top with the chance of
- * sickness, green → yellow → red. Every theme and the map widget draw it the same way.
+ * sickness, coloured like the face (green → yellow → red). Every theme and the map widget draw it the same way.
  */
 object RiskRing {
     val TRACK = Color.parseColor("#E5E7EB")
@@ -17,6 +17,12 @@ object RiskRing {
      * The view sets it right before calling the theme's draw, so themes need no new parameter.
      */
     @JvmStatic var current: Float = Float.NaN
+
+    /**
+     * The face being drawn with it. The ring's colour follows the face (so a yellow face never sits in a green
+     * ring at the first alert); its length stays the chance of sickness. Null falls back to the value's colour.
+     */
+    @JvmStatic var mood: ai.motioncare.app.theme.Mood? = null
 
     private val track = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE; color = TRACK }
     private val arc = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE; strokeCap = Paint.Cap.ROUND }
@@ -32,7 +38,12 @@ object RiskRing {
         track.strokeWidth = stroke
         c.drawCircle(cx, cy, radius, track)
         arc.strokeWidth = stroke
-        arc.color = color(v)
+        arc.color = when (mood) {
+            ai.motioncare.app.theme.Mood.CALM -> Ui.RISK_LOW
+            ai.motioncare.app.theme.Mood.UNEASY -> Ui.RISK_MID
+            ai.motioncare.app.theme.Mood.SICK -> Ui.RISK_HIGH
+            null -> color(v)
+        }
         // a small dot at 0 % so the ring never looks broken
         c.drawArc(oval, -90f, (360f * v).coerceAtLeast(1f), false, arc)
     }
