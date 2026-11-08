@@ -566,7 +566,9 @@ def phone_vs_car():
 
 def market_compare():
     # Y = yes, N = no, H = partly / research.  Source: research/market.md
+    # 멀미 Zero: 공개 자료(HMG 스토리 · 뉴데일리 · EBN, 2026.10) 기준. N = 보도에 없음.
     feats = ["차 신호", "미리 계산", "공기 · 바람", "장비 없음", "사람별 기준"]
+    lead = {2: "조치", 4: "개인 학습"}   # our lead differentiator columns
     rows = [
         ("Apple Motion Cues", "iOS 18, 2024", "NNNYN", "양산"),
         ("Google Motion Assist · KineStop", "2026 · 2018", "NNNYN", "양산"),
@@ -577,12 +579,26 @@ def market_compare():
         ("VW · Bentley 연구", "Diels 외, 2023", "YHNYN", "연구"),
         ("holoride", "2022", "YNNNN", "파산"),
         ("Mercedes · BMW", "바람 · 천장 화면", "YNHYN", "특허"),
+        ("멀미 Zero", "2026 사내 공모 최우수상", "YYNYN", "사내 수상"),
         ("멀미 케어", "Pleos Connect", "YYYYY", "시제품"),
     ]
     name_w, x_f, fw, x_s = 300, 340, 104, 880
     rh, y0 = 46, 92
-    H = y0 + len(rows) * rh + 44
+    t_end = y0 + len(rows) * rh
+    H = t_end + 44 + 104
     s = Svg(960, H)
+    for i, (name, *_r) in enumerate(rows):
+        y = y0 + i * rh
+        if name == "멀미 케어":
+            s.card(28, y - 4, 904, rh - 2, C_CAR_T, C_CAR, 12, 1.5)
+        elif name == "멀미 Zero":
+            s.card(28, y - 4, 904, rh - 2, "#FFFBEB", MID, 12, 1.2)
+        elif i % 2 == 0:
+            s.rect(28, y - 4, 904, rh - 2, CARD, 10)
+    for j, lab in lead.items():
+        bx = x_f + j * fw + 6
+        s.add(f'<rect x="{bx:.1f}" y="30" width="{fw - 12}" height="{t_end - 30 - 4}" rx="10" fill="{C_CAR}" fill-opacity="0.07"/>')
+        s.text(bx + (fw - 12) / 2, 46, lab, 11.5, C_CAR, "middle", 700)
     for j, f in enumerate(feats):
         s.text(x_f + j * fw + fw / 2, 64, f, 13.5, INK, "middle", 700)
     s.text(x_s, 64, "상태", 13.5, INK, "middle", 700)
@@ -590,10 +606,6 @@ def market_compare():
     for i, (name, when, marks, state) in enumerate(rows):
         y = y0 + i * rh
         ours = name == "멀미 케어"
-        if ours:
-            s.card(28, y - 4, 904, rh - 2, C_CAR_T, C_CAR, 12, 1.5)
-        elif i % 2 == 0:
-            s.rect(28, y - 4, 904, rh - 2, CARD, 10)
         s.text(46, y + 20, name, 14.5, C_CAR if ours else INK, "start", 700)
         s.text(46 + tw(name, 14.5, True) + 10, y + 20, when, 12, MUTED)
         for j, mk in enumerate(marks):
@@ -606,10 +618,10 @@ def market_compare():
                 s.path(f"M{cx} {cy - 9}A9 9 0 0 1 {cx} {cy + 9}z", MID, 0.1, MID)
             else:
                 s.circle(cx, cy, 4, "#D1D5DB")
-        col = {"양산": (LOW, LOW_T), "시제품": (C_CAR, "#FFFFFF")}.get(state, (MUTED, GREY_T))
-        s.chip(x_s, y + rh / 2 - 16, state, col[0], col[1], col[1] if state != "시제품" else C_CAR, 12.5, 24, bold=True, anchor="middle")
+        col = {"양산": (LOW, LOW_T), "시제품": (C_CAR, "#FFFFFF"), "사내 수상": (MID, "#FFFFFF")}.get(state, (MUTED, GREY_T))
+        s.chip(x_s, y + rh / 2 - 16, state, col[0], col[1], col[1] if state not in ("시제품", "사내 수상") else col[0], 12.5, 24, bold=True, anchor="middle")
     # legend
-    y = H - 30
+    y = t_end + 18
     cx = 46
     s.circle(cx, y, 8, LOW); s.path(f"M{cx - 4} {y}l2.5 2.5 5-5", "#FFFFFF", 2)
     s.text(cx + 14, y + 5, "있음", 12.5, INK)
@@ -618,7 +630,17 @@ def market_compare():
     s.text(cx + 14, y + 5, "일부 · 연구 단계", 12.5, INK)
     cx += 130
     s.circle(cx, y, 4, "#D1D5DB")
-    s.text(cx + 12, y + 5, "없음 · 확인 못 함", 12.5, INK)
+    s.text(cx + 12, y + 5, "없음 · 확인 못 함 (멀미 Zero는 공개 자료 기준 보도에 없음)", 12.5, INK)
+    # 멀미 Zero note: credit, overlap, difference (public reports only)
+    y += 34
+    s.line(28, y - 16, 932, y - 16, LINE)
+    s.rich(46, y, [("멀미 Zero", INK, "bold"),
+                   " · 현대차·기아 2026 아이디어 페스티벌 최우수상 (임직원 팀, 2026-10-19 공개) · OTA로 넣는 차량 기능"], 12.5, fill=MUTED)
+    s.rich(46, y + 22, [("겹침", MID, "bold"),
+                        "  차 신호(조향각 · 가속도), 움직임을 조명 · 뒷좌석 화면 테두리로 미리 보여 줌, 하드웨어 추가 없음"], 12.5, fill=MUTED)
+    s.rich(46, y + 44, [("다름", C_CAR, "bold"),
+                        "  멀미 케어는 공조 · 창문을 직접 바꾸고(조치), 멀미 완화 버튼 기록으로 아이 기준을 배우며(개인 학습),"], 12.5, fill=MUTED)
+    s.rich(46 + tw("다름", 12.5, True) + 6, y + 66, ["Pleos 앱 마켓으로 어느 Pleos 차에나 배포 · 출처: 현대자동차그룹 스토리 · 뉴데일리 · EBN (2026.10)"], 12.5, fill=MUTED)
     s.save("market_compare.svg", "다른 멀미 대응 서비스와 기능 비교")
 
 

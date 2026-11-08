@@ -2,7 +2,7 @@
 
 ### 멀미 지수 계산을 통한 탑승감 개선
 
-**뒷좌석 아이가 멀미하기 전에, 차가 먼저 공기 · 창문 · 운전을 바꿉니다.**
+**알려 주는 데서 멈추지 않습니다. 뒷좌석 아이가 멀미하기 전에 차가 공기 · 온도를 바꾸고, 멀미 완화 버튼 한 번에 뒷창문을 열며, 누른 순간을 기록해 우리 아이 기준을 배웁니다.**
 
 <img src="docs/img/explainer.webp" width="100%" alt="멀미 케어 필름 (25초, 가족이 겪는 순서): 굽은 산길 → 뒷좌석 아이 '속이 울렁거려…' → 센터 화면의 몽글이와 '브레이크 부드럽게' 알림, 차가 운전자에게 '뒷좌석이 흔들려요. 브레이크를 부드럽게 밟아 주세요.' → 운전자가 브레이크를 부드럽게 → 송풍구에서 바깥 공기 '바깥 공기로 바꾸고 온도를 조금 낮출게요.' → '그래도 어지러워…' → 멀미 완화 버튼 한 번 → '창문 열고 바람 넣을게요. 먼 곳을 보세요.' → 창문으로 바람, 아이 '이제 좀 살 것 같아' → 멀미 케어">
 
@@ -78,6 +78,8 @@ DOI와 한계: [research/literature.md](research/literature.md)
 ### 실차 없이 3단계 검증
 
 <img src="docs/img/validation_ladder.svg" width="100%" alt="실차 없이 3단계 검증: ① 실제 도로 시나리오 시뮬레이션 점검 10/10 통과(도로 4종 · 주행 6개) ② 실제 주행 데이터 비교(comma2k19) 가속도 1.41배(기준 0.5–2배, 고속도로 45초) ③ Pleos 에뮬레이터(실제 SDK) 11항목 점검 · 9 확인(부분 1 · 거절 1, v2.1 · API 34)">
+
+<sub>검증은 시뮬레이션 · 에뮬레이터까지입니다. 실제 아이가 탄 주행 데이터는 아직 없어, 멀미 가능성의 정확도는 확인 전입니다 · 다음 단계: [동승 조사](docs/ride-study.md)</sub>
 
 ### 도로 4종 · 주행 6개 (OpenStreetMap)
 
@@ -155,7 +157,7 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 ### 다른 서비스와 비교
 
-<img src="docs/img/market_compare.svg" width="100%" alt="기능 비교(차 신호, 미리 계산, 공기·바람, 장비 없음, 사람별 기준, 상태): Apple Motion Cues·Google Motion Assist·Citroën Seetroën·현대차 스무스 모드(양산), 현대모비스(시범), JLR·VW·Bentley(연구), holoride(파산), Mercedes·BMW(특허), 멀미 케어(다섯 가지 모두, 시제품)">
+<img src="docs/img/market_compare.svg" width="100%" alt="기능 비교(차 신호, 미리 계산, 공기·바람 = 조치, 장비 없음, 사람별 기준 = 개인 학습, 상태): Apple Motion Cues·Google Motion Assist·Citroën Seetroën·현대차 스무스 모드(양산), 현대모비스(시범), JLR·VW·Bentley(연구), holoride(파산), Mercedes·BMW(특허), 멀미 Zero(현대차·기아 2026 아이디어 페스티벌 최우수상, 임직원 팀, 2026-10-19 공개, OTA 차량 기능: 차 신호·미리 보여 주기·장비 없음, 공기·바람과 사람별 기준은 공개 자료 기준 보도에 없음), 멀미 케어(다섯 가지 모두, 시제품) · 겹침: 차 신호·움직임 미리 보여 주기·하드웨어 추가 없음 · 다름: 공조·창문 조치, 버튼 기록으로 아이 기준 학습, Pleos 앱 마켓 배포">
 
 [기획서 4절](docs/proposal.md) · [research/market.md](research/market.md)
 
@@ -177,11 +179,11 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 ## 7. 확장 가능성
 
-<img src="docs/img/extension_map.svg" width="100%" alt="같은 엔진(I·D·m·τ·P)에서 확장 4가지: ① 예측 음성 안내(엔진 계산 중, 앱에서 꺼 둠, 근거 Kuiper 외 2020, 동승 실험 뒤 켬) ② 휴게소 추천(제안 시점 3분 45초, 확장 LLM+POI 검색 API) ③ 가족 모드(아이마다 기준선) ④ 승차감 정량 지표(차종 비교·택시 평가·업계 표준, 제안)">
+<img src="docs/img/extension_map.svg" width="100%" alt="같은 엔진(I·D·m·τ·P)에서 확장 4가지: ① 예측 음성 안내(멀미 Zero와 겹침, 엔진 계산 중, 앱에서 꺼 둠, 근거 Kuiper 외 2020, 동승 실험 뒤 켬) ② 휴게소 추천(제안 시점 3분 45초, 확장 LLM+POI 검색 API) ③ 가족 모드(아이마다 기준선) ④ 승차감 정량 지표(멀미 Zero와 겹침, 차종 비교·택시 평가·업계 표준, 제안) · 겹치는 두 카드의 우리 몫: 누적량 D 기반 멀미 가능성 · 개인 기준선 τ · 앱 배포">
 
 숨긴 화면 코드: [`android/app/src/main/kotlin/ai/motioncare/app/later/`](android/app/src/main/kotlin/ai/motioncare/app/later/README.md)
 
-### ① 예측 음성 안내 (회전 예고)
+### ① 예측 음성 안내 (회전 예고) · 멀미 Zero와 겹침
 
 <img src="docs/img/timeline_city.svg" width="100%" alt="엔진 안의 회전 예고: 도심 회전 4곳마다 예고 시점, 신호 대기 뒤 한 번 더, 56초 음성 안내 (앱에서는 꺼 둠)">
 
@@ -195,7 +197,7 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 **대응 순서를 보여 주는 그림** · 검증 아님
 
-### ④ 승차감 정량 지표
+### ④ 승차감 정량 지표 · 멀미 Zero와 겹침
 
 <img src="docs/img/ride_quality_uses.svg" width="100%" alt="승차감 정량 지표: I와 D를 차종 비교, 택시·기사 평가, ISO 2631-1 형태의 업계 표준 지표로 활용">
 

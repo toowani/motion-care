@@ -576,33 +576,39 @@ def status_chip(f, x, y, kind, label=None, size=12):
 
 
 def extension_map():
-    f = Fig(960, 450)
+    f = Fig(960, 500)
     x = 28
     f.text(x, 38, "상태", 12.5, MUTED, weight=700)
     x += 40
     for k in ("run", "off", "idea"):
         x += status_chip(f, x, 22, k, "제안 · 확장" if k == "idea" else None) + 10
     ci, cb = LAYER["calc"]
-    hx, hy, hw, hh = 392, 186, 176, 82
-    for cx, cy in [(368, 140), (592, 140), (368, 318), (592, 318)]:
+    h, y1, y2 = 190, 64, 266
+    hx, hy, hw, hh = 392, (y1 + y2 + h) / 2 - 41, 176, 82
+    for cx, cy in [(368, y1 + h / 2), (592, y1 + h / 2), (368, y2 + h / 2), (592, y2 + h / 2)]:
         f.line(hx + hw / 2, hy + hh / 2, cx, cy, "#C4B5FD", 2)
     f.rect(hx, hy, hw, hh, cb, ci, 14, 2)
     f.text(hx + hw / 2, hy + 32, "같은 엔진", 16, ci, "middle", 700)
     f.text(hx + hw / 2, hy + 60, "{I} · {D} · {m} · {tau} · {P}", 16, INK, "middle", 700)
+    ours = "우리 몫: {D} 기반 멀미 가능성 · 개인 기준선 {tau} · 앱 배포"
+    # overlap = 멀미 Zero (현대차·기아 2026 아이디어 페스티벌 최우수상), public reports only
     cards = [
-        (28, 64, "speaker", "예측 음성 안내", "“곧 왼쪽으로 돌아요”", ["run", "off"],
-         "근거: 1초 전 음성 예고 → 멀미 감소 (Kuiper 외, 2020)", "동승 실험 뒤 켬"),
-        (592, 64, "coffee", "휴게소 추천", "제안 시점 계산 (굽은 길 거칠게 3분 45초)", ["run", ("idea", "확장 · LLM + POI 검색 API")],
-         "질문 코드는 보관", None),
-        (28, 242, "family", "가족 모드", "아이마다 기준선, 가장 낮은 아이 먼저", ["run", "off"], None, None),
-        (592, 242, "gauge", "승차감 정량 지표", "{I} · {D}를 승차감 숫자로", ["idea"], None, None),
+        (28, y1, "speaker", "예측 음성 안내", "“곧 왼쪽으로 돌아요”", ["run", "off"],
+         "근거: 1초 전 음성 예고 → 멀미 감소 (Kuiper 외, 2020)", "동승 실험 뒤 켬", True),
+        (592, y1, "coffee", "휴게소 추천", "제안 시점 계산 (굽은 길 거칠게 3분 45초)", ["run", ("idea", "확장 · LLM + POI 검색 API")],
+         "질문 코드는 보관", None, False),
+        (28, y2, "family", "가족 모드", "아이마다 기준선, 가장 낮은 아이 먼저", ["run", "off"], None, None, False),
+        (592, y2, "gauge", "승차감 정량 지표", "{I} · {D}를 승차감 숫자로", ["idea"], None, None, True),
     ]
-    for i, (x, y, ic, title, line1, sts, note, tag) in enumerate(cards):
-        w, h = 340, 166
-        f.rect(x, y, w, h, CARD, LINE, 14)
+    for i, (x, y, ic, title, line1, sts, note, tag, overlap) in enumerate(cards):
+        w = 340
+        f.rect(x, y, w, h, CARD, AMBER if overlap else LINE, 14)
         f.num(x + 26, y + 30, i + 1, ci, 13, 14)
         f.icon(x + w - 38, y + 36, ic, ci, cb)
         f.text(x + 48, y + 36, title, 16, INK, weight=700)
+        if overlap:
+            f.chip(x + 18 + tw(line1, 13.5) + 12, y + 53, "멀미 Zero와 겹침", AMBER, AMBER_T, 12, 24, pad=10,
+                   stroke=AMBER, weight=700)
         f.text(x + 18, y + 70, line1, 13.5, INK)
         sx = x + 18
         for st in sts:
@@ -616,8 +622,11 @@ def extension_map():
             cx = x + 18
             for u in ("차종 비교", "택시 · 기사 평가", "업계 표준"):
                 cx += f.chip(cx, y + 120, u, INK, WHITE, 12.5, 26, pad=10, stroke=LINE) + 8
-    f.icon(42, 428, "folder", MUTED, None, scale=0.75)
-    f.text(60, 432, "later/ 폴더에 코드 보관 (컴파일만)", 13, MUTED)
+        if overlap:
+            f.text(x + 18, y + h - 14, ours, 12, ci, weight=700)
+    f.icon(42, 478, "folder", MUTED, None, scale=0.75)
+    f.text(60, 482, "later/ 폴더에 코드 보관 (컴파일만)", 13, MUTED)
+    f.text(932, 482, "겹침: 멀미 Zero (현대차·기아 2026 아이디어 페스티벌 최우수상) · 공개 자료 기준", 12, MUTED, "end")
     f.save("extension_map.svg")
 
 
