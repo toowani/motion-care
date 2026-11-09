@@ -14,9 +14,15 @@ const V = {
   S:   ['#334155', '#E2E8F0'], // raw car signals
   K:   ['#6B7280', '#F3F4F6'], // constants
   Y:   ['#CA8A04', '#FEF9C3'], // 흔들림 / 보통 stage
-  N:   ['#1F2340', '#E5E7EB'], // alert thresholds: neutral (grey / black dashes in charts)
+  N:   ['#0F1838', '#E6EAF2'], // alert thresholds: neutral (grey / navy dashes in charts)
 };
-const INK = '#1F2340', MUTED = '#6B6E86', HAIR = '#E3E4EE';
+// deck tokens (sim/crave_style.py): navy ink, grey-blue secondary, hairline, card fill, one blue accent
+const INK = '#0F1838', MUTED = '#4A5470', FOOT = '#8A93AB', HAIR = '#E6EAF2', CARD = '#F6F8FC', BAND = '#E7EFFF', BLUE = '#1F62DA';
+const FONT = "Pretendard,'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif";
+window.FONT = FONT;
+{ const l = document.createElement('link'); l.rel = 'stylesheet';
+  l.href = 'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css';
+  document.head.appendChild(l); }
 
 const macros = {};
 for (const [k, [c]] of Object.entries(V)) macros['c' + k] = ['\\textcolor[RGB]{' + [1, 3, 5].map(i => parseInt(c.substr(i, 2), 16)).join(',') + '}{#1}', 1];
@@ -37,30 +43,31 @@ const css = `
 html,body{margin:0;padding:0;background:transparent}
 body.dark{background:#0d1117;padding:40px}
 *{box-sizing:border-box}
-.card{width:960px;background:#fff;border:1.5px solid ${HAIR};border-radius:16px;padding:30px 32px 32px;
-  font-family:"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;color:${INK}}
+.card{width:960px;background:#fff;border:1px solid ${HAIR};border-radius:16px;padding:28px 30px 30px;
+  font-family:${FONT};color:${INK}}
 .head{display:flex;align-items:center;gap:12px;margin-bottom:18px}
-.head h1{font-size:21px;font-weight:700;margin:0;letter-spacing:-0.2px}
+.head h1{font-size:22px;font-weight:800;margin:0;letter-spacing:-0.03em}
 .v{font-family:'Times New Roman',serif;font-style:italic;font-weight:600;font-size:24px}
-.head .sec{margin-left:auto;font-size:12.5px;color:${MUTED};border:1px solid ${HAIR};border-radius:999px;padding:4px 11px;white-space:nowrap}
-.chip{font-size:12.5px;border-radius:999px;padding:4px 11px;white-space:nowrap}
-.chip.gray{background:#F3F4F6;color:#4B5563;border:1px solid #E5E7EB}
+.head .sec{margin-left:auto;font-size:12.5px;font-weight:700;color:${BLUE};background:${BAND};border-radius:999px;padding:5px 12px;white-space:nowrap}
+.chip{font-size:12.5px;border-radius:999px;padding:5px 12px;white-space:nowrap;font-weight:600}
+.chip.gray{background:${CARD};color:${MUTED};border:1px solid ${HAIR}}
 .row{display:flex;gap:16px;align-items:stretch}
-.fbox{flex:1;background:#F8FAFC;border:1px solid ${HAIR};border-radius:12px;display:flex;align-items:center;justify-content:center;padding:22px 18px;min-height:130px}
-.side{flex:0 0 auto;background:#F8FAFC;border:1px solid ${HAIR};border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;justify-content:center}
+.fbox{flex:1;background:${CARD};border:1px solid ${HAIR};border-radius:16px;display:flex;align-items:center;justify-content:center;padding:22px 18px;min-height:130px}
+.side{flex:0 0 auto;background:${CARD};border:1px solid ${HAIR};border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;justify-content:center}
 .side .cap{font-size:12.5px;color:${MUTED};margin-bottom:4px}
 .legend{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px 14px;margin-top:16px}
-.li{display:flex;align-items:center;gap:12px;border:1px solid ${HAIR};border-radius:12px;padding:9px 12px;min-height:62px}
+.li{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid ${HAIR};border-radius:14px;padding:9px 12px;min-height:62px}
 .sw{flex:0 0 auto;min-width:52px;padding:0 8px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px}
 .tx{flex:1;min-width:0}
-.tx .m{font-size:15px;font-weight:600;line-height:1.3}
+.tx .m{font-size:15px;font-weight:700;line-height:1.3;letter-spacing:-0.01em}
 .tx .s{font-size:13px;color:${MUTED};line-height:1.35;margin-top:2px}
 mjx-container[display="true"]{margin:0 !important}
 .li:last-child:nth-child(odd){grid-column:1/-1}
 .tag{flex:0 0 auto;font-size:12.5px;border-radius:7px;padding:3px 8px;white-space:nowrap;font-weight:600}
-.tag.k{color:#4B5563;background:#F3F4F6;border:1px solid #E5E7EB}
+.tag{border-radius:999px;padding:3px 10px}
+.tag.k{color:${MUTED};background:${CARD};border:1px solid ${HAIR}}
 .tag.s{color:#334155;background:#E2E8F0}
-.foot{margin-top:16px;background:#F8FAFC;border:1px solid ${HAIR};border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:14px;font-size:15px}
+.foot{margin-top:16px;background:${CARD};border:1px solid ${HAIR};border-radius:16px;padding:14px 18px;display:flex;align-items:center;gap:14px;font-size:15px}
 .foot .t{white-space:nowrap}
 .foot .mut{color:${MUTED};font-size:13px}
 .ic{flex:0 0 44px;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center}

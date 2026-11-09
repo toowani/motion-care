@@ -3,31 +3,30 @@
 <body>
 <script>
 // two strips: (1) which frequencies are kept, (2) I = last 60 s window vs D = whole ride
-const FONT = 'Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif';
 const band = `<svg width="430" height="132" viewBox="0 0 430 132" font-family="${FONT}">
-  <text x="0" y="16" font-size="14" font-weight="700" fill="#1F2340">남기는 흔들림</text>
+  <text x="0" y="16" font-size="14" font-weight="700" fill="#0F1838">남기는 흔들림</text>
   <rect x="0" y="34" width="118" height="44" rx="8" fill="#F3F4F6"/>
   <text x="59" y="52" font-size="12.5" fill="#4B5563" text-anchor="middle" font-weight="700">0.1 Hz 아래 제거</text>
-  <text x="59" y="69" font-size="12" fill="#6B6E86" text-anchor="middle">꾸준한 가속 · 긴 커브</text>
+  <text x="59" y="69" font-size="12" fill="#4A5470" text-anchor="middle">꾸준한 가속 · 긴 커브</text>
   <rect x="124" y="34" width="176" height="44" rx="8" fill="#FCE7F3" stroke="#DB2777" stroke-width="1.5"/>
   <text x="212" y="61" font-size="15" fill="#DB2777" text-anchor="middle" font-weight="700">0.1–0.5 Hz 누적</text>
-  <rect x="306" y="34" width="124" height="44" rx="8" fill="#fff" stroke="#E3E4EE" stroke-dasharray="4 3"/>
-  <text x="368" y="52" font-size="12.5" fill="#6B6E86" text-anchor="middle" font-weight="700">0.5 Hz 위</text>
-  <text x="368" y="69" font-size="12" fill="#6B6E86" text-anchor="middle">1초 샘플 한계</text>
-  <path d="M0 96h430" stroke="#1F2340" stroke-width="1.2"/>
-  <text x="430" y="114" font-size="12" fill="#6B6E86" text-anchor="end">빠른 흔들림 →</text>
+  <rect x="306" y="34" width="124" height="44" rx="8" fill="#fff" stroke="#E6EAF2" stroke-dasharray="4 3"/>
+  <text x="368" y="52" font-size="12.5" fill="#4A5470" text-anchor="middle" font-weight="700">0.5 Hz 위</text>
+  <text x="368" y="69" font-size="12" fill="#4A5470" text-anchor="middle">1초 샘플 한계</text>
+  <path d="M0 96h430" stroke="#0F1838" stroke-width="1.2"/>
+  <text x="430" y="114" font-size="12" fill="#4A5470" text-anchor="end">빠른 흔들림 →</text>
   
-  <text x="59" y="128" font-size="12" fill="#6B6E86" text-anchor="middle">최근 10초 평균을 뺌</text>
+  <text x="59" y="128" font-size="12" fill="#4A5470" text-anchor="middle">최근 10초 평균을 뺌</text>
 </svg>`;
 const win = `<svg width="410" height="132" viewBox="0 0 410 132" font-family="${FONT}">
-  <text x="0" y="16" font-size="14" font-weight="700" fill="#1F2340">같은 흔들림, 다른 창</text>
+  <text x="0" y="16" font-size="14" font-weight="700" fill="#0F1838">같은 흔들림, 다른 창</text>
   <rect x="0" y="34" width="410" height="26" rx="7" fill="#EDE9FE"/>
   <text x="10" y="52" font-size="13" fill="#7C3AED" font-weight="700"><tspan font-family="Times New Roman, serif" font-style="italic" font-size="16">D</tspan>  출발부터 끝까지 누적 → 누적 흔들림 식</text>
   <rect x="290" y="68" width="120" height="26" rx="7" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.5"/>
   <text x="350" y="86" font-size="13" fill="#2563EB" text-anchor="middle" font-weight="700"><tspan font-family="Times New Roman, serif" font-style="italic" font-size="16">I</tspan>  최근 60초</text>
-  <path d="M0 106h410" stroke="#1F2340" stroke-width="1.2"/>
-  <text x="0" y="124" font-size="12" fill="#6B6E86">출발</text>
-  <text x="410" y="124" font-size="12" fill="#1F2340" text-anchor="end" font-weight="700">지금</text>
+  <path d="M0 106h410" stroke="#0F1838" stroke-width="1.2"/>
+  <text x="0" y="124" font-size="12" fill="#4A5470">출발</text>
+  <text x="410" y="124" font-size="12" fill="#0F1838" text-anchor="end" font-weight="700">지금</text>
 </svg>`;
 window.F = {
   title: '③ 느린 흔들림 · 흔들림 지수 <span class="v" style="color:#2563EB">I</span>',

@@ -3,12 +3,11 @@
 <body>
 <script>
 // stage bands on the I axis for m = 1 and an example m = 0.7; same I marker lands in a different stage
-const FONT = 'Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif';
 const axis = (() => {
   const W = 892, x0 = 150, x1 = 872, Imax = 2.0, X = i => x0 + (x1 - x0) * i / Imax, Ival = 1.1;
   const bar = (y, m, label) => {
     const a = 0.9 * m, b = 1.5 * m;
-    return `<text x="0" y="${y + 18}" font-size="14" font-weight="700" fill="#1F2340">${label}</text>
+    return `<text x="0" y="${y + 18}" font-size="14" font-weight="700" fill="#0F1838">${label}</text>
       <rect x="${x0}" y="${y}" width="${X(a) - x0}" height="30" fill="#DCFCE7"/>
       <rect x="${X(a)}" y="${y}" width="${X(b) - X(a)}" height="30" fill="#FEF9C3"/>
       <rect x="${X(b)}" y="${y}" width="${x1 - X(b)}" height="30" fill="#FEE2E2"/>
@@ -16,7 +15,7 @@ const axis = (() => {
       <text x="${(X(a) + X(b)) / 2}" y="${y + 20}" font-size="13" text-anchor="middle" fill="#A16207" font-weight="700">흔들림</text>
       <text x="${(X(b) + x1) / 2}" y="${y + 20}" font-size="13" text-anchor="middle" fill="#DC2626" font-weight="700">흔들림 많음</text>
       <line x1="${X(a)}" y1="${y - 4}" x2="${X(a)}" y2="${y + 34}" stroke="#9CA3AF" stroke-width="2.5" stroke-dasharray="5 3"/>
-      <line x1="${X(b)}" y1="${y - 4}" x2="${X(b)}" y2="${y + 34}" stroke="#1F2340" stroke-width="2.5" stroke-dasharray="5 3"/>`;
+      <line x1="${X(b)}" y1="${y - 4}" x2="${X(b)}" y2="${y + 34}" stroke="#0F1838" stroke-width="2.5" stroke-dasharray="5 3"/>`;
   };
   const top = 30, bot = 112;
   const arrow = (xa, xb, c) => {
@@ -25,17 +24,17 @@ const axis = (() => {
     return `<path d="M${xa} ${top + 40}L${xb} ${bot - 8}" stroke="${c}" stroke-width="1.8" stroke-dasharray="4 3" fill="none"/>
      <path d="M${p(0.5)}L${xb},${bot - 8}L${p(-0.5)}" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
   };
-  const ticks = [0, 0.5, 1.0, 1.5, 2.0].map(i => `<text x="${X(i)}" y="${bot + 54}" font-size="12" fill="#6B6E86" text-anchor="middle">${i.toFixed(1)}</text>`).join('');
+  const ticks = [0, 0.5, 1.0, 1.5, 2.0].map(i => `<text x="${X(i)}" y="${bot + 54}" font-size="12" fill="#4A5470" text-anchor="middle">${i.toFixed(1)}</text>`).join('');
   const mark = y => `<line x1="${X(Ival)}" y1="${y - 6}" x2="${X(Ival)}" y2="${y + 38}" stroke="#2563EB" stroke-width="3"/>
      <circle cx="${X(Ival)}" cy="${y - 10}" r="5" fill="#2563EB"/>`;
   return `<svg width="${W}" height="${bot + 66}" viewBox="0 0 ${W} ${bot + 66}" font-family="${FONT}">
     <text x="${X(Ival)}" y="14" font-size="13" fill="#2563EB" text-anchor="middle" font-weight="700">같은 흔들림 지수 <tspan font-family="Times New Roman, serif" font-style="italic" font-size="15">I</tspan></text>
     ${bar(top, 1.0, '쾌적 · m = 1')}
     ${bar(bot, 0.7, '덥고 답답 · m = 0.7 예')}
-    ${arrow(X(0.9), X(0.63), '#9CA3AF')}${arrow(X(1.5), X(1.05), '#1F2340')}
-    <text x="${X(0.3)}" y="${(top + bot) / 2 + 20}" font-size="13.5" fill="#1F2340" font-weight="700" text-anchor="middle">← 덥고 답답하면 기준이 내려옴</text>
+    ${arrow(X(0.9), X(0.63), '#9CA3AF')}${arrow(X(1.5), X(1.05), '#0F1838')}
+    <text x="${X(0.3)}" y="${(top + bot) / 2 + 20}" font-size="13.5" fill="#0F1838" font-weight="700" text-anchor="middle">← 덥고 답답하면 기준이 내려옴</text>
     ${mark(top)}${mark(bot).replace(/<circle[^>]*>/, '')}
-    <line x1="${x0}" y1="${bot + 40}" x2="${x1}" y2="${bot + 40}" stroke="#1F2340" stroke-width="1.2"/>
+    <line x1="${x0}" y1="${bot + 40}" x2="${x1}" y2="${bot + 40}" stroke="#0F1838" stroke-width="1.2"/>
     ${ticks}
     <text x="0" y="${bot + 54}" font-size="13" fill="#2563EB" font-weight="700">흔들림 지수 <tspan font-family="Times New Roman, serif" font-style="italic" font-size="15">I</tspan> →</text>
   </svg>`;

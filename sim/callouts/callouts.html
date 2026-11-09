@@ -2,21 +2,25 @@
 <!-- Numbered callouts over an app screenshot (docs/img/ui_r6_*.jpg).
      Render: sh sim/callouts/render.sh   ->  docs/img/<name>_callouts.jpg -->
 <html lang="ko"><head><meta charset="utf-8"><title>callouts</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
+/* deck tokens (sim/crave_style.py): navy ink, card #F6F8FC + hairline, blue→cyan gradient for numbered badges */
+:root{--ink:#0F1838;--muted:#4A5470;--line:#E6EAF2;--card:#F6F8FC;
+  --grad:linear-gradient(135deg,#1550D9 0%,#1F62DA 40%,#4CE1E9 100%)}
 html,body{margin:0;background:transparent}
 *{box-sizing:border-box}
 .card{width:960px;background:#fff;padding:24px;
-  font-family:"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;color:#1F2340}
-.shot{position:relative;width:912px;height:513px;border-radius:10px;overflow:hidden;border:1px solid #E3E4EE}
+  font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;color:var(--ink)}
+.shot{position:relative;width:912px;height:513px;border-radius:16px;overflow:hidden;border:1px solid var(--line)}
 .shot img{width:100%;height:100%;display:block}
-.n{position:absolute;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;background:#1F2340;color:#fff;
-  font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center;border:3px solid #fff;
-  box-shadow:0 1px 4px rgba(0,0,0,.35)}
+.n{position:absolute;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;background:var(--grad);color:#fff;
+  font-weight:800;font-size:17px;display:flex;align-items:center;justify-content:center;border:2.5px solid #fff;
+  box-shadow:0 2px 8px rgba(15,24,56,.28)}
 .legend{display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));gap:10px;margin-top:16px}
-.li{display:flex;align-items:center;gap:10px;background:#F8FAFC;border:1px solid #E3E4EE;border-radius:12px;padding:10px 12px;min-height:52px}
-.li b{flex:0 0 26px;height:26px;border-radius:50%;background:#1F2340;color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center}
-.li span{font-size:14.5px;font-weight:700;line-height:1.3}
-.li small{display:block;font-size:12.5px;font-weight:400;color:#6B6E86}
+.li{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;min-height:52px}
+.li b{flex:0 0 26px;height:26px;border-radius:50%;background:var(--grad);color:#fff;font-size:13.5px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.li span{font-size:14.5px;font-weight:700;line-height:1.3;letter-spacing:-0.01em}
+.li small{display:block;font-size:12.5px;font-weight:400;color:var(--muted);letter-spacing:0}
 </style></head><body>
 <div class="card" id="card"><div class="shot" id="shot"><img id="img"></div><div class="legend" id="legend"></div></div>
 <script>
@@ -47,5 +51,5 @@ set.marks.forEach(([x, y, t, s], i) => {
   d.style.left = (x * k) + 'px'; d.style.top = (y * k) + 'px'; shot.appendChild(d);
   lg.insertAdjacentHTML('beforeend', `<div class="li"><b>${i + 1}</b><span>${t}${s ? `<small>${s}</small>` : ''}</span></div>`);
 });
-document.getElementById('img').onload = () => { document.title = 'H=' + Math.ceil(document.getElementById('card').getBoundingClientRect().height); };
+document.getElementById('img').onload = () => document.fonts.ready.then(() => { document.title = 'H=' + Math.ceil(document.getElementById('card').getBoundingClientRect().height); });
 </script></body></html>

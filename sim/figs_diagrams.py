@@ -2,8 +2,9 @@
 
     python3 sim/figs_diagrams.py      # writes docs/img/<diagram>.svg
 
-Shared tokens: white rounded canvas, one colour per variable (I, D, tau, m, P, a, omega, d_cue),
-one stage scale (green / amber / red) and the layer colours used by sim/readme_figures.py.
+Shared tokens come from sim/crave_style.py (deck look: white canvas, light cards, navy ink, one blue
+accent + brand gradient). Semantic colours stay: one colour per variable (I, D, tau, m, P, a, omega,
+d_cue) and one stage scale (green / amber / red).
 """
 import math
 import re
@@ -12,18 +13,27 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 IMG = ROOT / "docs" / "img"
 
-FONT = "Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif"
-MATH = "Times New Roman, Times, serif"
-MONO = "SFMono-Regular, Menlo, Consolas, monospace"
-INK, MUTED, LINE, CARD = "#1F2340", "#6B6E86", "#E3E4EE", "#F8FAFC"
-WHITE = "#FFFFFF"
+import crave_style as cs  # noqa: E402  (deck tokens: navy ink, one blue, blue->cyan gradient)
 
-# variable colours: (ink, tint)
+FONT = cs.FONT
+MATH = cs.MATH
+MONO = "SFMono-Regular, Menlo, Consolas, monospace"
+INK, MUTED, LINE, CARD = cs.INK, cs.MUTED, cs.LINE, cs.CARD
+FOOT, CARD_ALT, BAND, BLUE = cs.FOOT, cs.CARD_ALT, cs.BAND, cs.BLUE
+LINE2 = "#CBD3E3"          # a step darker than LINE: dashed outlines, tree rules
+WHITE = "#FFFFFF"
+GRAD = "url(#cg)"          # brand gradient (crave_style.grad_def), defined in every figure
+GRAD_PILL = "url(#cgt)"    # same gradient, stopped before the light cyan so white text stays readable on wide pills
+PILL_GRAD_DEF = (f'<linearGradient id="cgt" x1="0" y1="0" x2="1" y2="0">'
+                 f'<stop offset="0" stop-color="{cs.BLUE_DEEP}"/><stop offset=".55" stop-color="{cs.BLUE}"/>'
+                 f'<stop offset="1" stop-color="#2E92E4"/></linearGradient>')
+
+# variable colours: (ink, tint) -- I, D, tau, m, P keep their meaning; car / const join the navy system
 V = {
     "I": ("#2563EB", "#DBEAFE"), "D": ("#7C3AED", "#EDE9FE"), "tau": ("#EA580C", "#FFEDD5"),
     "m": ("#0D9488", "#CCFBF1"), "P": ("#DC2626", "#FEE2E2"), "a": ("#DB2777", "#FCE7F3"),
-    "w": ("#8B5E3C", "#F3E8DD"), "cue": ("#65A30D", "#ECFCCB"), "car": ("#334155", "#E2E8F0"),
-    "const": ("#6B7280", "#F3F4F6"),
+    "w": ("#8B5E3C", "#F3E8DD"), "cue": ("#65A30D", "#ECFCCB"), "car": (cs.INK, cs.CARD_ALT),
+    "const": (cs.MUTED, cs.CARD_ALT),
 }
 # token -> (variable colour key, symbol, subscript)
 TOK = {
@@ -32,12 +42,14 @@ TOK = {
     "ay": ("a", "a", "y"), "w": ("w", "ω", ""), "dsw": ("car", "δ", "sw"), "v": ("car", "v", ""),
     "k": ("const", "k", ""),
 }
-LAYER = {"car": ("#3730A3", "#EEF2FF"), "sdk": ("#334155", "#F1F5F9"),
-         "calc": ("#5B21B6", "#F5F3FF"), "out": ("#065F46", "#ECFDF5")}
-GREEN, AMBER, RED = "#16A34A", "#CA8A04", "#DC2626"
-GREEN_T, AMBER_T, RED_T = "#DCFCE7", "#FEF9C3", "#FEE2E2"
-ORANGE = "#EA580C"
-COND = ["#2563EB", "#7C3AED", "#0D9488", "#EA580C"]          # conditions 1-4 (also evidence.svg)
+# layers: blue / navy system (calc = the accent blue, out = deep cyan from the brand gradient)
+OUT, OUT_T = "#0E7490", "#E3F6F9"
+LAYER = {"car": (cs.INK, cs.CARD_ALT), "sdk": (cs.MUTED, cs.CARD_ALT),
+         "calc": (cs.BLUE, cs.BAND), "out": (OUT, OUT_T)}
+GREEN, AMBER, RED = cs.LOW, cs.MID_INK, cs.HIGH
+GREEN_T, AMBER_T, RED_T = cs.LOW_T, cs.MID_T, cs.HIGH_T
+ORANGE = "#EA580C"                                           # the app's own relief button
+COND = ["#2563EB", "#7C3AED", "#0D9488", "#EA580C"]          # conditions 1-4 (= I, D, m, tau; also evidence.svg)
 COND_T = ["#DBEAFE", "#EDE9FE", "#CCFBF1", "#FFEDD5"]
 
 # line icons on a 24x24 grid (stroke 2, round caps)
@@ -101,36 +113,46 @@ def rich(s, size):
 
 
 def tw(s, size):
-    """Rough text width (Apple SD Gothic Neo) for layout."""
+    """Rough text width (Pretendard, a little wider than Apple SD Gothic Neo) for layout."""
     w = 0.0
     s = TOKEN.sub(lambda mt: "X" + ("x" if TOK[mt.group(1)][2] else ""), s)
     for ch in s:
         o = ord(ch)
         if 0xAC00 <= o <= 0xD7A3 or 0x3130 <= o <= 0x318F:
-            w += 0.95
+            w += 0.98
         elif ch == " ":
-            w += 0.3
+            w += 0.28
         elif ch in "il.,:;'|!()[]·/":
             w += 0.32
         elif ch.isupper() or ch.isdigit():
-            w += 0.64
+            w += 0.66
         elif o < 128:
-            w += 0.55
+            w += 0.56
         else:
             w += 0.8
     return w * size
+
+
+def tracking(size, weight):
+    """Deck headings: bold and slightly tight."""
+    if weight >= 800:
+        return cs.TITLE_TRACKING
+    if weight >= 700 and size >= 15:
+        return "-0.02em"
+    return None
 
 
 class Fig:
     def __init__(self, w, h):
         self.w, self.h = w, h
         self.p = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w}" height="{h}" font-family="{FONT}" font-size="14">',
-                  f'<rect x="0.75" y="0.75" width="{w - 1.5}" height="{h - 1.5}" rx="16" fill="{WHITE}" stroke="{LINE}" stroke-width="1.5"/>']
+                  f'<defs>{cs.grad_def("cg")}{PILL_GRAD_DEF}</defs>',
+                  f'<rect x="0.5" y="0.5" width="{w - 1}" height="{h - 1}" rx="{cs.RADIUS + 4}" fill="{cs.BG}" stroke="{LINE}" stroke-width="1"/>']
 
     def add(self, s):
         self.p.append(s)
 
-    def rect(self, x, y, w, h, fill=CARD, stroke=LINE, rx=12, sw=1.5, dash=None):
+    def rect(self, x, y, w, h, fill=CARD, stroke=LINE, rx=cs.RADIUS, sw=cs.STROKE, dash=None):
         st = f' stroke="{stroke}" stroke-width="{sw}"' if stroke else ""
         d = f' stroke-dasharray="{dash}"' if dash else ""
         self.add(f'<rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" rx="{rx}" fill="{fill}"{st}{d}/>')
@@ -138,7 +160,8 @@ class Fig:
     def text(self, x, y, s, size=14, fill=INK, anchor="start", weight=400, family=None, italic=False):
         fam = f' font-family="{family}"' if family else ""
         it = ' font-style="italic"' if italic else ""
-        self.add(f'<text x="{x:.1f}" y="{y:.1f}" font-size="{size}" fill="{fill}" text-anchor="{anchor}" font-weight="{weight}"{fam}{it}>{rich(s, size)}</text>')
+        ls = f' letter-spacing="{tracking(size, weight)}"' if tracking(size, weight) else ""
+        self.add(f'<text x="{x:.1f}" y="{y:.1f}" font-size="{size}" fill="{fill}" text-anchor="{anchor}" font-weight="{weight}"{fam}{it}{ls}>{rich(s, size)}</text>')
 
     def lines(self, x, y, rows, size=14, fill=INK, anchor="start", weight=400, lh=None):
         lh = lh or size * 1.4
@@ -171,7 +194,8 @@ class Fig:
         self.add(f'<g transform="translate({cx - 12 * scale:.1f} {cy - 12 * scale:.1f}) scale({scale})" fill="none" stroke="{fg}" '
                  f'stroke-width="{2 / scale:.2f}" stroke-linecap="round" stroke-linejoin="round">{ICONS[name]}</g>')
 
-    def num(self, cx, cy, n, color, r=14, size=15):
+    def num(self, cx, cy, n, color=GRAD, r=14, size=15):
+        """Numbered badge: brand gradient by default, a semantic colour when it carries meaning."""
         self.add(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{r}" fill="{color}"/>')
         self.text(cx, cy + size * 0.36, str(n), size, WHITE, "middle", 700)
 
@@ -181,14 +205,15 @@ class Fig:
         h = h or size + 16
         w = w or ((len(label) * size * 0.61) if family == MONO else tw(label, size)) + 2 * pad
         x0 = x - w / 2 if anchor == "middle" else x - w if anchor == "end" else x
-        self.rect(x0, y, w, h, bg, stroke, rx if rx is not None else h / 2, 1.5, dash)
+        self.rect(x0, y, w, h, bg, stroke, rx if rx is not None else h / 2, 1.2 if dash else cs.STROKE, dash)
         fam = f' font-family="{family}"' if family else ""
+        ls = f' letter-spacing="{tracking(size, weight)}"' if tracking(size, weight) and family != MONO else ""
         self.add(f'<text x="{x0 + w / 2:.1f}" y="{y + h / 2 + size * 0.36:.1f}" font-size="{size}" fill="{fg}" '
-                 f'text-anchor="middle" font-weight="{weight}"{fam}>{rich(label, size)}</text>')
+                 f'text-anchor="middle" font-weight="{weight}"{fam}{ls}>{rich(label, size)}</text>')
         return w
 
-    def box(self, x, y, w, h, title, sub=None, fg=INK, bg=CARD, stroke=None, size=15, dash=None, rx=12, sub_fill=MUTED):
-        self.rect(x, y, w, h, bg, stroke or bg, rx, 1.5, dash)
+    def box(self, x, y, w, h, title, sub=None, fg=INK, bg=CARD, stroke=None, size=15, dash=None, rx=cs.RADIUS_SM + 4, sub_fill=MUTED):
+        self.rect(x, y, w, h, bg, stroke or bg, rx, cs.STROKE, dash)
         if sub:
             subs = sub if isinstance(sub, list) else [sub]
             top = y + h / 2 - (len(subs) * 17) / 2 + size * 0.36 - 2
@@ -231,50 +256,49 @@ def conditions():
         x, y, w = 28 + i * (214 + 16), 40, 214
         c, t = COND[i], COND_T[i]
         f.rect(x, y, w, 480, CARD, LINE)
-        f.add(f'<path d="M{x} {y + 12} a12 12 0 0 1 12 -12 h{w - 24} a12 12 0 0 1 12 12 v4 h-{w} z" fill="{c}"/>')
         f.num(x + 38, y + 50, i + 1, c, 16, 16)
         f.icon(x + w - 40, y + 50, ic, c, t)
         # band: condition
-        f.text(x + 16, y + 102, "조건", 12, MUTED, weight=700)
+        f.text(x + 16, y + 102, "조건", 12, BLUE, weight=700)
         f.text(x + 16, y + 126, name, 16, INK, weight=700)
         f.lines(x + 16, y + 150, mean, 13, MUTED, lh=18)
         f.line(x + 16, y + 186, x + w - 16, y + 186)
         # band: signals
-        f.text(x + 16, y + 210, "읽는 신호", 12, MUTED, weight=700)
+        f.text(x + 16, y + 210, "읽는 신호", 12, BLUE, weight=700)
         if len(sigs) == 2 and i == 3:
             f.rect(x + 16, y + 222, w - 32, 50, ORANGE, None, 25)
             f.lines(x + w / 2, y + 243, sigs, 13, WHITE, "middle", 700, 17)
         else:
             for j, sg in enumerate(sigs):
-                f.chip(x + 16, y + 222 + j * 38, sg, sdk_ink, V["car"][1], 13, 30, w=w - 32, weight=700)
+                f.chip(x + 16, y + 222 + j * 38, sg, INK, WHITE, 13, 30, w=w - 32, weight=700, stroke=LINE)
         f.line(x + 16, y + 346, x + w - 16, y + 346)
         # band: action
-        f.text(x + 16, y + 370, "앱이 하는 일", 12, MUTED, weight=700)
-        f.rect(x + 16, y + 382, w - 32, 78, out_bg, out_ink, 12, 1.8)
-        f.add(f'<path d="M{x + 30} {y + 421} h16 m-6 -6 l6 6 -6 6" fill="none" stroke="{out_ink}" stroke-width="2.2" '
+        f.text(x + 16, y + 370, "앱이 하는 일", 12, BLUE, weight=700)
+        f.rect(x + 16, y + 382, w - 32, 78, BAND, None, cs.RADIUS_SM + 2)
+        f.add(f'<path d="M{x + 30} {y + 421} h16 m-6 -6 l6 6 -6 6" fill="none" stroke="{BLUE}" stroke-width="2.2" '
               f'stroke-linecap="round" stroke-linejoin="round"/>')
-        f.lines(x + 56, y + 416, act, 14, out_ink, weight=700, lh=20)
+        f.lines(x + 56, y + 416, act, 14, INK, weight=700, lh=20)
     f.save("conditions.svg")
 
 
 def who_gets_sick():
     f = Fig(960, 260)
     # left: top view, car heading right
-    f.text(40, 44, "운전자 vs 동승자", 16, INK, weight=700)
+    f.text(40, 44, "운전자 vs 동승자", 16, INK, weight=800)
     cx0, cy0 = 48, 64
-    f.rect(cx0, cy0, 250, 150, "#F1F5F9", "#94A3B8", 46, 2)
-    f.path(f"M{cx0 + 196} {cy0 + 22} q22 53 0 106", "#94A3B8", 2)          # windshield
-    f.path(f"M{cx0 + 48} {cy0 + 26} q-14 49 0 98", "#94A3B8", 2)           # rear window
+    f.rect(cx0, cy0, 250, 150, CARD, LINE2, 46, 1.5)
+    f.path(f"M{cx0 + 196} {cy0 + 22} q22 53 0 106", LINE2, 2)          # windshield
+    f.path(f"M{cx0 + 48} {cy0 + 26} q-14 49 0 98", LINE2, 2)           # rear window
     seats = {"drv": (cx0 + 138, cy0 + 36), "pas": (cx0 + 138, cy0 + 114), "rl": (cx0 + 74, cy0 + 36),
              "rr": (cx0 + 74, cy0 + 114)}
     for k, (sx, sy) in seats.items():
-        f.rect(sx - 22, sy - 22, 44, 44, WHITE, "#CBD5E1", 10, 1.5)
+        f.rect(sx - 22, sy - 22, 44, 44, WHITE, LINE2, 10, 1)
     f.icon(*seats["drv"], "eye", GREEN, GREEN_T, 20)
     f.icon(*seats["rr"], "child", RED, RED_T, 20)
     f.add(f'<circle cx="{seats["rr"][0] + 18}" cy="{seats["rr"][1] - 18}" r="10" fill="{RED}"/>')
     f.text(seats["rr"][0] + 18, seats["rr"][1] - 13.5, "?", 13, WHITE, "middle", 700)
-    f.arrow([(cx0 + 120, 236), (cx0 + 200, 236)], MUTED, 2)
-    f.text(cx0 + 110, 240, "진행 방향", 12, MUTED, "end")
+    f.arrow([(cx0 + 120, 236), (cx0 + 200, 236)], FOOT, 2)
+    f.text(cx0 + 110, 240, "진행 방향", 12, FOOT, "end")
     f.line(seats["drv"][0] + 24, seats["drv"][1], 330, seats["drv"][1], GREEN, 1.5, "3 3")
     f.text(338, seats["drv"][1] - 3, "운전자", 15, GREEN, weight=700)
     f.text(338, seats["drv"][1] + 17, "다음 움직임을 앎", 13, INK)
@@ -283,16 +307,16 @@ def who_gets_sick():
     f.text(338, seats["rr"][1] + 17, "모름", 13, INK)
     f.line(492, 30, 492, 230, LINE, 1.5)
     # right: age axis
-    f.text(530, 44, "멀미가 가장 흔한 나이", 16, INK, weight=700)
+    f.text(530, 44, "멀미가 가장 흔한 나이", 16, INK, weight=800)
     X = lambda a: 540 + 380 * a / 18
     f.rect(X(4), 72, X(13) - X(4), 118, RED_T, None, 10)
     f.icon((X(4) + X(13)) / 2, 104, "child", RED, WHITE)
     f.text((X(4) + X(13)) / 2, 152, "가장 약함 · 4–13세", 16, RED, "middle", 700)
-    f.text((X(4) + X(13)) / 2, 174, "Huppert 외, 2019", 12.5, MUTED, "middle")
-    f.arrow([(540, 196), (928, 196)], MUTED, 2)
+    f.text((X(4) + X(13)) / 2, 174, "Huppert 외, 2019", 12.5, FOOT, "middle")
+    f.arrow([(540, 196), (928, 196)], FOOT, 2)
     for a in (0, 4, 13, 18):
-        f.line(X(a), 190, X(a), 202, INK if a in (4, 13) else MUTED, 2)
-        f.text(X(a), 222, f"{a}세", 13, RED if a in (4, 13) else MUTED, "middle", 700 if a in (4, 13) else 400)
+        f.line(X(a), 190, X(a), 202, INK if a in (4, 13) else FOOT, 2)
+        f.text(X(a), 222, f"{a}세", 13, RED if a in (4, 13) else FOOT, "middle", 700 if a in (4, 13) else 400)
     f.save("who_gets_sick.svg")
 
 
@@ -302,8 +326,8 @@ def sig(x, x0, k):
 
 def steering_lead():
     f = Fig(960, 240)
-    car, brown, gps = V["car"][0], V["w"][0], "#9CA3AF"
-    f.chip(932, 22, "개념도", MUTED, WHITE, 12, 26, anchor="end", stroke=LINE, dash="4 3")
+    car, brown, gps = V["car"][0], V["w"][0], FOOT
+    f.chip(932, 22, "개념도", MUTED, WHITE, 12, 26, anchor="end", stroke=LINE2, dash="4 3")
     # legend
     lx = 40
     for label, c, dash in [("핸들 각도 {dsw}", car, None), ("{w} 핸들 각도로 예측", brown, None),
@@ -312,20 +336,20 @@ def steering_lead():
         f.text(lx + 36, 40, label, 14, INK)
         lx += 60 + tw(label, 14)
     x0, x1, base = 70, 900, 206
-    f.arrow([(x0, base), (x1 + 20, base)], MUTED, 1.8)
-    f.text(x1 + 18, base + 22, "시간", 12.5, MUTED, "end")
+    f.arrow([(x0, base), (x1 + 20, base)], FOOT, 1.8)
+    f.text(x1 + 18, base + 22, "시간", 12.5, FOOT, "end")
     xs = [x0 + i * 4 for i in range(int((x1 - x0) / 4) + 1)]
     lo = base - 18
     f.poly([(x, lo - 104 * sig(x, 250, 7)) for x in xs], car, 3)
     f.poly([(x, lo - 76 * sig(x, 268, 12)) for x in xs], brown, 3)
     f.poly([(x, lo - 76 * sig(x, 400, 16)) for x in xs], gps, 3, "7 6")
     yb = lo - 14
-    f.line(268, lo - 38, 268, yb + 6, MUTED, 1.2, "2 3")
-    f.line(400, lo - 38, 400, yb + 6, MUTED, 1.2, "2 3")
+    f.line(268, lo - 38, 268, yb + 6, FOOT, 1.2, "2 3")
+    f.line(400, lo - 38, 400, yb + 6, FOOT, 1.2, "2 3")
     f.arrow([(334, yb), (272, yb)], INK, 2, head=8)
     f.arrow([(334, yb), (396, yb)], INK, 2, head=8)
     f.text(334, yb - 12, "1–2초", 17, INK, "middle", 700)
-    f.chip(890, 142, "{k} = 0.2로 GPS 쪽으로 당김", INK, V["const"][1], 13, 30, anchor="end", stroke=LINE)
+    f.chip(890, 142, "{k} = 0.2로 GPS 쪽으로 당김", INK, V["const"][1], 13, 30, anchor="end")
     f.save("steering_lead.svg")
 
 
@@ -334,18 +358,18 @@ def band_filter():
     X = {0: 48, 0.1: 300, 0.5: 700, "end": 912}
     top, bot = 32, 176
     f.add('<defs><pattern id="hatch" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">'
-          '<rect width="10" height="10" fill="#F3F4F6"/><line x1="0" y1="0" x2="0" y2="10" stroke="#D1D5DB" stroke-width="3"/></pattern></defs>')
-    f.rect(X[0], top, X[0.1] - X[0], bot - top, "url(#hatch)", "#D1D5DB", 12)
-    f.rect(X[0.1], top, X[0.5] - X[0.1], bot - top, V["a"][1], V["a"][0], 12, 1.8)
-    f.rect(X[0.5], top, X["end"] - X[0.5], bot - top, "#F9FAFB", LINE, 12, 1.5, "5 4")
+          f'<rect width="10" height="10" fill="{CARD_ALT}"/><line x1="0" y1="0" x2="0" y2="10" stroke="{LINE}" stroke-width="3"/></pattern></defs>')
+    f.rect(X[0], top, X[0.1] - X[0], bot - top, "url(#hatch)", LINE2)
+    f.rect(X[0.1], top, X[0.5] - X[0.1], bot - top, BAND, None)
+    f.rect(X[0.5], top, X["end"] - X[0.5], bot - top, CARD, LINE2, dash="5 4")
     # zone 1
     zx = (X[0] + X[0.1]) / 2
-    f.chip(zx, top + 14, "< 0.1 Hz 제거", "#4B5563", WHITE, 15, 30, anchor="middle", stroke="#D1D5DB", weight=700)
+    f.chip(zx, top + 14, "< 0.1 Hz 제거", MUTED, WHITE, 15, 30, anchor="middle", stroke=LINE2, weight=700)
     f.chip(zx - 56, top + 58, "꾸준한 가속", INK, WHITE, 13, 28, anchor="middle", stroke=LINE)
     f.chip(zx + 60, top + 58, "긴 커브", INK, WHITE, 13, 28, anchor="middle", stroke=LINE)
-    f.chip(zx, top + 100, "최근 10초 평균 빼기", WHITE, "#4B5563", 13, 28, anchor="middle")
+    f.chip(zx, top + 100, "최근 10초 평균 빼기", WHITE, INK, 13, 28, anchor="middle", weight=700)
     # zone 2
-    pink = V["a"][0]
+    pink = BLUE
     f.text(X[0.1] + 24, top + 34, "0.1–0.5 Hz 남겨 누적", 17, pink, weight=700)
     f.icon(X[0.1] + 46, top + 86, "wave", pink, WHITE)
     f.arrow([(X[0.1] + 76, top + 86), (X[0.1] + 128, top + 86)], pink, 2.2)
@@ -355,49 +379,49 @@ def band_filter():
     f.text(X[0.1] + 292, top + 112, "최근 60초", 12.5, MUTED)
     # zone 3
     zx = (X[0.5] + X["end"]) / 2
-    f.text(zx, top + 62, "> 0.5 Hz", 17, "#9CA3AF", "middle", 700)
+    f.text(zx, top + 62, "> 0.5 Hz", 17, FOOT, "middle", 700)
     f.text(zx, top + 88, "1초 샘플이라", 13, MUTED, "middle")
     f.text(zx, top + 106, "담기지 않음", 13, MUTED, "middle")
     # axis
-    f.arrow([(X[0], 200), (X["end"] + 20, 200)], MUTED, 1.8)
+    f.arrow([(X[0], 200), (X["end"] + 20, 200)], FOOT, 1.8)
     for k, lab in [(0, "0"), (0.1, "0.1 Hz"), (0.5, "0.5 Hz")]:
         f.line(X[k], 194, X[k], 206, INK, 2)
         f.text(X[k], 224, lab, 13, INK, "middle", 700)
-    f.text(X["end"] + 18, 224, "주파수", 12.5, MUTED, "end")
+    f.text(X["end"] + 18, 224, "주파수", 12.5, FOOT, "end")
     f.save("band_filter.svg")
 
 
 def engine_parity():
     f = Fig(960, 300)
     sdk_ink, sdk_bg = V["car"]
-    f.rect(330, 26, 300, 60, sdk_bg, sdk_ink, 12, 1.8)
+    f.rect(330, 26, 300, 60, CARD, LINE, cs.RADIUS_SM + 4)
     f.icon(366, 56, "file", sdk_ink, WHITE)
     f.text(398, 52, "shared/params.json", 15, sdk_ink, weight=700, family=MONO)
     f.text(398, 72, "모든 상수", 13, MUTED)
-    f.arrow([(430, 88), (240, 126)], sdk_ink, 2)
-    f.arrow([(530, 88), (720, 126)], sdk_ink, 2)
+    f.arrow([(430, 88), (240, 126)], FOOT, 2)
+    f.arrow([(530, 88), (720, 126)], FOOT, 2)
     for x, path_, sub in [(50, "sim/engine.py", "파이썬 시뮬레이터"), (600, "android/core", "Kotlin 앱 엔진")]:
-        f.rect(x, 130, 310, 64, LAYER["calc"][1], LAYER["calc"][0], 12, 1.8)
-        f.icon(x + 36, 162, "cpu", LAYER["calc"][0], WHITE)
+        f.rect(x, 130, 310, 64, CARD, LINE, cs.RADIUS_SM + 4)
+        f.icon(x + 36, 162, "cpu", LAYER["calc"][0], LAYER["calc"][1])
         f.text(x + 68, 158, path_, 15, LAYER["calc"][0], weight=700, family=MONO)
         f.text(x + 68, 178, sub, 13, MUTED)
-    f.rect(384, 118, 192, 88, GREEN_T, GREEN, 14, 2)
-    f.text(480, 146, "= 일치", 18, GREEN, "middle", 700)
+    f.rect(384, 118, 192, 88, GREEN_T, GREEN, cs.RADIUS, 1.5)
+    f.text(480, 146, "= 일치", 18, GREEN, "middle", 800)
     f.text(480, 168, "2,162개 샘플", 14, INK, "middle", 700)
     f.add(f'<text x="480" y="190" font-size="13" fill="{INK}" text-anchor="middle">오차 2×10<tspan font-size="9" dy="-6">−6</tspan>'
           f'<tspan dy="6"> 이하</tspan></text>')
-    f.text(480, 224, "굽은 길 · 도심 · 앱 없는 나들이길", 12.5, MUTED, "middle")
+    f.text(480, 224, "굽은 길 · 도심 · 앱 없는 나들이길", 12.5, FOOT, "middle")
     # change order strip
-    f.rect(28, 240, 904, 44, CARD, LINE, 12)
-    f.text(46, 267, "바꿀 때 순서", 13, MUTED, weight=700)
+    f.rect(28, 240, 904, 44, CARD, LINE, cs.RADIUS_SM + 4)
+    f.text(46, 267, "바꿀 때 순서", 13, BLUE, weight=700)
     steps = ["sim/engine.py 수정", "prototype.py 점검 · test_vectors.csv 갱신", "android/core를 같은 숫자로"]
     x = 150
     for i, st in enumerate(steps):
-        f.num(x + 12, 262, i + 1, LAYER["calc"][0], 11, 13)
+        f.num(x + 12, 262, i + 1, GRAD, 11, 13)
         f.text(x + 30, 267, st, 13.5, INK, weight=700)
         x += 30 + tw(st, 13.5) + 14
         if i < 2:
-            f.arrow([(x, 262), (x + 26, 262)], MUTED, 2, head=8)
+            f.arrow([(x, 262), (x + 26, 262)], FOOT, 2, head=8)
             x += 40
     f.save("engine_parity.svg")
 
@@ -406,17 +430,17 @@ def sdk_map():
     f = Fig(960, 560)
     lanes = [(28, 360, "읽기 · 1초마다", LAYER["car"]), (420, 200, "계산", LAYER["calc"]), (652, 280, "행동", LAYER["out"])]
     for x, w, title, (ink, bg) in lanes:
-        f.rect(x, 26, w, 456, bg, None, 14)
-        f.text(x + w / 2, 56, title, 17, ink, "middle", 700)
+        f.rect(x, 26, w, 456, CARD, LINE)
+        f.text(x + w / 2, 56, title, 17, ink, "middle", 800)
     sdk_ink, sdk_bg = LAYER["sdk"]
 
     def sdkcard(x, y, w, name, use, tag=None, dash=None, tag_fg=sdk_ink):
         h = 84 if tag else 64
-        f.rect(x, y, w, h, WHITE, sdk_ink if not dash else "#94A3B8", 10, 1.5, dash)
-        f.text(x + 14, y + 25, name, 14, sdk_ink, weight=700)
+        f.rect(x, y, w, h, WHITE, LINE if not dash else LINE2, cs.RADIUS_SM + 2, 1.2 if dash else 1, dash)
+        f.text(x + 14, y + 25, name, 14, INK, weight=700)
         f.text(x + 14, y + 47, use, 13, INK)
         if tag:
-            f.chip(x + 14, y + 56, tag, tag_fg, sdk_bg, 11.5, 20, pad=8, family=MONO if tag.isupper() or "_" in tag else None)
+            f.chip(x + 14, y + 56, tag, BLUE, BAND, 11.5, 20, pad=8, family=MONO if tag.isupper() or "_" in tag else None)
         return h
 
     y = 74
@@ -428,15 +452,15 @@ def sdk_map():
         y += sdkcard(44, y, 328, name, use, tag) + 10
     # engine
     ci, cb = LAYER["calc"]
-    f.rect(436, 74, 168, 392, WHITE, ci, 12, 1.8)
+    f.rect(436, 74, 168, 392, WHITE, LINE, cs.RADIUS_SM + 4)
     f.icon(520, 108, "cpu", ci, cb)
-    f.text(520, 152, "순수 Kotlin 엔진", 14, ci, "middle", 700)
+    f.text(520, 152, "순수 Kotlin 엔진", 14, ci, "middle", 800)
     f.text(520, 171, "SDK와 분리", 12.5, MUTED, "middle")
     for j, (tok, lab) in enumerate([("I", "흔들림 지수"), ("D", "누적 흔들림"), ("m", "환경 계수"),
                                     ("tau", "개인 기준선"), ("P", "멀미 가능성")]):
         key = TOK[tok][0]
         f.chip(452, 188 + j * 46, "{" + tok + "}  " + lab, INK, V[key][1], 13.5, 36, w=136, stroke=V[key][0], weight=700)
-    f.text(520, 436, "식은 3절", 12.5, MUTED, "middle")
+    f.text(520, 436, "식은 3절", 12.5, FOOT, "middle")
     y = 74
     for name, use, tag, dash in [("Vehicle · HVAC", "외기 · 22°C", None, None),
                                  ("Vehicle · Window", "뒷창문 20%", "CONTROL_CAR_WINDOWS", None),
@@ -444,12 +468,12 @@ def sdk_map():
                                  ("SpeechToText", "확장 기능 답", "확장", "5 4")]:
         y += sdkcard(668, y, 248, name, use, tag, dash) + 10
     for xa in (392, 624):
-        f.arrow([(xa - 2, 270), (xa + 26, 270)], MUTED, 3, head=12)
+        f.arrow([(xa - 2, 270), (xa + 26, 270)], FOOT, 3, head=12)
     # closed loop: what the car did changes what it reports next second
     out_ink = LAYER["out"][0]
     f.arrow([(792, 484), (792, 522), (208, 522), (208, 488)], out_ink, 2.5, dash="8 6", head=12)
     f.chip(500, 507, "닫힌 고리 · 바뀐 실내 온도 · 환기가 다시 계산으로", out_ink, LAYER["out"][1], 14, 30, anchor="middle",
-           stroke=out_ink, weight=700)
+           weight=700)
     f.save("sdk_map.svg")
 
 
@@ -466,14 +490,14 @@ def validation_ladder():
         last = i == 2
         # riser block (the step)
         if i:
-            f.rect(x, bottom, w, base - bottom, "#EEF0F5", None, 6)
-        f.rect(x, y, w, ch, GREEN_T if last else CARD, GREEN if last else LINE, 14, 2 if last else 1.5)
-        f.num(x + 30, y + 32, i + 1, GREEN if last else INK, 15, 15)
+            f.rect(x, bottom, w, base - bottom, CARD_ALT, None, 6)
+        f.rect(x, y, w, ch, GREEN_T if last else CARD, GREEN if last else LINE, cs.RADIUS, 1.5 if last else 1)
+        f.num(x + 30, y + 32, i + 1, GREEN if last else GRAD, 15, 15)
         f.icon(x + 80, y + 32, ic, GREEN if last else LAYER["calc"][0], WHITE if last else LAYER["calc"][1])
         f.text(x + 20, y + 80, title, 14, INK, weight=700)
-        f.text(x + 20, y + 112, big, 23, GREEN if last else INK, weight=700)
+        f.text(x + 20, y + 112, big, 23, GREEN if last else INK, weight=800)
         f.text(x + 20, y + 134, sub, 12.5, MUTED)
-    f.line(28, base, 932, base, "#CBD5E1", 2)
+    f.line(28, base, 932, base, LINE2, 2)
     f.save("validation_ladder.svg")
 
 
@@ -490,23 +514,23 @@ def flow_chips(f, x, y, w, items, fg, bg, size=14, h=34, gap=10, stroke=None, da
 
 def real_or_sim():
     f = Fig(960, 300)
-    f.chip(480, 22, "Pleos Connect Emulator v2.1 · Android Automotive API 34 · 실제 실행", INK, CARD, 13.5, 32,
-           anchor="middle", stroke=LINE, weight=700)
-    f.rect(28, 72, 436, 172, WHITE, GREEN, 14, 2)
+    f.chip(480, 22, "Pleos Connect Emulator v2.1 · Android Automotive API 34 · 실제 실행", WHITE, GRAD_PILL, 13.5, 32,
+           anchor="middle", weight=700)
+    f.rect(28, 72, 436, 172, WHITE, GREEN, cs.RADIUS, 1.5)
     f.icon(62, 106, "check", GREEN, GREEN_T)
     f.text(94, 112, "진짜 · Pleos SDK", 16, GREEN, weight=700)
-    f.text(46, 156, "차를 움직임", 12, MUTED, weight=700)
+    f.text(46, 156, "차를 움직임", 12, BLUE, weight=700)
     flow_chips(f, 136, 134, 320, ["공조", "창문", "음성"], LAYER["out"][0], LAYER["out"][1])
-    f.text(46, 208, "차 신호", 12, MUTED, weight=700)
+    f.text(46, 208, "차 신호", 12, BLUE, weight=700)
     flow_chips(f, 136, 186, 320, ["방향지시등", "핸들 각도", "실내 온도"], V["car"][0], V["car"][1])
-    f.rect(496, 72, 436, 172, WHITE, "#9CA3AF", 14, 2, "7 5")
-    f.icon(530, 106, "replay", MUTED, "#F3F4F6")
-    f.text(562, 112, "시뮬레이션 · 실제 도로 경로 재생", 16, "#4B5563", weight=700)
-    flow_chips(f, 514, 140, 400, ["속도", "진행 방향", "경로", "회전 안내 카드", "도착 시간"], "#4B5563", "#F3F4F6",
-               stroke="#D1D5DB", dash="4 3")
+    f.rect(496, 72, 436, 172, CARD, FOOT, cs.RADIUS, 1.5, "7 5")
+    f.icon(530, 106, "replay", MUTED, CARD_ALT)
+    f.text(562, 112, "시뮬레이션 · 실제 도로 경로 재생", 16, MUTED, weight=700)
+    flow_chips(f, 514, 140, 400, ["속도", "진행 방향", "경로", "회전 안내 카드", "도착 시간"], MUTED, WHITE,
+               stroke=LINE2, dash="4 3")
     f.icon(50, 272, "slider", V["car"][0], None, scale=0.9)
     f.text(72, 277, "차 신호 조작: Virtual Console", 13.5, INK, weight=700)
-    f.text(72 + tw("차 신호 조작: Virtual Console", 13.5) + 10, 277, "Pleos 제공, 우리 앱 아님", 13, MUTED)
+    f.text(72 + tw("차 신호 조작: Virtual Console", 13.5) + 10, 277, "Pleos 제공, 우리 앱 아님", 13, FOOT)
     f.save("real_or_sim.svg")
 
 
@@ -516,15 +540,15 @@ def relief_sequence():
     f.rect(28, 186, 196, 72, ORANGE, None, 36)
     f.icon(66, 222, "touch", WHITE, None)
     f.text(140, 230, "멀미 완화", 22, WHITE, "middle", 700)
-    f.text(126, 284, "지도 · 분석 · 한 화면 모드", 12.5, MUTED, "middle")
-    f.text(126, 302, "어디서나", 12.5, MUTED, "middle")
+    f.text(126, 284, "지도 · 분석 · 한 화면 모드", 12.5, FOOT, "middle")
+    f.text(126, 302, "어디서나", 12.5, FOOT, "middle")
     # steps
     sx, sw, sh, gap = 268, 368, 84, 12
     ys = [36 + i * (sh + gap) for i in range(4)]
-    f.line(224, 222, 246, 222, MUTED, 2)
-    f.line(246, ys[0] + sh / 2, 246, ys[3] + sh / 2, MUTED, 2)
+    f.line(224, 222, 246, 222, FOOT, 2)
+    f.line(246, ys[0] + sh / 2, 246, ys[3] + sh / 2, FOOT, 2)
     for y in ys:
-        f.arrow([(246, y + sh / 2), (sx - 2, y + sh / 2)], MUTED, 2, head=8)
+        f.arrow([(246, y + sh / 2), (sx - 2, y + sh / 2)], FOOT, 2, head=8)
     out_ink, out_bg = LAYER["out"]
     sdk_ink, sdk_bg = LAYER["sdk"]
     data = [("window", "뒷창문 조금 (전체의 20%)", "Vehicle Window"),
@@ -534,51 +558,51 @@ def relief_sequence():
     for i, (ic, act, sdk) in enumerate(data):
         y = ys[i]
         inapp = i == 3
-        f.rect(sx, y, sw, sh, LAYER["calc"][1] if inapp else out_bg, LAYER["calc"][0] if inapp else out_ink, 12, 1.8)
-        f.num(sx + 24, y + sh / 2, i + 1, LAYER["calc"][0] if inapp else out_ink, 13, 14)
-        f.icon(sx + 70, y + sh / 2, ic, LAYER["calc"][0] if inapp else out_ink, WHITE)
+        f.rect(sx, y, sw, sh, LAYER["calc"][1] if inapp else CARD, None if inapp else LINE, cs.RADIUS_SM + 4)
+        f.num(sx + 24, y + sh / 2, i + 1, GRAD, 13, 14)
+        f.icon(sx + 70, y + sh / 2, ic, LAYER["calc"][0] if inapp else out_ink, WHITE if inapp else out_bg)
         if act:
             f.text(sx + 104, y + 36, act, 15, INK, weight=700)
         else:
             bx, by, bw, bh = sx + 102, y + 12, 250, 40
             f.add(f'<path d="M{bx + 10} {by} h{bw - 20} a10 10 0 0 1 10 10 v{bh - 20} a10 10 0 0 1 -10 10 h-{bw - 44} l-10 8 v-8 h-{14} '
-                  f'a10 10 0 0 1 -10 -10 v-{bh - 20} a10 10 0 0 1 10 -10 z" fill="{WHITE}" stroke="{out_ink}" stroke-width="1.5"/>')
+                  f'a10 10 0 0 1 -10 -10 v-{bh - 20} a10 10 0 0 1 10 -10 z" fill="{WHITE}" stroke="{LINE2}" stroke-width="1"/>')
             f.text(bx + bw / 2, by + 17, "“창문 열고 바람 넣을게요.", 13, INK, "middle", 700)
             f.text(bx + bw / 2, by + 33, "먼 곳을 보세요.”", 13, INK, "middle", 700)
-        f.chip(sx + 104 if act else sx + 250, y + (48 if act else 56), sdk, sdk_ink, WHITE, 12, 24, pad=10, stroke="#CBD5E1",
+        f.chip(sx + 104 if act else sx + 250, y + (48 if act else 56), sdk, BLUE, WHITE if inapp else BAND, 12, 24, pad=10,
                family=None)
     f.chip(sx, 432, "pleos.car.permission.CONTROL_CAR_WINDOWS", sdk_ink, sdk_bg, 12.5, 30, pad=14, family=MONO)
     # fallbacks
     fx, fw = 676, 256
-    f.text(fx, 32, "안 될 때", 14, "#92400E", weight=700)
+    f.text(fx, 32, "안 될 때", 14, AMBER, weight=800)
     falls = [(44, 116, "창문 불가", "거절 · 뒷창문 없음 · 4초 무응답", ["화면 + 음성", "“창문을 조금 열어 주세요”"]),
              (172, 68, "공조 꺼짐", None, ["공조는 그대로"]),
              (256, 68, "20초 안 다시 누름", None, ["“바람 넣는 중이에요”만"])]
     for i, (top, h, cond, sub, res) in enumerate(falls):
-        f.rect(fx, top, fw, h, "#FFFBEB", AMBER, 12, 1.8, "6 4")
-        f.text(fx + 16, top + 26, cond, 14.5, "#92400E", weight=700)
+        f.rect(fx, top, fw, h, "#FFFBEB", cs.MID, cs.RADIUS_SM + 4, 1.2, "6 4")
+        f.text(fx + 16, top + 26, cond, 14.5, AMBER, weight=700)
         yy = top + 26
         if sub:
             f.text(fx + 16, top + 46, sub, 12, MUTED)
             yy = top + 46
-        f.add(f'<path d="M{fx + 22} {yy + 10} v9 h10 m-5 -5 l5 5 -5 5" fill="none" stroke="#92400E" stroke-width="2" '
+        f.add(f'<path d="M{fx + 22} {yy + 10} v9 h10 m-5 -5 l5 5 -5 5" fill="none" stroke="{AMBER}" stroke-width="2" '
               f'stroke-linecap="round" stroke-linejoin="round"/>')
         f.lines(fx + 44, yy + 24, res, 13.5, INK, weight=700, lh=20)
-        f.arrow([(sx + sw + 2, ys[i] + sh / 2), (fx - 2, top + (h / 2 if i else 42))], AMBER, 1.8, "5 4", head=8)
+        f.arrow([(sx + sw + 2, ys[i] + sh / 2), (fx - 2, top + (h / 2 if i else 42))], cs.MID, 1.8, "5 4", head=8)
     f.save("relief_sequence.svg")
 
 
 def status_chip(f, x, y, kind, label=None, size=12):
-    styles = {"run": (GREEN, GREEN_T, None, "엔진에서 계산 중"), "off": ("#4B5563", "#E5E7EB", None, "앱 화면 · 소리에서 꺼 둠"),
+    styles = {"run": (GREEN, GREEN_T, None, "엔진에서 계산 중"), "off": (MUTED, CARD_ALT, None, "앱 화면 · 소리에서 꺼 둠"),
               "idea": (MUTED, WHITE, "4 3", "제안")}
     fg, bg, dash, default = styles[kind]
-    return f.chip(x, y, label or default, fg, bg, size, 24, pad=10, stroke=fg if dash else None, dash=dash, weight=700)
+    return f.chip(x, y, label or default, fg, bg, size, 24, pad=10, stroke=FOOT if dash else None, dash=dash, weight=700)
 
 
 def extension_map():
     f = Fig(960, 500)
     x = 28
-    f.text(x, 38, "상태", 12.5, MUTED, weight=700)
+    f.text(x, 38, "상태", 12.5, BLUE, weight=700)
     x += 40
     for k in ("run", "off", "idea"):
         x += status_chip(f, x, 22, k, "제안 · 확장" if k == "idea" else None) + 10
@@ -586,9 +610,9 @@ def extension_map():
     h, y1, y2 = 190, 64, 266
     hx, hy, hw, hh = 392, (y1 + y2 + h) / 2 - 41, 176, 82
     for cx, cy in [(368, y1 + h / 2), (592, y1 + h / 2), (368, y2 + h / 2), (592, y2 + h / 2)]:
-        f.line(hx + hw / 2, hy + hh / 2, cx, cy, "#C4B5FD", 2)
-    f.rect(hx, hy, hw, hh, cb, ci, 14, 2)
-    f.text(hx + hw / 2, hy + 32, "같은 엔진", 16, ci, "middle", 700)
+        f.line(hx + hw / 2, hy + hh / 2, cx, cy, "#B9CCF3", 2)
+    f.rect(hx, hy, hw, hh, cb, "#B9CCF3", cs.RADIUS, 1)
+    f.text(hx + hw / 2, hy + 32, "같은 엔진", 16, ci, "middle", 800)
     f.text(hx + hw / 2, hy + 60, "{I} · {D} · {m} · {tau} · {P}", 16, INK, "middle", 700)
     ours = "우리 몫: {D} 기반 멀미 가능성 · 개인 기준선 {tau} · 앱 배포"
     # overlap = 멀미 Zero (현대차·기아 2026 아이디어 페스티벌 최우수상), public reports only
@@ -602,13 +626,13 @@ def extension_map():
     ]
     for i, (x, y, ic, title, line1, sts, note, tag, overlap) in enumerate(cards):
         w = 340
-        f.rect(x, y, w, h, CARD, AMBER if overlap else LINE, 14)
-        f.num(x + 26, y + 30, i + 1, ci, 13, 14)
+        f.rect(x, y, w, h, CARD, cs.MID if overlap else LINE, cs.RADIUS, 1.5 if overlap else 1)
+        f.num(x + 26, y + 30, i + 1, GRAD, 13, 14)
         f.icon(x + w - 38, y + 36, ic, ci, cb)
         f.text(x + 48, y + 36, title, 16, INK, weight=700)
         if overlap:
             f.chip(x + 18 + tw(line1, 13.5) + 12, y + 53, "멀미 Zero와 겹침", AMBER, AMBER_T, 12, 24, pad=10,
-                   stroke=AMBER, weight=700)
+                   weight=700)
         f.text(x + 18, y + 70, line1, 13.5, INK)
         sx = x + 18
         for st in sts:
@@ -617,46 +641,46 @@ def extension_map():
         if note:
             f.text(x + 18, y + 126, note, 12.5, MUTED)
         if tag:
-            f.chip(x + 18, y + 134, tag, "#4B5563", WHITE, 12, 22, pad=10, stroke="#CBD5E1")
+            f.chip(x + 18, y + 134, tag, MUTED, WHITE, 12, 22, pad=10, stroke=LINE2)
         if i == 3:
             cx = x + 18
             for u in ("차종 비교", "택시 · 기사 평가", "업계 표준"):
                 cx += f.chip(cx, y + 120, u, INK, WHITE, 12.5, 26, pad=10, stroke=LINE) + 8
         if overlap:
             f.text(x + 18, y + h - 14, ours, 12, ci, weight=700)
-    f.icon(42, 478, "folder", MUTED, None, scale=0.75)
+    f.icon(42, 478, "folder", FOOT, None, scale=0.75)
     f.text(60, 482, "later/ 폴더에 코드 보관 (컴파일만)", 13, MUTED)
-    f.text(932, 482, "겹침: 멀미 Zero (현대차·기아 2026 아이디어 페스티벌 최우수상) · 공개 자료 기준", 12, MUTED, "end")
+    f.text(932, 482, "겹침: 멀미 Zero (현대차·기아 2026 아이디어 페스티벌 최우수상) · 공개 자료 기준", 12, FOOT, "end")
     f.save("extension_map.svg")
 
 
 def rest_stop_flow():
     f = Fig(960, 240)
     cy = 104
-    f.box(28, cy - 34, 150, 68, "흔들림 많음이", "길게 이어짐", RED, RED_T, RED, 14.5, sub_fill=RED)
-    f.arrow([(180, cy), (204, cy)], MUTED, 2)
+    f.box(28, cy - 34, 150, 68, "흔들림 많음이", "길게 이어짐", RED, RED_T, None, 14.5, sub_fill=RED)
+    f.arrow([(180, cy), (204, cy)], FOOT, 2)
     ci, cb = LAYER["calc"]
-    f.box(206, cy - 34, 196, 68, "엔진: 제안 시점", "굽은 길 거칠게 3분 45초", ci, cb, ci, 14.5)
-    f.arrow([(404, cy), (428, cy)], MUTED, 2)
-    f.rect(430, 24, 200, 160, WHITE, "#94A3B8", 14, 2, "7 5")
-    f.text(530, 50, "확장: LLM", 15, "#334155", "middle", 700)
-    f.chip(530, 64, "남은 경로", INK, V["car"][1], 13, 30, anchor="middle", w=160, weight=700)
+    f.box(206, cy - 34, 196, 68, "엔진: 제안 시점", "굽은 길 거칠게 3분 45초", ci, cb, None, 14.5)
+    f.arrow([(404, cy), (428, cy)], FOOT, 2)
+    f.rect(430, 24, 200, 160, CARD, FOOT, cs.RADIUS, 1.5, "7 5")
+    f.text(530, 50, "확장: LLM", 15, INK, "middle", 800)
+    f.chip(530, 64, "남은 경로", INK, WHITE, 13, 30, anchor="middle", w=160, weight=700, stroke=LINE)
     f.chip(530, 102, "멀미 가능성 {P}", INK, V["P"][1], 13, 30, anchor="middle", w=160, stroke=V["P"][0], weight=700)
-    f.chip(530, 140, "동승자", INK, V["car"][1], 13, 30, anchor="middle", w=160, weight=700)
-    f.arrow([(632, cy), (656, cy)], MUTED, 2)
-    f.box(658, cy - 34, 128, 68, "들를 곳", "한 줄 추천", LAYER["out"][0], LAYER["out"][1], LAYER["out"][0], 14.5)
-    f.arrow([(788, cy), (812, cy)], MUTED, 2)
-    f.box(814, cy - 34, 118, 68, "NaviHelper", "경유지", LAYER["sdk"][0], LAYER["sdk"][1], LAYER["sdk"][0], 14.5)
-    f.icon(42, 214, "folder", MUTED, None, scale=0.75)
+    f.chip(530, 140, "동승자", INK, WHITE, 13, 30, anchor="middle", w=160, weight=700, stroke=LINE)
+    f.arrow([(632, cy), (656, cy)], FOOT, 2)
+    f.box(658, cy - 34, 128, 68, "들를 곳", "한 줄 추천", LAYER["out"][0], LAYER["out"][1], None, 14.5)
+    f.arrow([(788, cy), (812, cy)], FOOT, 2)
+    f.box(814, cy - 34, 118, 68, "NaviHelper", "경유지", INK, CARD, LINE, 14.5)
+    f.icon(42, 214, "folder", FOOT, None, scale=0.75)
     f.text(60, 218, "질문 코드는 보관 · POI 검색 API 필요", 13, MUTED)
     f.save("rest_stop_flow.svg")
 
 
 def repo_structure():
     f = Fig(960, 560)
-    ENG, APPC, SIM, DOC, GREY = LAYER["calc"][0], LAYER["out"][0], "#334155", MUTED, "#9CA3AF"
+    ENG, APPC, SIM, DOC, GREY = LAYER["calc"][0], LAYER["out"][0], INK, MUTED, FOOT
     x = 28
-    f.text(x, 38, "폴더 색", 12.5, MUTED, weight=700)
+    f.text(x, 38, "폴더 색", 12.5, BLUE, weight=700)
     x += 56
     for lab, c in [("엔진", ENG), ("앱", APPC), ("시뮬 · 공용", SIM), ("문서", DOC), ("로컬 전용", GREY)]:
         f.icon(x + 9, 33, "folder", c, None, scale=0.75)
@@ -680,39 +704,39 @@ def repo_structure():
         (0, ".github/workflows/ci.yml", "CI: 시뮬 점검 + 테스트 벡터 + Kotlin 테스트 + 디버그 빌드", SIM, "file"),
     ]
     y0, rh = 62, 32
-    f.rect(28, 52, 904, rh * len(rows) + 20, CARD, LINE, 14)
+    f.rect(28, 52, 904, rh * len(rows) + 20, CARD, LINE)
     for i, (d, name, role, c, ic) in enumerate(rows):
         y = y0 + i * rh + 16
         x = 48 + d * 34
         if d:
-            f.line(48 + 9, y - rh / 2 - 6 if rows[i - 1][0] == 0 else y - rh + 2, 48 + 9, y, "#CBD5E1", 1.5)
-            f.line(48 + 9, y, x - 2, y, "#CBD5E1", 1.5)
+            f.line(48 + 9, y - rh / 2 - 6 if rows[i - 1][0] == 0 else y - rh + 2, 48 + 9, y, LINE2, 1.5)
+            f.line(48 + 9, y, x - 2, y, LINE2, 1.5)
         f.icon(x + 10, y, ic, c, None, scale=0.8)
         f.text(x + 28, y + 5, name, 14, c, weight=700, family=MONO)
         f.text(310, y + 5, role, 13.5, GREY if c == GREY else INK)
         if i < len(rows) - 1:
-            f.line(310, y + rh / 2, 916, y + rh / 2, "#EEF0F5", 1)
+            f.line(310, y + rh / 2, 916, y + rh / 2, LINE, 1)
     f.save("repo_structure.svg")
 
 
 def controls_layout():
     f = Fig(960, 400)
     sx, sy, sw, sh = 40, 28, 576, 324
-    f.rect(sx, sy, sw, sh, "#F1F5F9", "#94A3B8", 18, 2)
+    f.rect(sx, sy, sw, sh, CARD_ALT, LINE2, 18, 1.5)
     # top bar
     f.rect(sx + 12, sy + 12, sw - 24, 46, WHITE, LINE, 10)
     f.chip(sx + 26, sy + 19, "멀미 완화", WHITE, ORANGE, 14, 32, pad=18, weight=700)
-    f.chip(sx + sw - 26, sy + 19, "설정", INK, "#E5E7EB", 13, 32, pad=16, anchor="end", weight=700)
+    f.chip(sx + sw - 26, sy + 19, "설정", INK, CARD_ALT, 13, 32, pad=16, anchor="end", weight=700)
     # tabs
     f.rect(sx + 12, sy + 68, 250, 36, WHITE, LINE, 10)
     f.rect(sx + 16, sy + 72, 130, 28, INK, None, 8)
     f.text(sx + 81, sy + 91, "지도 (기본)", 13, WHITE, "middle", 700)
     f.text(sx + 202, sy + 91, "분석", 13, INK, "middle", 700)
-    f.chip(sx + 272, sy + 74, "고정", MUTED, WHITE, 11.5, 24, pad=9, stroke=LINE)
+    f.chip(sx + 272, sy + 74, "고정", MUTED, WHITE, 11.5, 24, pad=9, stroke=LINE2)
     # map placeholder
     f.path(f"M{sx + 120} {sy + 210} C{sx + 220} {sy + 190} {sx + 260} {sy + 140} {sx + 380} {sy + 130} S{sx + 500} {sy + 160} {sx + 540} {sy + 120}",
-           "#93C5FD", 6)
-    f.add(f'<circle cx="{sx + 120}" cy="{sy + 210}" r="8" fill="#2563EB" stroke="#fff" stroke-width="3"/>')
+           "#8FB1EE", 6)
+    f.add(f'<circle cx="{sx + 120}" cy="{sy + 210}" r="8" fill="{BLUE}" stroke="#fff" stroke-width="3"/>')
     # demo panel
     py = sy + 234
     f.rect(sx + 12, py, sw - 24, 78, WHITE, LINE, 10)
@@ -721,7 +745,7 @@ def controls_layout():
     for r, items in enumerate(row):
         x = sx + 24
         for it in items:
-            fg, bg = (WHITE, "#334155") if it == "실차 신호" else (INK, "#E5E7EB")
+            fg, bg = (WHITE, INK) if it == "실차 신호" else (INK, CARD_ALT)
             if it == "정지":
                 fg, bg = RED, RED_T
             x += f.chip(x, py + 8 + r * 34, it, fg, bg, 12.5, 28, pad=12, weight=700) + 8
@@ -730,11 +754,11 @@ def controls_layout():
     for x_t, y_target, y_label, title, sub in [(sx + sw - 12, sy + 35, 70, "위쪽", "멀미 완화 · 설정"),
                                                (sx + 320, sy + 86, 150, "머리 줄 탭", "지도 (기본) · 분석, 고정"),
                                                (sx + sw - 12, py + 39, 280, "아래쪽 시연 패널", "시나리오 재생 · 실차 신호 · 정지")]:
-        f.path(f"M{x_t} {y_target} L{cx - 14} {y_label - 5}", MUTED, 1.5, dash="3 3")
-        f.add(f'<circle cx="{x_t}" cy="{y_target}" r="4" fill="{MUTED}"/>')
-        f.text(cx, y_label, title, 15, INK, weight=700)
+        f.path(f"M{x_t} {y_target} L{cx - 14} {y_label - 5}", BLUE, 1.5, dash="3 3")
+        f.add(f'<circle cx="{x_t}" cy="{y_target}" r="4" fill="{BLUE}"/>')
+        f.text(cx, y_label, title, 15, INK, weight=800)
         f.text(cx, y_label + 20, sub, 12.5, MUTED)
-    f.chip(sx, 362, "실차 신호: 앱을 켜면 자동 시작", "#334155", V["car"][1], 12.5, 26, pad=12, weight=700)
+    f.chip(sx, 362, "실차 신호: 앱을 켜면 자동 시작", BLUE, BAND, 12.5, 26, pad=12, weight=700)
     f.save("controls_layout.svg")
 
 
@@ -742,26 +766,26 @@ def nav_front():
     """Navi in front: the service keeps working; the over-map card needs Pleos."""
     f = Fig(960, 176)
     sx, sy = 28, 28
-    f.rect(sx, sy, 200, 120, "#F1F5F9", "#94A3B8", 14, 2)
+    f.rect(sx, sy, 200, 120, CARD, LINE)
     f.icon(sx + 100, sy + 46, "map", V["car"][0], WHITE)
     f.text(sx + 100, sy + 96, "Pleos 내비가 앞 화면", 14, INK, "middle", 700)
-    f.arrow([(sx + 204, sy + 60), (sx + 240, sy + 60)], MUTED, 2.5)
+    f.arrow([(sx + 204, sy + 60), (sx + 240, sy + 60)], FOOT, 2.5)
     out_ink, out_bg = LAYER["out"]
     x = sx + 248
-    f.rect(x, sy, 420, 120, out_bg, out_ink, 14, 1.8)
-    f.text(x + 20, sy + 30, "주행 지킴이 · 뒤에서 계속", 15, out_ink, weight=700)
+    f.rect(x, sy, 420, 120, out_bg, None)
+    f.text(x + 20, sy + 30, "주행 지킴이 · 뒤에서 계속", 15, out_ink, weight=800)
     cx = x + 20
     for ic, lab in [("cpu", "계산"), ("wind", "공조"), ("speaker", "음성 안내")]:
         w = 44 + tw(lab, 15) + 20
-        f.rect(cx, sy + 52, w, 48, WHITE, out_ink, 24, 1.5)
+        f.rect(cx, sy + 52, w, 48, WHITE, None, 24)
         f.icon(cx + 24, sy + 76, ic, out_ink, None, scale=0.9)
         f.text(cx + 44, sy + 81, lab, 15, INK, weight=700)
         cx += w + 10
     x2 = x + 436
-    f.rect(x2, sy, 932 - x2, 120, WHITE, "#94A3B8", 14, 1.8, "6 4")
-    f.text(x2 + 18, sy + 30, "지도 위 알림 카드", 15, "#334155", weight=700)
+    f.rect(x2, sy, 932 - x2, 120, WHITE, FOOT, cs.RADIUS, 1.5, "6 4")
+    f.text(x2 + 18, sy + 30, "지도 위 알림 카드", 15, INK, weight=800)
     f.text(x2 + 18, sy + 54, "Pleos 홈은 시스템 앱 알림만", 13, MUTED)
-    f.chip(x2 + 18, sy + 72, "Pleos 협의", "#334155", WHITE, 13, 28, pad=12, stroke="#334155", weight=700)
+    f.chip(x2 + 18, sy + 72, "Pleos 협의", BLUE, BAND, 13, 28, pad=12, weight=700)
     f.save("nav_front.svg")
 
 
@@ -775,19 +799,19 @@ def quick_run():
     w, gap = 206, 26
     for i, (ic, title, sub) in enumerate(steps):
         x = 28 + i * (w + gap)
-        f.rect(x, 28, w, 134, CARD, LINE, 14)
-        f.num(x + 26, 56, i + 1, INK, 14, 15)
+        f.rect(x, 28, w, 134, CARD, LINE)
+        f.num(x + 26, 56, i + 1, GRAD, 14, 15)
         f.icon(x + w - 34, 56, ic, LAYER["calc"][0], LAYER["calc"][1], 20)
-        f.text(x + 18, 100, title, 16, INK, weight=700)
+        f.text(x + 18, 100, title, 16, INK, weight=800)
         if sub:
             f.text(x + 18, 124, sub[0], 13, MUTED)
             f.text(x + 18, 144, sub[1], 13, MUTED, family=MONO if sub[1].startswith(("-", "adb")) else None)
         else:
-            f.chip(x + 18, 108, "굽은 길 · 거칠게", INK, "#E5E7EB", 12.5, 24, pad=10, weight=700)
-            f.text(x + 18, 152, "→", 14, MUTED, weight=700)
+            f.chip(x + 18, 108, "굽은 길 · 거칠게", INK, WHITE, 12.5, 24, pad=10, weight=700, stroke=LINE2)
+            f.text(x + 18, 152, "→", 14, FOOT, weight=700)
             f.chip(x + 40, 136, "멀미 완화", WHITE, ORANGE, 12.5, 24, pad=12, weight=700)
         if i < 3:
-            f.arrow([(x + w + 4, 95), (x + w + gap - 4, 95)], MUTED, 2.5, head=10)
+            f.arrow([(x + w + 4, 95), (x + w + gap - 4, 95)], FOOT, 2.5, head=10)
     f.save("quick_run.svg")
 
 

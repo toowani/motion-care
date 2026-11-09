@@ -14,30 +14,37 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 IMG = ROOT / "docs" / "img"
 
-FONT = "Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif"
-SERIF = "Times New Roman, STIX Two Text, Georgia, serif"
-INK, MUTED, LINE = "#1F2340", "#6B6E86", "#E3E4EE"
-CARD = "#F8FAFC"
+import crave_style as cs
 
-# variable colours (same in every formula / diagram)
+FONT = cs.FONT
+SERIF = "Times New Roman, STIX Two Text, Georgia, serif"
+INK, MUTED, LINE = cs.INK, cs.MUTED, cs.LINE
+CARD = cs.CARD
+FOOT = cs.FOOT
+BLUE, BAND = cs.BLUE, cs.BAND
+TRACK = cs.TITLE_TRACKING
+
+# variable colours (same in every formula / diagram) -- semantic, kept
 V_I, V_I_T = "#2563EB", "#DBEAFE"
 V_D, V_D_T = "#7C3AED", "#EDE9FE"
 V_TAU, V_TAU_T = "#EA580C", "#FFEDD5"
 V_M, V_M_T = "#0D9488", "#CCFBF1"
 V_P, V_P_T = "#DC2626", "#FEE2E2"
-SLATE, SLATE_T = "#334155", "#E2E8F0"
+# old slate decoration -> the deck's blue system
+SLATE, SLATE_T = BLUE, BAND
 CONST = "#6B7280"
 
-# stage scale
-LOW, LOW_T = "#16A34A", "#DCFCE7"
-MID, MID_T = "#CA8A04", "#FEF9C3"
-HIGH, HIGH_T = "#DC2626", "#FEE2E2"
+# stage scale (the app's ring colours)
+LOW, LOW_T = cs.LOW, cs.LOW_T
+MID, MID_T = cs.MID, cs.MID_T
+HIGH, HIGH_T = cs.HIGH, cs.HIGH_T
+MID_INK = cs.MID_INK
 
-# criteria
-C_CAR, C_CAR_T = "#1E40AF", "#DBEAFE"
-C_BIZ, C_BIZ_T = "#6D28D9", "#EDE9FE"
+# criteria -> one accent blue
+C_CAR, C_CAR_T = BLUE, BAND
+C_BIZ, C_BIZ_T = BLUE, BAND
 
-GREY, GREY_T = "#9CA3AF", "#F3F4F6"
+GREY, GREY_T = FOOT, cs.CARD_ALT
 
 # condition badge colours (as in conditions.svg)
 COND = {1: (V_I, V_I_T), 2: (V_D, V_D_T), 3: (V_M, V_M_T), 4: (V_TAU, V_TAU_T)}
@@ -102,12 +109,12 @@ def esc(s):
 
 
 def tw(s, size, bold=False):
-    """Rough text width (px) for layout."""
+    """Rough text width (px) for layout, tuned for Pretendard (wider Latin than Apple SD Gothic Neo)."""
     w = 0.0
     for c in s:
         o = ord(c)
         if o >= 0x1100 and not (0x2000 <= o <= 0x22FF):
-            w += 0.9
+            w += 0.92
         elif c == " ":
             w += 0.28
         elif c in "·":
@@ -116,14 +123,18 @@ def tw(s, size, bold=False):
             w += 0.9
         elif c in "–—":
             w += 0.55
-        elif c.isupper() or c in "mwMW%":
-            w += 0.62
+        elif c in "mwMW%":
+            w += 0.82
+        elif c.isupper():
+            w += 0.66
+        elif c == "1":
+            w += 0.42
         elif c.isdigit():
-            w += 0.55
+            w += 0.58
         elif c in "il.,:;'()|ʼ":
             w += 0.3
         else:
-            w += 0.49
+            w += 0.54
     return w * size * (1.05 if bold else 1.0)
 
 
@@ -154,15 +165,24 @@ class Svg:
     def __init__(self, w, h):
         self.w, self.h = w, h
         self.defs = []
-        self.parts = [f'<rect x="0.75" y="0.75" width="{w - 1.5}" height="{h - 1.5}" rx="16" fill="#FFFFFF" stroke="{LINE}" stroke-width="1.5"/>']
+        self.parts = [f'<rect x="0.75" y="0.75" width="{w - 1.5}" height="{h - 1.5}" rx="{cs.RADIUS}" fill="{cs.BG}" stroke="{LINE}" stroke-width="1.5"/>']
 
     def add(self, s):
         self.parts.append(s)
 
-    def text(self, x, y, s, size=14, fill=INK, anchor="start", weight=400, italic=False, family=None):
+    def text(self, x, y, s, size=14, fill=INK, anchor="start", weight=400, italic=False, family=None, track=None):
         st = ' font-style="italic"' if italic else ""
         fam = f' font-family="{family}"' if family else ""
-        self.add(f'<text x="{x:.1f}" y="{y:.1f}" font-size="{size}" fill="{fill}" text-anchor="{anchor}" font-weight="{weight}"{st}{fam}>{esc(s)}</text>')
+        if track is None and not family and weight >= 700 and size >= 17:
+            track = "-0.02em"          # deck headings / big numbers: slightly tight
+        ls = f' letter-spacing="{track}"' if track else ""
+        self.add(f'<text x="{x:.1f}" y="{y:.1f}" font-size="{size}" fill="{fill}" text-anchor="{anchor}" font-weight="{weight}"{st}{fam}{ls}>{esc(s)}</text>')
+
+    def grad(self, gid="cg"):
+        """Brand gradient (deck hero elements); returns the fill url."""
+        if not any(f'id="{gid}"' in d for d in self.defs):
+            self.defs.append(cs.grad_def(gid))
+        return f"url(#{gid})"
 
     def rich(self, x, y, segs, size=14, anchor="start", fill=INK, weight=400):
         """segs: list of str or (str, colour[, 'var'|'bold'])."""
@@ -186,7 +206,7 @@ class Svg:
         d = f' stroke-dasharray="{dash}"' if dash else ""
         self.add(f'<rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" rx="{rx}" fill="{fill}"{s}{d}/>')
 
-    def card(self, x, y, w, h, fill=CARD, stroke=LINE, rx=12, sw=1):
+    def card(self, x, y, w, h, fill=CARD, stroke=LINE, rx=cs.RADIUS, sw=1):
         self.rect(x, y, w, h, fill, rx, stroke, sw)
 
     def line(self, x1, y1, x2, y2, stroke=LINE, width=1, dash=None, cap="round"):
@@ -220,10 +240,10 @@ class Svg:
         return w
 
     def tag_assume(self, x, y, anchor="start"):
-        return self.chip(x, y, "가정", MUTED, "#FFFFFF", MUTED, 12, 22, dash="4 3", anchor=anchor, pad=8)
+        return self.chip(x, y, "가정", MUTED, "#FFFFFF", FOOT, 12, 22, dash="4 3", anchor=anchor, pad=8)
 
     def tag_pleos(self, x, y, label="Pleos 협의", anchor="start", size=12, h=22):
-        return self.chip(x, y, label, SLATE, "#FFFFFF", SLATE, size, h, bold=True, anchor=anchor, pad=9)
+        return self.chip(x, y, label, BLUE, "#FFFFFF", BLUE, size, h, bold=True, anchor=anchor, pad=9)
 
     def status(self, kind, cx, cy, r=11):
         if kind == "ok":
@@ -244,7 +264,7 @@ class Svg:
         self.path(f"M{p1[0]:.1f} {p1[1]:.1f}L{x2:.1f} {y2:.1f}L{p2[0]:.1f} {p2[1]:.1f}", color, width)
 
     def title(self, s, x=28, y=46, size=20):
-        self.text(x, y, s, size, INK, "start", 700)
+        self.text(x, y, s, size, INK, "start", cs.TITLE_WEIGHT, track=TRACK)
 
     def save(self, name, title):
         IMG.mkdir(parents=True, exist_ok=True)
@@ -263,7 +283,7 @@ def stage_bar(s, x, y, w, h, fracs, labels, colors):
     for f, lab, col in zip(fracs, labels, colors):
         ww = w * f
         s.rect(cx, y, ww, h, col)
-        s.text(cx + ww / 2, y + h / 2 + 5, lab, 13, "#FFFFFF", "middle", 700)
+        s.text(cx + ww / 2, y + h / 2 + 5, lab, 13, INK if col == MID else "#FFFFFF", "middle", 700)
         cx += ww
         xs.append(cx)
     s.add("</g>")
@@ -390,7 +410,7 @@ def scenario_cards():
         # callout
         cx = x + 20
         for num, lab in call:
-            s.text(cx, y + 146, num, 28, INK, "start", 700)
+            s.text(cx, y + 146, num, 28, BLUE, "start", 800)
             cx += tw(num, 28, True) + 6
             s.text(cx, y + 145, lab, 14, MUTED)
             cx += tw(lab, 14) + 22
@@ -430,11 +450,11 @@ def emulator_checks():
     cols, gap, tw_, th = 4, 12, (904 - 3 * 12) / 4, 104
     H = 28 + 3 * th + 2 * gap + 28
     s = Svg(960, H)
-    tint = {"ok": ("#FFFFFF", LINE), "part": (MID_T, MID), "no": (HIGH_T, HIGH)}
+    tint = {"ok": (CARD, LINE), "part": (MID_T, MID), "no": (HIGH_T, HIGH)}
     for i, (kind, ic, label, detail) in enumerate(tiles):
         x, y = 28 + (i % cols) * (tw_ + gap), 28 + (i // cols) * (th + gap)
         bg, st = tint[kind]
-        s.card(x, y, tw_, th, bg, st, 12, 1.5 if kind != "ok" else 1)
+        s.card(x, y, tw_, th, bg, st, cs.RADIUS, 1)
         col = LOW if kind == "ok" else MID if kind == "part" else HIGH
         s.icon(ic, x + 34, y + 36, SLATE, SLATE_T if kind == "ok" else "#FFFFFF", 20)
         s.status(kind, x + tw_ - 26, y + 26, 12)
@@ -442,10 +462,10 @@ def emulator_checks():
         s.text(x + 18, y + 90, detail, 12.5, MUTED)
     # summary in the 12th slot
     x, y = 28 + 3 * (tw_ + gap), 28 + 2 * (th + gap)
-    s.card(x, y, tw_, th, CARD, LINE, 12)
+    s.card(x, y, tw_, th, "#FFFFFF", LINE)
     s.text(x + 18, y + 30, "Pleos Emulator v2.1", 13, MUTED, "start", 700)
     cx = x + 18
-    for lab, col, t in [("확인 9", LOW, LOW_T), ("부분 1", MID, MID_T), ("거절 1", HIGH, HIGH_T)]:
+    for lab, col, t in [("확인 9", LOW, LOW_T), ("부분 1", MID_INK, MID_T), ("거절 1", HIGH, HIGH_T)]:
         cx += s.chip(cx, y + 48, lab, col, t, t, 13, 28, bold=True, pad=9) + 6
     s.save("emulator_checks.svg", "에뮬레이터 11항목 점검: 확인 9, 부분 1, 거절 1")
 
@@ -466,7 +486,7 @@ def theme_names():
     for ic, txt in [("gear", "첫 실행 때 고름 · 주행 중 변경 잠금"), ("palette", "그림 · 말투만 다름"), ("ring", "계산 · 안내는 같음")]:
         w = tw(txt, 13) + 52
         s.rect(cx, 104, w, 36, "#FFFFFF", 18, LINE)
-        s.glyph(ic, cx + 20, 122, V_D, 18)
+        s.glyph(ic, cx + 20, 122, BLUE, 18)
         s.text(cx + 36, 127, txt, 13, INK)
         cx += w + 10
     s.save("theme_names.svg", "아이콘 테마 4종")
@@ -477,9 +497,9 @@ def map_elements():
     s.title("지도 탭")
     # segmented tab
     x0 = 28 + tw("지도 탭", 20, True) + 18
-    s.rect(x0, 26, 210, 30, "#F1F5F9", 15, LINE)
-    s.rect(x0 + 3, 29, 116, 24, "#FFFFFF", 12, V_I, 1.5)
-    s.text(x0 + 61, 46, "지도 (기본)", 13, V_I, "middle", 700)
+    s.rect(x0, 26, 210, 30, cs.CARD_ALT, 15, LINE)
+    s.rect(x0 + 3, 29, 116, 24, s.grad(), 12)
+    s.text(x0 + 61, 46, "지도 (기본)", 13, "#FFFFFF", "middle", 700)
     s.text(x0 + 164, 46, "분석", 13, MUTED, "middle")
     rows = [
         ("map", "지도", ["진행 방향이 위 · 한글 도로 이름 · 줌 고정"]),
@@ -493,10 +513,10 @@ def map_elements():
         s.card(28, y, 540, h)
         s.circle(52, y + h / 2, 12, INK)
         s.text(52, y + h / 2 + 5, str(i + 1), 13, "#FFFFFF", "middle", 700)
-        s.icon(ic, 96, y + h / 2, V_I if ic in ("map", "route", "turn") else V_P, V_I_T if ic in ("map", "route", "turn") else V_P_T, 20)
+        s.icon(ic, 96, y + h / 2, BLUE if ic in ("map", "route", "turn") else V_P, BAND if ic in ("map", "route", "turn") else V_P_T, 20)
         s.text(130, y + 30, ttl, 15, INK, "start", 700)
         if ic == "route":
-            s.line(130 + tw(ttl, 15, True) + 14, y + 25, 130 + tw(ttl, 15, True) + 74, y + 25, V_I, 5)
+            s.line(130 + tw(ttl, 15, True) + 14, y + 25, 130 + tw(ttl, 15, True) + 74, y + 25, BLUE, 5)
         if ic == "face":
             s.rich(130, y + 52, ["오른쪽 위, 둘레 링 = ", ("멀미 가능성", V_P, "bold"), " (숫자 없음)"], 13, fill=MUTED)
         elif len(lines) == 2:
@@ -540,12 +560,12 @@ def phone_vs_car():
     ]
     s = Svg(960, 430)
     lx, lw, mx, mw, rx_, rw = 28, 318, 362, 236, 614, 318
-    s.rect(lx, 28, lw, 56, GREY_T, 12)
+    s.rect(lx, 28, lw, 56, GREY_T, cs.RADIUS)
     s.icon("phone", lx + 40, 56, GREY, "#FFFFFF", 18)
-    s.text(lx + 68, 62, "폰 앱", 17, "#6B7280", "start", 700)
-    s.rect(rx_, 28, rw, 56, C_CAR_T, 12)
-    s.icon("car", rx_ + 40, 56, C_CAR, "#FFFFFF", 18)
-    s.text(rx_ + 68, 62, "멀미 케어", 17, C_CAR, "start", 700)
+    s.text(lx + 68, 62, "폰 앱", 17, MUTED, "start", 700)
+    s.rect(rx_, 28, rw, 56, s.grad(), cs.RADIUS)
+    s.icon("car", rx_ + 40, 56, BLUE, "#FFFFFF", 18)
+    s.text(rx_ + 68, 62, "멀미 케어", 17, "#FFFFFF", "start", 800)
     s.text(mx + mw / 2, 62, "vs", 15, MUTED, "middle", 700)
     y = 100
     for feat, (pi, pt), (ci, ct) in rows:
@@ -553,9 +573,9 @@ def phone_vs_car():
         s.card(lx, y, lw, h, "#FFFFFF")
         s.icon(pi, lx + 36, y + h / 2, GREY, GREY_T, 16)
         s.text(lx + 62, y + h / 2 + 5, pt, 15, MUTED)
-        s.rect(mx, y + 16, mw, h - 32, "#F1F5F9", (h - 32) / 2, LINE)
+        s.rect(mx, y + 16, mw, h - 32, CARD, (h - 32) / 2, LINE)
         s.text(mx + mw / 2, y + h / 2 + 5, feat, 14, INK, "middle", 700)
-        s.card(rx_, y, rw, h, "#FFFFFF", C_CAR_T, 12, 1.5)
+        s.card(rx_, y, rw, h, "#FFFFFF", "#C9D8F6", cs.RADIUS, 1)
         s.icon(ci, rx_ + 36, y + h / 2, C_CAR, C_CAR_T, 16)
         s.text(rx_ + 62, y + h / 2 + 5, ct, 15, INK, "start", 700)
         s.circle(rx_ + rw - 24, y + h / 2, 10, LOW)
@@ -590,14 +610,14 @@ def market_compare():
     for i, (name, *_r) in enumerate(rows):
         y = y0 + i * rh
         if name == "멀미 케어":
-            s.card(28, y - 4, 904, rh - 2, C_CAR_T, C_CAR, 12, 1.5)
+            s.card(28, y - 4, 904, rh - 2, BAND, "#BCD0F7", 12, 1)
         elif name == "멀미 Zero":
-            s.card(28, y - 4, 904, rh - 2, "#FFFBEB", MID, 12, 1.2)
+            s.card(28, y - 4, 904, rh - 2, "#FFFBEB", "#F5D96B", 12, 1)
         elif i % 2 == 0:
             s.rect(28, y - 4, 904, rh - 2, CARD, 10)
     for j, lab in lead.items():
         bx = x_f + j * fw + 6
-        s.add(f'<rect x="{bx:.1f}" y="30" width="{fw - 12}" height="{t_end - 30 - 4}" rx="10" fill="{C_CAR}" fill-opacity="0.07"/>')
+        s.add(f'<rect x="{bx:.1f}" y="30" width="{fw - 12}" height="{t_end - 30 - 4}" rx="10" fill="{BLUE}" fill-opacity="0.06"/>')
         s.text(bx + (fw - 12) / 2, 46, lab, 11.5, C_CAR, "middle", 700)
     for j, f in enumerate(feats):
         s.text(x_f + j * fw + fw / 2, 64, f, 13.5, INK, "middle", 700)
@@ -617,9 +637,10 @@ def market_compare():
                 s.circle(cx, cy, 10, "#FFFFFF", MID, 2)
                 s.path(f"M{cx} {cy - 9}A9 9 0 0 1 {cx} {cy + 9}z", MID, 0.1, MID)
             else:
-                s.circle(cx, cy, 4, "#D1D5DB")
-        col = {"양산": (LOW, LOW_T), "시제품": (C_CAR, "#FFFFFF"), "사내 수상": (MID, "#FFFFFF")}.get(state, (MUTED, GREY_T))
-        s.chip(x_s, y + rh / 2 - 16, state, col[0], col[1], col[1] if state not in ("시제품", "사내 수상") else col[0], 12.5, 24, bold=True, anchor="middle")
+                s.circle(cx, cy, 4, "#CDD3E0")
+        col = {"양산": (LOW, LOW_T, LOW_T), "시제품": ("#FFFFFF", s.grad(), None),
+               "사내 수상": (MID_INK, "#FFFFFF", MID)}.get(state, (MUTED, GREY_T, GREY_T))
+        s.chip(x_s, y + rh / 2 - 16, state, col[0], col[1], col[2], 12.5, 24, bold=True, anchor="middle")
     # legend
     y = t_end + 18
     cx = 46
@@ -629,14 +650,14 @@ def market_compare():
     s.circle(cx, y, 7, "#FFFFFF", MID, 2); s.path(f"M{cx} {y - 6}A6 6 0 0 1 {cx} {y + 6}z", MID, 0.1, MID)
     s.text(cx + 14, y + 5, "일부 · 연구 단계", 12.5, INK)
     cx += 130
-    s.circle(cx, y, 4, "#D1D5DB")
+    s.circle(cx, y, 4, "#CDD3E0")
     s.text(cx + 12, y + 5, "없음 · 확인 못 함 (멀미 Zero는 공개 자료 기준 보도에 없음)", 12.5, INK)
     # 멀미 Zero note: credit, overlap, difference (public reports only)
     y += 34
     s.line(28, y - 16, 932, y - 16, LINE)
     s.rich(46, y, [("멀미 Zero", INK, "bold"),
                    " · 현대차·기아 2026 아이디어 페스티벌 최우수상 (임직원 팀, 2026-10-19 공개) · OTA로 넣는 차량 기능"], 12.5, fill=MUTED)
-    s.rich(46, y + 22, [("겹침", MID, "bold"),
+    s.rich(46, y + 22, [("겹침", MID_INK, "bold"),
                         "  차 신호(조향각 · 가속도), 움직임을 조명 · 뒷좌석 화면 테두리로 미리 보여 줌, 하드웨어 추가 없음"], 12.5, fill=MUTED)
     s.rich(46, y + 44, [("다름", C_CAR, "bold"),
                         "  멀미 케어는 공조 · 창문을 직접 바꾸고(조치), 멀미 완화 버튼 기록으로 아이 기준을 배우며(개인 학습),"], 12.5, fill=MUTED)
@@ -644,7 +665,7 @@ def market_compare():
     s.save("market_compare.svg", "다른 멀미 대응 서비스와 기능 비교")
 
 
-SUBT = "#3F4660"   # secondary text, dark enough to survive scaling
+SUBT = MUTED   # secondary text
 ICONS.update({
     "hush": "M4 4.5h16v11H11l-4.5 4v-4H4z M9.5 7.5l5 5 M14.5 7.5l-5 5",
     "sprout": "M12 21v-9 M12 12c0-4 3-7 8-7 0 5-3 7-8 7z M12 14c0-3-2.5-5-7-5 0 4 2.5 5 7 5z",
@@ -654,7 +675,7 @@ ICONS.update({
 
 def target():
     s = Svg(960, 300)
-    s.icon("family", 62, 62, "#FFFFFF", C_BIZ, 30)
+    s.icon("family", 62, 62, "#FFFFFF", s.grad(), 30)
     s.text(110, 72, "어린 자녀(4–13세)를 둔 가족 운전자", 28, INK, "start", 800)
     why = [("child", ["4–13세가", "멀미에 가장 약함"], "Huppert 외, 2019"),
            ("hush", ["아이는 참거나", "말로 표현하기 어려움"], "그래서 차가 먼저 알아차림"),
@@ -688,7 +709,7 @@ def mau_funnel():
     mau = vals[-1]
     assert 1750 < mau < 1900, mau
     s = Svg(960, 428)
-    s.text(28, 50, "출시 1년 예상 MAU", 20, INK, "start", 700)
+    s.title("출시 1년 예상 MAU", 28, 50)
     y = 76
     for (lab, sub, rate, tag, _), n in zip(steps, vals):
         s.line(28, y, 620, y, LINE)
@@ -696,14 +717,14 @@ def mau_funnel():
         if sub:
             s.text(28, y + 52, sub, 13.5, SUBT)
         if rate:
-            s.text(410, y + 36, rate, 20, C_BIZ, "end", 700)
+            s.text(410, y + 36, rate, 20, BLUE, "end", 800)
         if tag:
             s.tag_assume(420, y + 20)
         s.text(620, y + 36, f"{n:,.0f}" + ("대" if n == cars else ""), 20, INK, "end", 700)
         y += 66
-    s.rect(28, y + 6, 592, 56, C_BIZ_T, 12, "#C4B5FD")
-    s.text(48, y + 41, "출시 1년 예상 MAU", 17, C_BIZ, "start", 700)
-    s.text(600, y + 43, "≈ 1,800명", 24, C_BIZ, "end", 800)
+    s.rect(28, y + 6, 592, 56, s.grad(), cs.RADIUS)
+    s.text(48, y + 41, "출시 1년 예상 MAU", 17, "#FFFFFF", "start", 700)
+    s.text(600, y + 43, "≈ 1,800명", 24, "#FFFFFF", "end", 800)
     rx_, rw = 652, 280
     s.card(rx_, 76, rw, 324)
     s.glyph("info", rx_ + 30, 108, SUBT, 22)
@@ -713,7 +734,7 @@ def mau_funnel():
              ("차량 2천만 대", "Pleos Connect 2030 적용 목표 (현대차그룹, 2026.4.30) · 차종이 늘수록 커짐")]
     yy = 150
     for big, why in notes:
-        s.text(rx_ + 22, yy, big, 18, C_BIZ, "start", 700)
+        s.text(rx_ + 22, yy, big, 18, BLUE, "start", 800)
         for j, ln in enumerate(wrap(why, 13.5, rw - 44)):
             s.text(rx_ + 22, yy + 22 + j * 19, ln, 13.5, SUBT)
         yy += 22 + 19 * len(wrap(why, 13.5, rw - 44)) + 22
@@ -722,12 +743,12 @@ def mau_funnel():
 
 def retention_revenue():
     s = Svg(960, 384)
-    s.card(28, 28, 442, 328, "#FFFFFF")
+    s.card(28, 28, 442, 328)
     s.text(48, 62, "다시 쓰게 하는 고리 (Retention)", 17, INK, "start", 700)
     pw = 196
     nodes = [(249, 108, "멀미 완화 버튼 누름"), (362, 214, "누른 순간 흔들림 기록"), (136, 214, "우리 아이 기준 정확해짐")]
     for x, y, lab in nodes:
-        s.rect(x - pw / 2, y - 22, pw, 44, C_BIZ_T, 22)
+        s.rect(x - pw / 2, y - 22, pw, 44, BAND, 22)
         s.text(x, y + 5.5, lab, 15, C_BIZ, "middle", 700)
     s.path("M318 132 Q350 160 356 188", C_BIZ, 2)
     s.path("M349 183 L356 191 L361 182", C_BIZ, 2)
@@ -741,18 +762,18 @@ def retention_revenue():
     s.text(80, 310, "시동 자동 시작은 Pleos 협의 후", 13.5, SUBT)
     s.text(80, 332, "→ MAU 식의 월 사용 60%(가정) 근거", 13.5, SUBT)
     x0 = 490
-    s.card(x0, 28, 442, 328, "#FFFFFF")
+    s.card(x0, 28, 442, 328)
     s.text(x0 + 20, 62, "수익 모델 · 엔터테인먼트 연계", 17, INK, "start", 700)
     s.text(x0 + 20, 100, "판매", 14.5, C_BIZ, "start", 700)
-    s.rect(x0 + 20, 110, 270, 60, C_BIZ_T, 10, "#C4B5FD")
+    s.rect(x0 + 20, 110, 270, 60, BAND, cs.RADIUS_SM + 2)
     s.icon("palette", x0 + 48, 140, C_BIZ, "#FFFFFF", 17)
     s.text(x0 + 74, 146, "캐릭터 · 가상 아이돌 IP 테마", 15, C_BIZ, "start", 700)
-    s.rect(x0 + 300, 110, 122, 60, C_BIZ_T, 10, "#C4B5FD")
+    s.rect(x0 + 300, 110, 122, 60, BAND, cs.RADIUS_SM + 2)
     s.glyph("mic", x0 + 326, 140, C_BIZ, 20)
     s.text(x0 + 344, 146, "음성 팩", 15, C_BIZ, "start", 700)
-    s.text(x0 + 20, 204, "무료", 14.5, "#4B5563", "start", 700)
-    s.rect(x0 + 20, 214, 402, 54, "#F3F4F6", 10, "#E5E7EB")
-    s.icon("gift", x0 + 48, 241, "#4B5563", "#FFFFFF", 17)
+    s.text(x0 + 20, 204, "무료", 14.5, MUTED, "start", 700)
+    s.rect(x0 + 20, 214, 402, 54, "#FFFFFF", cs.RADIUS_SM + 2, LINE)
+    s.icon("gift", x0 + 48, 241, MUTED, CARD, 17)
     s.text(x0 + 74, 246, "멀미 계산 · 공기 · 창문 · 음성 기본 기능", 15, INK, "start", 700)
     s.glyph("info", x0 + 32, 310, SUBT, 20)
     s.text(x0 + 52, 315, "앱 속 루미 테마는 오리지널 예시 · 실제 IP 계약 없음", 13.5, SUBT)
@@ -774,7 +795,7 @@ def b2b_targets():
         s.icon(ic, x + 40, 104 + d, C_BIZ, C_BIZ_T, 20)
         s.text(x + 20, 152 + d, name, 15, INK, "start", 700)
         if big:
-            s.text(x + 20, 194 + d, big, 28, C_BIZ, "start", 700)
+            s.text(x + 20, 194 + d, big, 28, BLUE, "start", 800)
             s.text(x + 20, 216 + d, small, 12, MUTED)
         else:
             s.text(x + 20, 194 + d, "Pleos 협의 후", 22, SLATE, "start", 700)
@@ -797,7 +818,7 @@ def ride_quality_uses():
     for i, (ic, ttl, d) in enumerate(tiles):
         x = 28 + i * (w + 16)
         s.card(x, 100, w, 162)
-        s.icon(ic, x + 42, 140, V_I, V_I_T, 22)
+        s.icon(ic, x + 42, 140, BLUE, BAND, 22)
         s.text(x + 22, 192, ttl, 16, INK, "start", 700)
         for j, ln in enumerate(wrap(d, 13, w - 44)):
             s.text(x + 22, 216 + j * 19, ln, 13, MUTED)
@@ -828,7 +849,7 @@ def limits():
         if kind == "pleos":
             s.tag_pleos(x + 74, ty, tag, h=24)
         elif kind == "check":
-            s.chip(x + 74, ty, tag, MID, MID_T, MID_T, 12, 24, bold=True)
+            s.chip(x + 74, ty, tag, MID_INK, MID_T, MID_T, 12, 24, bold=True)
         elif kind == "lock":
             s.chip(x + 74, ty, tag, SLATE, SLATE_T, SLATE_T, 12, 24, bold=True)
         else:
@@ -843,7 +864,7 @@ def dev_env():
     w = (904 - 2 * 16) / 3
     for i, (lab, ver) in enumerate(items):
         x, y = 28 + (i % 3) * (w + 16), 28 + (i // 3) * (54 + 14)
-        s.rect(x, y, w, 54, CARD, 10, LINE)
+        s.rect(x, y, w, 54, CARD, cs.RADIUS_SM + 2, LINE)
         s.text(x + 18, y + 22, lab, 12, MUTED)
         s.text(x + 18, y + 44, ver, 18, INK, "start", 700)
     s.save("dev_env.svg", "개발 환경")
@@ -857,7 +878,7 @@ def remaining_work():
     y = 28
     for txt, tag in rows:
         s.card(28, y, 904, 38, CARD)
-        s.rect(46, y + 10, 18, 18, "#FFFFFF", 4, MUTED, 1.6)
+        s.rect(46, y + 10, 18, 18, "#FFFFFF", 5, FOOT, 1.6)
         s.text(78, y + 24, txt, 14, INK)
         s.chip(914, y + 8, tag, SLATE, SLATE_T, SLATE_T, 12, 22, bold=True, anchor="end")
         y += 44

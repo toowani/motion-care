@@ -6,14 +6,16 @@ import csv
 import json
 from pathlib import Path
 
+import crave_style as cs
 from engine import personal_threshold, sickness_probability
 from prototype import P, run
 
 ROOT = Path(__file__).resolve().parents[1]
 IMG = ROOT / "docs" / "img"
 
-FONT = "Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif"
-INK, MUTED, GRID = "#1F2340", "#6B6E86", "#E3E4EE"
+FONT = cs.FONT
+INK, MUTED, GRID = cs.INK, cs.MUTED, cs.LINE
+FOOT, CARD, BAND, BLUE = cs.FOOT, cs.CARD, cs.BAND, cs.BLUE
 INDEX = "#2563EB"          # flicker index I (same blue as the README formula images)
 DOSE = "#7C3AED"           # accumulated dose D
 VAR = {"I": INDEX, "D": DOSE, "m": "#0D9488", "τ": "#EA580C", "P": "#DC2626", "a": "#DB2777"}
@@ -30,9 +32,9 @@ def v(sym, sub=None, size=None):
     return out
 # one risk scale for the app and the figures: green → yellow → red (yellow is darkened for lines/text on white)
 LOW, CAUTION, HIGH = "#16A34A", "#CA8A04", "#DC2626"
-APP, NO_APP = "#0F766E", "#9CA3AF"
+APP, NO_APP = cs.INK, "#9AA2B8"   # what the app did: navy (blue is taken by the index I)
 KIDS = {"민준": ("#EA580C", "6 4"), "서연": ("#9A3412", "2 4")}   # both tau: orange family, told apart by dash
-TH_C, TH_H = "#9CA3AF", "#1F2340"   # alert thresholds: neutral grey / black dashes (amber and red are stage / P colours)
+TH_C, TH_H = "#9AA2B8", cs.INK   # alert thresholds: neutral grey / black dashes (amber and red are stage / P colours)
 TAU = VAR["τ"]
 
 
@@ -40,13 +42,19 @@ class Svg:
     def __init__(self, w, h):
         self.w, self.h = w, h
         self.parts = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" font-family="{FONT}" font-size="13">',
-                      f'<rect x="0.75" y="0.75" width="{w - 1.5}" height="{h - 1.5}" rx="16" fill="#fff" stroke="{GRID}" stroke-width="1.5"/>']
+                      f'<defs>{cs.grad_def("cg")}</defs>',
+                      f'<rect x="0.5" y="0.5" width="{w - 1}" height="{h - 1}" rx="{cs.RADIUS}" fill="{cs.BG}" stroke="{GRID}" stroke-width="1"/>']
 
     def add(self, s):
         self.parts.append(s)
 
     def text(self, x, y, s, size=13, fill=INK, anchor="start", weight=400):
-        self.add(f'<text x="{x:.1f}" y="{y:.1f}" font-size="{size}" fill="{fill}" text-anchor="{anchor}" font-weight="{weight}">{s}</text>')
+        ls = f' letter-spacing="{cs.TITLE_TRACKING}"' if weight >= 700 and size >= 15 else ""
+        self.add(f'<text x="{x:.1f}" y="{y:.1f}" font-size="{size}" fill="{fill}" text-anchor="{anchor}" font-weight="{weight}"{ls}>{s}</text>')
+
+    def title(self, x, y, s, size=17, anchor="start"):
+        """Figure heading: navy, extra bold, tight tracking (deck style)."""
+        self.text(x, y, s, size, INK, anchor, cs.TITLE_WEIGHT)
 
     def line(self, x1, y1, x2, y2, stroke=GRID, width=1, dash=None):
         d = f' stroke-dasharray="{dash}"' if dash else ""
@@ -58,7 +66,7 @@ class Svg:
         self.add(f'<polyline points="{p}" fill="none" stroke="{stroke}" stroke-width="{width}" stroke-linejoin="round"{d}/>')
 
     def rect(self, x, y, w, h, fill, rx=0, stroke=None):
-        s = f' stroke="{stroke}"' if stroke else ""
+        s = f' stroke="{stroke}" stroke-width="1"' if stroke else ""
         self.add(f'<rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" rx="{rx}" fill="{fill}"{s}/>')
 
     def save(self, name):
@@ -75,11 +83,11 @@ class Plot:
         self.tmax, self.ymin, self.ymax = tmax_s, ymin, ymax
         for v in yticks:
             svg.line(x0, self.Y(v), x0 + w, self.Y(v))
-            svg.text(x0 - 8, self.Y(v) + 4, f"{v:g}", 12, MUTED, "end")
+            svg.text(x0 - 8, self.Y(v) + 4, f"{v:g}", 12, FOOT, "end")
         step = 1 if tmax_s <= 600 else 5
         for k in range(0, int(tmax_s // 60) + 1, step):
-            svg.text(self.X(k * 60), y0 + h + 18, f"{k}분", 12, MUTED, "middle")
-        svg.text(x0, y0 - 10, ylabel, 12, MUTED)
+            svg.text(self.X(k * 60), y0 + h + 18, f"{k}분", 12, FOOT, "middle")
+        svg.text(x0, y0 - 10, ylabel, 12, MUTED, weight=600)
 
     def X(self, t):
         return self.x0 + self.w * t / self.tmax
@@ -105,7 +113,7 @@ def legend(svg, x, y, items):
         x += 52 + 12 * len(label)
 
 
-def arrow(s, pts, color=MUTED, width=2.5, dash=None):
+def arrow(s, pts, color=FOOT, width=2, dash=None):
     """Polyline with an arrowhead at the last point."""
     s.poly(pts, color, width, dash)
     (x1, y1), (x2, y2) = pts[-2], pts[-1]
@@ -113,11 +121,18 @@ def arrow(s, pts, color=MUTED, width=2.5, dash=None):
     a = math.atan2(y2 - y1, x2 - x1)
     h = [(x2, y2), (x2 - 11 * math.cos(a - 0.45), y2 - 11 * math.sin(a - 0.45)),
          (x2 - 11 * math.cos(a + 0.45), y2 - 11 * math.sin(a + 0.45))]
+    s.parts[-1] = s.parts[-1].replace('stroke-linejoin="round"', 'stroke-linejoin="round" stroke-linecap="round"')
     s.add('<path d="M' + " L".join(f"{x:.1f} {y:.1f}" for x, y in h) + f' Z" fill="{color}"/>')
 
 
-def box(s, x, y, w, h, title, sub=None, fill="#F5F3FF", ink="#5B21B6", size=14):
-    s.rect(x, y, w, h, fill, 12)
+# box styles (fill, title ink, border): car side = neutral card, calculation = light blue band, result = brand gradient
+CAR = (CARD, INK, GRID)
+CALC = (BAND, cs.BLUE_DEEP, None)
+OUT = ("#FFFFFF", BLUE, BLUE)
+
+
+def box(s, x, y, w, h, title, sub=None, fill=CARD, ink=INK, size=14, stroke=None):
+    s.rect(x, y, w, h, fill, 12, stroke)
     if sub:
         s.text(x + w / 2, y + h / 2 - 3, title, size, ink, "middle", 700)
         s.text(x + w / 2, y + h / 2 + 16, sub, 12, MUTED, "middle")
@@ -128,29 +143,29 @@ def box(s, x, y, w, h, title, sub=None, fill="#F5F3FF", ink="#5B21B6", size=14):
 def index_flow():
     """How the sickness index is computed, left to right (replaces a mermaid chart)."""
     s = Svg(960, 356)
-    s.text(480, 26, "멀미 지수 계산 · 1초마다", 15, INK, "middle", 700)
-    car, calc, out = ("#EEF2FF", "#3730A3"), ("#F5F3FF", "#5B21B6"), ("#ECFDF5", "#065F46")
+    s.title(480, 28, "멀미 지수 계산 · 1초마다", 17, "middle")
+    car, calc, out = CAR, CALC, OUT
     y, h = 120, 64
     row = [(20, 130, "속도 · 진행 방향", "차 신호", car), (180, 130, "가속도", f"앞뒤 {v('a', 'x', 12)} · 옆 {v('a', 'y', 12)}", calc),
            (340, 140, "느린 흔들림만", "10초 평균 제거", calc),
            (510, 140, f"지수 {v('I', size=13)} · 누적 {v('D', size=13)}", "최근 60초 · 주행 전체", calc),
            (680, 100, "판단", None, calc), (810, 130, "흔들림 단계", f"멀미 가능성 {v('P', size=12)}", out)]
-    for x, w, t, sub, (f, ink) in row:
-        box(s, x, y, w, h, t, sub, f, ink, 13 if len(t) > 7 else 14)
+    for x, w, t, sub, (f, ink, st) in row:
+        box(s, x, y, w, h, t, sub, f, ink, 13 if len(t) > 7 else 14, st)
     for (x, w, *_), (nx, *_) in zip(row, row[1:]):
         arrow(s, [(x + w + 4, y + h / 2), (nx - 4, y + h / 2)])
-    box(s, 20, 44, 130, 44, "핸들 각도", None, *car, size=13)
-    arrow(s, [(85, 90), (85, y - 4)], "#3730A3", 2, "6 4")
-    s.text(96, 108, "방향을 1–2초 앞당김", 11, "#3730A3")
-    box(s, 470, 236, 150, 52, "실내 온도 · 내기순환", None, *car, size=13)
-    box(s, 650, 236, 120, 52, f"환경 계수 {v('m', size=13)}", "덥고 탁하면 ↓", "#CCFBF1", "#0F766E", size=13)
-    box(s, 800, 236, 140, 52, f"개인 기준선 {v('τ', size=13)}", "완화 버튼으로 학습", "#FFEDD5", "#C2410C", size=13)
+    box(s, 20, 44, 130, 44, "핸들 각도", None, car[0], car[1], 13, car[2])
+    arrow(s, [(85, 90), (85, y - 4)], BLUE, 2, "6 4")
+    s.text(96, 108, "방향을 1–2초 앞당김", 11, BLUE, weight=600)
+    box(s, 470, 236, 150, 52, "실내 온도 · 내기순환", None, car[0], car[1], 13, car[2])
+    box(s, 650, 236, 120, 52, f"환경 계수 {v('m', size=13)}", "덥고 탁하면 ↓", "#E6F7F5", "#0F766E", size=13)
+    box(s, 800, 236, 140, 52, f"개인 기준선 {v('τ', size=13)}", "완화 버튼으로 학습", "#FFF1E6", "#C2410C", size=13)
     arrow(s, [(624, 262), (646, 262)])
     # orthogonal routes straight up into the decision box
     arrow(s, [(710, 234), (710, 214), (718, 214), (718, y + h + 4)])
     arrow(s, [(870, 234), (870, 214), (762, 214), (762, y + h + 4)])
-    for x, w, label, sub, ink, fill in [(150, 300, f"지수 {v('I', size=14)} &gt; 기준선 × {v('m', size=14)}", "외기 전환 · 22°C", "#065F46", "#ECFDF5"),
-                                        (510, 300, "멀미 완화 버튼", "창문 · 바람 · 음성", "#C2410C", "#FFEDD5")]:
+    for x, w, label, sub, ink, fill in [(150, 300, f"지수 {v('I', size=14)} &gt; 기준선 × {v('m', size=14)}", "외기 전환 · 22°C", cs.BLUE_DEEP, BAND),
+                                        (510, 300, "멀미 완화 버튼", "창문 · 바람 · 음성", "#C2410C", "#FFF1E6")]:
         s.rect(x, 300, w, 38, fill, 19)
         s.text(x + 20, 324, label, 14, ink, "start", 700)
         s.text(x + w - 20, 324, "→ " + sub, 14, INK, "end", 700)
@@ -160,26 +175,26 @@ def index_flow():
 def architecture():
     """Where things run, in plain words: car → background calculation → car; the screen only shows it."""
     s = Svg(960, 400)
-    s.text(480, 26, "앱 구조 · 계산은 뒤에서 계속, 화면은 볼 때만", 15, INK, "middle", 700)
-    car, calc, ui = ("#EEF2FF", "#3730A3"), ("#F5F3FF", "#5B21B6"), ("#ECFDF5", "#065F46")
-    s.rect(20, 50, 230, 320, "#F8FAFC", 16, GRID)
-    s.text(135, 78, "Pleos 차량", 15, INK, "middle", 700)
-    box(s, 40, 100, 190, 100, "차 신호 읽기", "속도 · 핸들 · 실내 온도 · 내비", *car)
-    box(s, 40, 250, 190, 100, "차 움직이기", "공기 · 창문 · 음성", *car)
-    s.rect(300, 50, 640, 320, "#FBFAFF", 16, GRID)
-    s.text(620, 78, "멀미 케어", 15, INK, "middle", 700)
+    s.title(480, 28, "앱 구조 · 계산은 뒤에서 계속, 화면은 볼 때만", 17, "middle")
+    car, calc, ui = ("#FFFFFF", INK), (BAND, cs.BLUE_DEEP), ("#FFFFFF", BLUE)
+    s.rect(20, 50, 230, 320, CARD, cs.RADIUS, GRID)
+    s.text(135, 78, "Pleos 차량", 15, INK, "middle", cs.TITLE_WEIGHT)
+    box(s, 40, 100, 190, 100, "차 신호 읽기", "속도 · 핸들 · 실내 온도 · 내비", *car, stroke=GRID)
+    box(s, 40, 250, 190, 100, "차 움직이기", "공기 · 창문 · 음성", *car, stroke=GRID)
+    s.rect(300, 50, 640, 320, CARD, cs.RADIUS, GRID)
+    s.text(620, 78, "멀미 케어", 15, INK, "middle", cs.TITLE_WEIGHT)
     box(s, 330, 160, 220, 110, "주행 지킴이", "앱을 닫아도 뒤에서 계속 계산", *calc, size=16)
     box(s, 330, 300, 220, 52, "계산 엔진", "시뮬레이터와 같은 계산", *calc)
-    box(s, 640, 110, 270, 80, "화면 (지도 · 분석)", "앱을 보고 있을 때만 그림", *ui)
-    box(s, 640, 240, 270, 80, "알림 카드", "내비를 보는 동안 차가 한 일 안내", *ui)
-    arrow(s, [(234, 150), (326, 200)], "#3730A3")
-    arrow(s, [(326, 240), (234, 295)], "#3730A3")
-    arrow(s, [(420, 274), (420, 296)], "#5B21B6")
-    arrow(s, [(460, 296), (460, 274)], "#5B21B6")
-    arrow(s, [(554, 195), (636, 150)], APP)
-    arrow(s, [(554, 235), (636, 280)], APP)
-    s.text(262, 146, "1초마다", 12, MUTED, "middle")
-    s.text(296, 298, "공기 · 창문", 12, MUTED, "middle")
+    box(s, 640, 110, 270, 80, "화면 (지도 · 분석)", "앱을 보고 있을 때만 그림", *ui, stroke=GRID)
+    box(s, 640, 240, 270, 80, "알림 카드", "내비를 보는 동안 차가 한 일 안내", *ui, stroke=GRID)
+    arrow(s, [(234, 150), (326, 200)], FOOT)
+    arrow(s, [(326, 240), (234, 295)], FOOT)
+    arrow(s, [(420, 274), (420, 296)], BLUE)
+    arrow(s, [(460, 296), (460, 274)], BLUE)
+    arrow(s, [(554, 195), (636, 150)], BLUE)
+    arrow(s, [(554, 235), (636, 280)], BLUE)
+    s.text(262, 146, "1초마다", 12, MUTED, "middle", 600)
+    s.text(296, 298, "공기 · 창문", 12, MUTED, "middle", 600)
     s.save("architecture.svg")
 
 
@@ -189,12 +204,12 @@ def scenario_bars():
              ("D_family", "나들이길 (34분)"), ("B_winding_smooth", "굽은 길 · 부드럽게"), ("B_winding_rough", "굽은 길 · 거칠게")]
     by = {r["scenario"]: r for r in rows}
     s = Svg(960, 470)
-    s.text(28, 46, "도로 4종 · 주행 6개 · 같은 엔진", 20, INK, weight=700)
+    s.title(28, 46, "도로 4종 · 주행 6개 · 같은 엔진", 22)
     # legend chips
     lx = 28
     for kind, label in [("bar", "평균 지수 I"), ("tick", "최댓값"), ("c", "주의 0.9"), ("h", "높음 1.5")]:
         w = 40 + 13 * len(label) * 0.8
-        s.rect(lx, 66, w, 28, "#F8FAFC", 14, GRID)
+        s.rect(lx, 66, w, 28, CARD, 14, GRID)
         if kind == "bar":
             s.rect(lx + 10, 74, 18, 12, LOW, 3)
         elif kind == "tick":
@@ -203,7 +218,7 @@ def scenario_bars():
             s.line(lx + 19, 71, lx + 19, 89, TH_C if kind == "c" else TH_H, 2, "4 3")
         s.text(lx + 34, 85, label, 13, INK)
         lx += w + 8
-    s.text(932, 85, "알림 켜진 시간 / 주행 시간", 13, MUTED, "end")
+    s.text(932, 85, "알림 켜진 시간 / 주행 시간", 13, MUTED, "end", 600)
     x0, y0, w, vmax, rh = 220, 116, 470, 3.0, 50
     h = rh * len(order)
     for t in (0, 0.9, 1.5, 3.0):
@@ -211,13 +226,13 @@ def scenario_bars():
         dash = None if t in (0, 3.0) else "5 4"
         col = GRID if t in (0, 3.0) else (TH_C if t == 0.9 else TH_H)
         s.line(x, y0 - 4, x, y0 + h, col, 1.5 if dash else 1, dash)
-        s.text(x, y0 + h + 20, f"{t:g}", 12, MUTED, "middle")
-    s.text(x0 + w, y0 + h + 38, "흔들림 지수 (m/s²)", 12, MUTED, "end")
+        s.text(x, y0 + h + 20, f"{t:g}", 12, FOOT, "middle")
+    s.text(x0 + w, y0 + h + 38, "흔들림 지수 (m/s²)", 12, FOOT, "end")
     for i, (key, label) in enumerate(order):
         r = by[key]
         y = y0 + i * rh
         if i % 2 == 0:
-            s.rect(28, y, 904, rh, "#F8FAFC", 8)
+            s.rect(28, y, 904, rh, CARD, 10)
         mean, mx = float(r["mean_index"]), float(r["max_index"])
         color = HIGH if mean >= 1.5 else CAUTION if mean >= 0.9 else LOW
         s.text(x0 - 14, y + rh / 2 + 5, label, 14, INK, "end", 700)
@@ -228,11 +243,11 @@ def scenario_bars():
         mins = float(r["minutes"])
         frac = min(1.0, alert / (mins * 60))
         bx, bw = 726, 120
-        s.rect(bx, y + 18, bw, 14, "#E5E7EB", 7)
+        s.rect(bx, y + 18, bw, 14, GRID, 7)
         if alert:
             s.rect(bx, y + 18, max(14, bw * frac), 14, CAUTION if int(r["high_s"]) < int(r["caution_s"]) else HIGH, 7)
         s.text(932, y + rh / 2 + 5, f"{alert / 60:.1f}분 / {mins:g}분" if alert else f"0 / {mins:g}분", 13,
-               INK if alert else MUTED, "end", 700 if alert else 400)
+               INK if alert else FOOT, "end", 700 if alert else 400)
     s.save("scenario_bars.svg")
 
 
@@ -243,7 +258,7 @@ def index_timeline(name, title, out, cues=False):
     # guidance points (turns, bends), not cue count: a red light at a turn earns one extra cue
     turns = next(m["turns"] for m in json.loads((ROOT / "sim" / "scenarios" / "scenarios.json").read_text())
                  if m["name"] == name)
-    s.text(30, 28, title.format(min=round(len(rows) / 60), turns=turns), 15, INK, weight=700)
+    s.title(30, 30, title.format(min=round(len(rows) / 60), turns=turns), 16)
     pl = Plot(s, 70, 110, 860, 220, ts[-1], 0, 3.4, (0, 1, 2, 3), "흔들림 지수 I (m/s²)")
     bands = {"CAUTION": "#FEF9C3", "HIGH": "#FEE2E2"}
     for (smp, o) in rows:
@@ -286,8 +301,8 @@ def index_timeline(name, title, out, cues=False):
         chips.insert(0, ("● 엔진 예고 시점 (앱에서 꺼 둠)", INK))
     for lab, _ in reversed(chips):
         w = 20 + 12 * len(lab) * 0.8
-        s.rect(x - w, 46, w, 26, "#F8FAFC", 13, GRID)
-        s.text(x - w / 2, 63, lab, 12, INK, "middle")
+        s.rect(x - w, 46, w, 26, CARD, 13, GRID)
+        s.text(x - w / 2, 63, lab, 12, INK, "middle", 600)
         x -= w + 8
     s.save(out)
 
@@ -296,7 +311,7 @@ def closed_loop():
     app, no_app = run("B_winding_rough"), run("B_winding_rough", react=False)
     ts = [r[0]["t"] for r in app]
     s = Svg(960, 350)
-    s.text(30, 28, "닫힌 고리 · 굽은 길(26°C, 내기순환으로 출발)에서 공조를 바꿨을 때와 안 바꿨을 때", 15, INK, weight=700)
+    s.title(30, 30, "닫힌 고리 · 굽은 길(26°C, 내기순환으로 출발)에서 공조를 바꿨을 때와 안 바꿨을 때", 16)
     left = Plot(s, 70, 100, 390, 200, ts[-1], 0.8, 1.02, (0.8, 0.9, 1.0), "환경 계수 m (1이면 쾌적)")
     left.series(ts, [o["m"] for _, o in no_app], NO_APP, 2.2, "6 4")
     left.series(ts, [o["m"] for _, o in app], APP, 2.4)
@@ -321,7 +336,7 @@ def family():
             "서연": personal_threshold(P, [45, 48, 44])}
     s = Svg(960, 370)
     hits = {}
-    s.text(30, 28, "확장 · 아이별 기준선 · 같은 나들이길(경부고속도로 → 남한산성로)", 15, INK, weight=700)
+    s.title(30, 30, "확장 · 아이별 기준선 · 같은 나들이길(경부고속도로 → 남한산성로)", 16)
     pl = Plot(s, 70, 100, 800, 220, ts[-1], 0, 45, (0, 15, 30, 45), "누적 흔들림 D")
     for who, tau in taus.items():
         col, dash = KIDS[who]
@@ -345,7 +360,7 @@ def real_vs_sim():
     sim = rows["시뮬 C 고속도로 (같은 45초)"]
     n = int(real["seconds"])
     s = Svg(960, 280)
-    s.text(30, 28, f"현실성 점검 · 실제 고속도로(comma2k19, 공개 데이터)와 시뮬 고속도로, 같은 {n}초", 15, INK, weight=700)
+    s.title(30, 30, f"현실성 점검 · 실제 고속도로(comma2k19, 공개 데이터)와 시뮬 고속도로, 같은 {n}초", 16)
     metrics = [("상위 5% 앞뒤 가속도 (m/s²)", "p95_ax", 1.5), ("평균 흔들림 지수 I", "mean_index", 1.0), ("평균 속도 (km/h)", "mean_speed_kmh", 100)]
     for i, (label, key, vmax) in enumerate(metrics):
         x = 40 + i * 310
@@ -354,7 +369,7 @@ def real_vs_sim():
             v = float(r[key])
             y = 92 + j * 52
             s.text(x, y + 22, name, 13, MUTED)
-            s.rect(x + 44, y + 6, 220 * v / vmax, 26, color, 4)
+            s.rect(x + 44, y + 6, 220 * v / vmax, 26, color, 6)
             s.text(x + 50 + 220 * v / vmax, y + 25, f"{v:g}", 13, INK)
     ax = float(sim["p95_ax"]) / float(real["p95_ax"])
     s.text(40, 230, f"같은 {n}초: 앞뒤 가속도 시뮬 {ax:.2f}배, 평균 지수 {float(real['mean_index']):.2f} vs "

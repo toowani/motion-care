@@ -4,11 +4,13 @@
 """
 from pathlib import Path
 
+import crave_style as cs
+
 ROOT = Path(__file__).resolve().parents[1]
 IMG = ROOT / "docs" / "img"
 
-FONT = "Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, sans-serif"
-INK, MUTED, GRID = "#1F2340", "#6B6E86", "#E3E4EE"
+FONT = cs.FONT
+INK, MUTED, GRID = cs.INK, cs.MUTED, cs.LINE
 
 # 24x24 line glyphs (stroke 2, round caps)
 ICONS = {
@@ -46,6 +48,7 @@ class Svg:
         self.w, self.h = w, h
         self.parts = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w}" height="{h}" '
                       f'font-family="{FONT}" font-size="14">',
+                      f'<defs>{cs.grad_def("cg")}</defs>',
                       f'<rect x="0.75" y="0.75" width="{w - 1.5}" height="{h - 1.5}" rx="{rx}" fill="#FFFFFF" '
                       f'stroke="{stroke}" stroke-width="1.5"/>']
 
@@ -73,17 +76,26 @@ class Svg:
         print(IMG / name)
 
 
-def link_badge(name, label, sub, color, icon):
-    w = round(62 + tw(label, 19, True) + (tw(sub, 15) + 16 if sub else 0) + 26)
-    s = Svg(w, 52, rx=26, stroke=color)
-    s.icon(icon, 26, 26, 40, color, glyph_px=22)
-    s.text(56, 33, label, 19, color, weight=700)
+# pill buttons in the deck's blue / navy system: (outline, icon disc, label colour)
+BLUE_PILL = (cs.BLUE, "url(#cg)", cs.BLUE)
+NAVY_PILL = (cs.INK, cs.INK, cs.INK)
+SOFT_PILL = ("#C9D1E3", cs.MUTED, cs.MUTED)
+
+
+def link_badge(name, label, sub, style, icon):
+    stroke, disc, ink = style
+    lw = tw(label, 19, True)
+    w = round(62 + lw + (tw(sub, 15) + 16 if sub else 0) + 26)
+    s = Svg(w, 52, rx=26, stroke=stroke)
+    s.icon(icon, 26, 26, 40, disc, glyph_px=22)
+    s.add(f'<text x="56" y="33" font-size="19" fill="{ink}" font-weight="{cs.TITLE_WEIGHT}" '
+          f'letter-spacing="-0.02em">{esc(label)}</text>')
     if sub:
-        s.text(56 + tw(label, 19, True) + 12, 32.5, sub, 15, "#3F4660")
+        s.text(56 + lw + 12, 32.5, sub, 15, cs.MUTED)
     s.save(name)
 
 
 if __name__ == "__main__":
-    link_badge("link_video.svg", "시연 콘티", "영상은 촬영 예정", "#4338CA", "doc")
-    link_badge("link_apk.svg", "APK 받기", "Releases · 이메일 첨부", "#047857", "down")
-    link_badge("link_repo.svg", "실행 방법", "에뮬레이터 4단계", "#374151", "box")
+    link_badge("link_video.svg", "시연 콘티", "영상은 촬영 예정", BLUE_PILL, "doc")
+    link_badge("link_apk.svg", "APK 받기", "Releases · 이메일 첨부", NAVY_PILL, "down")
+    link_badge("link_repo.svg", "실행 방법", "에뮬레이터 4단계", SOFT_PILL, "box")

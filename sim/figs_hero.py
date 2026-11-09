@@ -6,6 +6,7 @@ Title + one-line takeaway on top, the app icon in the centre and the two core fu
 top-to-bottom loops on either side: left = the car does it by itself, right = one button.
 Big icons, 2-4 word labels, no formula letters.
 """
+import crave_style as cs
 from figs_diagrams import ICONS, INK, WHITE, Fig, tw
 
 ICONS.update({
@@ -28,11 +29,12 @@ WHEELS = "M39.3,64 a4.2,4.2 0 1,0 8.4,0 a4.2,4.2 0 1,0 -8.4,0 Z M60.3,64 a4.2,4.
 BREEZE = "M57,36.5 Q62,31 68,33.5"
 LEAF = "M68,33.5 Q70,26.5 77,26.5 Q76,34 68,33.5 Z"
 
-SUB = "#3F4660"                                       # sub-labels: dark enough on white
-AUTO, AUTO_T, AUTO_BG = "#0F766E", "#CCFBF1", "#F0FDFA"   # the car does it
-CALM, CALM_T, CALM_BG = "#1D4ED8", "#DBEAFE", "#EFF6FF"   # the button side (not an alarm)
-BTN = "#EA580C"                                       # the in-app relief button is orange
-RISK, RISK_T = "#B91C1C", "#FEE2E2"
+SUB = cs.MUTED                                        # sub-labels: dark enough on white
+# both sides share the deck's blue system (light card, blue icons, gradient header pill)
+AUTO, AUTO_T, AUTO_BG = cs.BLUE, cs.BAND, cs.CARD        # the car does it
+CALM, CALM_T, CALM_BG = cs.BLUE, cs.BAND, cs.CARD        # the button side (not an alarm)
+BTN = "#EA580C"                                       # the in-app relief button is orange (as in the app)
+RISK, RISK_T = "#B91C1C", cs.HIGH_T                   # risk stage colours keep their meaning
 WARN, WARN_T = "#92400E", "#FEF3C7"
 
 PW, TOP, PITCH, TILE_H = 425, 122, 116, 80
@@ -70,15 +72,15 @@ def tile(f, cx, cy, icons, fg, bg, button=False):
 def panel(f, x0, head, sub, accent, tint, bg, steps, joins, back):
     """Panel: header, steps top to bottom, dashed arrow back to the first step."""
     H = 4 * PITCH + 106
-    f.rect(x0, TOP, PW, H, bg, tint, 20, 2)
-    w = f.chip(x0 + 22, TOP + 20, head, WHITE, accent, 20, 42, pad=18, weight=700)
+    f.rect(x0, TOP, PW, H, bg, cs.LINE, 20, 1)
+    w = f.chip(x0 + 22, TOP + 20, head, WHITE, "url(#cgt)", 20, 42, pad=18, weight=800)
     f.text(x0 + 22 + w + 14, TOP + 48, sub, 18, accent, weight=700)
     cx, lx = x0 + 116, x0 + 218
     ys = [TOP + 118 + i * PITCH for i in range(4)]
     halves = []
     for y, st in zip(ys, steps):
         halves.append(tile(f, cx, y, st["icons"], st["fg"], st["bg"], st.get("button", False)))
-        f.text(lx, y - 4, st["title"], 20, st.get("tfg", INK), weight=700)
+        f.text(lx, y - 4, st["title"], 20, st.get("tfg", INK), weight=800)
         f.text(lx, y + 22, st["sub"], 15.5, SUB)
     for i, j in enumerate(joins):
         a, b = ys[i] + TILE_H / 2 + 5, ys[i + 1] - TILE_H / 2 - 5
@@ -91,7 +93,7 @@ def panel(f, x0, head, sub, accent, tint, bg, steps, joins, back):
     xl = x0 + 16
     f.arrow([(cx, ys[3] + TILE_H / 2 + 5), (cx, yb), (xl, yb), (xl, ys[0]), (cx - halves[0] - 6, ys[0])],
             accent, 3, dash="8 6", head=12)
-    f.text(cx + 18, yb + 7, back, 19, accent, weight=700)
+    f.text(cx + 18, yb + 7, back, 19, accent, weight=800)
 
 
 def at_a_glance():
