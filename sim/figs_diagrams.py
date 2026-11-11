@@ -81,6 +81,7 @@ ICONS = {
     "touch": '<circle cx="12" cy="9" r="5.5"/><path d="M12 14.5V21M9 18l3 3 3-3"/>',
     "repeat": '<path d="M17 3l3 3-3 3"/><path d="M4 11V9a3 3 0 0 1 3-3h13"/><path d="M7 21l-3-3 3-3"/><path d="M20 13v2a3 3 0 0 1-3 3H4"/>',
     "gear": '<circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/>',
+    "hand": '<path d="M9 12.5V5a1.6 1.6 0 0 1 3.2 0v6"/><path d="M12.2 10.5V9a1.6 1.6 0 0 1 3.2 0v2"/><path d="M15.4 11a1.6 1.6 0 0 1 3.2 0v3.5a6.5 6.5 0 0 1-6.5 6.5h-.6a6 6 0 0 1-5-2.6l-2.4-3.6a1.6 1.6 0 0 1 2.6-1.8L9 15"/><path d="M5.2 4.2A5 5 0 0 1 7 2.6M16 2.6a5 5 0 0 1 1.8 1.6"/>',
     "power": '<path d="M12 3v8"/><path d="M6.3 6.8a8 8 0 1 0 11.4 0"/>',
 }
 
@@ -479,9 +480,9 @@ def sdk_map():
 
 def validation_ladder():
     f = Fig(960, 300)
-    steps = [("map", "실제 도로 시나리오 시뮬레이션", "점검 10 / 10 통과", "도로 4종 · 주행 6개"),
+    steps = [("map", "실제 도로 시나리오 시뮬레이션", "점검 10 / 10 통과", "도로 4곳 · 주행 6회"),
              ("database", "실제 주행 데이터 비교 (comma2k19)", "가속도 1.41배", "기준 0.5–2배 · 고속도로 45초"),
-             ("chip", "Pleos 에뮬레이터 (실제 SDK)", "11항목 점검 · 9 확인", "부분 1 · 거절 1 · v2.1 · API 34")]
+             ("chip", "Pleos 에뮬레이터 (실제 SDK)", "9가지 기능 확인", "v2.1 · Android Automotive API 34")]
     base, ch, rise = 276, 150, 36
     for i, (ic, title, big, sub) in enumerate(steps):
         x, w = 28 + i * 304, 296
@@ -538,7 +539,7 @@ def relief_sequence():
     f = Fig(960, 480)
     # button
     f.rect(28, 186, 196, 72, ORANGE, None, 36)
-    f.icon(66, 222, "touch", WHITE, None)
+    f.icon(66, 222, "hand", WHITE, None)
     f.text(140, 230, "멀미 완화", 22, WHITE, "middle", 700)
     f.text(126, 284, "지도 · 분석 · 한 화면 모드", 12.5, FOOT, "middle")
     f.text(126, 302, "어디서나", 12.5, FOOT, "middle")
@@ -567,17 +568,17 @@ def relief_sequence():
             bx, by, bw, bh = sx + 102, y + 12, 250, 40
             f.add(f'<path d="M{bx + 10} {by} h{bw - 20} a10 10 0 0 1 10 10 v{bh - 20} a10 10 0 0 1 -10 10 h-{bw - 44} l-10 8 v-8 h-{14} '
                   f'a10 10 0 0 1 -10 -10 v-{bh - 20} a10 10 0 0 1 10 -10 z" fill="{WHITE}" stroke="{LINE2}" stroke-width="1"/>')
-            f.text(bx + bw / 2, by + 17, "“창문 열고 바람 넣을게요.", 13, INK, "middle", 700)
+            f.text(bx + bw / 2, by + 17, "“창문 열고 환기할게요.", 13, INK, "middle", 700)
             f.text(bx + bw / 2, by + 33, "먼 곳을 보세요.”", 13, INK, "middle", 700)
         f.chip(sx + 104 if act else sx + 250, y + (48 if act else 56), sdk, BLUE, WHITE if inapp else BAND, 12, 24, pad=10,
                family=None)
     f.chip(sx, 432, "pleos.car.permission.CONTROL_CAR_WINDOWS", sdk_ink, sdk_bg, 12.5, 30, pad=14, family=MONO)
     # fallbacks
     fx, fw = 676, 256
-    f.text(fx, 32, "안 될 때", 14, AMBER, weight=800)
-    falls = [(44, 116, "창문 불가", "거절 · 뒷창문 없음 · 4초 무응답", ["화면 + 음성", "“창문을 조금 열어 주세요”"]),
-             (172, 68, "공조 꺼짐", None, ["공조는 그대로"]),
-             (256, 68, "20초 안 다시 누름", None, ["“바람 넣는 중이에요”만"])]
+    f.text(fx, 32, "자동 조치가 안 될 때", 14, AMBER, weight=800)
+    falls = [(44, 112, "창문을 못 열면", "거절 · 뒷창문 없음 · 4초 무응답", ["화면 + 음성으로 부탁", "“창문을 조금 열어 주세요”"]),
+             (172, 88, "공조가 꺼져 있으면", None, ["공조는 그대로 두고", "창문 · 음성만 진행"]),
+             (276, 88, "20초 안에 다시 누르면", None, ["화면에 “환기 중이에요”만", "같은 조치는 반복 안 함"])]
     for i, (top, h, cond, sub, res) in enumerate(falls):
         f.rect(fx, top, fw, h, "#FFFBEB", cs.MID, cs.RADIUS_SM + 4, 1.2, "6 4")
         f.text(fx + 16, top + 26, cond, 14.5, AMBER, weight=700)

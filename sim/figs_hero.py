@@ -17,7 +17,6 @@ ICONS.update({
     "carwin": '<path d="M2.5 16.5v-4l2.8-5.5h10.2l3.8 5.5h2.2v4z"/><circle cx="7" cy="16.8" r="2"/><circle cx="17" cy="16.8" r="2"/>'
               '<path d="M7 11.5l1.6-3h3.4v3z"/><path d="M14 3.5h5M15.5 6h5"/>',
     "bookmark": '<path d="M6 3.5h12v17l-6-4-6 4z"/><path d="M9 9.5l2 2 4-4"/>',
-    "hand": '<path d="M9 12.5V5a1.6 1.6 0 0 1 3.2 0v6"/><path d="M12.2 10.5V9a1.6 1.6 0 0 1 3.2 0v2"/><path d="M15.4 11a1.6 1.6 0 0 1 3.2 0v3.5a6.5 6.5 0 0 1-6.5 6.5h-.6a6 6 0 0 1-5-2.6l-2.4-3.6a1.6 1.6 0 0 1 2.6-1.8L9 15"/><path d="M5.2 4.2A5 5 0 0 1 7 2.6M16 2.6a5 5 0 0 1 1.8 1.6"/>',
 })
 
 # app launcher glyph (android/app/src/main/res/drawable/ic_launcher_foreground.xml, 108 x 108 viewport)
@@ -119,12 +118,12 @@ def at_a_glance():
     panel(f, W - 20 - PW, "② 버튼 하나", "아이가 힘들어하면", CALM, CALM_T, CALM_BG, [
         {"icons": ["hand"], "fg": WHITE, "bg": BTN, "button": True, "title": "“멀미 완화” 버튼", "tfg": BTN,
          "sub": "화면에서 한 번 누름"},
-        {"icons": ["carwin", "wind", "speaker"], "fg": CALM, "bg": CALM_T, "title": "차가 바로 해 줌",
-         "sub": "창문 · 바람 · 음성 안내"},
+        {"icons": ["carwin", "wind", "speaker"], "fg": CALM, "bg": CALM_T, "title": "자동 조치",
+         "sub": "창문 · 환기 · 음성 안내"},
         {"icons": ["bookmark"], "fg": CALM, "bg": CALM_T, "title": "그 순간을 기억",
          "sub": "누른 순간 흔들림 기록"},
-        {"icons": ["person_slider"], "fg": CALM, "bg": CALM_T, "title": "우리 아이에 맞춤",
-         "sub": "나에게 맞춘 멀미 가능성"},
+        {"icons": ["person_slider"], "fg": CALM, "bg": CALM_T, "title": "개인 기준 맞춤",
+         "sub": "버튼 기록으로 멀미 예측 개인화"},
     ], ["→", "→", "→"], "다음 주행엔 더 일찍 알림")
     f.save("at_a_glance.svg")
 

@@ -4,19 +4,19 @@
 
 **알려 주는 데서 멈추지 않습니다. 뒷좌석 아이가 멀미하기 전에 차가 공기 · 온도를 바꾸고, 멀미 완화 버튼 한 번에 뒷창문을 열며, 누른 순간을 기록해 우리 아이 기준을 배웁니다.**
 
-<img src="docs/img/explainer.webp" width="100%" alt="멀미 케어 필름 (25초, 가족이 겪는 순서): 굽은 산길 → 뒷좌석 아이 '속이 울렁거려…' → 센터 화면의 몽글이와 '브레이크 부드럽게' 알림, 차가 운전자에게 '뒷좌석이 흔들려요. 브레이크를 부드럽게 밟아 주세요.' → 운전자가 브레이크를 부드럽게 → 송풍구에서 바깥 공기 '바깥 공기로 바꾸고 온도를 조금 낮출게요.' → '그래도 어지러워…' → 멀미 완화 버튼 한 번 → '창문 열고 바람 넣을게요. 먼 곳을 보세요.' → 창문으로 바람, 아이 '이제 좀 살 것 같아' → 멀미 케어">
+<img src="docs/img/explainer.webp" width="100%" alt="멀미 케어 필름 (25초, 가족이 겪는 순서): 굽은 산길 → 뒷좌석 아이 '속이 울렁거려…' → 센터 화면의 몽글이와 '브레이크 부드럽게' 알림, 차가 운전자에게 '뒷좌석이 흔들려요. 브레이크를 부드럽게 밟아 주세요.' → 운전자가 브레이크를 부드럽게 → 송풍구에서 바깥 공기 '바깥 공기로 바꾸고 온도를 조금 낮출게요.' → '그래도 어지러워…' → 멀미 완화 버튼 한 번 → '창문 열고 환기할게요. 먼 곳을 보세요.' → 창문으로 바람, 아이 '이제 좀 살 것 같아' → 멀미 케어">
 
 <sub>센터 화면 속 앱은 Pleos 에뮬레이터 실제 녹화를 합성 · 음성 문구는 앱이 실제로 말하는 문장 · 차 안·도로 장면은 AI 생성 (Higgsfield · Kling 2.5 Turbo)</sub>
 
 <img src="docs/img/slide_summary.jpg" width="100%" alt="멀미 케어 한눈에: 승객 차멀미 경험 46%, 대처는 멀미가 온 뒤, 4–13세 아이에게 가장 흔함 · 센서 추가 0개(기존 차 신호로 흔들림 계산) · 멀미 전에 먼저(공기·온도 자동, 창문은 완화 버튼) · 버튼 하나(누른 순간 → 우리 아이 기준 학습) · 에뮬레이터 9/11 항목 확인, 실차 검증 전">
 
-<img src="docs/img/at_a_glance.svg" width="100%" alt="켜 두면 차가 알아서, 힘들면 버튼 하나 · 뒷좌석 아이(4–13세)를 태운 가족 차. 가운데 멀미 케어 앱 아이콘. 왼쪽 ① 차가 알아서(켜 두기만 하면): 아이 멀미 위험 오름(흔들림·더위로 멀미 지수 계산) → 화면·소리로 알림 → 더 오르면 바깥 공기(외기 순환)·온도 낮춤 + 운전자에게 &quot;브레이크 부드럽게&quot; → 실내가 나아지면 다시 계산. 오른쪽 ② 버튼 하나(아이가 힘들어하면): 멀미 완화 버튼 → 차가 바로 창문·바람·음성 → 누른 순간 기록 → 우리 아이에 맞춘 멀미 가능성 → 다음 주행엔 더 일찍 알림">
+<img src="docs/img/at_a_glance.svg" width="100%" alt="켜 두면 차가 알아서, 힘들면 버튼 하나 · 뒷좌석 아이(4–13세)를 태운 가족 차. 가운데 멀미 케어 앱 아이콘. 왼쪽 ① 차가 알아서(켜 두기만 하면): 아이 멀미 위험 오름(흔들림·더위로 멀미 지수 계산) → 화면·소리로 알림 → 더 오르면 바깥 공기(외기 순환)·온도 낮춤 + 운전자에게 &quot;브레이크 부드럽게&quot; → 실내가 나아지면 다시 계산. 오른쪽 ② 버튼 하나(아이가 힘들어하면): 멀미 완화 버튼 → 자동 조치(창문·환기·음성 안내) → 누른 순간 기록 → 개인 기준 맞춤(버튼 기록으로 멀미 예측 개인화) → 다음 주행엔 더 일찍 알림">
 
-<img src="docs/img/demo.webp" width="100%" alt="북악스카이웨이 실제 도로 경로를 시뮬레이션으로 재생 (Pleos 에뮬레이터, 2배속, 말랑 3D 친구 몽글이): 캐릭터 표정과 둘레 링이 노랑 → 빨강, 멀미 완화 버튼 → 창문 열고 바람 넣었어요">
+<img src="docs/img/demo.webp" width="100%" alt="처음에 캐릭터(몽글이)를 크게 보여 준 뒤 오른쪽 위로 이동, 캐릭터를 크게 키워 표시 · 북악스카이웨이 실제 도로 경로를 시뮬레이션으로 재생 (Pleos 에뮬레이터, 2배속, 말랑 3D 친구 몽글이): 캐릭터 표정과 둘레 링이 노랑 → 빨강, 멀미 완화 버튼 → 창문 열고 환기했어요">
 
 **실제 도로 경로 재생 · 2배속** · 캐릭터 둘레 링 = 아이의 멀미 가능성 · Pleos 에뮬레이터
 
-<a href="docs/demo-script.md"><img src="docs/img/link_video.svg" height="40" alt="시연 콘티 · 영상은 촬영 예정"></a> <a href="https://github.com/toowani/motion-care/releases"><img src="docs/img/link_apk.svg" height="40" alt="APK 받기 · Releases · 이메일 첨부"></a> <a href="#8-부록-한계--실행-방법--문서"><img src="docs/img/link_repo.svg" height="40" alt="실행 방법 · 에뮬레이터 4단계"></a>
+<a href="docs/demo-script.md"><img src="docs/img/link_video.svg" height="40" alt="시연 콘티 · 영상은 촬영 예정"></a> <a href="#심사용-빠른-실행"><img src="docs/img/link_repo.svg" height="40" alt="실행 방법 · 에뮬레이터 4단계"></a>
 
 <sub><img src="docs/img/crave_logo.svg" width="16" align="absmiddle"> 현대자동차그룹 차량용 앱 개발 공모전 (Pleos Connect) · 팀 CRAVE</sub>
 
@@ -25,8 +25,6 @@
 ---
 
 ## 1. 우리가 판단한 멀미 조건
-
-<img src="docs/img/slide_problem.jpg" width="100%" alt="뒷좌석은 다음 움직임을 모릅니다: 멀미가 가장 흔한 나이 4–13세, 뒤쪽 좌석일수록 옆 흔들림과 멀미 증가(버스 승객 3,256명) · 고객 1차 4–13세 자녀 둔 가족, 2차 멀미하는 성인 · 운전자는 예측, 뒷좌석은 예고 없음 · 지금의 대처는 멀미약, 증상 뒤 창문·정차 · 자율주행이 늘면 모두가 동승자">
 
 <img src="docs/img/conditions.svg" width="100%" alt="멀미 조건 4가지: ① 예고 없는 움직임(핸들 각도·방향지시등·다음 회전 → 1–2초 먼저 계산) ② 느린 흔들림 누적(속도·진행 방향 → 흔들림 지수 I·누적량 D) ③ 덥고 답답한 실내(실내 온도·내기순환 → 외기 전환·온도 낮춤) ④ 사람마다 다른 기준(멀미 완화 버튼 누른 순간 → 개인 기준선 τ 학습)">
 
@@ -44,7 +42,7 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 <img src="docs/img/index_flow.svg" width="100%" alt="멀미 지수 계산 흐름: 속도·진행 방향(핸들 각도로 앞당김) → 가속도 → 느린 흔들림 → 지수 I·누적 D → 판단(환경 계수 m, 개인 기준선 τ) → 흔들림 단계·멀미 가능성 P · 지수 > 기준선 × m → 외기 전환·22°C, 멀미 완화 버튼 → 창문·바람·음성">
 
-<img src="docs/img/two_values.svg" width="100%" alt="두 가지 값: 흔들림 지수 I(최근 60초, 잔잔·흔들림·흔들림 많음, 경계 0.9·m·1.5·m)와 멀미 가능성 P(낮음·보통·높음, 경계 25%·50%), 하나의 색 척도">
+<img src="docs/img/two_values.svg" width="100%" alt="두 가지 값: 흔들림 지수 I(최근 60초, 잔잔·흔들림·흔들림 많음, 경계 0.9·m·1.5·m)와 멀미 가능성 P(낮음·보통·높음, 경계 25%·50%) · 앱 전체가 같은 색 단계: 초록 = 낮음, 노랑 = 보통, 빨강 = 높음">
 
 <img src="docs/img/f_dose.png" width="100%" alt="D = ( Σ_t ( w_X a_x^2 + w_Y a_y^2 ) Δt )^{1/2} — 누적 흔들림 D 식: 앞뒤·옆 가속도 제곱에 가중치를 곱해 1초마다 더한 값의 제곱근, 길이가 다른 주행은 D/√t로 비교">
 
@@ -83,13 +81,13 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 ### 실차 없이 3단계 검증
 
-<img src="docs/img/validation_ladder.svg" width="100%" alt="실차 없이 3단계 검증: ① 실제 도로 시나리오 시뮬레이션 점검 10/10 통과(도로 4종 · 주행 6개) ② 실제 주행 데이터 비교(comma2k19) 가속도 1.41배(기준 0.5–2배, 고속도로 45초) ③ Pleos 에뮬레이터(실제 SDK) 11항목 점검 · 9 확인(부분 1 · 거절 1, v2.1 · API 34)">
+<img src="docs/img/validation_ladder.svg" width="100%" alt="실차 없이 3단계 검증: ① 실제 도로 시나리오 시뮬레이션 점검 10/10 통과(도로 4곳 · 주행 6회) ② 실제 주행 데이터 비교(comma2k19) 가속도 1.41배(기준 0.5–2배, 고속도로 45초) ③ Pleos 에뮬레이터(실제 SDK) 9가지 기능 확인 (v2.1 · API 34)">
 
 <sub>검증은 시뮬레이션 · 에뮬레이터까지입니다. 실제 아이가 탄 주행 데이터는 아직 없어, 멀미 가능성의 정확도는 확인 전입니다 · 다음 단계: [동승 조사](docs/ride-study.md)</sub>
 
-### 도로 4종 · 주행 6개 (OpenStreetMap)
+### 도로 4곳 · 주행 6회 (OpenStreetMap)
 
-<img src="docs/img/scenario_cards.svg" width="100%" alt="실제 도로 4종: 도심 3.7 km(회전 4·신호 정지 6, 부드럽게·거칠게), 굽은 길 5.2 km(커브 52곳, 부드럽게·거칠게), 고속도로 17.0 km(12.8분), 나들이길 37.4 km(34.5분) → 1초 간격 가상 센서 값">
+<img src="docs/img/scenario_cards.svg" width="100%" alt="실제 도로 4곳: 도심 3.7 km(회전 4·신호 정지 6, 부드럽게·거칠게), 굽은 길 5.2 km(커브 52곳, 부드럽게·거칠게), 고속도로 17.0 km(12.8분), 나들이길 37.4 km(34.5분) → 1초 간격 가상 센서 값">
 
 ---
 
@@ -111,9 +109,9 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 ### ③ 멀미 완화 버튼: 한 번 누르면 바로
 
-<img src="docs/img/ui_r6_relief.jpg" width="100%" alt="멀미 완화 버튼을 누른 뒤: 지도 위 '창문 열고 바람 넣었어요', 몽글이 표정과 링은 빨강">
+<img src="docs/img/ui_r6_relief.jpg" width="100%" alt="멀미 완화 버튼을 누른 뒤: 지도 위 '창문 열고 환기했어요', 몽글이 표정과 링은 빨강">
 
-<img src="docs/img/relief_sequence.svg" width="100%" alt="멀미 완화 버튼(지도·분석·한 화면 모드 어디서나): 1 뒷창문 20%(Vehicle Window) 2 바깥 공기+22°C(Vehicle HVAC) 3 '창문 열고 바람 넣을게요. 먼 곳을 보세요.'(TextToSpeech) 4 누른 순간 D → 내 기준선 τ · 안 될 때: 창문 불가 → 화면+음성 안내, 공조 꺼짐 → 그대로, 20초 안 다시 누름 → '바람 넣는 중이에요'만">
+<img src="docs/img/relief_sequence.svg" width="100%" alt="멀미 완화 버튼(지도·분석·한 화면 모드 어디서나): 1 뒷창문 20%(Vehicle Window) 2 바깥 공기+22°C(Vehicle HVAC) 3 '창문 열고 환기할게요. 먼 곳을 보세요.'(TextToSpeech) 4 누른 순간 D → 내 기준선 τ · 안 될 때: 창문 불가 → 화면+음성 안내, 공조 꺼짐 → 그대로, 20초 안 다시 누름 → '환기 중이에요'만">
 
 ### ④ 흔들림이 커지면 차가 공기를 바꿈
 
@@ -137,7 +135,7 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 ### 검증 결과
 
-<img src="docs/img/scenario_bars.svg" width="100%" alt="도로 4종 · 주행 6개의 평균 흔들림 지수(막대)와 최댓값(세로선), 알림 켜진 시간: 고속도로 0.43(0 / 12.8분), 도심 부드럽게 0.62(0 / 8.8분), 도심 거칠게 0.89(5.2 / 8.2분), 나들이길 0.70(8.4 / 34.5분), 굽은 길 부드럽게 1.39(7.3 / 7.9분), 굽은 길 거칠게 2.04(5.8 / 6.2분)">
+<img src="docs/img/scenario_bars.svg" width="100%" alt="도로 4곳 · 주행 6회의 평균 흔들림 지수(막대)와 최댓값(세로선), 알림 켜진 시간: 고속도로 0.43(0 / 12.8분), 도심 부드럽게 0.62(0 / 8.8분), 도심 거칠게 0.89(5.2 / 8.2분), 나들이길 0.70(8.4 / 34.5분), 굽은 길 부드럽게 1.39(7.3 / 7.9분), 굽은 길 거칠게 2.04(5.8 / 6.2분)">
 
 <img src="docs/img/timeline_winding.svg" width="100%" alt="굽은 길 거칠게: 흔들림 지수, 주의·높음 기준선, 21초 음성 안내·공조, 46초 공조">
 
@@ -145,7 +143,7 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 ### 에뮬레이터에서 확인한 것
 
-<img src="docs/img/emulator_checks.svg" width="100%" alt="Pleos Connect Emulator v2.1에서 11항목 점검: 확인 9(완화 버튼 학습, 공조 닫힌 고리, 공조 꺼짐, 핸들 각도, Pleos 음성, 내비 다음 회전, 내비 앞 화면, 한 화면 모드, 지도 탭), 부분 1(창문 명령), 거절 1(내비에 앱 영역 알리기 → Pleos 협의)">
+<img src="docs/img/emulator_checks.svg" width="100%" alt="Pleos Connect Emulator v2.1에서 확인한 9가지: 완화 버튼 학습, 공조 닫힌 고리, 공조 꺼짐, 핸들 각도, Pleos 음성, 내비 다음 회전, 내비 앞 화면, 한 화면 모드, 지도 탭">
 
 고친 버그: [docs/qa.md](docs/qa.md) · 숫자: [docs/validation.md](docs/validation.md)
 
@@ -326,6 +324,3 @@ cd android && ./gradlew :app:assembleRelease   # 서명된 APK → apk/ (클라�
 
 [기획서](docs/proposal.md) · [검증](docs/validation.md) · [확인 기록](docs/qa.md) · [제출 체크리스트](docs/submission.md) · [Pleos 문의 초안](docs/pleos-inquiry.md) · [시연 콘티](docs/demo-script.md) · [동승 조사](docs/ride-study.md) · [문헌 근거](research/literature.md) · [경쟁 조사](research/market.md)
 
-### 남은 일
-
-<img src="docs/img/remaining_work.svg" width="100%" alt="남은 일: 실제 동승 데이터 5–10회, 창문 실제 동작 확인, 시연 영상 v3 촬영 · README에 링크, release APK 다시 빌드 · GitHub Releases에 첨부, 기획서 접수 양식 옮기기">

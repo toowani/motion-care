@@ -165,7 +165,7 @@ def index_flow():
     arrow(s, [(710, 234), (710, 214), (718, 214), (718, y + h + 4)])
     arrow(s, [(870, 234), (870, 214), (762, 214), (762, y + h + 4)])
     for x, w, label, sub, ink, fill in [(150, 300, f"지수 {v('I', size=14)} &gt; 기준선 × {v('m', size=14)}", "외기 전환 · 22°C", cs.BLUE_DEEP, BAND),
-                                        (510, 300, "멀미 완화 버튼", "창문 · 바람 · 음성", "#C2410C", "#FFF1E6")]:
+                                        (510, 300, "멀미 완화 버튼", "창문 · 환기 · 음성", "#C2410C", "#FFF1E6")]:
         s.rect(x, 300, w, 38, fill, 19)
         s.text(x + 20, 324, label, 14, ink, "start", 700)
         s.text(x + w - 20, 324, "→ " + sub, 14, INK, "end", 700)
@@ -204,7 +204,7 @@ def scenario_bars():
              ("D_family", "나들이길 (34분)"), ("B_winding_smooth", "굽은 길 · 부드럽게"), ("B_winding_rough", "굽은 길 · 거칠게")]
     by = {r["scenario"]: r for r in rows}
     s = Svg(960, 470)
-    s.title(28, 46, "도로 4종 · 주행 6개 · 같은 엔진", 22)
+    s.title(28, 46, "도로 4곳 · 주행 6회 · 같은 엔진", 22)
     # legend chips
     lx = 28
     for kind, label in [("bar", "평균 지수 I"), ("tick", "최댓값"), ("c", "주의 0.9"), ("h", "높음 1.5")]:
@@ -223,9 +223,8 @@ def scenario_bars():
     h = rh * len(order)
     for t in (0, 0.9, 1.5, 3.0):
         x = x0 + w * t / vmax
-        dash = None if t in (0, 3.0) else "5 4"
-        col = GRID if t in (0, 3.0) else (TH_C if t == 0.9 else TH_H)
-        s.line(x, y0 - 4, x, y0 + h, col, 1.5 if dash else 1, dash)
+        if t in (0, 3.0):
+            s.line(x, y0 - 4, x, y0 + h, GRID, 1)
         s.text(x, y0 + h + 20, f"{t:g}", 12, FOOT, "middle")
     s.text(x0 + w, y0 + h + 38, "흔들림 지수 (m/s²)", 12, FOOT, "end")
     for i, (key, label) in enumerate(order):
@@ -248,6 +247,10 @@ def scenario_bars():
             s.rect(bx, y + 18, max(14, bw * frac), 14, CAUTION if int(r["high_s"]) < int(r["caution_s"]) else HIGH, 7)
         s.text(932, y + rh / 2 + 5, f"{alert / 60:.1f}분 / {mins:g}분" if alert else f"0 / {mins:g}분", 13,
                INK if alert else FOOT, "end", 700 if alert else 400)
+    # alert thresholds last, so the dashes stay visible on top of the bars
+    for t, col in ((0.9, TH_C), (1.5, TH_H)):
+        x = x0 + w * t / vmax
+        s.line(x, y0 - 4, x, y0 + h, col, 1.8, "5 4")
     s.save("scenario_bars.svg")
 
 
@@ -313,18 +316,24 @@ def closed_loop():
     s = Svg(960, 350)
     s.title(30, 30, "닫힌 고리 · 굽은 길(26°C, 내기순환으로 출발)에서 공조를 바꿨을 때와 안 바꿨을 때", 16)
     left = Plot(s, 70, 100, 390, 200, ts[-1], 0.8, 1.02, (0.8, 0.9, 1.0), "환경 계수 m (1이면 쾌적)")
-    left.series(ts, [o["m"] for _, o in no_app], NO_APP, 2.2, "6 4")
-    left.series(ts, [o["m"] for _, o in app], APP, 2.4)
+    # told apart by colour, not dash: dashes read as threshold lines
+    ctl, no_ctl = cs.BLUE, NO_APP
+    left.series(ts, [o["m"] for _, o in no_app], no_ctl, 2.4)
+    left.series(ts, [o["m"] for _, o in app], ctl, 3.2)
     right = Plot(s, 540, 100, 390, 200, ts[-1], 21, 27, (22, 24, 26), "실내 온도 (°C)")
-    right.series(ts, [r[0]["cabin_temp"] for r in no_app], NO_APP, 2.2, "6 4")
-    right.series(ts, [r[0]["cabin_temp"] for r in app], APP, 2.4)
+    right.series(ts, [r[0]["cabin_temp"] for r in no_app], no_ctl, 2.4)
+    right.series(ts, [r[0]["cabin_temp"] for r in app], ctl, 3.2)
     t_fresh = next(r[0]["t"] for r in app if "HVAC_FRESH" in r[1]["actions"])
     for pl in (left, right):
-        pl.s.line(pl.X(t_fresh), pl.y0, pl.X(t_fresh), pl.y0 + pl.h, APP, 1, "2 3")
-    s.text(left.X(t_fresh) + 6, left.y0 + 14, f"{int(t_fresh)}초: 외기 전환 · 22°C", 12, APP)
-    legend(s, 70, 56, [("앱이 공조를 바꿈", APP, None), ("앱 없음", NO_APP, "6 4")])
+        pl.s.line(pl.X(t_fresh), pl.y0, pl.X(t_fresh), pl.y0 + pl.h, MUTED, 1, "2 3")
+    s.text(left.X(t_fresh) + 6, left.y0 + 14, f"{int(t_fresh)}초: 외기 전환 · 22°C", 12, MUTED, weight=600)
+    lx = 70
+    for label, col, wd in (("앱이 공조를 바꿈", ctl, 4), ("앱 없음 (공조 그대로)", no_ctl, 3)):
+        s.line(lx, 52, lx + 28, 52, col, wd)
+        s.text(lx + 36, 57, label, 13, col if col == ctl else MUTED, weight=700)
+        lx += 60 + 13 * len(label)
     m0, m_end, m_no = min(o["m"] for _, o in app), app[-1][1]["m"], no_app[-1][1]["m"]
-    s.text(left.x0 + left.w, left.Y(m_end) - 8, f"{m0:.2f} → {m_end:.2f}", 12, APP, "end")
+    s.text(left.x0 + left.w, left.Y(m_end) - 8, f"{m0:.2f} → {m_end:.2f}", 12, ctl, "end", 700)
     s.text(left.x0 + left.w, left.Y(m_no) + 18, f"앱 없으면 {m_no:.3f}에 머묾", 12, MUTED, "end")
     s.save("closed_loop.svg")
 

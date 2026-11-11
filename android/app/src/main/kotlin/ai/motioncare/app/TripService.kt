@@ -395,20 +395,20 @@ class TripService : Service() {
     fun relief() {
         if (!ready) return
         val nowMs = SystemClock.elapsedRealtime()
-        if (nowMs - lastReliefAt < RELIEF_DEBOUNCE_MS) { action("바람 넣는 중이에요", card = false); return }
+        if (nowMs - lastReliefAt < RELIEF_DEBOUNCE_MS) { action("환기 중이에요", card = false); return }
         lastReliefAt = nowMs
         reliefCount++
         lastSummary = arrayOf(lastSummary[0], reliefCount, airCount)
         ui?.onSummary(lastSummary[0], reliefCount, airCount, peakMood)
-        action("창문 열고 바람 넣어요", card = false)
+        action("창문 열고 환기해요", card = false)
         note("멀미 완화 ${reliefCount}번째")
         learnFromRelief()
         val trip = source
         window.openRearALittle(onDone = {
-            say("창문 열고 바람 넣을게요. 먼 곳을 보세요.")
-            if (source === trip) action("창문 열고 바람 넣었어요", card = false)
+            say("창문 열고 환기할게요. 먼 곳을 보세요.")
+            if (source === trip) action("창문 열고 환기했어요", card = false)
         }, onDenied = {
-            say("바람 넣을게요. 창문을 조금 열어 주세요. 먼 곳을 보세요.")
+            say("환기할게요. 창문을 조금 열어 주세요. 먼 곳을 보세요.")
             if (source === trip) action("창문을 조금 열어 주세요", card = false)
         })
         if (settings.autoClimateOn) {

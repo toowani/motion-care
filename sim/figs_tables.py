@@ -361,15 +361,16 @@ def two_values():
             s.rect(x + 22, yy, w - 44, 32, "#FFFFFF", 16, LINE)
             s.icon(ic, x + 40, yy + 16, col, tint, 13)
             s.text(x + 62, yy + 21, lab, 14, INK)
-    # one colour scale shared by every view
+    # one severity colour scheme shared by the whole app
     y = 414
     s.card(28, y, 904, 64)
-    s.defs.append(f'<linearGradient id="scale" x1="0" x2="1"><stop offset="0" stop-color="{LOW}"/><stop offset="0.5" stop-color="{MID}"/><stop offset="1" stop-color="{HIGH}"/></linearGradient>')
-    s.text(50, y + 38, "하나의 색 척도", 15, INK, "start", 700)
-    s.rect(180, y + 23, 300, 18, "url(#scale)", 9)
-    cx = 504
-    for lab in ["테마 4종", "링", "게이지", "그래프"]:
-        cx += s.chip(cx, y + 20, lab, INK, "#FFFFFF", LINE, 13, 26) + 8
+    s.text(50, y + 38, "앱 전체가 같은 색 단계", 15, INK, "start", 700)
+    cx = 290
+    for col, cname, lab in [(LOW, "초록", "낮음"), (MID, "노랑", "보통"), (HIGH, "빨강", "높음")]:
+        s.rect(cx, y + 20, 24, 24, col, 7)
+        s.text(cx + 34, y + 37, cname, 14, INK, "start", 700)
+        s.text(cx + 34 + tw(cname, 14, True) + 6, y + 37, "= " + lab, 14, MUTED)
+        cx += 190
     s.save("two_values.svg", "두 가지 값: 흔들림 지수 I와 멀미 가능성 P")
 
 
@@ -430,13 +431,12 @@ def scenario_cards():
     for lab in ["속도", "진행 방향", "핸들", "실내 온도"]:
         cx += s.chip(cx, y + 19, lab, SLATE, SLATE_T, SLATE_T, 13, 26) + 8
     s.chip(cx + 4, y + 20, "차 신호", SLATE, "#FFFFFF", SLATE, 12, 24, dash="3 2")
-    s.save("scenario_cards.svg", "실제 도로 시나리오 4종")
+    s.save("scenario_cards.svg", "실제 도로 4곳 · 주행 6회")
 
 
 def emulator_checks():
     tiles = [
         ("ok", "db", "완화 버튼 학습", "D 32.3 · τ 30.6 기록"),
-        ("part", "window", "창문 명령", "수락 · 움직임은 못 봄"),
         ("ok", "loop", "공조 닫힌 고리", "26.0° → 22.0° · 외기"),
         ("ok", "power", "공조 꺼짐", "그대로 · 창문 안내"),
         ("ok", "steering", "핸들 각도", "540° 수신 · CAR_DRIVE"),
@@ -445,29 +445,24 @@ def emulator_checks():
         ("ok", "map", "내비 앞 화면", "공조 · 안내 그대로"),
         ("ok", "pill", "한 화면 모드", "표정 카드 + % 알약"),
         ("ok", "ring", "지도 탭", "링 초록 → 빨강 · 줌 17"),
-        ("no", "noentry", "내비에 앱 영역 알리기", "거절 → Pleos 협의"),
     ]
-    cols, gap, tw_, th = 4, 12, (904 - 3 * 12) / 4, 104
-    H = 28 + 3 * th + 2 * gap + 28
+    cols, gap, th = 5, 12, 104
+    tw_ = (904 - (cols - 1) * gap) / cols
+    H = 28 + 2 * th + gap + 28
     s = Svg(960, H)
-    tint = {"ok": (CARD, LINE), "part": (MID_T, MID), "no": (HIGH_T, HIGH)}
     for i, (kind, ic, label, detail) in enumerate(tiles):
         x, y = 28 + (i % cols) * (tw_ + gap), 28 + (i // cols) * (th + gap)
-        bg, st = tint[kind]
-        s.card(x, y, tw_, th, bg, st, cs.RADIUS, 1)
-        col = LOW if kind == "ok" else MID if kind == "part" else HIGH
-        s.icon(ic, x + 34, y + 36, SLATE, SLATE_T if kind == "ok" else "#FFFFFF", 20)
+        s.card(x, y, tw_, th, CARD, LINE, cs.RADIUS, 1)
+        s.icon(ic, x + 34, y + 36, SLATE, SLATE_T, 20)
         s.status(kind, x + tw_ - 26, y + 26, 12)
         s.text(x + 18, y + 72, label, 15 if tw(label, 15, True) < tw_ - 30 else 13.5, INK, "start", 700)
-        s.text(x + 18, y + 90, detail, 12.5, MUTED)
-    # summary in the 12th slot
-    x, y = 28 + 3 * (tw_ + gap), 28 + 2 * (th + gap)
+        s.text(x + 18, y + 90, detail, 12.5 if tw(detail, 12.5) < tw_ - 26 else 11.5, MUTED)
+    # summary in the 10th slot
+    x, y = 28 + 4 * (tw_ + gap), 28 + (th + gap)
     s.card(x, y, tw_, th, "#FFFFFF", LINE)
     s.text(x + 18, y + 30, "Pleos Emulator v2.1", 13, MUTED, "start", 700)
-    cx = x + 18
-    for lab, col, t in [("확인 9", LOW, LOW_T), ("부분 1", MID_INK, MID_T), ("거절 1", HIGH, HIGH_T)]:
-        cx += s.chip(cx, y + 48, lab, col, t, t, 13, 28, bold=True, pad=9) + 6
-    s.save("emulator_checks.svg", "에뮬레이터 11항목 점검: 확인 9, 부분 1, 거절 1")
+    s.chip(x + 18, y + 50, "9가지 확인", LOW, LOW_T, LOW_T, 14, 30, bold=True, pad=12)
+    s.save("emulator_checks.svg", "에뮬레이터 점검: 9가지 확인")
 
 
 def theme_names():
