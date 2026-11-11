@@ -223,7 +223,7 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 ## 팀 CRAVE
 
-<p align="center"><img src="docs/img/slide_team.jpg" width="760" alt="팀 CRAVE: 팀원(대표) GIST EECS 3학년 · 모두의 창업 1R · 모의창업 GSS · 자율주행 연구실 인턴 · Cambridge 여름학기 / 팀원 GIST EECS 3학년 · I-Corps 2022 · Google ML Bootcamp 4기 · 지능표현추론 연구실 인턴 · UC Berkeley 여름학기 · KAIST 여름학기 / CRAVE Think Crazy, Act Brave, 교내 창업동아리 출신"></p>
+<p align="center"><img src="docs/img/slide_team.jpg" width="860" alt="팀 CRAVE: 팀원(대표) GIST EECS 3학년 · 모두의 창업 1R · 모의창업 GSS · 자율주행 연구실 인턴 · Cambridge 여름학기 / 팀원 GIST EECS 3학년 · I-Corps 2022 · Google ML Bootcamp 4기 · 지능표현추론 연구실 인턴 · UC Berkeley 여름학기 · KAIST 여름학기 / 팀원 GIST EECS 3학년 · 뉴로모픽 연구실 인턴 · Boston University 여름학기 / 팀원 GIST EECS 3학년 · 로보틱스 연구실 인턴 · Cambridge 여름학기 / CRAVE Think Crazy, Act Brave, 교내 창업동아리 출신"></p>
 
 ---
 
