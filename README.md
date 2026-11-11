@@ -16,7 +16,7 @@
 
 **실제 도로 경로 재생 · 2배속** · 캐릭터 둘레 링 길이 = 아이의 멀미 가능성, 색 = 표정 단계 · Pleos 에뮬레이터
 
-<a href="docs/demo-script.md"><img src="docs/img/link_video.svg" height="40" alt="시연 콘티 · 영상은 촬영 예정"></a> <a href="#심사용-빠른-실행"><img src="docs/img/link_repo.svg" height="40" alt="실행 방법 · 에뮬레이터 4단계"></a>
+<a href="docs/demo-script.md"><img src="docs/img/link_video.svg" height="40" alt="시연 콘티 · 영상은 촬영 예정"></a> <a href="https://github.com/toowani/motion-care/releases/latest/download/CRAVE_MotionCare_release.apk"><img src="docs/img/link_apk.svg" height="40" alt="APK 받기 · GitHub Releases"></a> <a href="#심사용-빠른-실행"><img src="docs/img/link_repo.svg" height="40" alt="실행 방법 · 에뮬레이터 4단계"></a>
 
 <sub><img src="docs/img/crave_logo.svg" width="16" align="absmiddle"> 현대자동차그룹 차량용 앱 개발 공모전 (Pleos Connect) · 팀 CRAVE</sub>
 
@@ -229,7 +229,7 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 ### 심사용 빠른 실행
 
-<img src="docs/img/quick_run.svg" width="100%" alt="심사용 빠른 실행 4단계: ① 에뮬레이터 켜기(Pleos Connect v2.1, Wi-Fi › AndroidWifi) ② APK 설치(접수 메일 첨부 APK, adb install) ③ 앱 실행(Pleos 사용자 10, --user 10) ④ 시연: 굽은 길 · 거칠게 → 멀미 완화">
+<img src="docs/img/quick_run.svg" width="100%" alt="심사용 빠른 실행 4단계: ① 에뮬레이터 켜기(Pleos Connect v2.1, Wi-Fi › AndroidWifi) ② APK 설치(Releases에서 받기, adb install) ③ 앱 실행(Pleos 사용자 10, --user 10) ④ 시연: 굽은 길 · 거칠게 → 멀미 완화">
 
 ```bash
 nohup ~/Library/Android/sdk/emulator/emulator \
@@ -245,7 +245,7 @@ adb install -r CRAVE_MotionCare_release.apk
 adb shell am start --user 10 -n ai.motioncare.app/.MainActivity
 ```
 
-APK는 접수 메일에 첨부했습니다 (Pleos 클라이언트 키가 들어 있어 저장소에는 올리지 않음). 직접 빌드하려면 아래 "키와 서명"의 `android/local.properties`를 채운 뒤 빌드합니다.
+APK는 [Releases](https://github.com/toowani/motion-care/releases/latest/download/CRAVE_MotionCare_release.apk)에서 바로 받을 수 있습니다 (공모전 시뮬레이터용 빌드). 직접 빌드하려면 아래 "키와 서명"의 `android/local.properties`를 채운 뒤 빌드합니다.
 
 ### 한계
 
@@ -259,7 +259,7 @@ APK는 접수 메일에 첨부했습니다 (Pleos 클라이언트 키가 들어 
 
 ### 폴더 구조
 
-<img src="docs/img/repo_structure.svg" width="100%" alt="폴더 구조: android/core(판단 엔진), android/app(TripService·Notifier·MainActivity·ui·theme·later), sim, shared, docs, research, data/rides(로컬 전용), apk(release APK 빌드 위치, git 제외 · 접수 메일에 첨부), .github/workflows/ci.yml">
+<img src="docs/img/repo_structure.svg" width="100%" alt="폴더 구조: android/core(판단 엔진), android/app(TripService·Notifier·MainActivity·ui·theme·later), sim, shared, docs, research, data/rides(로컬 전용), apk(release APK 빌드 위치, git 제외 · Releases에 올림), .github/workflows/ci.yml">
 
 ### 시뮬레이션과 그래프
 

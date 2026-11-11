@@ -766,7 +766,7 @@ def repo_structure():
         (0, "docs/", "기획서 · 검증 · 확인 기록 · 이미지", DOC, "folder"),
         (0, "research/", "문헌 근거 · 경쟁 조사", DOC, "folder"),
         (0, "data/rides/", "동승 기록 (로컬 전용)", GREY, "folder"),
-        (0, "apk/", "release APK 빌드 위치 (git 제외 · 접수 메일에 첨부)", APPC, "folder"),
+        (0, "apk/", "release APK 빌드 위치 (git 제외 · Releases에 올림)", APPC, "folder"),
         (0, ".github/workflows/ci.yml", "CI: 시뮬 점검 + 테스트 벡터 + Kotlin 테스트 + 디버그 빌드", SIM, "file"),
     ]
     y0, rh = 62, 32
@@ -860,9 +860,9 @@ def quick_run():
     """Four steps for a judge: emulator, install, start, demo."""
     f = Fig(960, 190)
     steps = [("power", "에뮬레이터 켜기", ["Pleos Connect v2.1", "Wi-Fi › AndroidWifi"]),
-             ("file", "APK 설치", ["접수 메일 첨부 APK", "adb install"]),
+             ("file", "APK 설치", ["Releases에서 받기", "adb install"]),
              ("cpu", "앱 실행", ["Pleos 사용자 10", "--user 10"]),
-             ("touch", "시연", None)]
+             ("hand", "시연", None)]
     w, gap = 206, 26
     for i, (ic, title, sub) in enumerate(steps):
         x = 28 + i * (w + gap)

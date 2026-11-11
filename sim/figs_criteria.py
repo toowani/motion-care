@@ -97,5 +97,5 @@ def link_badge(name, label, sub, style, icon):
 
 if __name__ == "__main__":
     link_badge("link_video.svg", "시연 콘티", "영상은 촬영 예정", BLUE_PILL, "doc")
-    link_badge("link_apk.svg", "APK 받기", "접수 메일 첨부", NAVY_PILL, "down")
+    link_badge("link_apk.svg", "APK 받기", "GitHub Releases", NAVY_PILL, "down")
     link_badge("link_repo.svg", "실행 방법", "에뮬레이터 4단계", SOFT_PILL, "box")
