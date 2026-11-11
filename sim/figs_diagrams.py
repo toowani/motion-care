@@ -261,9 +261,9 @@ def varbox(f, x, y, w, h, label, key, size=16):
 def conditions():
     f = Fig(960, 560)
     cards = [
-        ("예고 없는 움직임", ["몸의 느낌과", "예상이 어긋남"], "steering", ["핸들 각도", "방향지시등", "다음 회전"],
-         ["흔들림을", "1–2초 먼저 계산"]),
-        ("느린 흔들림 누적", ["0.1–0.5 Hz", "흔들림이 쌓임"], "wave", ["속도", "진행 방향"],
+        ("예고 없는 움직임", ["몸의 느낌과", "예상이 어긋남"], "steering", ["핸들 각도", "방향지시등 · 다음 회전"],
+         ["핸들 각도로", "흔들림 계산을", "1–2초 앞당김"]),
+        ("느린 흔들림 누적", ["약 0.03–0.25 Hz", "흔들림이 쌓임"], "wave", ["속도", "진행 방향"],
          ["흔들림 지수 {I}", "누적량 {D}"]),
         ("덥고 답답한 실내", ["덥고 내기순환이", "길수록 쉬움"], "thermo", ["실내 온도", "내기순환"],
          ["외기 전환", "온도 낮춤"]),
@@ -290,14 +290,19 @@ def conditions():
             f.lines(x + w / 2, y + 243, sigs, 13, WHITE, "middle", 700, 17)
         else:
             for j, sg in enumerate(sigs):
-                f.chip(x + 16, y + 222 + j * 38, sg, INK, WHITE, 13, 30, w=w - 32, weight=700, stroke=LINE)
+                if i == 0 and j == 1:
+                    # turn signal / next turn feed only the turn cue, which is an extension (off in the app)
+                    f.chip(x + 16, y + 222 + j * 38, sg, MUTED, WHITE, 13, 30, w=w - 32, stroke=LINE2, dash="4 3")
+                    f.text(x + w / 2, y + 312, "회전 예고용 · 확장", 12, MUTED, "middle")
+                else:
+                    f.chip(x + 16, y + 222 + j * 38, sg, INK, WHITE, 13, 30, w=w - 32, weight=700, stroke=LINE)
         f.line(x + 16, y + 346, x + w - 16, y + 346)
         # band: action
         f.text(x + 16, y + 370, "앱이 하는 일", 12, BLUE, weight=700)
         f.rect(x + 16, y + 382, w - 32, 78, BAND, None, cs.RADIUS_SM + 2)
         f.add(f'<path d="M{x + 30} {y + 421} h16 m-6 -6 l6 6 -6 6" fill="none" stroke="{BLUE}" stroke-width="2.2" '
               f'stroke-linecap="round" stroke-linejoin="round"/>')
-        f.lines(x + 56, y + 416, act, 14, INK, weight=700, lh=20)
+        f.lines(x + 56, y + 416 - 10 * (len(act) - 2), act, 14, INK, weight=700, lh=20)
     f.save("conditions.svg")
 
 
@@ -305,26 +310,50 @@ def who_gets_sick():
     f = Fig(960, 260)
     # left: top view, car heading right
     f.text(40, 44, "운전자 vs 동승자", 16, INK, weight=800)
-    cx0, cy0 = 48, 64
-    f.rect(cx0, cy0, 250, 150, CARD, LINE2, 46, 1.5)
-    f.path(f"M{cx0 + 196} {cy0 + 22} q22 53 0 106", LINE2, 2)          # windshield
-    f.path(f"M{cx0 + 48} {cy0 + 26} q-14 49 0 98", LINE2, 2)           # rear window
-    seats = {"drv": (cx0 + 138, cy0 + 36), "pas": (cx0 + 138, cy0 + 114), "rl": (cx0 + 74, cy0 + 36),
-             "rr": (cx0 + 74, cy0 + 114)}
+    cx0, cy0 = 40, 66                       # car body box 270 x 146, nose to the right
+    W_, H_ = 270, 146
+    BODY, GLASS, TIRE = "#E9EEF7", "#C9D6EC", "#3B4256"
+    # wheels (behind the body)
+    for wx in (cx0 + 46, cx0 + 196):
+        for wy in (cy0 - 7, cy0 + H_ - 7):
+            f.rect(wx, wy, 44, 14, TIRE, None, 5)
+    # side mirrors
+    for my, dy in ((cy0, -9), (cy0 + H_, 9)):
+        f.add(f'<ellipse cx="{cx0 + 176}" cy="{my + dy}" rx="9" ry="6" fill="{BODY}" stroke="{LINE2}" stroke-width="1.5"/>')
+    # body: rounded nose (right) and tail (left)
+    x0, x1, y0, y1 = cx0, cx0 + W_, cy0, cy0 + H_
+    f.path(f"M{x0 + 34} {y0} H{x1 - 52} C{x1 - 10} {y0} {x1} {y0 + 22} {x1} {y0 + 50} V{y1 - 50} "
+           f"C{x1} {y1 - 22} {x1 - 10} {y1} {x1 - 52} {y1} H{x0 + 34} C{x0 + 8} {y1} {x0} {y1 - 18} {x0} {y1 - 40} "
+           f"V{y0 + 40} C{x0} {y0 + 18} {x0 + 8} {y0} {x0 + 34} {y0} Z", LINE2, 2, fill=BODY)
+    # windshield (front) and rear window, as glass trapezoids
+    f.path(f"M{x1 - 62} {y0 + 18} L{x1 - 46} {y0 + 30} Q{x1 - 40} {y0 + 73} {x1 - 46} {y1 - 30} "
+           f"L{x1 - 62} {y1 - 18} Q{x1 - 68} {y0 + 73} {x1 - 62} {y0 + 18} Z", GLASS, 1, fill=GLASS)
+    f.path(f"M{x0 + 26} {y0 + 28} L{x0 + 40} {y0 + 20} Q{x0 + 45} {y0 + 73} {x0 + 40} {y1 - 20} "
+           f"L{x0 + 26} {y1 - 28} Q{x0 + 21} {y0 + 73} {x0 + 26} {y0 + 28} Z", GLASS, 1, fill=GLASS)
+    # headlights / tail lights
+    for ly in (y0 + 20, y1 - 20):
+        f.add(f'<ellipse cx="{x1 - 6}" cy="{ly}" rx="4" ry="9" fill="#FDE68A"/>')
+        f.add(f'<ellipse cx="{x0 + 4}" cy="{ly}" rx="3" ry="8" fill="#FCA5A5"/>')
+    seats = {"drv": (cx0 + 150, cy0 + 40), "pas": (cx0 + 150, cy0 + 106), "rl": (cx0 + 96, cy0 + 40),
+             "rr": (cx0 + 96, cy0 + 106)}
     for k, (sx, sy) in seats.items():
-        f.rect(sx - 22, sy - 22, 44, 44, WHITE, LINE2, 10, 1)
-    f.icon(*seats["drv"], "eye", GREEN, GREEN_T, 20)
-    f.icon(*seats["rr"], "child", RED, RED_T, 20)
-    f.add(f'<circle cx="{seats["rr"][0] + 18}" cy="{seats["rr"][1] - 18}" r="10" fill="{RED}"/>')
-    f.text(seats["rr"][0] + 18, seats["rr"][1] - 13.5, "?", 13, WHITE, "middle", 700)
-    f.arrow([(cx0 + 120, 236), (cx0 + 200, 236)], FOOT, 2)
-    f.text(cx0 + 110, 240, "진행 방향", 12, FOOT, "end")
-    f.line(seats["drv"][0] + 24, seats["drv"][1], 330, seats["drv"][1], GREEN, 1.5, "3 3")
-    f.text(338, seats["drv"][1] - 3, "운전자", 15, GREEN, weight=700)
-    f.text(338, seats["drv"][1] + 17, "다음 움직임을 앎", 13, INK)
-    f.line(seats["rr"][0] + 24, seats["rr"][1], 330, seats["rr"][1], RED, 1.5, "3 3")
-    f.text(338, seats["rr"][1] - 3, "동승자", 15, RED, weight=700)
-    f.text(338, seats["rr"][1] + 17, "모름", 13, INK)
+        f.rect(sx - 20, sy - 19, 40, 38, WHITE, LINE2, 9, 1)
+    # steering wheel in front of the driver
+    sw = (seats["drv"][0] + 32, seats["drv"][1])
+    f.add(f'<circle cx="{sw[0]}" cy="{sw[1]}" r="10" fill="none" stroke="{INK}" stroke-width="2.5"/>'
+          f'<path d="M{sw[0] - 10} {sw[1]} H{sw[0] + 10}" stroke="{INK}" stroke-width="2"/>')
+    f.icon(*seats["drv"], "eye", GREEN, GREEN_T, 18)
+    f.icon(*seats["rr"], "child", RED, RED_T, 18)
+    f.add(f'<circle cx="{seats["rr"][0] + 17}" cy="{seats["rr"][1] - 17}" r="10" fill="{RED}"/>')
+    f.text(seats["rr"][0] + 17, seats["rr"][1] - 12.5, "?", 13, WHITE, "middle", 700)
+    f.arrow([(cx0 + 130, 246), (cx0 + 210, 246)], FOOT, 2)
+    f.text(cx0 + 120, 250, "진행 방향", 12, FOOT, "end")
+    f.line(sw[0] + 14, seats["drv"][1], 344, seats["drv"][1], GREEN, 1.5, "3 3")
+    f.text(352, seats["drv"][1] - 3, "운전자", 15, GREEN, weight=700)
+    f.text(352, seats["drv"][1] + 17, "다음 움직임을 앎", 13, INK)
+    f.line(seats["rr"][0] + 22, seats["rr"][1], 344, seats["rr"][1], RED, 1.5, "3 3")
+    f.text(352, seats["rr"][1] - 3, "동승자", 15, RED, weight=700)
+    f.text(352, seats["rr"][1] + 17, "모름", 13, INK)
     f.line(492, 30, 492, 230, LINE, 1.5)
     # right: age axis
     f.text(530, 44, "멀미가 가장 흔한 나이", 16, INK, weight=800)
@@ -510,12 +539,13 @@ def sdk_map():
 
 
 def validation_ladder():
-    f = Fig(960, 300)
-    steps = [("map", "실제 도로 시나리오 시뮬레이션", "점검 10 / 10 통과", "도로 4곳 · 주행 6회"),
-             ("database", "실제 주행 데이터 비교 (comma2k19)", f"가속도 {_realism_ratio():.2f}배", "기준 0.5–2배 · 고속도로 45초"),
-             ("chip", "Pleos 에뮬레이터 (실제 SDK)", "9가지 기능 확인", "v2.1 · Android Automotive API 34")]
+    f = Fig(960, 326)
+    steps = [("map", "실제 도로 시나리오 시뮬레이션", "점검 10 / 10 통과", "도로 4곳 · 주행 6회", "계산 동작"),
+             ("database", "실제 주행 데이터 비교 (comma2k19)", f"가속도 {_realism_ratio():.2f}배", "기준 0.5–2배 · 고속도로 45초",
+              "시뮬레이션 현실성"),
+             ("chip", "Pleos 에뮬레이터 (실제 SDK)", "9가지 기능 확인", "+ 창문은 명령 수락까지 · v2.1 · API 34", "SDK 연결")]
     base, ch, rise = 276, 150, 36
-    for i, (ic, title, big, sub) in enumerate(steps):
+    for i, (ic, title, big, sub, what) in enumerate(steps):
         x, w = 28 + i * 304, 296
         bottom = base - 16 - i * rise
         y = bottom - ch
@@ -526,10 +556,12 @@ def validation_ladder():
         f.rect(x, y, w, ch, GREEN_T if last else CARD, GREEN if last else LINE, cs.RADIUS, 1.5 if last else 1)
         f.num(x + 30, y + 32, i + 1, GREEN if last else GRAD, 15, 15)
         f.icon(x + 80, y + 32, ic, GREEN if last else LAYER["calc"][0], WHITE if last else LAYER["calc"][1])
+        f.text(x + 112, y + 37, what, 13, GREEN if last else BLUE, weight=700)
         f.text(x + 20, y + 80, title, 14, INK, weight=700)
         f.text(x + 20, y + 112, big, 23, GREEN if last else INK, weight=800)
         f.text(x + 20, y + 134, sub, 12.5, MUTED)
     f.line(28, base, 932, base, LINE2, 2)
+    f.text(28, base + 32, "3단계 점검 (계산 동작 · 시뮬레이션 현실성 · SDK 연결) · 멀미 예측 정확도 검증은 아님", 13.5, MUTED, weight=700)
     f.save("validation_ladder.svg")
 
 
@@ -554,11 +586,11 @@ def real_or_sim():
     f.text(46, 156, "차를 움직임", 12, BLUE, weight=700)
     flow_chips(f, 136, 134, 320, ["공조", "창문", "음성"], LAYER["out"][0], LAYER["out"][1])
     f.text(46, 208, "차 신호", 12, BLUE, weight=700)
-    flow_chips(f, 136, 186, 320, ["방향지시등", "핸들 각도", "실내 온도"], V["car"][0], V["car"][1])
+    flow_chips(f, 136, 186, 320, ["방향지시등", "핸들 각도"], V["car"][0], V["car"][1])
     f.rect(496, 72, 436, 172, CARD, FOOT, cs.RADIUS, 1.5, "7 5")
     f.icon(530, 106, "replay", MUTED, CARD_ALT)
     f.text(562, 112, "시뮬레이션 · 실제 도로 경로 재생", 16, MUTED, weight=700)
-    flow_chips(f, 514, 140, 400, ["속도", "진행 방향", "경로", "회전 안내 카드", "도착 시간"], MUTED, WHITE,
+    flow_chips(f, 514, 140, 400, ["속도", "진행 방향", "경로", "회전 안내 카드", "도착 시간", "실내 온도 (모의 실내)"], MUTED, WHITE,
                stroke=LINE2, dash="4 3")
     f.icon(50, 272, "slider", V["car"][0], None, scale=0.9)
     f.text(72, 277, "차 신호 조작: Virtual Console", 13.5, INK, weight=700)
@@ -567,7 +599,7 @@ def real_or_sim():
 
 
 def relief_sequence():
-    f = Fig(960, 480)
+    f = Fig(960, 500)
     # button
     f.rect(28, 186, 196, 72, ORANGE, None, 36)
     f.icon(66, 222, "hand", WHITE, None)
@@ -603,7 +635,8 @@ def relief_sequence():
             f.text(bx + bw / 2, by + 33, "먼 곳을 보세요.”", 13, INK, "middle", 700)
         f.chip(sx + 104 if act else sx + 250, y + (48 if act else 56), sdk, BLUE, WHITE if inapp else BAND, 12, 24, pad=10,
                family=None)
-    f.chip(sx, 432, "pleos.car.permission.CONTROL_CAR_WINDOWS", sdk_ink, sdk_bg, 12.5, 30, pad=14, family=MONO)
+    f.text(sx, 430, "④ 학습: 주행마다 첫 누름만 · {D} ≥ 5일 때 · 최근 30개 · 차 한 대에 기준 하나 (아이별은 확장 ③)", 12.5, MUTED, weight=700)
+    f.chip(sx, 448, "pleos.car.permission.CONTROL_CAR_WINDOWS", sdk_ink, sdk_bg, 12.5, 30, pad=14, family=MONO)
     # fallbacks
     fx, fw = 676, 256
     f.text(fx, 32, "자동 조치가 안 될 때", 14, AMBER, weight=800)
@@ -653,7 +686,8 @@ def extension_map():
          "근거: 1초 전 음성 예고 → 멀미 감소 (Kuiper 외, 2020)", "동승 실험 뒤 켬", True),
         (592, y1, "coffee", "휴게소 추천", f"제안 시점 계산 (굽은 길 거칠게 {_rest_stop_mmss()})", ["run", ("idea", "확장 · LLM + POI 검색 API")],
          "질문 코드는 보관", None, False),
-        (28, y2, "family", "가족 모드", "아이마다 기준선, 가장 낮은 아이 먼저", ["run", "off"], None, None, False),
+        (28, y2, "family", "가족 모드", "아이마다 기준선, 가장 낮은 아이 먼저", [("run", "엔진 코드 있음"), ("off", "앱에서 꺼 둠")],
+         None, None, False),
         (592, y2, "gauge", "승차감 정량 지표", "{I} · {D}를 승차감 숫자로", ["idea"], None, None, True),
     ]
     for i, (x, y, ic, title, line1, sts, note, tag, overlap) in enumerate(cards):
@@ -732,7 +766,7 @@ def repo_structure():
         (0, "docs/", "기획서 · 검증 · 확인 기록 · 이미지", DOC, "folder"),
         (0, "research/", "문헌 근거 · 경쟁 조사", DOC, "folder"),
         (0, "data/rides/", "동승 기록 (로컬 전용)", GREY, "folder"),
-        (0, "apk/", "release APK 빌드 위치 (git 제외 · GitHub Releases로 배포)", APPC, "folder"),
+        (0, "apk/", "release APK 빌드 위치 (git 제외 · 접수 메일에 첨부)", APPC, "folder"),
         (0, ".github/workflows/ci.yml", "CI: 시뮬 점검 + 테스트 벡터 + Kotlin 테스트 + 디버그 빌드", SIM, "file"),
     ]
     y0, rh = 62, 32
@@ -773,7 +807,7 @@ def controls_layout():
     py = sy + 234
     f.rect(sx + 12, py, sw - 24, 78, WHITE, LINE, 10)
     x = sx + 24
-    row = [["굽은 길 · 거칠게", "굽은 길 · 부드럽게", "도심 · 거칠게"], ["나들이길 (4배속)", "실차 신호", "정지"]]
+    row = [["굽은 길 · 거칠게", "굽은 길 · 부드럽게", "도심 · 거칠게"], ["나들이길", "실차 신호", "정지"]]
     for r, items in enumerate(row):
         x = sx + 24
         for it in items:
@@ -790,7 +824,8 @@ def controls_layout():
         f.add(f'<circle cx="{x_t}" cy="{y_target}" r="4" fill="{BLUE}"/>')
         f.text(cx, y_label, title, 15, INK, weight=800)
         f.text(cx, y_label + 20, sub, 12.5, MUTED)
-    f.chip(sx, 362, "실차 신호: 앱을 켜면 자동 시작", BLUE, BAND, 12.5, 26, pad=12, weight=700)
+    w = f.chip(sx, 362, "실차 신호: 앱을 켜면 자동 시작", BLUE, BAND, 12.5, 26, pad=12, weight=700)
+    f.chip(sx + w + 8, 362, "시연 재생은 모두 4배속", INK, CARD_ALT, 12.5, 26, pad=12, weight=700)
     f.save("controls_layout.svg")
 
 
@@ -825,7 +860,7 @@ def quick_run():
     """Four steps for a judge: emulator, install, start, demo."""
     f = Fig(960, 190)
     steps = [("power", "에뮬레이터 켜기", ["Pleos Connect v2.1", "Wi-Fi › AndroidWifi"]),
-             ("file", "APK 설치", ["GitHub Releases", "adb install"]),
+             ("file", "APK 설치", ["접수 메일 첨부 APK", "adb install"]),
              ("cpu", "앱 실행", ["Pleos 사용자 10", "--user 10"]),
              ("touch", "시연", None)]
     w, gap = 206, 26

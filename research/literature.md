@@ -2,7 +2,7 @@
 
 `shared/params.json`의 값이 어디서 왔는지 정리합니다. 아래 서지는 2026-11-02에 PubMed·Crossref 서지와 초록, 공개된 원문 PDF(4번 두 편)로 다시 확인했습니다. ISO 2631-1 원문은 유료라 확인 못 했고, 2차 문헌으로만 확인했습니다.
 
-## 핵심 근거 6편
+## 핵심 근거 7편
 
 | # | 문헌 | 우리 앱에서 쓰는 곳 | 핵심 내용 |
 |---|---|---|---|
@@ -13,6 +13,7 @@
 | 4a | Bos, J. E., Kuiper, O. X. & Schmidt, E. A. (2020). Motion predictability and sickness. *DSC 2020 Europe VR* (Driving Simulation Conference) 발표 논문, Antibes, 9–11 Sep 2020, 179–182. DOI 없음 → [TNO 원문 PDF](https://publications.tno.nl/publication/34645616/p6Xz0N58/bos-2020-driving.pdf) | 4번의 수치 인용 | 4번(실험 B)과 Kuiper 외(2020) *Human Factors* 62(8), 1339–1348 [doi:10.1177/0018720819876139](https://doi.org/10.1177/0018720819876139)(실험 A, 17명)를 묶어 정리한 학회 논문. 실험 A: 예측 불가 움직임(방향 또는 시점 무작위) 두 조건이 예측 가능 조건보다 멀미 점수 52% 높음. 실험 B: 움직임 1초 전 음성 예고가 움직임 중 음성보다 멀미 점수를 17% 낮춤. **17%는 '예고 없음'이 아니라 '움직임 중 음성' 대비**이며, 저널 초록에는 이 백분율이 없음 |
 | 5 | D'Amour, S., Bos, J. E. & Keshavarz, B. (2017). The efficacy of airflow and seat vibration on reducing visually induced motion sickness. *Experimental Brain Research*, 235(9), 2811–2820. [doi:10.1007/s00221-017-5009-1](https://doi.org/10.1007/s00221-017-5009-1) | 환경 계수(수식 ④), 공조 닫힌 고리 | 82명을 4개 집단(바람, 진동, 바람+진동, 대조)에 무작위 배정, 1인칭 자전거 영상 15분. 바람은 멀미를 유의하게 줄였고, 좌석 진동은 효과 없음. 시각 유발 멀미 연구라 차량 멀미에는 근거 수준을 낮춰 표현 |
 | 6 | Huppert, D., Grill, E. & Brandt, T. (2019). Survey of motion sickness susceptibility in children and adolescents aged 3 months to 18 years. *Journal of Neurology*, 266(Suppl 1), 65–73. [doi:10.1007/s00415-019-09333-w](https://doi.org/10.1007/s00415-019-09333-w) | 가족 모드, 타깃(아이 있는 가족) | 독일 인구 기반 설문 2건, 부모 3,285명이 아이 5,041명 응답. 6개월–18세 조사에서 9.2%가 멀미 취약. 4–13세에서 가장 흔하고 사춘기 이후 감소하는 역U자형. 1세 이후 발생하면 어릴수록 심하고 6–9세에서 가장 심함. 1세 미만 첫 발생은 극히 드묾(2명) |
+| 7 | Schmidt, E. A., Kuiper, O. X., Wolter, S., Diels, C. & Bos, J. E. (2020). An international survey on the incidence and modulating factors of carsickness. *Transportation Research Part F: Traffic Psychology and Behaviour*, 71, 76–87. [doi:10.1016/j.trf.2020.03.012](https://doi.org/10.1016/j.trf.2020.03.012) | 요약 슬라이드의 "승객 차멀미 경험 46%" | 온라인 설문, 5개국(브라질·중국·독일·영국·미국) 4,479명. 46%가 지난 5년 동안 승용차 승객으로 어느 정도의 차멀미를 겪었다고 응답, 어릴 때 경험까지 넣으면 59%. 여성·젊은 층에서 더 많고, 주요 요인은 주행 방식·시각 활동·나쁜 공기. 자기 보고 설문이라 실제 발생률과는 다를 수 있음 (서지·초록은 Crossref·OpenAlex로 2026-11-12 확인) |
 
 ## 파라미터별 근거 상태
 
@@ -45,3 +46,4 @@
 - Bos 외 2020 (DSC): https://publications.tno.nl/publication/34645616/p6Xz0N58/bos-2020-driving.pdf
 - D'Amour 외 2017 (PubMed): https://pubmed.ncbi.nlm.nih.gov/28634889/
 - Huppert 외 2019 (PubMed): https://pubmed.ncbi.nlm.nih.gov/31087161/
+- Schmidt 외 2020: https://doi.org/10.1016/j.trf.2020.03.012

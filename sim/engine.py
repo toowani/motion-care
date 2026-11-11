@@ -9,7 +9,7 @@ Formulas (team page numbering):
   2  dose D = sqrt(sum (wX ax^2 + wY ay^2) dt), index I = RMS over last 60 s (zero-padded window)
   3  cabin factor m = 1 - gT*max(0, T - T0) - gV*min(1, t_recirc/3600), floor 0.6
   4  cue distance = v * (say + prepare)
-  5  personal threshold tau = (n*meanD + n0*tau0) / (n + n0), P = sigmoid((D - tau)/s)
+  5  personal threshold tau = (n*meanD + n0*tau0) / (n + n0), P = sigmoid((D - tau*m)/s)
 """
 import math
 from collections import deque

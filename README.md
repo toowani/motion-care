@@ -2,19 +2,21 @@
 
 ### 멀미 지수 계산을 통한 탑승감 개선
 
-**알려 주는 데서 멈추지 않습니다. 뒷좌석 아이가 멀미하기 전에 차가 공기 · 온도를 바꾸고, 멀미 완화 버튼 한 번에 뒷창문을 열며, 누른 순간을 기록해 우리 아이 기준을 배웁니다.**
+**알려 주는 데서 멈추지 않습니다. 뒷좌석 아이의 흔들림이 쌓이는 동안 차가 먼저 공기 · 온도를 바꾸고, 멀미 완화 버튼 한 번에 뒷창문을 열며, 누른 순간을 기록해 우리 아이 기준을 배웁니다.**
+
+<sub>멀미를 실제로 막는지는 동승 조사로 확인할 단계입니다 ([동승 조사](docs/ride-study.md))</sub>
 
 <img src="docs/img/explainer.webp" width="100%" alt="멀미 케어 필름 (25초, 가족이 겪는 순서): 굽은 산길 → 뒷좌석 아이 '속이 울렁거려…' → 센터 화면의 몽글이와 '브레이크 부드럽게' 알림, 차가 운전자에게 '뒷좌석이 흔들려요. 브레이크를 부드럽게 밟아 주세요.' → 운전자가 브레이크를 부드럽게 → 송풍구에서 바깥 공기 '바깥 공기로 바꾸고 온도를 조금 낮출게요.' → '그래도 어지러워…' → 멀미 완화 버튼 한 번 → '창문 열고 환기할게요. 먼 곳을 보세요.' → 창문으로 바람, 아이 '이제 좀 살 것 같아' → 멀미 케어">
 
 <sub>센터 화면 속 앱은 Pleos 에뮬레이터 실제 녹화를 합성 · 음성 문구는 앱이 실제로 말하는 문장 · 차 안·도로 장면은 AI 생성 (Higgsfield · Kling 2.5 Turbo)</sub>
 
-<img src="docs/img/slide_summary.jpg" width="100%" alt="멀미 케어 한눈에: 승객 차멀미 경험 46%, 대처는 멀미가 온 뒤, 4–13세 아이에게 가장 흔함 · 센서 추가 0개(기존 차 신호로 흔들림 계산) · 멀미 전에 먼저(공기·온도 자동, 창문은 완화 버튼) · 버튼 하나(누른 순간 → 우리 아이 기준 학습) · 에뮬레이터 9/11 항목 확인, 실차 검증 전">
+<img src="docs/img/slide_summary.jpg" width="100%" alt="멀미 케어 한눈에: 승객 차멀미 경험 46%(Schmidt 외, 2020, 5개국 4,479명), 대처는 멀미가 온 뒤, 4–13세 아이에게 가장 흔함 · 센서 추가 0개(기존 차 신호로 흔들림 계산) · 쌓이는 동안 먼저(공기·온도 자동, 창문은 완화 버튼) · 버튼 하나(누른 순간 → 우리 아이 기준 학습) · 에뮬레이터 9가지 확인 · 창문은 명령 수락까지, 실차 검증 전">
 
-<img src="docs/img/at_a_glance.svg" width="100%" alt="켜 두면 차가 알아서, 힘들면 버튼 하나 · 뒷좌석 아이(4–13세)를 태운 가족 차. 가운데 멀미 케어 앱 아이콘. 왼쪽 ① 차가 알아서(켜 두기만 하면): 아이 멀미 위험 오름(흔들림·더위로 멀미 지수 계산) → 화면·소리로 알림 → 더 오르면 바깥 공기(외기 순환)·온도 낮춤 + 운전자에게 &quot;브레이크 부드럽게&quot; → 실내가 나아지면 다시 계산. 오른쪽 ② 버튼 하나(아이가 힘들어하면): 멀미 완화 버튼 → 자동 조치(창문·환기·음성 안내) → 누른 순간 기록 → 개인 기준 맞춤(버튼 기록으로 멀미 예측 개인화) → 다음 주행엔 더 일찍 알림">
+<img src="docs/img/at_a_glance.svg" width="100%" alt="켜 두면 차가 알아서, 힘들면 버튼 하나 · 뒷좌석 아이(4–13세)를 태운 가족 차. 가운데 멀미 케어 앱 아이콘. 왼쪽 ① 차가 알아서(켜 두기만 하면): 아이 멀미 위험 오름(흔들림·더위로 멀미 지수 계산) → 주의 단계에 들어서면 화면·소리로 알림 + 같은 순간 바깥 공기(외기 순환)·22°C + 운전자에게 &quot;브레이크 부드럽게&quot; → 실내가 나아지면 다시 계산. 오른쪽 ② 버튼 하나(아이가 힘들어하면): 멀미 완화 버튼 → 자동 조치(창문·환기·음성 안내) → 누른 순간 기록 → 개인 기준 맞춤(버튼 기록으로 기준선 학습) → 링이 우리 아이 기준으로(멀미 가능성 표시에 반영)">
 
 <img src="docs/img/demo.webp" width="100%" alt="처음에 캐릭터(몽글이)를 크게 보여 준 뒤 오른쪽 위로 이동, 캐릭터를 크게 키워 표시 · 북악스카이웨이 실제 도로 경로를 시뮬레이션으로 재생 (Pleos 에뮬레이터, 2배속, 말랑 3D 친구 몽글이): 캐릭터 표정과 둘레 링이 노랑 → 빨강, 멀미 완화 버튼 → 창문 열고 환기했어요">
 
-**실제 도로 경로 재생 · 2배속** · 캐릭터 둘레 링 = 아이의 멀미 가능성 · Pleos 에뮬레이터
+**실제 도로 경로 재생 · 2배속** · 캐릭터 둘레 링 길이 = 아이의 멀미 가능성, 색 = 표정 단계 · Pleos 에뮬레이터
 
 <a href="docs/demo-script.md"><img src="docs/img/link_video.svg" height="40" alt="시연 콘티 · 영상은 촬영 예정"></a> <a href="#심사용-빠른-실행"><img src="docs/img/link_repo.svg" height="40" alt="실행 방법 · 에뮬레이터 4단계"></a>
 
@@ -26,15 +28,15 @@
 
 ## 1. 우리가 판단한 멀미 조건
 
-<img src="docs/img/conditions.svg" width="100%" alt="멀미 조건 4가지: ① 예고 없는 움직임(핸들 각도·방향지시등·다음 회전 → 1–2초 먼저 계산) ② 느린 흔들림 누적(속도·진행 방향 → 흔들림 지수 I·누적량 D) ③ 덥고 답답한 실내(실내 온도·내기순환 → 외기 전환·온도 낮춤) ④ 사람마다 다른 기준(멀미 완화 버튼 누른 순간 → 개인 기준선 τ 학습)">
+<img src="docs/img/conditions.svg" width="100%" alt="멀미 조건 4가지: ① 예고 없는 움직임(핸들 각도 → 흔들림 계산을 1–2초 앞당김, 방향지시등·다음 회전은 회전 예고용 확장) ② 느린 흔들림 누적(약 0.03–0.25 Hz, 속도·진행 방향 → 흔들림 지수 I·누적량 D) ③ 덥고 답답한 실내(실내 온도·내기순환 → 외기 전환·온도 낮춤) ④ 사람마다 다른 기준(멀미 완화 버튼 누른 순간 → 개인 기준선 τ 학습)">
 
 <img src="docs/img/who_gets_sick.svg" width="100%" alt="운전자는 다음 움직임을 알고 뒷좌석 동승자는 모름 · 멀미가 가장 흔한 나이 4–13세 (Huppert 외, 2019)">
 
 ## 2. 근거
 
-<img src="docs/img/evidence.svg" width="100%" alt="조건별 근거: 1초 전 음성 예고(Kuiper 외, 2020), 0.5 Hz 미만 옆 흔들림과 누적량 형태(Turner & Griffin, 1999 · ISO 2631-1), 바람(D'Amour 외, 2017), 4–13세·뒤쪽 좌석(Huppert 외, 2019 · Turner & Griffin, 1999)">
+<img src="docs/img/evidence.svg" width="100%" alt="조건별 근거: 1초 전 음성 예고(Kuiper 외, 2020, 확장 ① 예측 음성의 근거, 앱에서는 꺼 둠), 0.5 Hz 미만 옆 흔들림(Turner & Griffin, 1999), 누적량 형태(ISO 2631-1, 수직 기준을 수평에 응용), 바람(D'Amour 외, 2017, 실험실의 화면 유발 멀미, 공조 계수는 동승 조사로 보정할 출발값), 4–13세(Huppert 외, 2019), 뒤쪽 좌석(Turner & Griffin, 1999, 버스·코치 조사라 승용차 뒷좌석은 유추)">
 
-<img src="docs/img/slide_low_freq.jpg" width="100%" alt="멀미 흔들림은 0.5 Hz 이하: 저주파 = 2초 이상 주기의 출렁임 · ISO 2631-1 멀미 대역 0.1–0.5 Hz, 승차감·건강 0.5–80 Hz, 옆 흔들림 가중 곡선 0.0315–0.25 Hz 평탄 후 0.8 Hz까지 감소, 멀미 케어 약 0.03–0.5 Hz · 버스 승객 3,256명(110시간) 0.5 Hz 미만 옆 흔들림과 메스꺼움이 함께 증가 · 흔들림 실험 120명 약 0.25 Hz까지 평탄 후 감소 · 차종 5종 비교 차종 간 차이 없고 운전 방식·노선에 따라 차이 (ISO 2631-1:1997 · Turner & Griffin 1999 · Donohew & Griffin 2004)">
+<img src="docs/img/slide_low_freq.jpg" width="100%" alt="멀미 흔들림은 0.5 Hz 이하: 저주파 = 2초 이상 주기의 출렁임 · ISO 2631-1 멀미 대역 0.1–0.5 Hz, 승차감·건강 0.5–80 Hz, 옆 흔들림 가중 곡선 0.0315–0.25 Hz 평탄 후 0.8 Hz까지 감소, 멀미 케어 0.03–0.25 Hz 그대로, 0.5 Hz까지 점점 줄임 · 버스 승객 3,256명(110시간) 0.5 Hz 미만 옆 흔들림과 메스꺼움이 함께 증가 · 흔들림 실험 120명 약 0.25 Hz까지 평탄 후 감소 · 차종 5종 비교 차종 간 차이 없고 운전 방식·노선에 따라 차이 (ISO 2631-1:1997 · Turner & Griffin 1999 · Donohew & Griffin 2004)">
 
 DOI와 한계: [research/literature.md](research/literature.md)
 
@@ -42,17 +44,17 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 <img src="docs/img/slide_sampling_1hz.jpg" width="100%" alt="그래서 1 Hz 차 신호로 계산: 1초 간격 샘플로 0.5 Hz(2초 주기)까지 볼 수 있음(나이퀴스트) = 멀미 대역 · 고주파 관성 센서 없이 추가 장비 0, 차 안에서 계산, 순수 Kotlin 엔진은 SDK와 분리돼 다른 차량으로 이식 가능 · 입력(속도·방향·핸들 각도·실내 온도·내기순환) → 저주파 엔진(가속도 → 저주파 → 지수·누적량 → 멀미 가능성) → 출력(공조·창문·음성 안내)">
 
-<img src="docs/img/slide_four_values.jpg" width="100%" alt="네 값 → 멀미 가능성 P: 지금의 흔들림 I(60초 저주파 RMS), 쌓인 흔들림 D(출발부터 누적, ISO 2631-1 수평 응용), 실내 환경 m(더위·내기순환이면 기준 낮춤), 사람별 기준 τ(완화 버튼 순간의 D로 학습) → P = 1/(1+e^(−(D−τm)/s)), 25%·50%에서 화면 단계 전환">
+<img src="docs/img/slide_four_values.jpg" width="100%" alt="네 값 → 멀미 가능성 P: 지금의 흔들림 I(60초 저주파 RMS), 쌓인 흔들림 D(출발부터 누적, ISO 2631-1 수평 응용), 실내 환경 m(더위·내기순환이면 기준 낮춤), 사람별 기준 τ(완화 버튼 순간의 D로 학습) → P = 1/(1+e^(−(D−τm)/s)), 멀미 가능성 25%·50% 단계(분석 게이지), 링은 차오르는 양">
 
-<img src="docs/img/index_flow.svg" width="100%" alt="멀미 지수 계산 흐름: 속도·진행 방향(핸들 각도로 앞당김) → 가속도 → 느린 흔들림 → 지수 I·누적 D → 판단(환경 계수 m, 개인 기준선 τ) → 흔들림 단계·멀미 가능성 P · 지수 > 기준선 × m → 외기 전환·22°C, 멀미 완화 버튼 → 창문·바람·음성">
+<img src="docs/img/index_flow.svg" width="100%" alt="멀미 지수 계산 흐름: 속도·진행 방향(핸들 각도로 앞당김) → 가속도 → 느린 흔들림 → 지수 I·누적 D → 판단(환경 계수 m, 개인 기준선 τ) → 흔들림 단계·멀미 가능성 P · 지수 I > 주의 기준 0.9·m (10초 유지) → 음성 안내·외기 전환·22°C, 멀미 완화 버튼 → 창문·바람·음성">
 
-<img src="docs/img/two_values.svg" width="100%" alt="두 가지 값: 흔들림 지수 I(최근 60초, 잔잔·흔들림·흔들림 많음, 경계 0.9·m·1.5·m)와 멀미 가능성 P(낮음·보통·높음, 경계 25%·50%) · 앱 전체가 같은 색 단계: 초록 = 낮음, 노랑 = 보통, 빨강 = 높음">
+<img src="docs/img/two_values.svg" width="100%" alt="두 가지 값: 흔들림 지수 I(최근 60초, 잔잔·흔들림·흔들림 많음, 경계 0.9·m·1.5·m, 10초 넘게 이어지면 전환, 캐릭터 표정·링 색)와 멀미 가능성 P(낮음·보통·높음, 경계 25%·50%, 링이 차오르는 양·분석 게이지) · 같은 세 가지 색(초록 = 낮음, 노랑 = 보통, 빨강 = 높음), 기준은 둘: 표정·링 색은 I 단계, 게이지 색은 P 단계">
 
 <img src="docs/img/f_dose.png" width="100%" alt="D = ( Σ_t ( w_X a_x^2 + w_Y a_y^2 ) Δt )^{1/2} — 누적 흔들림 D 식: 앞뒤·옆 가속도 제곱에 가중치를 곱해 1초마다 더한 값의 제곱근, 길이가 다른 주행은 D/√t로 비교">
 
 <img src="docs/img/f_cabin.png" width="100%" alt="m = 1 − γ_T max(0, T − 22) − γ_V min(1, t_recirc / 3600) — 환경 계수 m 식: 실내 온도가 22°C를 넘고 내기순환이 길수록 m이 줄어 같은 흔들림에도 더 일찍 위험">
 
-<img src="docs/img/f_prob.png" width="100%" alt="P = 1 / (1 + e^{−(D − τ m)/s}) — 멀미 가능성 P 식: 누적 흔들림 D가 개인 기준선 τ·m을 넘을수록 S자로 커지고 25%·50%에서 단계가 바뀜">
+<img src="docs/img/f_prob.png" width="100%" alt="P = 1 / (1 + e^{−(D − τ m)/s}) — 멀미 가능성 P 식: 누적 흔들림 D가 개인 기준선 τ·m을 넘을수록 S자로 커지고 25%·50%에서 분석 게이지 단계가 바뀜 (알림 시점은 바꾸지 않음)">
 
 <details>
 <summary>전체 수식 ①–⑥ (가속도 · 핸들 각도 · 흔들림 지수 · 알림 기준선 · 개인 기준선 · 예고 시점)</summary>
@@ -69,9 +71,9 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 <img src="docs/img/f_index.png" width="100%" alt="I = sqrt( (1/60) Σ_{최근 60초} ( w_X a_x^2 + w_Y a_y^2 ) ) — 흔들림 지수 I 식: 최근 60초 제곱평균제곱근, 0.03–0.25 Hz 중심(멀미 가중)으로 흔들림을 남기고 D는 같은 값을 출발부터 누적">
 
-<img src="docs/img/f_thresholds.png" width="100%" alt="θ_caution = 0.9 m, θ_high = 1.5 m, m ≥ 0.6 — 알림 기준선 식: 주의 0.9·m, 높음 1.5·m; 덥고 답답해 m이 줄면 같은 흔들림 지수도 더 높은 단계로">
+<img src="docs/img/f_thresholds.png" width="100%" alt="θ_caution = 0.9 m, θ_high = 1.5 m, m ≥ 0.6 — 알림 기준선 식: 주의 0.9·m, 높음 1.5·m, 10초 넘게 이어지면 단계 전환; 덥고 답답해 m이 줄면 같은 흔들림 지수도 더 높은 단계로">
 
-<img src="docs/img/f_tau.png" width="100%" alt="τ = (n D̄ + n_0 τ_0) / (n + n_0) — 개인 기준선 τ 식: 멀미 완화 버튼을 누른 순간 누적량의 평균과 출발값 30을 기록 수에 따라 섞음, 기록 5개에서 반반">
+<img src="docs/img/f_tau.png" width="100%" alt="τ = (n D̄ + n_0 τ_0) / (n + n_0) — 개인 기준선 τ 식: 멀미 완화 버튼을 누른 순간 누적량의 평균과 출발값 30을 기록 수에 따라 섞음, 기록 5개에서 반반 · 주행마다 첫 누름만, D ≥ 5일 때, 최근 30개, 차 한 대에 기준 하나">
 
 <img src="docs/img/f_cue.png" width="100%" alt="d_cue = v (t_say + t_prepare) — 예고 거리 식: 속도 × (말하는 시간 2초 + 대비할 시간 3초), 엔진에만 있고 앱 화면·소리에서는 꺼 둠">
 
@@ -83,23 +85,23 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 <img src="docs/img/sdk_map.svg" width="100%" alt="읽기(1초마다): Vehicle SteeringWheel(CAR_DRIVE)·TurnSignal·HVAC, 위치(GNSS)·CarPropertyManager, NaviHelper(TBT, DrivingInfo) → 계산: SDK와 분리된 순수 Kotlin 엔진(I·D·m·τ·P) → 행동: Vehicle HVAC(외기·22°C), Vehicle Window(뒷창문 20%, CONTROL_CAR_WINDOWS), TextToSpeech(HYBRID), SpeechToText(확장) · 닫힌 고리: 바뀐 실내 온도·환기가 다시 계산으로">
 
-<img src="docs/img/architecture.svg" width="100%" alt="앱 구조: Pleos 차량 신호 읽기 → 주행 지킴이(앱을 닫아도 뒤에서 계속 계산) ↔ 계산 엔진(시뮬레이터와 같은 계산) → 공기·창문·음성, 화면은 볼 때만, 내비를 보는 동안은 알림 카드">
+<img src="docs/img/architecture.svg" width="100%" alt="앱 구조: Pleos 차량 신호 읽기 → 주행 지킴이(앱을 닫아도 뒤에서 계속 계산) ↔ 계산 엔진(시뮬레이터와 같은 계산) → 공기·창문·음성, 화면은 볼 때만, 알림 카드는 알림 센터에만(지도 위 표시는 Pleos 협의)">
 
-### 실차 없이 3단계 검증
+### 실차 없이 3단계 점검
 
-<img src="docs/img/validation_ladder.svg" width="100%" alt="실차 없이 3단계 검증: ① 실제 도로 시나리오 시뮬레이션 점검 10/10 통과(도로 4곳 · 주행 6회) ② 실제 주행 데이터 비교(comma2k19) 가속도 0.97배(기준 0.5–2배, 고속도로 45초) ③ Pleos 에뮬레이터(실제 SDK) 9가지 기능 확인 (v2.1 · API 34)">
+<img src="docs/img/validation_ladder.svg" width="100%" alt="3단계 점검 (계산 동작 · 시뮬레이션 현실성 · SDK 연결) · 멀미 예측 정확도 검증은 아님: ① 계산 동작: 실제 도로 시나리오 시뮬레이션 점검 10/10 통과(도로 4곳 · 주행 6회) ② 시뮬레이션 현실성: 실제 주행 데이터 비교(comma2k19) 가속도 0.97배(기준 0.5–2배, 고속도로 45초) ③ SDK 연결: Pleos 에뮬레이터(실제 SDK) 9가지 기능 확인, 창문은 명령 수락까지 (v2.1 · API 34)">
 
 <sub>검증은 시뮬레이션 · 에뮬레이터까지입니다. 실제 아이가 탄 주행 데이터는 아직 없어, 멀미 가능성의 정확도는 확인 전입니다 · 다음 단계: [동승 조사](docs/ride-study.md)</sub>
 
 ### 도로 4곳 · 주행 6회 (OpenStreetMap)
 
-<img src="docs/img/scenario_cards.svg" width="100%" alt="실제 도로 4곳: 도심 3.7 km(회전 4·신호 정지 6, 부드럽게·거칠게), 굽은 길 5.2 km(커브 52곳, 부드럽게·거칠게), 고속도로 17.0 km(13.0분), 나들이길 37.4 km(34.7분) → 1초 간격 가상 센서 값">
+<img src="docs/img/scenario_cards.svg" width="100%" alt="실제 도로 4곳: 도심 3.7 km(회전 4·신호 정지 6, 부드럽게·거칠게), 굽은 길 5.2 km(커브 52곳, 부드럽게·거칠게), 고속도로 17.0 km(13.0분), 나들이길 37.4 km(34.7분) → 1초 간격 가상 센서 값(속도·진행 방향·실내 온도) · 핸들 각도는 시나리오에 없음(에뮬레이터에서만 확인)">
 
 ---
 
 ## 5. 실제 구현
 
-<img src="docs/img/real_or_sim.svg" width="100%" alt="Pleos Connect Emulator v2.1(Android Automotive API 34)에서 실제 실행 · 진짜 Pleos SDK: 공조·창문·음성, 방향지시등·핸들 각도·실내 온도 / 시뮬레이션(실제 도로 경로 재생): 속도·진행 방향·경로·회전 안내 카드·도착 시간 · 차 신호 조작은 Pleos 제공 Virtual Console">
+<img src="docs/img/real_or_sim.svg" width="100%" alt="Pleos Connect Emulator v2.1(Android Automotive API 34)에서 실제 실행 · 진짜 Pleos SDK: 공조·창문·음성 명령, 방향지시등·핸들 각도 / 시뮬레이션(실제 도로 경로 재생): 속도·진행 방향·경로·회전 안내 카드·도착 시간·실내 온도(모의 실내) · 차 신호 조작은 Pleos 제공 Virtual Console">
 
 ### ① 아이가 고르는 아이콘 테마
 
@@ -111,17 +113,17 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 <img src="docs/img/ui_r6_map.jpg" width="100%" alt="지도 탭: 회전 안내 카드, 앞으로 갈 파란 경로, 오른쪽 위 멀미 가능성 링을 두른 캐릭터(몽글이, 노랑), 위쪽 주황 멀미 완화 버튼">
 
-<img src="docs/img/map_elements.svg" width="100%" alt="지도 탭 요소: 진행 방향 위 지도, 앞으로 갈 길만 그리는 파란 경로, 회전 안내 카드·도착 바, 캐릭터 둘레 링(멀미 가능성, 12시부터 시계 방향, 25%·50% 경계)">
+<img src="docs/img/map_elements.svg" width="100%" alt="지도 탭 요소: 진행 방향 위 지도, 앞으로 갈 길만 그리는 파란 경로, 회전 안내 카드·도착 바, 캐릭터 둘레 링(길이 = 멀미 가능성, 12시부터 시계 방향, 색 = 캐릭터 표정 단계, 흔들림 지수 I 기준)">
 
 ### ③ 멀미 완화 버튼: 한 번 누르면 바로
 
 <img src="docs/img/ui_r6_relief.jpg" width="100%" alt="멀미 완화 버튼을 누른 뒤: 지도 위 '창문 열고 환기했어요', 몽글이 표정과 링은 빨강">
 
-<img src="docs/img/relief_sequence.svg" width="100%" alt="멀미 완화 버튼(지도·분석·한 화면 모드 어디서나): 1 뒷창문 20%(Vehicle Window) 2 바깥 공기+22°C(Vehicle HVAC) 3 '창문 열고 환기할게요. 먼 곳을 보세요.'(TextToSpeech) 4 누른 순간 D → 내 기준선 τ · 안 될 때: 창문 불가 → 화면+음성 안내, 공조 꺼짐 → 그대로, 20초 안 다시 누름 → '환기 중이에요'만">
+<img src="docs/img/relief_sequence.svg" width="100%" alt="멀미 완화 버튼(지도·분석·한 화면 모드 어디서나): 1 뒷창문 20%(Vehicle Window) 2 바깥 공기+22°C(Vehicle HVAC) 3 '창문 열고 환기할게요. 먼 곳을 보세요.'(TextToSpeech) 4 누른 순간 D → 내 기준선 τ(주행마다 첫 누름만, D ≥ 5일 때, 최근 30개, 차 한 대에 기준 하나, 아이별은 확장 ③) · 안 될 때: 창문 불가 → 화면+음성 안내, 공조 꺼짐 → 그대로, 20초 안 다시 누름 → '환기 중이에요'만">
 
 ### ④ 흔들림이 커지면 차가 공기를 바꿈
 
-<img src="docs/img/closed_loop.svg" width="100%" alt="닫힌 고리: 굽은 길(26°C, 내기순환 출발)에서 19초에 외기 전환·22°C, 환경 계수 m 0.84 → 0.99, 실내 온도 26 → 22°C / 앱 없으면 m 0.825에 머묾">
+<img src="docs/img/closed_loop.svg" width="100%" alt="닫힌 고리 동작 확인(조치 → 실내 값 → 다시 계산, 멀미 감소 효과가 아님 · 시뮬레이션 실내 모델): 굽은 길(26°C, 내기순환 출발)에서 19초에 외기 전환·22°C, 환경 계수 m 0.84 → 0.99, 실내 온도 26 → 22°C / 앱 없으면 m 0.825에 머묾">
 
 ### ⑤ 분석 탭
 
@@ -141,15 +143,17 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 ### 검증 결과
 
-<img src="docs/img/scenario_bars.svg" width="100%" alt="도로 4곳 · 주행 6회의 평균 흔들림 지수(막대)와 최댓값(세로선), 알림 켜진 시간: 고속도로 0.36(0 / 13분), 도심 부드럽게 0.68(1.6 / 8.8분), 도심 거칠게 1.07(6.7 / 8.2분), 나들이길 0.76(9.7 / 34.7분), 굽은 길 부드럽게 1.65(7.5 / 7.9분), 굽은 길 거칠게 2.58(5.9 / 6.2분)">
+<img src="docs/img/scenario_bars.svg" width="100%" alt="도로 4곳 · 주행 6회의 평균 흔들림 지수(막대)와 최댓값(세로선), 알림 켜진 시간: 고속도로 0.36(0 / 13분), 도심 부드럽게 0.68(1.6 / 8.8분), 도심 거칠게 1.07(6.7 / 8.2분), 나들이길 0.76(9.7 / 34.7분), 굽은 길 부드럽게 1.65(7.5 / 7.9분), 굽은 길 거칠게 2.58(5.9 / 6.2분) · 굽은 길은 길 모양(커브 52곳)이 커서 부드럽게 달려도 높음 · 주의 0.9 · 높음 1.5는 시뮬레이션에 맞춘 출발값(문헌값 아님)">
 
-<img src="docs/img/timeline_winding.svg" width="100%" alt="굽은 길 거칠게: 흔들림 지수, 주의·높음 기준선, 19초 음성 안내·공조, 31초 공조">
+<sub>굽은 길은 부드럽게 달려도 지수가 높습니다. 운전 방식보다 길 모양이 크게 작용하기 때문입니다. 주의 $0.9$ · 높음 $1.5$는 문헌값이 아니라 시뮬레이션에 맞춘 출발값이고, 동승 조사로 보정합니다.</sub>
+
+<img src="docs/img/timeline_winding.svg" width="100%" alt="굽은 길 거칠게: 흔들림 지수, 주의·높음 기준선, 19초 브레이크 안내·공조(주의 단계 진입), 31초 공조 재요청은 엔진 출력만(앱은 5분 안 반복 생략)">
 
 <img src="docs/img/real_vs_sim.svg" width="100%" alt="실제 고속도로(comma2k19)와 시뮬레이션 고속도로 비교, 같은 45초: 앞뒤 가속도 0.97배, 평균 지수 0.42 vs 0.35">
 
 ### 에뮬레이터에서 확인한 것
 
-<img src="docs/img/emulator_checks.svg" width="100%" alt="Pleos Connect Emulator v2.1에서 확인한 9가지: 완화 버튼 학습, 공조 닫힌 고리, 공조 꺼짐, 핸들 각도, Pleos 음성, 내비 다음 회전, 내비 앞 화면, 한 화면 모드, 지도 탭">
+<img src="docs/img/emulator_checks.svg" width="100%" alt="Pleos Connect Emulator v2.1 10가지 점검 중 9가지 확인: 완화 버튼 학습, 공조 닫힌 고리, 공조 꺼짐, 핸들 각도, Pleos 음성, 내비 다음 회전, 내비 앞 화면, 한 화면 모드, 지도 탭 · 창문은 명령 수락까지(뒷창 위치 2), 실제 움직임은 확인 필요">
 
 고친 버그: [docs/qa.md](docs/qa.md) · 숫자: [docs/validation.md](docs/validation.md)
 
@@ -159,31 +163,31 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 ### 타깃
 
-<img src="docs/img/target.svg" width="100%" alt="타깃: 어린 자녀(4–13세)를 둔 가족 운전자 · 4–13세가 멀미에 가장 약함(Huppert 외, 2019) · 아이는 참거나 말로 표현하기 어려움 → 차가 먼저 알아차림 · 가족은 계속 새로 생김 → 지속 확대 · 2차 확대: 멀미하는 성인 동승자">
+<img src="docs/img/target.svg" width="100%" alt="타깃: 어린 자녀(4–13세)를 둔 가족 운전자 · 4–13세가 멀미에 가장 약함(Huppert 외, 2019) · 아이는 참거나 말로 표현하기 어려움 → 차가 먼저 알아차림 · 가족은 계속 새로 생김 → 지속 확대 · 2차 확대: 멀미하는 성인 동승자 · 멀미 완화 버튼은 보호자가 누름 → 학습은 보호자가 아이 증상을 알아챌 때만 쌓임">
 
 ### 왜 폰이 아니라 차여야 하나
 
-<img src="docs/img/phone_vs_car.svg" width="100%" alt="폰 앱과 멀미 케어 비교: 흔들림 먼저 계산, 실내 온도·환기, 창문 열기, 매 주행 실행">
+<img src="docs/img/phone_vs_car.svg" width="100%" alt="폰 앱과 멀미 케어 비교: 흔들림 먼저 계산(핸들 각도로 1–2초), 실내 온도·환기, 창문 열기, 매 주행 실행(앱을 한 번 열면 화면을 닫아도 계속 · 시동 자동 시작은 Pleos 협의 후)">
 
 ### 다른 서비스와 비교
 
-<img src="docs/img/market_compare.svg" width="100%" alt="기능 비교(차 신호, 미리 계산, 공기·바람 = 조치, 장비 없음, 사람별 기준 = 개인 학습, 상태): Apple Motion Cues·Google Motion Assist·Citroën Seetroën·현대차 스무스 모드(양산), 현대모비스(시범), JLR·VW·Bentley(연구), holoride(파산), Mercedes·BMW(특허), 멀미 Zero(현대차·기아 2026 아이디어 페스티벌 최우수상, 임직원 팀, 2026-10-19 공개, OTA 차량 기능: 차 신호·미리 보여 주기·장비 없음, 공기·바람과 사람별 기준은 공개 자료 기준 보도에 없음), 멀미 케어(다섯 가지 모두, 시제품) · 겹침: 차 신호·움직임 미리 보여 주기·하드웨어 추가 없음 · 다름: 공조·창문 조치, 버튼 기록으로 아이 기준 학습, Pleos 앱 마켓 배포">
+<img src="docs/img/market_compare.svg" width="100%" alt="기능 비교(차 신호, 미리 계산, 공기·바람 = 조치, 장비 없음, 사람별 기준 = 개인 학습, 상태): Apple Motion Cues·Google Motion Assist·Citroën Seetroën·현대차 스무스 모드(양산), 현대모비스(시범), JLR·VW·Bentley(연구), holoride(파산), Mercedes·BMW(특허), 멀미 Zero(현대차·기아 2026 아이디어 페스티벌 최우수상, 임직원 팀, 2026-10-19 공개, OTA 차량 기능: 차 신호·미리 보여 주기·장비 없음, 공기·바람과 사람별 기준은 공개 자료 기준 보도에 없음), 멀미 케어(다섯 가지 모두, 시제품 · 미리 계산은 핸들 각도로 1–2초이고 화면 예고는 확장, 사람별 기준은 멀미 가능성 표시에 반영) · 겹침: 차 신호·움직임 미리 보여 주기·하드웨어 추가 없음 · 다름: 공조·창문을 실제로 조작하는 앱, 버튼 기록 기반 기준, Pleos 앱 마켓 배포">
 
 [기획서 4절](docs/proposal.md) · [research/market.md](research/market.md)
 
 ### MAU · Retention · 수익
 
-<img src="docs/img/slide_business.jpg" width="100%" alt="가족 앱 → 플릿 → 자율주행: 1단계 B2C 가족 앱 출시 1년 예상 MAU 약 1,800명(탑재 151,110대 × 자녀 가구 20.3% × 설치 10%* × 월 사용 60%*, 무료 + IP 테마·음성 팩) · 2단계 B2B 플릿 약 29만 대(택시 246,258, 통학버스 43,857, 플릿 대당 월 구독, 엔진 이식) · 3단계 자율주행 승차감 지수, Pleos Connect 2030 글로벌 2천만 대 목표, 시범운행지구 42곳, 수익: 완성차·플랫폼 라이선스 (* 가정)">
+<img src="docs/img/slide_business.jpg" width="100%" alt="가족 앱 → 플릿 → 자율주행: 1단계 B2C 가족 앱 출시 1년 예상 MAU 약 1,800명(탑재 차종 연간 판매 151,110대(2025년, 당시 Pleos 미탑재 · 근사) × 18세 이하 자녀 가구 20.3% × 설치 10%* × 월 사용 60%*, 무료 + IP 테마·음성 팩) · 2단계 B2B 플릿 약 29만 대(택시 246,258, 통학버스 43,857, 플릿 대당 월 구독, 엔진 이식) · 3단계 자율주행 승차감 지수, Pleos Connect 2030 글로벌 2천만 대 목표, 시범운행지구 42곳, 수익: 완성차·플랫폼 라이선스 (* 가정)">
 
-<img src="docs/img/mau_funnel.svg" width="100%" alt="출시 1년 예상 MAU: Pleos 탑재 차종 2025년 판매(그랜저 + 아반떼) 151,110대 × 18세 이하 자녀 가구 20.3%(4–13세 가족 포함) = 30,675 × 설치율 10%(가정) = 3,068 × 월 사용 60%(가정) = 1,841 ≈ 1,800명 · 읽는 법: 2026.9 말까지 실제 깔린 차만 세면 약 560명, Pleos Connect 2030 적용 목표 차량 2천만 대">
+<img src="docs/img/mau_funnel.svg" width="100%" alt="출시 1년 예상 MAU: Pleos 탑재 차종 2025년 판매(그랜저 + 아반떼, 당시 Pleos 미탑재라 근사치) 151,110대 × 18세 이하 자녀 가구 20.3%(4–13세 자녀 가구는 이보다 적음) = 30,675 × 설치율 10%(가정) = 3,068 × 월 사용 60%(가정) = 1,841 ≈ 1,800명 · 읽는 법: 2026.9 말까지 실제 깔린 차만 세면 약 560명, Pleos Connect 2030 적용 목표 차량 2천만 대">
 
-<img src="docs/img/retention_revenue.svg" width="100%" alt="다시 쓰게 하는 고리: 멀미 완화 버튼 누름 → 누른 순간 흔들림 기록 → 우리 아이 기준 정확해짐, 한 번 켜 두면 주행마다 뒤에서 계속(월 사용 60% 가정의 근거) · 수익 모델: 캐릭터·가상 아이돌 IP 테마와 음성 팩 판매, 기본 기능 무료, 루미는 오리지널 예시 · IP 계약 없음">
+<img src="docs/img/retention_revenue.svg" width="100%" alt="다시 쓰게 하는 고리: 멀미 완화 버튼 누름 → 누른 순간 흔들림 기록 → 우리 아이 기준선 갱신, 주행마다 한 번 열면 화면을 닫아도 계속, 시동 자동 시작은 Pleos 협의 후(월 사용 60% 가정의 근거) · 수익 모델: 캐릭터·가상 아이돌 IP 테마와 음성 팩 판매, 기본 기능 무료, 루미는 오리지널 예시 · IP 계약 없음">
 
 [기획서 8절](docs/proposal.md)
 
 ### 확장 대상
 
-<img src="docs/img/b2b_targets.svg" width="100%" alt="확장 대상: 택시·호출 약 24만 대, 통학 차량 약 4만 대, 자율주행 시범운행지구 42곳, Pleos MiniApp·계기판(Pleos 협의 후)">
+<img src="docs/img/b2b_targets.svg" width="100%" alt="확장 대상: 택시·호출 약 25만 대, 통학 차량 약 4만 대, 자율주행 시범운행지구 42곳, Pleos MiniApp·계기판(Pleos 협의 후)">
 
 [협의 문의 초안](docs/pleos-inquiry.md)
 
@@ -193,13 +197,13 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 <img src="docs/img/slide_vision.jpg" width="100%" alt="승차감은 숫자로, 피드백은 주행으로: 천천히 가 주세요라고 들어 줄 운전자 없음 → 차가 재고·듣고·고쳐야 · 승차감 지수(부드럽게 1.65, 거칠게 2.58, 숫자 표시는 멀미 Zero와 겹침, 우리 몫은 누적량 D·개인 기준선) · 피드백 → 즉시 개선 순환(멀미 피드백 → 기준 학습 → 제어 변경 → 다시 측정)">
 
-<img src="docs/img/extension_map.svg" width="100%" alt="같은 엔진(I·D·m·τ·P)에서 확장 4가지: ① 예측 음성 안내(멀미 Zero와 겹침, 엔진 계산 중, 앱에서 꺼 둠, 근거 Kuiper 외 2020, 동승 실험 뒤 켬) ② 휴게소 추천(제안 시점 3분 30초, 확장 LLM+POI 검색 API) ③ 가족 모드(아이마다 기준선) ④ 승차감 정량 지표(멀미 Zero와 겹침, 차종 비교·택시 평가·업계 표준, 제안) · 겹치는 두 카드의 우리 몫: 누적량 D 기반 멀미 가능성 · 개인 기준선 τ · 앱 배포">
+<img src="docs/img/extension_map.svg" width="100%" alt="같은 엔진(I·D·m·τ·P)에서 확장 4가지: ① 예측 음성 안내(멀미 Zero와 겹침, 엔진 계산 중, 앱에서 꺼 둠, 근거 Kuiper 외 2020, 동승 실험 뒤 켬) ② 휴게소 추천(제안 시점 3분 30초, 확장 LLM+POI 검색 API) ③ 가족 모드(아이마다 기준선, 엔진 코드 있음 · 앱에서 꺼 둠) ④ 승차감 정량 지표(멀미 Zero와 겹침, 차종 비교·택시 평가·업계 표준, 제안) · 겹치는 두 카드의 우리 몫: 누적량 D 기반 멀미 가능성 · 개인 기준선 τ · 앱 배포">
 
 숨긴 화면 코드: [`android/app/src/main/kotlin/ai/motioncare/app/later/`](android/app/src/main/kotlin/ai/motioncare/app/later/README.md)
 
 ### ① 예측 음성 안내 (회전 예고) · 멀미 Zero와 겹침
 
-<img src="docs/img/timeline_city.svg" width="100%" alt="엔진 안의 회전 예고: 도심 회전 4곳마다 예고 시점, 신호 대기 뒤 한 번 더, 25초 · 418초 음성 안내 (앱에서는 꺼 둠)">
+<img src="docs/img/timeline_city.svg" width="100%" alt="엔진 안의 회전 예고: 도심 회전 4곳마다 예고 시점(엔진에서만 계산, 앱에서는 꺼 둠), 신호 대기 뒤 한 번 더 · 25초 · 418초는 회전 예고가 아니라 앱이 실제로 말하는 브레이크 안내">
 
 ### ② 휴게소 추천 (LLM 연결로 확장)
 
@@ -213,7 +217,7 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 ### ④ 승차감 정량 지표 · 멀미 Zero와 겹침
 
-<img src="docs/img/ride_quality_uses.svg" width="100%" alt="승차감 정량 지표: I와 D를 차종 비교, 택시·기사 평가, ISO 2631-1 형태의 업계 표준 지표로 활용">
+<img src="docs/img/ride_quality_uses.svg" width="100%" alt="승차감 정량 지표: I와 D를 차종 비교, 택시·기사 평가(같은 노선끼리 비교), ISO 2631-1 형태의 업계 표준 지표로 활용">
 
 ---
 
@@ -227,7 +231,7 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 ### 심사용 빠른 실행
 
-<img src="docs/img/quick_run.svg" width="100%" alt="심사용 빠른 실행 4단계: ① 에뮬레이터 켜기(Pleos Connect v2.1, Wi-Fi › AndroidWifi) ② APK 설치(GitHub Releases, adb install) ③ 앱 실행(Pleos 사용자 10, --user 10) ④ 시연: 굽은 길 · 거칠게 → 멀미 완화">
+<img src="docs/img/quick_run.svg" width="100%" alt="심사용 빠른 실행 4단계: ① 에뮬레이터 켜기(Pleos Connect v2.1, Wi-Fi › AndroidWifi) ② APK 설치(접수 메일 첨부 APK, adb install) ③ 앱 실행(Pleos 사용자 10, --user 10) ④ 시연: 굽은 길 · 거칠게 → 멀미 완화">
 
 ```bash
 nohup ~/Library/Android/sdk/emulator/emulator \
@@ -247,7 +251,7 @@ APK는 접수 메일에 첨부했습니다 (Pleos 클라이언트 키가 들어 
 
 ### 한계
 
-<img src="docs/img/limits.svg" width="100%" alt="한계와 다음 단계: 정답 데이터 없음(보정: 버튼 기록 + 동승 조사), 실차 시험 불가, 실제 주행 비교 범위, 창문(확인 필요), 내비가 앞일 때 알림 카드(Pleos 협의), 지도 탭(시스템 앱 전용 API), 핸들 각도 상수, 자동 실행(Pleos 협의)">
+<img src="docs/img/limits.svg" width="100%" alt="한계와 다음 단계: 정답 데이터 없음(보정: 버튼 기록 + 동승 조사), 실차 시험 불가, 실제 주행 비교 범위, 창문(명령 수락 확인, 실차 동작 확인 필요), 내비가 앞일 때 알림 카드(Pleos 협의), 지도 탭(시스템 앱 전용 API), 핸들 각도 상수, 자동 실행(Pleos 협의)">
 
 동승 조사 안내: [docs/ride-study.md](docs/ride-study.md)
 
@@ -259,7 +263,7 @@ APK는 접수 메일에 첨부했습니다 (Pleos 클라이언트 키가 들어 
 
 ### 폴더 구조
 
-<img src="docs/img/repo_structure.svg" width="100%" alt="폴더 구조: android/core(판단 엔진), android/app(TripService·Notifier·MainActivity·ui·theme·later), sim, shared, docs, research, data/rides(로컬 전용), apk(release APK 빌드 위치, git 제외 · GitHub Releases로 배포), .github/workflows/ci.yml">
+<img src="docs/img/repo_structure.svg" width="100%" alt="폴더 구조: android/core(판단 엔진), android/app(TripService·Notifier·MainActivity·ui·theme·later), sim, shared, docs, research, data/rides(로컬 전용), apk(release APK 빌드 위치, git 제외 · 접수 메일에 첨부), .github/workflows/ci.yml">
 
 ### 시뮬레이션과 그래프
 
@@ -282,7 +286,7 @@ JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home" \
 
 ### 에뮬레이터
 
-<img src="docs/img/controls_layout.svg" width="100%" alt="화면 조작: 위쪽 멀미 완화·설정, 머리 줄 탭 지도(기본)·분석(고정), 아래쪽 시연 패널(굽은 길 거칠게·부드럽게, 도심 거칠게, 나들이길 4배속, 실차 신호, 정지) · 실차 신호는 앱을 켜면 자동 시작">
+<img src="docs/img/controls_layout.svg" width="100%" alt="화면 조작: 위쪽 멀미 완화·설정, 머리 줄 탭 지도(기본)·분석(고정), 아래쪽 시연 패널(굽은 길 거칠게·부드럽게, 도심 거칠게, 나들이길, 실차 신호, 정지) · 실차 신호는 앱을 켜면 자동 시작 · 시연 재생은 모두 4배속">
 
 <details>
 <summary>Virtual Console (Pleos 제공 차 신호 도구)</summary>

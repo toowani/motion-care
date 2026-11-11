@@ -311,30 +311,35 @@ def load():
 # ---------------------------------------------------------------- figures
 def evidence():
     rows = [
-        (1, "speaker", "1초 전 음성 예고 → 멀미 점수 감소", "Kuiper 외, 2020"),
-        (2, "wave", "0.5 Hz 미만 옆 흔들림이 멀미와 가장 잘 맞음", "Turner & Griffin, 1999"),
-        (2, "wave", "누적량 형태", "ISO 2631-1"),
-        (3, "wind", "바람 → 멀미 감소", "D'Amour 외, 2017"),
-        (4, "child", "4–13세에서 가장 흔함", "Huppert 외, 2019"),
-        (4, "seat", "뒤쪽 좌석일수록 흔들림 · 멀미 증가", "Turner & Griffin, 1999"),
+        (1, "speaker", "1초 전 음성 예고 → 멀미 점수 감소", "Kuiper 외, 2020", "확장 ① 예측 음성의 근거 · 앱에서는 꺼 둠"),
+        (2, "wave", "0.5 Hz 미만 옆 흔들림이 멀미와 가장 잘 맞음", "Turner & Griffin, 1999", None),
+        (2, "wave", "누적량 형태", "ISO 2631-1", "수직 흔들림 기준 → 수평에 응용"),
+        (3, "wind", "바람 → 멀미 감소", "D'Amour 외, 2017",
+         "실험실, 화면이 일으킨 멀미 · 공조 계수 두 값은 출발값, 동승 조사로 보정"),
+        (4, "child", "4–13세에서 가장 흔함", "Huppert 외, 2019", None),
+        (4, "seat", "뒤쪽 좌석일수록 흔들림 · 멀미 증가", "Turner & Griffin, 1999", "버스 · 코치 조사 → 승용차 뒷좌석은 유추"),
     ]
     rh, gap, y0 = 58, 10, 28
     H = y0 + len(rows) * rh + (len(rows) - 1) * gap + 28
     s = Svg(960, H)
-    for i, (n, ic, txt, cite) in enumerate(rows):
+    for i, (n, ic, txt, cite, sub) in enumerate(rows):
         y = y0 + i * (rh + gap)
         col, tint = COND[n]
         s.card(28, y, 904, rh)
         s.circle(64, y + rh / 2, 18, col)
         s.text(64, y + rh / 2 + 6, str(n), 17, "#FFFFFF", "middle", 700)
         s.icon(ic, 116, y + rh / 2, col, tint, 20)
-        s.text(150, y + rh / 2 + 5.5, txt, 15, INK, "start", 700)
+        if sub:
+            s.text(150, y + 25, txt, 15, INK, "start", 700)
+            s.text(150, y + 45, sub, 12.5, MUTED)
+        else:
+            s.text(150, y + rh / 2 + 5.5, txt, 15, INK, "start", 700)
         s.chip(912, y + rh / 2 - 13, cite, MUTED, "#FFFFFF", LINE, 12, 26, anchor="end")
     s.save("evidence.svg", "조건별 근거")
 
 
 def two_values():
-    s = Svg(960, 506)
+    s = Svg(960, 536)
     s.title("두 가지 값")
     cards = [(28, V_I, V_I_T, "I", "흔들림 지수"), (490, V_P, V_P_T, "P", "멀미 가능성")]
     for i, (x, col, tint, sym, name) in enumerate(cards):
@@ -347,24 +352,27 @@ def two_values():
             for bx, v in zip(xs, ["0.9", "1.5"]):
                 s.line(bx, y + 142, bx, y + 150, MUTED, 1.2)
                 s.rich(bx, y + 166, [v + "·", ("m", V_M, "var")], 13, "middle", MUTED)
-            uses = [("face", "한 화면 모드 지금 흔들림"), ("graph", "분석 탭 그래프")]
+            s.text(x + 22, y + 166, "10초 넘게 이어지면 전환", 12, MUTED)
+            uses = [("face", "캐릭터 표정 · 둘레 링 색"), ("face", "한 화면 모드 지금 흔들림"), ("graph", "분석 탭 그래프")]
         else:
             s.rich(x + 22, y + 88, ["누적 ", ("D", V_D, "var"), "가 기준선 ", ("τ", V_TAU, "var"), "·", ("m", V_M, "var"), "을 넘을수록 커짐"], 14)
             xs = stage_bar(s, x + 22, y + 108, w - 44, 32, [0.25, 0.25, 0.5], ["낮음", "보통", "높음"], [LOW, MID, HIGH])
             for bx, v in zip(xs, ["25%", "50%"]):
                 s.line(bx, y + 142, bx, y + 150, MUTED, 1.2)
                 s.text(bx, y + 166, v, 13, MUTED, "middle")
-            uses = [("ring", "캐릭터 둘레 링 (차오르는 양 · 색)"), ("gauge", "분석 탭 게이지"), ("pill", "한 화면 % 알약")]
+            uses = [("ring", "캐릭터 둘레 링 (차오르는 양)"), ("gauge", "분석 탭 게이지 (% · 색)"), ("pill", "한 화면 % 알약")]
         s.text(x + 22, y + 200, "쓰는 곳", 12, MUTED, "start", 700)
         for k, (ic, lab) in enumerate(uses):
             yy = y + 214 + k * 38
             s.rect(x + 22, yy, w - 44, 32, "#FFFFFF", 16, LINE)
             s.icon(ic, x + 40, yy + 16, col, tint, 13)
             s.text(x + 62, yy + 21, lab, 14, INK)
-    # one severity colour scheme shared by the whole app
+    # the same three colours, but two measures: face / ring colour follow I, the gauge follows P
     y = 414
-    s.card(28, y, 904, 64)
-    s.text(50, y + 38, "앱 전체가 같은 색 단계", 15, INK, "start", 700)
+    s.card(28, y, 904, 94)
+    s.text(50, y + 38, "같은 세 가지 색", 15, INK, "start", 700)
+    s.rich(50, y + 74, ["기준은 둘: 캐릭터 표정 · 링 색 = 흔들림 지수 ", ("I", V_I, "var"), " 단계, 분석 게이지 색 = 멀미 가능성 ",
+                        ("P", V_P, "var"), " 단계 (링 길이는 ", ("P", V_P, "var"), ")"], 13.5, fill=MUTED)
     cx = 290
     for col, cname, lab in [(LOW, "초록", "낮음"), (MID, "노랑", "보통"), (HIGH, "빨강", "높음")]:
         s.rect(cx, y + 20, 24, 24, col, 7)
@@ -428,9 +436,11 @@ def scenario_cards():
     cx = 114 + w + 12
     s.arrow(cx, y + 32, cx + 20, y + 32)
     cx += 30
-    for lab in ["속도", "진행 방향", "핸들", "실내 온도"]:
+    for lab in ["속도", "진행 방향", "실내 온도"]:
         cx += s.chip(cx, y + 19, lab, SLATE, SLATE_T, SLATE_T, 13, 26) + 8
-    s.chip(cx + 4, y + 20, "차 신호", SLATE, "#FFFFFF", SLATE, 12, 24, dash="3 2")
+    cx += s.chip(cx + 4, y + 20, "차 신호", SLATE, "#FFFFFF", SLATE, 12, 24, dash="3 2") + 16
+    s.text(cx, y + 30, "핸들 각도는 시나리오에 없음", 12, MUTED, "start", 700)
+    s.text(cx, y + 47, "(에뮬레이터에서만 확인)", 12, MUTED)
     s.save("scenario_cards.svg", "실제 도로 4곳 · 주행 6회")
 
 
@@ -445,10 +455,11 @@ def emulator_checks():
         ("ok", "map", "내비 앞 화면", "공조 · 안내 그대로"),
         ("ok", "pill", "한 화면 모드", "표정 카드 + % 알약"),
         ("ok", "ring", "지도 탭", "링 초록 → 빨강 · 줌 17"),
+        ("part", "window", "창문 명령 수락", "뒷창 위치 2 · 움직임 미확인"),
     ]
     cols, gap, th = 5, 12, 104
     tw_ = (904 - (cols - 1) * gap) / cols
-    H = 28 + 2 * th + gap + 28
+    H = 28 + 2 * th + gap + 76
     s = Svg(960, H)
     for i, (kind, ic, label, detail) in enumerate(tiles):
         x, y = 28 + (i % cols) * (tw_ + gap), 28 + (i // cols) * (th + gap)
@@ -457,12 +468,13 @@ def emulator_checks():
         s.status(kind, x + tw_ - 26, y + 26, 12)
         s.text(x + 18, y + 72, label, 15 if tw(label, 15, True) < tw_ - 30 else 13.5, INK, "start", 700)
         s.text(x + 18, y + 90, detail, 12.5 if tw(detail, 12.5) < tw_ - 26 else 11.5, MUTED)
-    # summary in the 10th slot
-    x, y = 28 + 4 * (tw_ + gap), 28 + (th + gap)
-    s.card(x, y, tw_, th, "#FFFFFF", LINE)
-    s.text(x + 18, y + 30, "Pleos Emulator v2.1", 13, MUTED, "start", 700)
-    s.chip(x + 18, y + 50, "9가지 확인", LOW, LOW_T, LOW_T, 14, 30, bold=True, pad=12)
-    s.save("emulator_checks.svg", "에뮬레이터 점검: 9가지 확인")
+    # summary under the tiles
+    y = 28 + 2 * th + gap + 18
+    s.text(28, y + 20, "Pleos Connect Emulator v2.1 · 10가지 점검", 14, MUTED, "start", 700)
+    x = 28 + tw("Pleos Connect Emulator v2.1 · 10가지 점검", 14, True) + 14
+    x += s.chip(x, y, "9가지 확인", LOW, LOW_T, LOW_T, 14, 30, bold=True, pad=12) + 8
+    s.chip(x, y, "창문은 명령 수락까지 · 실제 움직임은 확인 필요", MID_INK, MID_T, MID_T, 13, 30, bold=True, pad=12)
+    s.save("emulator_checks.svg", "에뮬레이터 점검: 10가지 중 9가지 확인, 창문은 명령 수락까지")
 
 
 def theme_names():
@@ -513,7 +525,7 @@ def map_elements():
         if ic == "route":
             s.line(130 + tw(ttl, 15, True) + 14, y + 25, 130 + tw(ttl, 15, True) + 74, y + 25, BLUE, 5)
         if ic == "face":
-            s.rich(130, y + 52, ["오른쪽 위, 둘레 링 = ", ("멀미 가능성", V_P, "bold"), " (숫자 없음)"], 13, fill=MUTED)
+            s.rich(130, y + 52, ["오른쪽 위, 링 길이 = ", ("멀미 가능성", V_P, "bold"), " · 링 색 = 표정 단계 (숫자 없음)"], 13, fill=MUTED)
         elif len(lines) == 2:
             s.chip(130, y + 38, lines[0], INK, "#FFFFFF", LINE, 12, 24)
             s.chip(136 + tw(lines[0], 12) + 20, y + 38, lines[1], SLATE, SLATE_T, SLATE_T, 12, 24)
@@ -524,17 +536,12 @@ def map_elements():
     cx, cy, r = 760, 226, 100
     s.card(588, 76, 344, 312, "#FFFFFF")
     s.add(f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="none" stroke="{LINE}" stroke-width="20"/>')
-    for f0, f1, col in [(0, 0.25, LOW), (0.25, 0.5, MID), (0.5, 0.72, HIGH)]:
-        s.path(arc_path(cx, cy, r, f0 + 0.003, f1 - 0.003), col, 20, cap="butt")
+    # one colour: the ring is as long as P, its colour is the face's stage (shaking index I)
+    s.path(arc_path(cx, cy, r, 0.003, 0.72), MID, 20, cap="butt")
     s.circle(cx, cy, 58, CARD, LINE)
     s.glyph("face", cx, cy - 6, INK, 44)
     s.rich(cx, cy + 40, [("P", V_P, "var"), " 만큼 차오름"], 12, "middle", MUTED)
-    # boundary labels
-    for f, lab in [(0.25, "25%"), (0.5, "50%")]:
-        a = 2 * math.pi * f
-        lx, ly = cx + (r + 26) * math.sin(a), cy - (r + 26) * math.cos(a)
-        s.line(cx + (r - 12) * math.sin(a), cy - (r - 12) * math.cos(a), cx + (r + 13) * math.sin(a), cy - (r + 13) * math.cos(a), INK, 1.5)
-        s.text(lx + (14 if f == 0.25 else 0), ly + (5 if f == 0.25 else 14), lab, 13, INK, "middle", 700)
+    # no 25 % / 50 % marks on the ring: those stages colour the analysis gauge, not the ring
     s.line(cx, cy - r - 14, cx, cy - r + 12, INK, 1.5)
     # clockwise arrow
     s.path(arc_path(cx, cy, r + 22, 0.03, 0.12), MUTED, 1.6)
@@ -542,6 +549,7 @@ def map_elements():
     ex, ey = cx + (r + 22) * math.sin(a), cy - (r + 22) * math.cos(a)
     s.path(f"M{ex - 8:.1f} {ey - 4:.1f}L{ex:.1f} {ey:.1f}L{ex - 3:.1f} {ey - 9:.1f}", MUTED, 1.6)
     s.text(cx + 34, cy - r - 30, "12시부터 시계 방향", 12, MUTED)
+    s.rich(cx, cy + r + 40, ["색 = 캐릭터 표정 단계 (흔들림 지수 ", ("I", V_I, "var"), ")"], 12, "middle", MUTED)
     s.text(28, 418, "지도: OpenFreeMap 벡터 지도 · 에뮬레이터는 WebGL이 없어 2D", 12, MUTED)
     s.save("map_elements.svg", "지도 탭 요소와 둘레 링")
 
@@ -551,7 +559,7 @@ def phone_vs_car():
         ("흔들림을 먼저 계산", ("clock", "폰 센서로 뒤늦게"), ("steering", "핸들 각도로 1–2초 먼저")),
         ("실내 온도 · 환기", ("x", "불가"), ("loop", "읽고 바꾸고, 다시 계산")),
         ("창문 열기", ("x", "불가"), ("window", "버튼 하나로 뒷창문 조금")),
-        ("매 주행 실행", ("person", "사람이 켜야 함"), ("power", "한 번 켜 두면 뒤에서 계속")),
+        ("매 주행 실행", ("person", "사람이 켜야 함"), ("power", "앱을 한 번 열면 화면을 닫아도 계속", "시동 자동 시작은 Pleos 협의 후")),
     ]
     s = Svg(960, 430)
     lx, lw, mx, mw, rx_, rw = 28, 318, 362, 236, 614, 318
@@ -563,7 +571,7 @@ def phone_vs_car():
     s.text(rx_ + 68, 62, "멀미 케어", 17, "#FFFFFF", "start", 800)
     s.text(mx + mw / 2, 62, "vs", 15, MUTED, "middle", 700)
     y = 100
-    for feat, (pi, pt), (ci, ct) in rows:
+    for feat, (pi, pt), (ci, ct, *csub) in rows:
         h = 70
         s.card(lx, y, lw, h, "#FFFFFF")
         s.icon(pi, lx + 36, y + h / 2, GREY, GREY_T, 16)
@@ -572,7 +580,11 @@ def phone_vs_car():
         s.text(mx + mw / 2, y + h / 2 + 5, feat, 14, INK, "middle", 700)
         s.card(rx_, y, rw, h, "#FFFFFF", "#C9D8F6", cs.RADIUS, 1)
         s.icon(ci, rx_ + 36, y + h / 2, C_CAR, C_CAR_T, 16)
-        s.text(rx_ + 62, y + h / 2 + 5, ct, 15, INK, "start", 700)
+        if csub:
+            s.text(rx_ + 62, y + h / 2 - 3, ct, 14, INK, "start", 700)
+            s.text(rx_ + 62, y + h / 2 + 16, csub[0], 12.5, MUTED)
+        else:
+            s.text(rx_ + 62, y + h / 2 + 5, ct, 15, INK, "start", 700)
         s.circle(rx_ + rw - 24, y + h / 2, 10, LOW)
         s.path(f"M{rx_ + rw - 29} {y + h / 2}l3.5 3.5 6-6.5", "#FFFFFF", 2.2)
         y += h + 10
@@ -600,7 +612,7 @@ def market_compare():
     name_w, x_f, fw, x_s = 300, 340, 104, 880
     rh, y0 = 46, 92
     t_end = y0 + len(rows) * rh
-    H = t_end + 44 + 104
+    H = t_end + 44 + 126
     s = Svg(960, H)
     for i, (name, *_r) in enumerate(rows):
         y = y0 + i * rh
@@ -628,6 +640,8 @@ def market_compare():
             if mk == "Y":
                 s.circle(cx, cy, 11, C_CAR if ours else LOW)
                 s.path(f"M{cx - 5} {cy}l3.5 3.5 6.5-7", "#FFFFFF", 2.2)
+                if ours and j in (1, 4):      # qualified ticks, explained in the footnote
+                    s.text(cx + 15, cy - 3, "¹" if j == 1 else "²", 14, C_CAR, "start", 700)
             elif mk == "H":
                 s.circle(cx, cy, 10, "#FFFFFF", MID, 2)
                 s.path(f"M{cx} {cy - 9}A9 9 0 0 1 {cx} {cy + 9}z", MID, 0.1, MID)
@@ -655,8 +669,10 @@ def market_compare():
     s.rich(46, y + 22, [("겹침", MID_INK, "bold"),
                         "  차 신호(조향각 · 가속도), 움직임을 조명 · 뒷좌석 화면 테두리로 미리 보여 줌, 하드웨어 추가 없음"], 12.5, fill=MUTED)
     s.rich(46, y + 44, [("다름", C_CAR, "bold"),
-                        "  멀미 케어는 공조 · 창문을 직접 바꾸고(조치), 멀미 완화 버튼 기록으로 아이 기준을 배우며(개인 학습),"], 12.5, fill=MUTED)
+                        "  멀미 케어는 공조 · 창문을 실제로 조작하는 앱(조치), 멀미 완화 버튼 기록 기반 기준(개인 학습),"], 12.5, fill=MUTED)
     s.rich(46 + tw("다름", 12.5, True) + 6, y + 66, ["Pleos 앱 마켓으로 어느 Pleos 차에나 배포 · 출처: 현대자동차그룹 스토리 · 뉴데일리 · EBN (2026.10)"], 12.5, fill=MUTED)
+    s.rich(46, y + 88, [("¹", C_CAR, "bold"), " 미리 계산: 핸들 각도로 1–2초 앞당김 (화면 · 음성 회전 예고는 확장)   ",
+                        ("²", C_CAR, "bold"), " 사람별 기준: 멀미 가능성 표시에 반영 (알림 시점은 같음)"], 12.5, fill=MUTED)
     s.save("market_compare.svg", "다른 멀미 대응 서비스와 기능 비교")
 
 
@@ -669,7 +685,7 @@ ICONS.update({
 
 
 def target():
-    s = Svg(960, 300)
+    s = Svg(960, 332)
     s.icon("family", 62, 62, "#FFFFFF", s.grad(), 30)
     s.text(110, 72, "어린 자녀(4–13세)를 둔 가족 운전자", 28, INK, "start", 800)
     why = [("child", ["4–13세가", "멀미에 가장 약함"], "Huppert 외, 2019"),
@@ -686,14 +702,16 @@ def target():
     s.glyph("turn", 46, 260, C_BIZ, 22)
     s.text(70, 266, "2차 확대", 15, C_BIZ, "start", 700)
     s.text(70 + tw("2차 확대", 15, True) + 14, 266, "멀미하는 성인 동승자", 18, INK, "start", 700)
+    s.glyph("info", 46, 300, SUBT, 20)
+    s.text(70, 305, "멀미 완화 버튼은 보호자가 누름 → 학습은 보호자가 아이 증상을 알아챌 때만 쌓임", 14, SUBT)
     s.save("target.svg", "타깃: 어린 자녀(4–13세)를 둔 가족 운전자")
 
 
 def mau_funnel():
     cars = 71775 + 79335
     steps = [
-        ("Pleos 탑재 차종 2025년 판매", "그랜저 + 아반떼", None, None, 1.0),
-        ("× 18세 이하 자녀 가구", "4–13세 가족이 이 안에 포함", "20.3%", None, 0.203),
+        ("Pleos 탑재 차종 2025년 판매", "그랜저 + 아반떼 · 당시 Pleos 미탑재, 근사치", None, None, 1.0),
+        ("× 18세 이하 자녀 가구", "4–13세 자녀 가구는 이보다 적음", "20.3%", None, 0.203),
         ("× 설치율", None, "10%", "가정", 0.10),
         ("× 월 사용", "아이를 태운 달", "60%", "가정", 0.60),
     ]
@@ -724,7 +742,7 @@ def mau_funnel():
     s.card(rx_, 76, rw, 324)
     s.glyph("info", rx_ + 30, 108, SUBT, 22)
     s.text(rx_ + 50, 114, "읽는 법", 16, INK, "start", 700)
-    notes = [("1,800명", "2025년 판매 대수를 1년 탑재량으로 본 값"),
+    notes = [("1,800명", "탑재 차종의 2025년 판매(당시 Pleos 미탑재)를 1년 탑재량으로 본 근사치"),
              ("약 560명", "2026.9 말까지 실제 깔린 차만 세면"),
              ("차량 2천만 대", "Pleos Connect 2030 적용 목표 (현대차그룹, 2026.4.30) · 차종이 늘수록 커짐")]
     yy = 150
@@ -741,7 +759,7 @@ def retention_revenue():
     s.card(28, 28, 442, 328)
     s.text(48, 62, "다시 쓰게 하는 고리 (Retention)", 17, INK, "start", 700)
     pw = 196
-    nodes = [(249, 108, "멀미 완화 버튼 누름"), (362, 214, "누른 순간 흔들림 기록"), (136, 214, "우리 아이 기준 정확해짐")]
+    nodes = [(249, 108, "멀미 완화 버튼 누름"), (362, 214, "누른 순간 흔들림 기록"), (136, 214, "우리 아이 기준선 갱신")]
     for x, y, lab in nodes:
         s.rect(x - pw / 2, y - 22, pw, 44, BAND, 22)
         s.text(x, y + 5.5, lab, 15, C_BIZ, "middle", 700)
@@ -751,9 +769,9 @@ def retention_revenue():
     s.path("M247 208 L239 214 L247 220", C_BIZ, 2)
     s.path("M124 190 Q132 150 168 132", C_BIZ, 2)
     s.path("M160 130 L169 131 L166 140", C_BIZ, 2)
-    s.text(249, 172, "누를수록 정확", 14, SUBT, "middle", 700)
+    s.text(249, 172, "누를수록 기록이 쌓임", 14, SUBT, "middle", 700)
     s.glyph("power", 58, 280, C_BIZ, 22)
-    s.text(80, 286, "한 번 켜 두면 주행마다 뒤에서 계속", 15, INK, "start", 700)
+    s.text(80, 286, "주행마다 한 번 열면 화면을 닫아도 계속", 15, INK, "start", 700)
     s.text(80, 310, "시동 자동 시작은 Pleos 협의 후", 13.5, SUBT)
     s.text(80, 332, "→ MAU 식의 월 사용 60%(가정) 근거", 13.5, SUBT)
     x0 = 490
@@ -777,7 +795,7 @@ def retention_revenue():
 
 def b2b_targets():
     tiles = [
-        ("taxi", "택시 · 호출", "약 24만 대", "246,258대 (2026.8.31)", "승객은 늘 뒷좌석, 다음 회전을 모름"),
+        ("taxi", "택시 · 호출", "약 25만 대", "246,258대 (2026.8.31)", "승객은 늘 뒷좌석, 다음 회전을 모름"),
         ("bus", "통학 차량", "약 4만 대", "43,857대", "4–13세가 매일 탐"),
         ("shuttle", "자율주행 셔틀", "42곳", "시범운행지구", "모두가 동승자, 예고가 더 중요"),
         ("dashboard", "Pleos MiniApp · 계기판", None, "", "내비 옆에 표정 카드"),
@@ -807,7 +825,7 @@ def ride_quality_uses():
         s.circle(64 + k * 46, 56, 18, tint)
         s.text(64 + k * 46, 64, sym, 22, col, "middle", 700, True, SERIF)
     s.text(140, 61, "= 차 신호만으로 누구나 같은 값을 내는 승차감 숫자", 16, INK, "start", 700)
-    tiles = [("carpair", "차종 비교", "같은 길에서 차종 · 서스펜션별 지수"), ("star", "택시 · 기사 평가", "주행마다 부드러움 점수"),
+    tiles = [("carpair", "차종 비교", "같은 길에서 차종 · 서스펜션별 지수"), ("star", "택시 · 기사 평가", "같은 노선끼리 비교한 부드러움 점수"),
              ("badge", "업계 표준", "ISO 2631-1 형태 → 차량 데이터 표준 지표로 제안")]
     w = (904 - 2 * 16) / 3
     for i, (ic, ttl, d) in enumerate(tiles):
@@ -825,7 +843,7 @@ def limits():
         ("db", "정답(실제 멀미) 데이터 없음", "기준선 · 환경 계수는 문헌값과 가정에서 시작", ("보정: 버튼 기록 + 동승 조사 (docs/ride-study.md)", "plain")),
         ("car", "실차 시험 불가", "공모전 기간 실차 없음 → 에뮬레이터 · 시뮬레이션까지", ("범위 제한", "plain")),
         ("road", "실제 주행 비교 범위", "고속도로 45초 한 구간 · 옆 흔들림 비교 못 함", ("범위 제한", "plain")),
-        ("window", "창문", "명령은 받지만 움직임은 안 보임 (Virtual Console 창문 연결 꺼짐)", ("확인 필요", "check")),
+        ("window", "창문: 명령 수락 확인", "명령은 받지만 움직임은 안 보임 (Virtual Console 창문 연결 꺼짐)", ("실차 동작 확인 필요", "check")),
         ("bell", "내비가 앞일 때 알림 카드", "Pleos 홈은 시스템 앱 알림만 지도 위에 → 소리가 주된 안내", ("Pleos 협의 (MiniApp)", "pleos")),
         ("map", "지도 탭", "Pleos 내비를 흉내 낸 화면 · 인터넷 지도 (OpenFreeMap) · 실차 모드는 차 위치만 · 지나온 길 지우기는 2D에서만 확인", ("시스템 앱 전용 API", "lock")),
         ("steering", "핸들 각도 상수", "조향비 · 축간거리 = 일반 승용차 값", ("정식 탑재 때 차종별", "plain")),
@@ -867,7 +885,7 @@ def dev_env():
 
 def remaining_work():
     rows = [("실제 동승 데이터 5–10회", "데이터"), ("창문이 실제로 열리는지 확인 (창문 연결이 되는 환경)", "확인"),
-            ("시연 영상 v3 촬영 · README에 링크", "영상"), ("release APK 다시 빌드 · GitHub Releases에 첨부", "빌드"),
+            ("시연 영상 v3 촬영 · README에 링크", "영상"), ("release APK 다시 빌드 · 접수 메일에 첨부", "빌드"),
             ("기획서를 접수 양식으로 옮기기", "문서")]
     s = Svg(960, 262)
     y = 28

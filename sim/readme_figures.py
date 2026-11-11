@@ -164,8 +164,8 @@ def index_flow():
     # orthogonal routes straight up into the decision box
     arrow(s, [(710, 234), (710, 214), (718, 214), (718, y + h + 4)])
     arrow(s, [(870, 234), (870, 214), (762, 214), (762, y + h + 4)])
-    for x, w, label, sub, ink, fill in [(150, 300, f"지수 {v('I', size=14)} &gt; 기준선 × {v('m', size=14)}", "외기 전환 · 22°C", cs.BLUE_DEEP, BAND),
-                                        (510, 300, "멀미 완화 버튼", "창문 · 환기 · 음성", "#C2410C", "#FFF1E6")]:
+    for x, w, label, sub, ink, fill in [(20, 476, f"지수 {v('I', size=14)} &gt; 주의 기준 0.9·{v('m', size=14)} (10초 유지)", "음성 · 외기 · 22°C", cs.BLUE_DEEP, BAND),
+                                        (520, 420, "멀미 완화 버튼", "창문 · 환기 · 음성", "#C2410C", "#FFF1E6")]:
         s.rect(x, 300, w, 38, fill, 19)
         s.text(x + 20, 324, label, 14, ink, "start", 700)
         s.text(x + w - 20, 324, "→ " + sub, 14, INK, "end", 700)
@@ -186,7 +186,7 @@ def architecture():
     box(s, 330, 160, 220, 110, "주행 지킴이", "앱을 닫아도 뒤에서 계속 계산", *calc, size=16)
     box(s, 330, 300, 220, 52, "계산 엔진", "시뮬레이터와 같은 계산", *calc)
     box(s, 640, 110, 270, 80, "화면 (지도 · 분석)", "앱을 보고 있을 때만 그림", *ui, stroke=GRID)
-    box(s, 640, 240, 270, 80, "알림 카드", "내비를 보는 동안 차가 한 일 안내", *ui, stroke=GRID)
+    box(s, 640, 240, 270, 80, "알림 카드", "알림 센터에만 · 지도 위는 Pleos 협의", *ui, stroke=GRID)
     arrow(s, [(234, 150), (326, 200)], FOOT)
     arrow(s, [(326, 240), (234, 295)], FOOT)
     arrow(s, [(420, 274), (420, 296)], BLUE)
@@ -201,9 +201,9 @@ def architecture():
 def scenario_bars():
     rows = list(csv.DictReader(open(ROOT / "sim" / "out" / "summary.csv")))
     order = [("C_highway", "고속도로"), ("A_city_smooth", "도심 · 부드럽게"), ("A_city_rough", "도심 · 거칠게"),
-             ("D_family", "나들이길 (34분)"), ("B_winding_smooth", "굽은 길 · 부드럽게"), ("B_winding_rough", "굽은 길 · 거칠게")]
+             ("D_family", "나들이길 (34.7분)"), ("B_winding_smooth", "굽은 길 · 부드럽게"), ("B_winding_rough", "굽은 길 · 거칠게")]
     by = {r["scenario"]: r for r in rows}
-    s = Svg(960, 470)
+    s = Svg(960, 520)
     s.title(28, 46, "도로 4곳 · 주행 6회 · 같은 엔진", 22)
     # legend chips
     lx = 28
@@ -257,6 +257,8 @@ def scenario_bars():
     for t, col in ((0.9, TH_C), (1.5, TH_H)):
         x = x0 + w * t / vmax
         s.line(x, y0 - 4, x, y0 + h, col, 1.8, "5 4")
+    s.text(28, 484, "굽은 길은 부드럽게 달려도 지수가 높음: 운전 방식보다 길 모양(커브 52곳)이 크게 작용", 13, MUTED, weight=600)
+    s.text(28, 506, f"주의 {P['thetaCaution']:g} · 높음 {P['thetaHigh']:g}은 시뮬레이션에 맞춘 출발값 (문헌값 아님) · 동승 조사로 보정", 13, MUTED)
     s.save("scenario_bars.svg")
 
 
@@ -277,15 +279,20 @@ def index_timeline(name, title, out, cues=False):
     pl.series(ts, [o["th_c"] for _, o in rows], TH_C, 1.8, "6 4")
     pl.series(ts, [o["th_h"] for _, o in rows], TH_H, 1.5, "6 4")
     # events: labelled vertical lines inside the plot
-    events = {}
+    # the app (TripService) drops a fresh-air request within ttsCooldownS of the last one: engine output only
+    events, last_fresh = {}, -1e9
     for smp, o in rows:
         for a in o["actions"]:
             if a.startswith("CUE_") and cues:
                 events.setdefault(int(smp["t"]), set()).add("cue")
             elif a == "TTS_DRIVER":
-                events.setdefault(int(smp["t"]), set()).add("음성 안내")
+                events.setdefault(int(smp["t"]), set()).add("브레이크 안내")
             elif a == "HVAC_FRESH":
-                events.setdefault(int(smp["t"]), set()).add("공조")
+                if smp["t"] - last_fresh < P["ttsCooldownS"]:
+                    events.setdefault(int(smp["t"]), set()).add("skip")
+                else:
+                    last_fresh = smp["t"]
+                    events.setdefault(int(smp["t"]), set()).add("공조")
     last_end, row = -1e9, 0
     for t, kinds in sorted(events.items()):
         x = pl.X(t)
@@ -293,13 +300,14 @@ def index_timeline(name, title, out, cues=False):
             s.line(x, pl.y0 + 22, x, pl.y0 + pl.h, MUTED, 1.2, "2 3")
             s.add(f'<circle cx="{x:.1f}" cy="{pl.y0 + 14}" r="7" fill="{INK}" stroke="#fff" stroke-width="2"/>')
             continue
-        labels = [k for k in ("음성 안내", "공조") if k in kinds]
-        s.line(x, pl.y0, x, pl.y0 + pl.h, APP, 2)
-        lab = f"{t}초 " + " · ".join(labels)
+        skip = kinds == {"skip"}
+        labels = [k for k in ("브레이크 안내", "공조") if k in kinds]
+        s.line(x, pl.y0, x, pl.y0 + pl.h, NO_APP if skip else APP, 2, "4 3" if skip else None)
+        lab = f"{t}초 " + ("공조 재요청 · 앱은 5분 안 생략" if skip else " · ".join(labels))
         lw = 24 + 12.5 * len(lab) * 0.78
         row = row + 1 if x + 6 < last_end else 0
         ly = pl.y0 + (34 if cues else 6) + row * 32   # below the cue dots
-        s.rect(x + 6, ly, lw, 26, APP, 13)
+        s.rect(x + 6, ly, lw, 26, NO_APP if skip else APP, 13)
         s.text(x + 6 + lw / 2, ly + 18, lab, 12.5, "#fff", "middle", 700)
         last_end = x + 6 + lw + 4
     pl.series(ts, [o["index"] for _, o in rows], INDEX, 2.4)
@@ -308,7 +316,7 @@ def index_timeline(name, title, out, cues=False):
     x = 930
     chips = [("배경: 주의 · 높음", None)]
     if cues:
-        chips.insert(0, ("● 엔진 예고 시점 (앱에서 꺼 둠)", INK))
+        chips.insert(0, ("● 회전 예고 시점 (엔진에서만 계산 · 앱에서 꺼 둠)", INK))
     for lab, _ in reversed(chips):
         w = 20 + 12 * len(lab) * 0.8
         s.rect(x - w, 46, w, 26, CARD, 13, GRID)
@@ -320,8 +328,8 @@ def index_timeline(name, title, out, cues=False):
 def closed_loop():
     app, no_app = run("B_winding_rough"), run("B_winding_rough", react=False)
     ts = [r[0]["t"] for r in app]
-    s = Svg(960, 350)
-    s.title(30, 30, "닫힌 고리 · 굽은 길(26°C, 내기순환으로 출발)에서 공조를 바꿨을 때와 안 바꿨을 때", 16)
+    s = Svg(960, 372)
+    s.title(30, 30, "닫힌 고리 동작 확인 (조치 → 실내 값 → 다시 계산) · 굽은 길(26°C, 내기순환으로 출발)", 16)
     left = Plot(s, 70, 100, 390, 200, ts[-1], 0.8, 1.02, (0.8, 0.9, 1.0), "환경 계수 m (1이면 쾌적)")
     # told apart by colour, not dash: dashes read as threshold lines
     ctl, no_ctl = cs.BLUE, NO_APP
@@ -342,6 +350,7 @@ def closed_loop():
     m0, m_end, m_no = min(o["m"] for _, o in app), app[-1][1]["m"], no_app[-1][1]["m"]
     s.text(left.x0 + left.w, left.Y(m_end) - 8, f"{m0:.2f} → {m_end:.2f}", 12, ctl, "end", 700)
     s.text(left.x0 + left.w, left.Y(m_no) + 18, f"앱 없으면 {m_no:.3f}에 머묾", 12, MUTED, "end")
+    s.text(30, 362, "멀미 감소 효과가 아님 · 시뮬레이션 실내 모델 (재생 중 실내 온도는 모의값)", 12.5, MUTED, weight=600)
     s.save("closed_loop.svg")
 
 
@@ -398,7 +407,7 @@ def main():
     index_flow()
     architecture()
     scenario_bars()
-    index_timeline("B_winding_rough", "굽은 길(북악스카이웨이) · 거칠게 {min}분 · 지수가 기준을 넘자 음성 안내 → 공조",
+    index_timeline("B_winding_rough", "굽은 길(북악스카이웨이) · 거칠게 {min}분 · 지수가 주의 기준을 10초 넘자 브레이크 안내 + 공조",
                    "timeline_winding.svg")
     index_timeline("A_city_rough", "확장 · 엔진 안의 회전 예고 · 도심(강남 테헤란로) 거칠게 {min}분, 회전 {turns}곳 + 신호 대기 뒤 한 번 더",
                    "timeline_city.svg", cues=True)

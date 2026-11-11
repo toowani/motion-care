@@ -104,12 +104,12 @@ def at_a_glance():
         {"icons": ["child", "rise"], "fg": RISK, "bg": RISK_T, "title": "아이 멀미 위험 오름", "tfg": RISK,
          "sub": "흔들림 · 더위로 멀미 지수 계산"},
         {"icons": ["screen", "bell"], "fg": WARN, "bg": WARN_T, "title": "화면 · 소리로 알림", "tfg": WARN,
-         "sub": "가족 모두 바로 알게"},
+         "sub": "주의 단계에 들어서면"},
         {"icons": ["wind", "thermo"], "fg": AUTO, "bg": AUTO_T, "title": "바깥 공기 · 온도 낮춤",
-         "sub": "더 오르면 외기 순환 · 22°C"},
+         "sub": "같은 순간 외기 순환 · 22°C"},
         {"icons": ["steering", "speech"], "fg": AUTO, "bg": AUTO_T, "title": "운전자에게 권고",
          "sub": "“브레이크 부드럽게”"},
-    ], ["→", "→", "+"], "실내가 나아지면 다시 계산")
+    ], ["→", "+", "+"], "실내가 나아지면 다시 계산")
     # centre: the app
     cx = W / 2
     app_icon(f, cx, 400, 96)
@@ -123,8 +123,8 @@ def at_a_glance():
         {"icons": ["bookmark"], "fg": CALM, "bg": CALM_T, "title": "그 순간을 기억",
          "sub": "누른 순간 흔들림 기록"},
         {"icons": ["person_slider"], "fg": CALM, "bg": CALM_T, "title": "개인 기준 맞춤",
-         "sub": "버튼 기록으로 멀미 예측 개인화"},
-    ], ["→", "→", "→"], "다음 주행엔 더 일찍 알림")
+         "sub": "버튼 기록으로 기준선 학습"},
+    ], ["→", "→", "→"], "링이 우리 아이 기준으로")
     f.save("at_a_glance.svg")
 
 
