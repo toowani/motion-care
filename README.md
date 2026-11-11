@@ -1,10 +1,8 @@
-# 멀미 케어
+# 🤢 멀미 케어
 
 ### 멀미 지수 계산을 통한 탑승감 개선
 
-**알려 주는 데서 멈추지 않습니다. 뒷좌석 아이의 흔들림이 쌓이는 동안 차가 먼저 공기 · 온도를 바꾸고, 멀미 완화 버튼 한 번에 뒷창문을 열며, 누른 순간을 기록해 우리 아이 기준을 배웁니다.**
-
-<sub>멀미를 실제로 막는지는 동승 조사로 확인할 단계입니다 ([동승 조사](docs/ride-study.md))</sub>
+**알려 주는 데서 멈추지 않습니다.**
 
 <img src="docs/img/explainer.webp" width="100%" alt="멀미 케어 필름 (25초, 가족이 겪는 순서): 굽은 산길 → 뒷좌석 아이 '속이 울렁거려…' → 센터 화면의 몽글이와 '브레이크 부드럽게' 알림, 차가 운전자에게 '뒷좌석이 흔들려요. 브레이크를 부드럽게 밟아 주세요.' → 운전자가 브레이크를 부드럽게 → 송풍구에서 바깥 공기 '바깥 공기로 바꾸고 온도를 조금 낮출게요.' → '그래도 어지러워…' → 멀미 완화 버튼 한 번 → '창문 열고 환기할게요. 먼 곳을 보세요.' → 창문으로 바람, 아이 '이제 좀 살 것 같아' → 멀미 케어">
 
@@ -259,8 +257,6 @@ APK는 접수 메일에 첨부했습니다 (Pleos 클라이언트 키가 들어 
 
 <p align="center"><img src="docs/img/ui_16_icon.jpg" width="680" alt="Pleos 앱 목록: 내비게이션 · 멀미 케어 · 전화 · 차량 설정이 같은 진회색 사각 + 흰색 글리프 (웃는 자동차 + 잎사귀)"></p>
 
-**Pleos 시스템 아이콘 스타일** · 웃는 자동차 + 잎사귀 · [팀 CRAVE 로고](docs/img/crave_logo.svg)
-
 ### 폴더 구조
 
 <img src="docs/img/repo_structure.svg" width="100%" alt="폴더 구조: android/core(판단 엔진), android/app(TripService·Notifier·MainActivity·ui·theme·later), sim, shared, docs, research, data/rides(로컬 전용), apk(release APK 빌드 위치, git 제외 · 접수 메일에 첨부), .github/workflows/ci.yml">
@@ -335,3 +331,4 @@ cd android && ./gradlew :app:assembleRelease   # 서명된 APK → apk/ (클라�
 
 [기획서](docs/proposal.md) · [검증](docs/validation.md) · [확인 기록](docs/qa.md) · [제출 체크리스트](docs/submission.md) · [Pleos 문의 초안](docs/pleos-inquiry.md) · [시연 콘티](docs/demo-script.md) · [동승 조사](docs/ride-study.md) · [문헌 근거](research/literature.md) · [경쟁 조사](research/market.md)
 
+<sub>멀미를 실제로 막는지는 동승 조사로 확인할 단계입니다 ([동승 조사](docs/ride-study.md))</sub>
