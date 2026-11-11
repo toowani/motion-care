@@ -207,7 +207,7 @@ def scenario_bars():
     s.title(28, 46, "도로 4곳 · 주행 6회 · 같은 엔진", 22)
     # legend chips
     lx = 28
-    for kind, label in [("bar", "평균 지수 I"), ("tick", "최댓값"), ("c", "주의 0.9"), ("h", "높음 1.5")]:
+    for kind, label in [("bar", "평균 지수 I"), ("tick", "최댓값 I"), ("c", "주의 0.9"), ("h", "높음 1.5")]:
         w = 40 + 13 * len(label) * 0.8
         s.rect(lx, 66, w, 28, CARD, 14, GRID)
         if kind == "bar":
@@ -229,6 +229,7 @@ def scenario_bars():
             s.line(x, y0 - 4, x, y0 + h, GRID, 1)
         s.text(x, y0 + h + 20, f"{t:g}", 12, FOOT, "middle")
     s.text(x0 + w, y0 + h + 38, "흔들림 지수 (m/s²)", 12, FOOT, "end")
+    labels = []
     for i, (key, label) in enumerate(order):
         r = by[key]
         y = y0 + i * rh
@@ -239,11 +240,9 @@ def scenario_bars():
         s.text(x0 - 14, y + rh / 2 + 5, label, 14, INK, "end", 700)
         s.rect(x0, y + 14, w * mean / vmax, rh - 28, color, 4)
         s.line(x0 + w * mx / vmax, y + 8, x0 + w * mx / vmax, y + rh - 8, INK, 3)
-        lx = x0 + w * mean / vmax + 8
-        mx_x = x0 + w * mx / vmax
-        if lx - 4 < mx_x < lx + 36:          # the max tick would cross the label: put it after the tick
-            lx = mx_x + 8
-        s.text(lx, y + rh / 2 + 5, f"{mean:.2f}", 13, INK, weight=700)
+        # both values: mean inside the bar end (white), max right of its tick (drawn after the threshold dashes)
+        labels.append((x0 + w * mean / vmax - 7, y + rh / 2 + 4.5, f"{mean:.2f}", "#FFFFFF", "end", color))
+        labels.append((x0 + w * mx / vmax + 7, y + rh / 2 + 5, f"{mx:.2f}", INK, "start", CARD if i % 2 == 0 else cs.BG))
         alert = int(r["caution_s"]) + int(r["high_s"])
         mins = float(r["minutes"])
         frac = min(1.0, alert / (mins * 60))
@@ -257,6 +256,9 @@ def scenario_bars():
     for t, col in ((0.9, TH_C), (1.5, TH_H)):
         x = x0 + w * t / vmax
         s.line(x, y0 - 4, x, y0 + h, col, 1.8, "5 4")
+    for x, y, t, fill, anchor, halo in labels:
+        h_ = f' stroke="{halo}" stroke-width="4" stroke-linejoin="round" paint-order="stroke"' if halo else ""
+        s.add(f'<text x="{x:.1f}" y="{y:.1f}" font-size="{12 if anchor == "end" else 13}" fill="{fill}" text-anchor="{anchor}" font-weight="700"{h_}>{t}</text>')
     s.text(28, 484, "굽은 길은 부드럽게 달려도 지수가 높음: 운전 방식보다 길 모양(커브 52곳)이 크게 작용", 13, MUTED, weight=600)
     s.text(28, 506, f"주의 {P['thetaCaution']:g} · 높음 {P['thetaHigh']:g}은 시뮬레이션에 맞춘 출발값 (문헌값 아님) · 동승 조사로 보정", 13, MUTED)
     s.save("scenario_bars.svg")
