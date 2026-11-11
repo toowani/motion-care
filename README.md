@@ -34,9 +34,13 @@
 
 <img src="docs/img/evidence.svg" width="100%" alt="조건별 근거: 1초 전 음성 예고(Kuiper 외, 2020), 0.5 Hz 미만 옆 흔들림과 누적량 형태(Turner & Griffin, 1999 · ISO 2631-1), 바람(D'Amour 외, 2017), 4–13세·뒤쪽 좌석(Huppert 외, 2019 · Turner & Griffin, 1999)">
 
+<img src="docs/img/slide_low_freq.jpg" width="100%" alt="멀미 흔들림은 0.5 Hz 이하: 저주파 = 2초 이상 주기의 출렁임 · ISO 2631-1 멀미 대역 0.1–0.5 Hz, 승차감·건강 0.5–80 Hz, 옆 흔들림 가중 곡선 0.0315–0.25 Hz 평탄 후 0.8 Hz까지 감소, 멀미 케어 약 0.03–0.5 Hz · 버스 승객 3,256명(110시간) 0.5 Hz 미만 옆 흔들림과 메스꺼움이 함께 증가 · 흔들림 실험 120명 약 0.25 Hz까지 평탄 후 감소 · 차종 5종 비교 차종 간 차이 없고 운전 방식·노선에 따라 차이 (ISO 2631-1:1997 · Turner & Griffin 1999 · Donohew & Griffin 2004)">
+
 DOI와 한계: [research/literature.md](research/literature.md)
 
 ## 3. 멀미 지수 계산
+
+<img src="docs/img/slide_sampling_1hz.jpg" width="100%" alt="그래서 1 Hz 차 신호로 계산: 1초 간격 샘플로 0.5 Hz(2초 주기)까지 볼 수 있음(나이퀴스트) = 멀미 대역 · 고주파 관성 센서 없이 추가 장비 0, 차 안에서 계산, 순수 Kotlin 엔진은 SDK와 분리돼 다른 차량으로 이식 가능 · 입력(속도·방향·핸들 각도·실내 온도·내기순환) → 저주파 엔진(가속도 → 저주파 → 지수·누적량 → 멀미 가능성) → 출력(공조·창문·음성 안내)">
 
 <img src="docs/img/slide_four_values.jpg" width="100%" alt="네 값 → 멀미 가능성 P: 지금의 흔들림 I(60초 저주파 RMS), 쌓인 흔들림 D(출발부터 누적, ISO 2631-1 수평 응용), 실내 환경 m(더위·내기순환이면 기준 낮춤), 사람별 기준 τ(완화 버튼 순간의 D로 학습) → P = 1/(1+e^(−(D−τm)/s)), 25%·50%에서 화면 단계 전환">
 
@@ -59,9 +63,11 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 <img src="docs/img/steering_lead.svg" width="100%" alt="개념도: 핸들 각도 δ_sw가 먼저 움직이고, 핸들 각도로 예측한 회전 속도 ω가 바로 따라가며, GPS 방향은 1–2초 늦음 · k = 0.2로 GPS 쪽으로 당김">
 
-<img src="docs/img/band_filter.svg" width="100%" alt="0.1 Hz 미만(꾸준한 가속·긴 커브)은 최근 10초 평균을 빼서 제거, 0.1–0.5 Hz만 남겨 누적 흔들림 D(주행 전체)·흔들림 지수 I(최근 60초)로, 0.5 Hz 초과는 1초 샘플이라 담기지 않음">
+<img src="docs/img/band_filter.svg" width="100%" alt="0.03 Hz 미만(꾸준한 가속·긴 커브)은 고역 통과 필터(0.0315 Hz)로 제거, 0.03–0.25 Hz는 그대로 누적 흔들림 D(주행 전체)·흔들림 지수 I(최근 60초)로, 0.25–0.5 Hz는 점점 줄여(0.5 Hz에서 약 1/4, 옆 흔들림 멀미 가중 곡선과 같은 모양), 0.5 Hz 초과는 1초 샘플이라 담기지 않음">
 
-<img src="docs/img/f_index.png" width="100%" alt="I = sqrt( (1/60) Σ_{최근 60초} ( w_X a_x^2 + w_Y a_y^2 ) ) — 흔들림 지수 I 식: 최근 60초 제곱평균제곱근, 0.1–0.5 Hz 흔들림만 남기고 D는 같은 값을 출발부터 누적">
+<img src="docs/img/freq_response.svg" width="100%" alt="엔진 주파수 응답(옆 흔들림 사인파): 지금 엔진은 0.0315 Hz에서 -3 dB, 0.05–0.25 Hz 평탄(+0.5 / -1.0 dB), 0.5 Hz에서 -11.8 dB로 문헌 옆 흔들림 멀미 가중(Donohew &amp; Griffin 2004, 0.0315–0.25 Hz 평탄 후 감소)과 겹침 · 예전 엔진은 0.1–0.25 Hz에서 3–9 dB 낮았음">
+
+<img src="docs/img/f_index.png" width="100%" alt="I = sqrt( (1/60) Σ_{최근 60초} ( w_X a_x^2 + w_Y a_y^2 ) ) — 흔들림 지수 I 식: 최근 60초 제곱평균제곱근, 0.03–0.25 Hz 중심(멀미 가중)으로 흔들림을 남기고 D는 같은 값을 출발부터 누적">
 
 <img src="docs/img/f_thresholds.png" width="100%" alt="θ_caution = 0.9 m, θ_high = 1.5 m, m ≥ 0.6 — 알림 기준선 식: 주의 0.9·m, 높음 1.5·m; 덥고 답답해 m이 줄면 같은 흔들림 지수도 더 높은 단계로">
 
@@ -81,13 +87,13 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 ### 실차 없이 3단계 검증
 
-<img src="docs/img/validation_ladder.svg" width="100%" alt="실차 없이 3단계 검증: ① 실제 도로 시나리오 시뮬레이션 점검 10/10 통과(도로 4곳 · 주행 6회) ② 실제 주행 데이터 비교(comma2k19) 가속도 1.41배(기준 0.5–2배, 고속도로 45초) ③ Pleos 에뮬레이터(실제 SDK) 9가지 기능 확인 (v2.1 · API 34)">
+<img src="docs/img/validation_ladder.svg" width="100%" alt="실차 없이 3단계 검증: ① 실제 도로 시나리오 시뮬레이션 점검 10/10 통과(도로 4곳 · 주행 6회) ② 실제 주행 데이터 비교(comma2k19) 가속도 0.97배(기준 0.5–2배, 고속도로 45초) ③ Pleos 에뮬레이터(실제 SDK) 9가지 기능 확인 (v2.1 · API 34)">
 
 <sub>검증은 시뮬레이션 · 에뮬레이터까지입니다. 실제 아이가 탄 주행 데이터는 아직 없어, 멀미 가능성의 정확도는 확인 전입니다 · 다음 단계: [동승 조사](docs/ride-study.md)</sub>
 
 ### 도로 4곳 · 주행 6회 (OpenStreetMap)
 
-<img src="docs/img/scenario_cards.svg" width="100%" alt="실제 도로 4곳: 도심 3.7 km(회전 4·신호 정지 6, 부드럽게·거칠게), 굽은 길 5.2 km(커브 52곳, 부드럽게·거칠게), 고속도로 17.0 km(12.8분), 나들이길 37.4 km(34.5분) → 1초 간격 가상 센서 값">
+<img src="docs/img/scenario_cards.svg" width="100%" alt="실제 도로 4곳: 도심 3.7 km(회전 4·신호 정지 6, 부드럽게·거칠게), 굽은 길 5.2 km(커브 52곳, 부드럽게·거칠게), 고속도로 17.0 km(13.0분), 나들이길 37.4 km(34.7분) → 1초 간격 가상 센서 값">
 
 ---
 
@@ -115,7 +121,7 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 ### ④ 흔들림이 커지면 차가 공기를 바꿈
 
-<img src="docs/img/closed_loop.svg" width="100%" alt="닫힌 고리: 굽은 길(26°C, 내기순환 출발)에서 21초에 외기 전환·22°C, 환경 계수 m 0.84 → 0.99, 실내 온도 26 → 22°C / 앱 없으면 m 0.825에 머묾">
+<img src="docs/img/closed_loop.svg" width="100%" alt="닫힌 고리: 굽은 길(26°C, 내기순환 출발)에서 19초에 외기 전환·22°C, 환경 계수 m 0.84 → 0.99, 실내 온도 26 → 22°C / 앱 없으면 m 0.825에 머묾">
 
 ### ⑤ 분석 탭
 
@@ -135,11 +141,11 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 ### 검증 결과
 
-<img src="docs/img/scenario_bars.svg" width="100%" alt="도로 4곳 · 주행 6회의 평균 흔들림 지수(막대)와 최댓값(세로선), 알림 켜진 시간: 고속도로 0.43(0 / 12.8분), 도심 부드럽게 0.62(0 / 8.8분), 도심 거칠게 0.89(5.2 / 8.2분), 나들이길 0.70(8.4 / 34.5분), 굽은 길 부드럽게 1.39(7.3 / 7.9분), 굽은 길 거칠게 2.04(5.8 / 6.2분)">
+<img src="docs/img/scenario_bars.svg" width="100%" alt="도로 4곳 · 주행 6회의 평균 흔들림 지수(막대)와 최댓값(세로선), 알림 켜진 시간: 고속도로 0.36(0 / 13분), 도심 부드럽게 0.68(1.6 / 8.8분), 도심 거칠게 1.07(6.7 / 8.2분), 나들이길 0.76(9.7 / 34.7분), 굽은 길 부드럽게 1.65(7.5 / 7.9분), 굽은 길 거칠게 2.58(5.9 / 6.2분)">
 
-<img src="docs/img/timeline_winding.svg" width="100%" alt="굽은 길 거칠게: 흔들림 지수, 주의·높음 기준선, 21초 음성 안내·공조, 46초 공조">
+<img src="docs/img/timeline_winding.svg" width="100%" alt="굽은 길 거칠게: 흔들림 지수, 주의·높음 기준선, 19초 음성 안내·공조, 31초 공조">
 
-<img src="docs/img/real_vs_sim.svg" width="100%" alt="실제 고속도로(comma2k19)와 시뮬레이션 고속도로 비교, 같은 45초: 앞뒤 가속도 1.41배, 평균 지수 0.35 vs 0.27">
+<img src="docs/img/real_vs_sim.svg" width="100%" alt="실제 고속도로(comma2k19)와 시뮬레이션 고속도로 비교, 같은 45초: 앞뒤 가속도 0.97배, 평균 지수 0.42 vs 0.35">
 
 ### 에뮬레이터에서 확인한 것
 
@@ -185,23 +191,23 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 ## 7. 확장 가능성
 
-<img src="docs/img/slide_vision.jpg" width="100%" alt="승차감은 숫자로, 피드백은 주행으로: 천천히 가 주세요라고 들어 줄 운전자 없음 → 차가 재고·듣고·고쳐야 · 승차감 지수(부드럽게 1.39, 거칠게 2.04, 숫자 표시는 멀미 Zero와 겹침, 우리 몫은 누적량 D·개인 기준선) · 피드백 → 즉시 개선 순환(멀미 피드백 → 기준 학습 → 제어 변경 → 다시 측정)">
+<img src="docs/img/slide_vision.jpg" width="100%" alt="승차감은 숫자로, 피드백은 주행으로: 천천히 가 주세요라고 들어 줄 운전자 없음 → 차가 재고·듣고·고쳐야 · 승차감 지수(부드럽게 1.65, 거칠게 2.58, 숫자 표시는 멀미 Zero와 겹침, 우리 몫은 누적량 D·개인 기준선) · 피드백 → 즉시 개선 순환(멀미 피드백 → 기준 학습 → 제어 변경 → 다시 측정)">
 
-<img src="docs/img/extension_map.svg" width="100%" alt="같은 엔진(I·D·m·τ·P)에서 확장 4가지: ① 예측 음성 안내(멀미 Zero와 겹침, 엔진 계산 중, 앱에서 꺼 둠, 근거 Kuiper 외 2020, 동승 실험 뒤 켬) ② 휴게소 추천(제안 시점 3분 45초, 확장 LLM+POI 검색 API) ③ 가족 모드(아이마다 기준선) ④ 승차감 정량 지표(멀미 Zero와 겹침, 차종 비교·택시 평가·업계 표준, 제안) · 겹치는 두 카드의 우리 몫: 누적량 D 기반 멀미 가능성 · 개인 기준선 τ · 앱 배포">
+<img src="docs/img/extension_map.svg" width="100%" alt="같은 엔진(I·D·m·τ·P)에서 확장 4가지: ① 예측 음성 안내(멀미 Zero와 겹침, 엔진 계산 중, 앱에서 꺼 둠, 근거 Kuiper 외 2020, 동승 실험 뒤 켬) ② 휴게소 추천(제안 시점 3분 30초, 확장 LLM+POI 검색 API) ③ 가족 모드(아이마다 기준선) ④ 승차감 정량 지표(멀미 Zero와 겹침, 차종 비교·택시 평가·업계 표준, 제안) · 겹치는 두 카드의 우리 몫: 누적량 D 기반 멀미 가능성 · 개인 기준선 τ · 앱 배포">
 
 숨긴 화면 코드: [`android/app/src/main/kotlin/ai/motioncare/app/later/`](android/app/src/main/kotlin/ai/motioncare/app/later/README.md)
 
 ### ① 예측 음성 안내 (회전 예고) · 멀미 Zero와 겹침
 
-<img src="docs/img/timeline_city.svg" width="100%" alt="엔진 안의 회전 예고: 도심 회전 4곳마다 예고 시점, 신호 대기 뒤 한 번 더, 56초 음성 안내 (앱에서는 꺼 둠)">
+<img src="docs/img/timeline_city.svg" width="100%" alt="엔진 안의 회전 예고: 도심 회전 4곳마다 예고 시점, 신호 대기 뒤 한 번 더, 25초 · 418초 음성 안내 (앱에서는 꺼 둠)">
 
 ### ② 휴게소 추천 (LLM 연결로 확장)
 
-<img src="docs/img/rest_stop_flow.svg" width="100%" alt="흔들림 많음이 길게 이어지면 → 엔진이 제안 시점 계산(굽은 길 거칠게 3분 45초) → 확장: LLM에 남은 경로·멀미 가능성 P·동승자 → 들를 곳 한 줄 추천 → NaviHelper 경유지 · 질문 코드는 보관, POI 검색 API 필요">
+<img src="docs/img/rest_stop_flow.svg" width="100%" alt="흔들림 많음이 길게 이어지면 → 엔진이 제안 시점 계산(굽은 길 거칠게 3분 30초) → 확장: LLM에 남은 경로·멀미 가능성 P·동승자 → 들를 곳 한 줄 추천 → NaviHelper 경유지 · 질문 코드는 보관, POI 검색 API 필요">
 
 ### ③ 개인 맞춤 · 아이별 (가족 모드)
 
-<img src="docs/img/family.svg" width="100%" alt="같은 나들이길에서 두 아이의 기준선(민준 τ 24.9, 서연 τ 35.9)과 도달 시점(29.3분, 32.6분)">
+<img src="docs/img/family.svg" width="100%" alt="같은 나들이길에서 두 아이의 기준선(민준 τ 24.9, 서연 τ 35.9)과 도달 시점(29.3분, 31.4분)">
 
 **대응 순서를 보여 주는 그림** · 검증 아님
 
@@ -237,7 +243,7 @@ adb install -r CRAVE_MotionCare_release.apk
 adb shell am start --user 10 -n ai.motioncare.app/.MainActivity
 ```
 
-APK: [GitHub Releases](https://github.com/toowani/motion-care/releases)
+APK는 접수 메일에 첨부했습니다 (Pleos 클라이언트 키가 들어 있어 저장소에는 올리지 않음). 직접 빌드하려면 아래 "키와 서명"의 `android/local.properties`를 채운 뒤 빌드합니다.
 
 ### 한계
 
@@ -260,6 +266,7 @@ APK: [GitHub Releases](https://github.com/toowani/motion-care/releases)
 ```bash
 python3 sim/generator.py
 python3 sim/prototype.py
+python3 sim/freq_response.py      # 엔진 주파수 응답 (--svg: docs/img/freq_response.svg)
 python3 sim/readme_figures.py
 ```
 

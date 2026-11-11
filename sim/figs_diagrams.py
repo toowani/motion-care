@@ -86,6 +86,25 @@ ICONS = {
 }
 
 
+
+# ---- numbers from the simulation outputs (python3 sim/prototype.py, sim/public_check.py)
+def _realism_ratio():
+    """P95 |a_x| ratio sim / real on the same 45 s (sim/out/public_check.csv)."""
+    import csv
+    rows = {r["source"]: r for r in csv.DictReader(open(ROOT / "sim" / "out" / "public_check.csv", encoding="utf-8"))}
+    return float(rows["시뮬 C 고속도로 (같은 45초)"]["p95_ax"]) / float(rows["comma2k19 실제 고속도로 (45초)"]["p95_ax"])
+
+
+def _rest_stop_mmss(name="B_winding_rough"):
+    """When the engine computes the rest-stop suggestion on a scenario, e.g. '3분 30초'."""
+    import sys
+    sys.path.insert(0, str(ROOT / "sim"))
+    from prototype import run
+    t = next(int(s["t"]) for s, o in run(name) if "SUGGEST_REST_STOP" in o["actions"])
+    m, sec = divmod(t, 60)
+    return f"{m}분 {sec}초" if sec else f"{m}분"
+
+
 def esc(s):
     return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
@@ -355,37 +374,49 @@ def steering_lead():
 
 
 def band_filter():
+    """Which sway the engine keeps: the lateral motion-sickness weighting of Donohew & Griffin (2004),
+    measured by sim/freq_response.py (-3 dB at 0.0315 Hz, flat to 0.25 Hz, about -12 dB at 0.5 Hz)."""
     f = Fig(960, 240)
-    X = {0: 48, 0.1: 300, 0.5: 700, "end": 912}
+    X = {0: 48, 0.03: 262, 0.25: 628, 0.5: 772, "end": 912}
     top, bot = 32, 176
     f.add('<defs><pattern id="hatch" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">'
-          f'<rect width="10" height="10" fill="{CARD_ALT}"/><line x1="0" y1="0" x2="0" y2="10" stroke="{LINE}" stroke-width="3"/></pattern></defs>')
-    f.rect(X[0], top, X[0.1] - X[0], bot - top, "url(#hatch)", LINE2)
-    f.rect(X[0.1], top, X[0.5] - X[0.1], bot - top, BAND, None)
+          f'<rect width="10" height="10" fill="{CARD_ALT}"/><line x1="0" y1="0" x2="0" y2="10" stroke="{LINE}" stroke-width="3"/></pattern>'
+          f'<linearGradient id="fade" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="{BAND}"/>'
+          f'<stop offset="1" stop-color="{CARD}"/></linearGradient></defs>')
+    f.rect(X[0], top, X[0.03] - X[0], bot - top, "url(#hatch)", LINE2)
+    f.rect(X[0.03], top, X[0.25] - X[0.03], bot - top, BAND, None)
+    f.rect(X[0.25], top, X[0.5] - X[0.25], bot - top, "url(#fade)", None)
     f.rect(X[0.5], top, X["end"] - X[0.5], bot - top, CARD, LINE2, dash="5 4")
-    # zone 1
-    zx = (X[0] + X[0.1]) / 2
-    f.chip(zx, top + 14, "< 0.1 Hz 제거", MUTED, WHITE, 15, 30, anchor="middle", stroke=LINE2, weight=700)
-    f.chip(zx - 56, top + 58, "꾸준한 가속", INK, WHITE, 13, 28, anchor="middle", stroke=LINE)
-    f.chip(zx + 60, top + 58, "긴 커브", INK, WHITE, 13, 28, anchor="middle", stroke=LINE)
-    f.chip(zx, top + 100, "최근 10초 평균 빼기", WHITE, INK, 13, 28, anchor="middle", weight=700)
-    # zone 2
+    # zone 1: steady part out
+    zx = (X[0] + X[0.03]) / 2
+    f.chip(zx, top + 14, "< 0.03 Hz 제거", MUTED, WHITE, 15, 30, anchor="middle", stroke=LINE2, weight=700)
+    f.chip(zx - 52, top + 58, "꾸준한 가속", INK, WHITE, 13, 28, anchor="middle", stroke=LINE)
+    f.chip(zx + 56, top + 58, "긴 커브", INK, WHITE, 13, 28, anchor="middle", stroke=LINE)
+    f.chip(zx, top + 100, "고역 통과 (0.0315 Hz)", WHITE, INK, 13, 28, anchor="middle", weight=700)
+    # zone 2: kept at full weight
     pink = BLUE
-    f.text(X[0.1] + 24, top + 34, "0.1–0.5 Hz 남겨 누적", 17, pink, weight=700)
-    f.icon(X[0.1] + 46, top + 86, "wave", pink, WHITE)
-    f.arrow([(X[0.1] + 76, top + 86), (X[0.1] + 128, top + 86)], pink, 2.2)
-    f.chip(X[0.1] + 136, top + 52, "누적 흔들림 {D}", INK, V["D"][1], 14, 30, stroke=V["D"][0], weight=700)
-    f.chip(X[0.1] + 136, top + 92, "흔들림 지수 {I}", INK, V["I"][1], 14, 30, stroke=V["I"][0], weight=700)
-    f.text(X[0.1] + 292, top + 72, "주행 전체", 12.5, MUTED)
-    f.text(X[0.1] + 292, top + 112, "최근 60초", 12.5, MUTED)
-    # zone 3
+    f.text(X[0.03] + 20, top + 34, "0.03–0.25 Hz 그대로 누적", 17, pink, weight=700)
+    f.icon(X[0.03] + 42, top + 86, "wave", pink, WHITE)
+    f.arrow([(X[0.03] + 70, top + 86), (X[0.03] + 112, top + 86)], pink, 2.2)
+    f.chip(X[0.03] + 120, top + 52, "누적 흔들림 {D}", INK, V["D"][1], 14, 30, stroke=V["D"][0], weight=700)
+    f.chip(X[0.03] + 120, top + 92, "흔들림 지수 {I}", INK, V["I"][1], 14, 30, stroke=V["I"][0], weight=700)
+    f.text(X[0.03] + 272, top + 72, "주행 전체", 12.5, MUTED)
+    f.text(X[0.03] + 272, top + 112, "최근 60초", 12.5, MUTED)
+    # zone 3: weighted down like the literature curve
+    zx = (X[0.25] + X[0.5]) / 2
+    f.text(zx, top + 44, "점점 줄임", 15, pink, "middle", 700)
+    f.text(zx, top + 70, "0.5 Hz에서", 12.5, MUTED, "middle")
+    f.text(zx, top + 88, "약 1/4", 12.5, MUTED, "middle")
+    f.path(f"M{X[0.25] + 18} {top + 108} C{X[0.25] + 60} {top + 108} {X[0.25] + 80} {top + 128} {X[0.5] - 18} {top + 132}",
+           pink, 2.2)
+    # zone 4
     zx = (X[0.5] + X["end"]) / 2
     f.text(zx, top + 62, "> 0.5 Hz", 17, FOOT, "middle", 700)
     f.text(zx, top + 88, "1초 샘플이라", 13, MUTED, "middle")
     f.text(zx, top + 106, "담기지 않음", 13, MUTED, "middle")
     # axis
     f.arrow([(X[0], 200), (X["end"] + 20, 200)], FOOT, 1.8)
-    for k, lab in [(0, "0"), (0.1, "0.1 Hz"), (0.5, "0.5 Hz")]:
+    for k, lab in [(0, "0"), (0.03, "0.03 Hz"), (0.25, "0.25 Hz"), (0.5, "0.5 Hz")]:
         f.line(X[k], 194, X[k], 206, INK, 2)
         f.text(X[k], 224, lab, 13, INK, "middle", 700)
     f.text(X["end"] + 18, 224, "주파수", 12.5, FOOT, "end")
@@ -481,7 +512,7 @@ def sdk_map():
 def validation_ladder():
     f = Fig(960, 300)
     steps = [("map", "실제 도로 시나리오 시뮬레이션", "점검 10 / 10 통과", "도로 4곳 · 주행 6회"),
-             ("database", "실제 주행 데이터 비교 (comma2k19)", "가속도 1.41배", "기준 0.5–2배 · 고속도로 45초"),
+             ("database", "실제 주행 데이터 비교 (comma2k19)", f"가속도 {_realism_ratio():.2f}배", "기준 0.5–2배 · 고속도로 45초"),
              ("chip", "Pleos 에뮬레이터 (실제 SDK)", "9가지 기능 확인", "v2.1 · Android Automotive API 34")]
     base, ch, rise = 276, 150, 36
     for i, (ic, title, big, sub) in enumerate(steps):
@@ -620,7 +651,7 @@ def extension_map():
     cards = [
         (28, y1, "speaker", "예측 음성 안내", "“곧 왼쪽으로 돌아요”", ["run", "off"],
          "근거: 1초 전 음성 예고 → 멀미 감소 (Kuiper 외, 2020)", "동승 실험 뒤 켬", True),
-        (592, y1, "coffee", "휴게소 추천", "제안 시점 계산 (굽은 길 거칠게 3분 45초)", ["run", ("idea", "확장 · LLM + POI 검색 API")],
+        (592, y1, "coffee", "휴게소 추천", f"제안 시점 계산 (굽은 길 거칠게 {_rest_stop_mmss()})", ["run", ("idea", "확장 · LLM + POI 검색 API")],
          "질문 코드는 보관", None, False),
         (28, y2, "family", "가족 모드", "아이마다 기준선, 가장 낮은 아이 먼저", ["run", "off"], None, None, False),
         (592, y2, "gauge", "승차감 정량 지표", "{I} · {D}를 승차감 숫자로", ["idea"], None, None, True),
@@ -661,7 +692,7 @@ def rest_stop_flow():
     f.box(28, cy - 34, 150, 68, "흔들림 많음이", "길게 이어짐", RED, RED_T, None, 14.5, sub_fill=RED)
     f.arrow([(180, cy), (204, cy)], FOOT, 2)
     ci, cb = LAYER["calc"]
-    f.box(206, cy - 34, 196, 68, "엔진: 제안 시점", "굽은 길 거칠게 3분 45초", ci, cb, None, 14.5)
+    f.box(206, cy - 34, 196, 68, "엔진: 제안 시점", f"굽은 길 거칠게 {_rest_stop_mmss()}", ci, cb, None, 14.5)
     f.arrow([(404, cy), (428, cy)], FOOT, 2)
     f.rect(430, 24, 200, 160, CARD, FOOT, cs.RADIUS, 1.5, "7 5")
     f.text(530, 50, "확장: LLM", 15, INK, "middle", 800)

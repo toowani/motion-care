@@ -2,17 +2,22 @@ package ai.motioncare.core
 
 import kotlin.math.PI
 import kotlin.math.abs
+import kotlin.math.cos
 import kotlin.math.exp
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 /**
  * Port of sim/engine.py. The numbers must match shared/test_vectors.csv.
  *
  * Formulas (team page numbering):
- *  1  a_x = dv/dt, a_y = v * yaw rate (EMA on both), low-frequency = a - mean(last 10 s):
- *     1 Hz samples hold up to 0.5 Hz, the 10 s mean removes below 0.1 Hz, so only 0.1-0.5 Hz sway is accumulated
+ *  1  a_x = dv/dt, a_y = v * yaw rate, then a band filter shaped like the lateral motion-sickness
+ *     weighting (Donohew & Griffin 2004: flat 0.0315-0.25 Hz, falling above): 2nd-order Butterworth
+ *     high-pass at 0.0315 Hz (removes steady acceleration and long curves) + 2nd-order low-pass
+ *     (0.27 Hz, Q 0.95, one zero at -0.35). 1 Hz samples hold up to 0.5 Hz (Nyquist), where the
+ *     whole path is about -12 dB; sim/freq_response.py measures it
  *  2  dose D = sqrt(sum (wX ax^2 + wY ay^2) dt), index I = RMS over last 60 s (zero-padded window)
  *  3  cabin factor m = 1 - gT*max(0, T - T0) - gV*min(1, t_recirc/3600), floor 0.6
  *  4  cue distance = v * (say + prepare)
@@ -76,7 +81,9 @@ class MotionEstimator(private val p: Params) {
         val vNew = p.speedEmaAlpha * speed + (1 - p.speedEmaAlpha) * prev
         v = vNew
         val ax = (vNew - prev) / dt
-        // GPS bearing noise is multiplied by v in a_y, so the yaw rate gets the same EMA
+        // optional EMA on speed and yaw rate (speedEmaAlpha 1 = off). It used to be 0.5, a 1st-order
+        // low-pass at ~0.1 Hz that cut 0.1-0.25 Hz by 3-9 dB; BandFilter's low-pass now does the
+        // smoothing of GPS bearing noise (which v multiplies in a_y)
         val w = wrapPi(th - theta) / dt
         theta = th
         omega = p.speedEmaAlpha * w + (1 - p.speedEmaAlpha) * omega
@@ -85,15 +92,59 @@ class MotionEstimator(private val p: Params) {
     }
 }
 
-/** Removes the slow (< 0.1 Hz) part by subtracting the mean of the last [window] samples; with 1 Hz input this keeps 0.1-0.5 Hz. */
-class LowFreqFilter(private val window: Int) {
-    private val buf = ArrayDeque<Double>()
+/** y = b0 x + b1 x1 + b2 x2 - a1 y1 - a2 y2 (direct form I, zero initial state). */
+class Biquad(
+    private val b0: Double, private val b1: Double, private val b2: Double,
+    private val a1: Double, private val a2: Double,
+) {
+    private var x1 = 0.0
+    private var x2 = 0.0
+    private var y1 = 0.0
+    private var y2 = 0.0
 
-    fun step(a: Double): Double {
-        buf.addLast(a)
-        if (buf.size > window) buf.removeFirst()
-        return a - buf.sum() / buf.size
+    fun step(x: Double): Double {
+        val y = b0 * x + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2
+        x2 = x1
+        x1 = x
+        y2 = y1
+        y1 = y
+        return y
     }
+
+    companion object {
+        /** 2nd-order high-pass (bilinear transform, pre-warped: -3 dB at [f0] for q = 1/sqrt(2)). */
+        fun highPass(f0: Double, q: Double, fs: Double): Biquad {
+            val w0 = 2 * PI * f0 / fs
+            val c = cos(w0)
+            val al = sin(w0) / (2 * q)
+            val a0 = 1 + al
+            return Biquad((1 + c) / 2 / a0, -(1 + c) / a0, (1 + c) / 2 / a0, -2 * c / a0, (1 - al) / a0)
+        }
+
+        /**
+         * 2nd-order low-pass: analog poles (natural frequency [fn], quality [q]) mapped by z = exp(sT),
+         * one zero at z = -[zero], unity gain at 0 Hz. No forced zero at Nyquist (unlike the bilinear
+         * transform), so 0.5 Hz keeps about -8 dB here and the whole path about -12 dB.
+         */
+        fun lowPass(fn: Double, q: Double, zero: Double, fs: Double): Biquad {
+            val zeta = 1 / (2 * q)
+            val wn = 2 * PI * fn / fs
+            val r = exp(-zeta * wn)
+            val th = wn * sqrt(1 - zeta * zeta)
+            val a1 = -2 * r * cos(th)
+            val a2 = r * r
+            val g = (1 + a1 + a2) / (1 + zero)
+            return Biquad(g, g * zero, 0.0, a1, a2)
+        }
+    }
+}
+
+/** Motion-sickness band for one axis: high-pass (steady part out) then low-pass. O(1) state. */
+class BandFilter(p: Params) {
+    private val hp = Biquad.highPass(p.bandHighPassHz, p.bandHighPassQ, p.sampleHz)
+    private val lp = Biquad.lowPass(p.bandLowPassHz, p.bandLowPassQ, p.bandLowPassZero, p.sampleHz)
+
+    fun step(a: Double): Double = lp.step(hp.step(a))
 }
 
 class SicknessIndex(private val p: Params) {
@@ -226,8 +277,8 @@ fun familyThreshold(taus: Collection<Double>): Double = taus.min()
 
 class Engine(private val p: Params) {
     private val motion = MotionEstimator(p)
-    private val lfx = LowFreqFilter((p.lowFreqWindowS * p.sampleHz).toInt())
-    private val lfy = LowFreqFilter((p.lowFreqWindowS * p.sampleHz).toInt())
+    private val lfx = BandFilter(p)
+    private val lfy = BandFilter(p)
     private val index = SicknessIndex(p)
     private val cabin = CabinFactor(p)
     private val alerts = AlertMachine(p)

@@ -170,4 +170,39 @@ class EngineTest {
         assertEquals(29.3, personalThreshold(p, List(10) { 24.0 }), 0.05)
         assertEquals(22.0, familyThreshold(listOf(41.0, 22.0)))
     }
+
+    /** Sine gain of one BandFilter in dB (steady state, whole periods). */
+    private fun bandGainDb(f: Double): Double {
+        val filter = BandFilter(params)
+        val w = 2 * Math.PI * f
+        val settle = 400
+        val n = settle + (Math.round(600 * f) / f).toInt()
+        var outSq = 0.0
+        var inSq = 0.0
+        for (t in 0 until n) {
+            val a = Math.sin(w * t + Math.PI / 4)
+            val y = filter.step(a)
+            if (t >= settle) {
+                outSq += y * y
+                inSq += a * a
+            }
+        }
+        return 10 * Math.log10(outSq / inSq)
+    }
+
+    /**
+     * Lateral motion-sickness weighting (Donohew & Griffin 2004): flat 0.0315-0.25 Hz, then falling.
+     * The filter alone sits a little above flat near 0.25 Hz because the 1 s differencing before it
+     * loses up to 0.9 dB there; sim/freq_response.py checks the whole path.
+     */
+    @Test
+    fun bandFilterFollowsLateralWeighting() {
+        assertEquals(-3.0, bandGainDb(0.0315), 0.3)
+        for (f in listOf(0.05, 0.1, 0.15, 0.2, 0.25)) {
+            val g = bandGainDb(f)
+            assertTrue(g > -1.5 && g < 1.5, "gain at $f Hz: $g dB")
+        }
+        assertTrue(bandGainDb(0.01) < -15, "steady part not removed")
+        assertTrue(bandGainDb(0.5) < -6, "0.5 Hz not attenuated")
+    }
 }

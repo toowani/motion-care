@@ -9,8 +9,8 @@ Pipeline per road:
      polylines do not become fake curvature spikes, then resample the smoothed path at 1 m;
   3. heading and signed curvature from the smoothed path (smoothing keeps corner radii realistic);
   4. speed limit per road type (city 50 km/h, arterial 60, winding 60, expressway drifts
-     60-105 km/h every few hundred metres like real traffic, calibrated against comma2k19 in
-     sim/public_check.py), curve speed capped by the style's lateral acceleration
+     60-105 km/h every few hundred metres like real traffic, reached at 1 m/s^2 with rounded
+     corners, calibrated against comma2k19 in sim/public_check.py), curve speed capped by the style's lateral acceleration
      v = sqrt(a_lat_max / kappa), then a forward/backward pass caps longitudinal acceleration;
   5. traffic-light stops at a seeded subset of real intersections; navigation turns
      (turn signal, next turn distance/direction) from the real OSRM maneuvers.
@@ -45,6 +45,12 @@ COLUMNS = ["t", "lat", "lon", "speed", "bearing", "turn_signal",
 # Gaussian smoothing width (m) and speed limit (km/h) per road type
 SMOOTH_SIGMA = {"city": 8.0, "arterial": 8.0, "winding": 6.0, "ramp": 10.0, "expressway": 40.0}
 VLIM_KMH = {"city": 50, "arterial": 60, "winding": 60, "ramp": 60}
+# expressway traffic drift: the next target speed is reached gently, not at the style's full
+# acceleration (traffic-flow speed changes, not a driver flooring it), and the ramp is rounded
+# (jerk-limited). Calibrated against comma2k19 in sim/public_check.py
+TRAFFIC_ACCEL = 1.0           # m/s^2, both ways (comma2k19 clip: about 0.5-1.5 m/s^2)
+TRAFFIC_ROUND_M = 50          # moving average over the ramped target speed (m), about 2 s at 90 km/h
+SPEED_NOISE = 0.15            # m/s, 1 sigma per 1 Hz sample
 
 # Road description per cached route. Road type comes from the OSRM step (expressway = refs
 # of 고속도로; unnamed steps on an expressway route are ramps), with per-name overrides.
@@ -334,6 +340,7 @@ def load_road(key):
         else:
             chunk_left = 0.0
             vlim.append(VLIM_KMH[kind] / 3.6)
+    vlim = traffic_drift(vlim, kinds_s)
 
     # navigation maneuvers (not curves)
     maneuvers = []
@@ -372,6 +379,30 @@ def load_road(key):
 
     return {"key": key, "road": road, "proj": proj, "pts": pts, "hdg": hdg, "curv": curv, "vlim": vlim,
             "kinds": kinds_s, "maneuvers": maneuvers, "stops": stops}
+
+
+def traffic_drift(vlim, kinds):
+    """Expressway target speeds: ramp between drift chunks at TRAFFIC_ACCEL, then round the
+    corners with a moving average over TRAFFIC_ROUND_M (other road types are left as they are)."""
+    ex = [k == "expressway" for k in kinds]
+    v = vlim[:]
+    for i in range(1, len(v)):
+        if ex[i] and ex[i - 1]:
+            v[i] = min(v[i], math.sqrt(v[i - 1] ** 2 + 2 * TRAFFIC_ACCEL * DS))
+    for i in range(len(v) - 2, -1, -1):
+        if ex[i] and ex[i + 1]:
+            v[i] = min(v[i], math.sqrt(v[i + 1] ** 2 + 2 * TRAFFIC_ACCEL * DS))
+    h = int(TRAFFIC_ROUND_M / DS) // 2
+    out = v[:]
+    if h:
+        pre = [0.0]
+        for x in v:
+            pre.append(pre[-1] + x)
+        for i in range(len(v)):
+            lo, hi = i - h, i + h
+            if ex[i] and lo >= 0 and hi < len(v) and all(ex[lo:hi + 1:h]):
+                out[i] = (pre[hi + 1] - pre[lo]) / (hi - lo + 1)
+    return out
 
 
 # ---------- motion ----------
@@ -465,7 +496,7 @@ def build(name, R, style_name, cabin, seed):
             if signals and (i >= a or (a - i) * DS <= max(30.0, speed * 4.0)):
                 signal = "LEFT" if d == "L" else "RIGHT"
         # GPS-like noise (small: the map shows the car on the road)
-        noisy_speed = max(0.0, speed + rng.gauss(0, 0.15)) if speed > 0 else 0.0
+        noisy_speed = max(0.0, speed + rng.gauss(0, SPEED_NOISE)) if speed > 0 else 0.0
         # GNSS course accuracy improves with speed: about 0.6 deg at 18 km/h, 0.2 deg at 100 km/h
         bearing = compass_bearing(hdg[i]) + rng.gauss(0, max(0.2, 3.0 / speed) if speed > 2 else 15.0)
         nx, ny = (max(-1.5, min(1.5, rng.gauss(0, 0.5))) for _ in range(2))

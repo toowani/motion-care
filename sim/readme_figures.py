@@ -147,7 +147,7 @@ def index_flow():
     car, calc, out = CAR, CALC, OUT
     y, h = 120, 64
     row = [(20, 130, "속도 · 진행 방향", "차 신호", car), (180, 130, "가속도", f"앞뒤 {v('a', 'x', 12)} · 옆 {v('a', 'y', 12)}", calc),
-           (340, 140, "느린 흔들림만", "10초 평균 제거", calc),
+           (340, 140, "멀미 대역만", "0.03–0.25 Hz 중심", calc),
            (510, 140, f"지수 {v('I', size=13)} · 누적 {v('D', size=13)}", "최근 60초 · 주행 전체", calc),
            (680, 100, "판단", None, calc), (810, 130, "흔들림 단계", f"멀미 가능성 {v('P', size=12)}", out)]
     for x, w, t, sub, (f, ink, st) in row:
@@ -219,11 +219,13 @@ def scenario_bars():
         s.text(lx + 34, 85, label, 13, INK)
         lx += w + 8
     s.text(932, 85, "알림 켜진 시간 / 주행 시간", 13, MUTED, "end", 600)
-    x0, y0, w, vmax, rh = 220, 116, 470, 3.0, 50
+    # axis to the next whole number above the largest maximum (at least 3)
+    vmax = float(max(3, -(-max(float(by[k]["max_index"]) for k, _ in order) // 1)))
+    x0, y0, w, rh = 220, 116, 470, 50
     h = rh * len(order)
-    for t in (0, 0.9, 1.5, 3.0):
+    for t in (0, 0.9, 1.5, vmax):
         x = x0 + w * t / vmax
-        if t in (0, 3.0):
+        if t in (0, vmax):
             s.line(x, y0 - 4, x, y0 + h, GRID, 1)
         s.text(x, y0 + h + 20, f"{t:g}", 12, FOOT, "middle")
     s.text(x0 + w, y0 + h + 38, "흔들림 지수 (m/s²)", 12, FOOT, "end")
@@ -237,7 +239,11 @@ def scenario_bars():
         s.text(x0 - 14, y + rh / 2 + 5, label, 14, INK, "end", 700)
         s.rect(x0, y + 14, w * mean / vmax, rh - 28, color, 4)
         s.line(x0 + w * mx / vmax, y + 8, x0 + w * mx / vmax, y + rh - 8, INK, 3)
-        s.text(x0 + w * mean / vmax + 8, y + rh / 2 + 5, f"{mean:.2f}", 13, INK, weight=700)
+        lx = x0 + w * mean / vmax + 8
+        mx_x = x0 + w * mx / vmax
+        if lx - 4 < mx_x < lx + 36:          # the max tick would cross the label: put it after the tick
+            lx = mx_x + 8
+        s.text(lx, y + rh / 2 + 5, f"{mean:.2f}", 13, INK, weight=700)
         alert = int(r["caution_s"]) + int(r["high_s"])
         mins = float(r["minutes"])
         frac = min(1.0, alert / (mins * 60))
@@ -262,7 +268,8 @@ def index_timeline(name, title, out, cues=False):
     turns = next(m["turns"] for m in json.loads((ROOT / "sim" / "scenarios" / "scenarios.json").read_text())
                  if m["name"] == name)
     s.title(30, 30, title.format(min=round(len(rows) / 60), turns=turns), 16)
-    pl = Plot(s, 70, 110, 860, 220, ts[-1], 0, 3.4, (0, 1, 2, 3), "흔들림 지수 I (m/s²)")
+    ymax = max(3.4, max(o["index"] for _, o in rows) * 1.05)
+    pl = Plot(s, 70, 110, 860, 220, ts[-1], 0, ymax, tuple(range(int(ymax) + 1)), "흔들림 지수 I (m/s²)")
     bands = {"CAUTION": "#FEF9C3", "HIGH": "#FEE2E2"}
     for (smp, o) in rows:
         if o["state"] in bands:
@@ -291,7 +298,7 @@ def index_timeline(name, title, out, cues=False):
         lab = f"{t}초 " + " · ".join(labels)
         lw = 24 + 12.5 * len(lab) * 0.78
         row = row + 1 if x + 6 < last_end else 0
-        ly = pl.y0 + 6 + row * 32
+        ly = pl.y0 + (34 if cues else 6) + row * 32   # below the cue dots
         s.rect(x + 6, ly, lw, 26, APP, 13)
         s.text(x + 6 + lw / 2, ly + 18, lab, 12.5, "#fff", "middle", 700)
         last_end = x + 6 + lw + 4

@@ -44,8 +44,8 @@ adb shell am start --user 10 -n ai.motioncare.app/.MainActivity --ez skip_welcom
 
 | 장면 | `replay` | `replay_from` | `replay_speed` | 화면에 나오는 때 |
 |---|---|---|---|---|
-| 지도 · 링 | `B_winding_rough` | 0 | 3 | 처음 초록으로 조금, 시나리오 약 2분에 노랑 |
-| 공기 바꿈 | `B_winding_rough` | 0 | 2 | 약 10초 뒤 안내 · 공조 (시나리오 21초) |
+| 지도 · 링 | `B_winding_rough` | 0 | 3 | 처음 초록으로 조금, 시나리오 약 1분 30초에 노랑 |
+| 공기 바꿈 | `B_winding_rough` | 0 | 2 | 약 10초 뒤 안내 · 공조 (시나리오 19초) |
 | 멀미 완화 | `B_winding_rough` | 60 | 2 | 재생 중 위쪽 "멀미 완화" (누적량 5 이상이어야 학습 기록) |
 
 - 멀미 완화 버튼 좌표 (2560x1440): `adb shell input tap 2248 150`

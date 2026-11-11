@@ -1,8 +1,11 @@
 """Reference engine (STEP 4). The Kotlin app/core must reproduce these numbers.
 
 Formulas (team page numbering):
-  1  a_x = dv/dt, a_y = v * dtheta/dt (EMA on v and yaw rate), low-frequency = a - mean(last 10 s):
-     1 Hz samples hold up to 0.5 Hz, the 10 s mean removes below 0.1 Hz, so only 0.1-0.5 Hz sway is accumulated
+  1  a_x = dv/dt, a_y = v * dtheta/dt, then a band filter shaped like the lateral motion-sickness
+     weighting (Donohew & Griffin 2004: flat 0.0315-0.25 Hz, falling above): 2nd-order Butterworth
+     high-pass at 0.0315 Hz (removes steady acceleration and long curves) + 2nd-order low-pass
+     (0.27 Hz, Q 0.95, one zero at -0.35). 1 Hz samples hold up to 0.5 Hz (Nyquist), where the
+     whole path is about -12 dB; sim/freq_response.py measures it
   2  dose D = sqrt(sum (wX ax^2 + wY ay^2) dt), index I = RMS over last 60 s (zero-padded window)
   3  cabin factor m = 1 - gT*max(0, T - T0) - gV*min(1, t_recirc/3600), floor 0.6
   4  cue distance = v * (say + prepare)
@@ -35,7 +38,9 @@ class MotionEstimator:
         self.v = self.alpha * speed + (1 - self.alpha) * self.v
         ax = (self.v - v_prev) / dt
         # compass bearing grows clockwise, so a right turn is a positive change
-        # yaw rate gets the same EMA as speed: GPS bearing noise is multiplied by v in a_y
+        # optional EMA on speed and yaw rate (speedEmaAlpha 1 = off). It used to be 0.5, a 1st-order
+        # low-pass at ~0.1 Hz that cut 0.1-0.25 Hz by 3-9 dB; BandFilter's low-pass now does the
+        # smoothing of GPS bearing noise (which v multiplies in a_y)
         omega = wrap_pi(theta - self.theta) / dt
         self.theta = theta
         self.omega = self.alpha * omega + (1 - self.alpha) * self.omega
@@ -43,13 +48,50 @@ class MotionEstimator:
         return ax, ay
 
 
-class LowFreqFilter:
-    def __init__(self, window):
-        self.buf = deque(maxlen=window)
+class Biquad:
+    """y = (b0 x + b1 x1 + b2 x2 - a1 y1 - a2 y2), direct form I, zero initial state."""
+
+    def __init__(self, b, a):
+        self.b0, self.b1, self.b2 = b
+        self.a1, self.a2 = a
+        self.x1 = self.x2 = self.y1 = self.y2 = 0.0
+
+    def step(self, x):
+        y = self.b0 * x + self.b1 * self.x1 + self.b2 * self.x2 - self.a1 * self.y1 - self.a2 * self.y2
+        self.x2, self.x1 = self.x1, x
+        self.y2, self.y1 = self.y1, y
+        return y
+
+
+def highpass_coeffs(f0, q, fs):
+    """2nd-order high-pass (bilinear transform, pre-warped: -3 dB at f0 for q = 1/sqrt(2))."""
+    w0 = 2 * math.pi * f0 / fs
+    c, al = math.cos(w0), math.sin(w0) / (2 * q)
+    a0 = 1 + al
+    return ((1 + c) / 2 / a0, -(1 + c) / a0, (1 + c) / 2 / a0), (-2 * c / a0, (1 - al) / a0)
+
+
+def lowpass_coeffs(fn, q, zero, fs):
+    """2nd-order low-pass: analog poles (natural frequency fn, quality q) mapped by z = exp(sT),
+    one zero at z = -zero, unity gain at 0 Hz. No forced zero at Nyquist (unlike the bilinear
+    transform), so 0.5 Hz keeps about -8 dB here and the whole path about -12 dB."""
+    zeta, wn = 1 / (2 * q), 2 * math.pi * fn / fs
+    r, th = math.exp(-zeta * wn), wn * math.sqrt(1 - zeta * zeta)
+    a1, a2 = -2 * r * math.cos(th), r * r
+    g = (1 + a1 + a2) / (1 + zero)
+    return (g, g * zero, 0.0), (a1, a2)
+
+
+class BandFilter:
+    """Motion-sickness band for one axis: high-pass (steady part out) then low-pass. O(1) state."""
+
+    def __init__(self, p):
+        fs = p["sampleHz"]
+        self.hp = Biquad(*highpass_coeffs(p["bandHighPassHz"], p["bandHighPassQ"], fs))
+        self.lp = Biquad(*lowpass_coeffs(p["bandLowPassHz"], p["bandLowPassQ"], p["bandLowPassZero"], fs))
 
     def step(self, a):
-        self.buf.append(a)
-        return a - sum(self.buf) / len(self.buf)
+        return self.lp.step(self.hp.step(a))
 
 
 class SicknessIndex:
@@ -180,8 +222,8 @@ class Engine:
     def __init__(self, p):
         self.p = p
         self.motion = MotionEstimator(p)
-        self.lfx = LowFreqFilter(int(p["lowFreqWindowS"] * p["sampleHz"]))
-        self.lfy = LowFreqFilter(int(p["lowFreqWindowS"] * p["sampleHz"]))
+        self.lfx = BandFilter(p)
+        self.lfy = BandFilter(p)
         self.index = SicknessIndex(p)
         self.cabin = CabinFactor(p)
         self.alerts = AlertMachine(p)

@@ -6,17 +6,17 @@
 const band = `<svg width="430" height="132" viewBox="0 0 430 132" font-family="${FONT}">
   <text x="0" y="16" font-size="14" font-weight="700" fill="#0F1838">남기는 흔들림</text>
   <rect x="0" y="34" width="118" height="44" rx="8" fill="#F3F4F6"/>
-  <text x="59" y="52" font-size="12.5" fill="#4B5563" text-anchor="middle" font-weight="700">0.1 Hz 아래 제거</text>
+  <text x="59" y="52" font-size="12.5" fill="#4B5563" text-anchor="middle" font-weight="700">0.03 Hz 아래 제거</text>
   <text x="59" y="69" font-size="12" fill="#4A5470" text-anchor="middle">꾸준한 가속 · 긴 커브</text>
   <rect x="124" y="34" width="176" height="44" rx="8" fill="#FCE7F3" stroke="#DB2777" stroke-width="1.5"/>
-  <text x="212" y="61" font-size="15" fill="#DB2777" text-anchor="middle" font-weight="700">0.1–0.5 Hz 누적</text>
+  <text x="212" y="61" font-size="15" fill="#DB2777" text-anchor="middle" font-weight="700">0.03–0.25 Hz 누적</text>
   <rect x="306" y="34" width="124" height="44" rx="8" fill="#fff" stroke="#E6EAF2" stroke-dasharray="4 3"/>
-  <text x="368" y="52" font-size="12.5" fill="#4A5470" text-anchor="middle" font-weight="700">0.5 Hz 위</text>
-  <text x="368" y="69" font-size="12" fill="#4A5470" text-anchor="middle">1초 샘플 한계</text>
+  <text x="368" y="52" font-size="12.5" fill="#4A5470" text-anchor="middle" font-weight="700">0.25 Hz 위</text>
+  <text x="368" y="69" font-size="12" fill="#4A5470" text-anchor="middle">점점 줄임 · 0.5 Hz까지</text>
   <path d="M0 96h430" stroke="#0F1838" stroke-width="1.2"/>
   <text x="430" y="114" font-size="12" fill="#4A5470" text-anchor="end">빠른 흔들림 →</text>
   
-  <text x="59" y="128" font-size="12" fill="#4A5470" text-anchor="middle">최근 10초 평균을 뺌</text>
+  <text x="0" y="128" font-size="12" fill="#4A5470">아래쪽은 고역 통과 필터 (0.0315 Hz)</text>
 </svg>`;
 const win = `<svg width="410" height="132" viewBox="0 0 410 132" font-family="${FONT}">
   <text x="0" y="16" font-size="14" font-weight="700" fill="#0F1838">같은 흔들림, 다른 창</text>
@@ -37,7 +37,7 @@ window.F = {
   legend: [
     { v: 'I', tex: String.raw`\cI{I}`, text: '흔들림 지수', sub: '최근 60초 제곱평균제곱근' },
     { v: 'K', tex: String.raw`\cK{\tfrac{1}{60}}`, text: '처음 60초도 60으로 나눔', sub: '아직 없는 구간은 0으로 채움' },
-    { v: 'A', tex: String.raw`\cA{a_x},\cA{a_y}`, text: '앞뒤 · 옆 가속도', sub: '0.1–0.5 Hz 흔들림만' },
+    { v: 'A', tex: String.raw`\cA{a_x},\cA{a_y}`, text: '앞뒤 · 옆 가속도', sub: '0.03–0.25 Hz 중심 (멀미 가중)' },
     { v: 'D', tex: String.raw`\cD{D}`, text: '누적 흔들림', sub: '같은 값을 끝까지 누적' },
   ],
 };
