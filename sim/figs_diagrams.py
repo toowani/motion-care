@@ -267,7 +267,7 @@ def conditions():
          ["흔들림 지수 {I}", "누적량 {D}"]),
         ("덥고 답답한 실내", ["덥고 내기순환이", "길수록 쉬움"], "thermo", ["실내 온도", "내기순환"],
          ["외기 전환", "온도 낮춤"]),
-        ("사람마다 다른 기준", ["같은 흔들림에도", "다름"], "person_slider", ["멀미 완화 버튼을", "누른 순간"],
+        ("사람마다 다른 기준", ["같은 흔들림에도", "사람마다 다른 반응"], "person_slider", ["멀미 완화 버튼을", "누른 순간"],
          ["개인 기준선 {tau}", "학습"]),
     ]
     out_ink, out_bg = LAYER["out"]
@@ -353,7 +353,7 @@ def who_gets_sick():
     f.text(352, seats["drv"][1] + 17, "다음 움직임을 앎", 13, INK)
     f.line(seats["rr"][0] + 22, seats["rr"][1], 344, seats["rr"][1], RED, 1.5, "3 3")
     f.text(352, seats["rr"][1] - 3, "동승자", 15, RED, weight=700)
-    f.text(352, seats["rr"][1] + 17, "모름", 13, INK)
+    f.text(352, seats["rr"][1] + 17, "알 수 없음", 13, INK)
     f.line(492, 30, 492, 230, LINE, 1.5)
     # right: age axis
     f.text(530, 44, "멀미가 가장 흔한 나이", 16, INK, weight=800)
@@ -582,7 +582,7 @@ def real_or_sim():
            anchor="middle", weight=700)
     f.rect(28, 72, 436, 172, WHITE, GREEN, cs.RADIUS, 1.5)
     f.icon(62, 106, "check", GREEN, GREEN_T)
-    f.text(94, 112, "진짜 · Pleos SDK", 16, GREEN, weight=700)
+    f.text(94, 112, "실 차량 연동 · Pleos SDK", 16, GREEN, weight=700)
     f.text(46, 156, "차를 움직임", 12, BLUE, weight=700)
     flow_chips(f, 136, 134, 320, ["공조", "창문", "음성"], LAYER["out"][0], LAYER["out"][1])
     f.text(46, 208, "차 신호", 12, BLUE, weight=700)
@@ -602,8 +602,7 @@ def relief_sequence():
     f = Fig(960, 500)
     # button
     f.rect(28, 186, 196, 72, ORANGE, None, 36)
-    f.icon(66, 222, "hand", WHITE, None)
-    f.text(140, 230, "멀미 완화", 22, WHITE, "middle", 700)
+    f.text(126, 230, "멀미 완화", 22, WHITE, "middle", 700)
     f.text(126, 284, "지도 · 분석 · 한 화면 모드", 12.5, FOOT, "middle")
     f.text(126, 302, "어디서나", 12.5, FOOT, "middle")
     # steps
@@ -639,17 +638,18 @@ def relief_sequence():
     f.chip(sx, 448, "pleos.car.permission.CONTROL_CAR_WINDOWS", sdk_ink, sdk_bg, 12.5, 30, pad=14, family=MONO)
     # fallbacks
     fx, fw = 676, 256
-    f.text(fx, 32, "자동 조치가 안 될 때", 14, AMBER, weight=800)
-    falls = [(44, 112, "창문을 못 열면", "거절 · 뒷창문 없음 · 4초 무응답", ["화면 + 음성으로 부탁", "“창문을 조금 열어 주세요”"]),
-             (172, 88, "공조가 꺼져 있으면", None, ["공조는 그대로 두고", "창문 · 음성만 진행"]),
-             (276, 88, "20초 안에 다시 누르면", None, ["화면에 “환기 중이에요”만", "같은 조치는 반복 안 함"])]
+    f.text(fx, 32, "창문 · 공조를 못 쓸 때 대신 하는 일", 14, AMBER, weight=800)
+    falls = [(44, 132, "창문을 못 열면", ["거절 · 뒷창문 없음 · 4초 무응답", "터널 · 대기질 나쁨 (확장 예정)"], ["화면 + 음성으로 부탁", "“창문을 조금 열어 주세요”"]),
+             (190, 88, "공조가 꺼져 있으면", None, ["공조는 그대로 두고", "창문 · 음성만 진행"]),
+             (292, 88, "20초 안에 다시 누르면", None, ["화면에 “환기 중이에요”만", "같은 조치는 반복 안 함"])]
     for i, (top, h, cond, sub, res) in enumerate(falls):
         f.rect(fx, top, fw, h, "#FFFBEB", cs.MID, cs.RADIUS_SM + 4, 1.2, "6 4")
         f.text(fx + 16, top + 26, cond, 14.5, AMBER, weight=700)
         yy = top + 26
         if sub:
-            f.text(fx + 16, top + 46, sub, 12, MUTED)
-            yy = top + 46
+            for k, line in enumerate(sub):
+                f.text(fx + 16, top + 46 + 18 * k, line, 12, MUTED)
+            yy = top + 46 + 18 * (len(sub) - 1)
         f.add(f'<path d="M{fx + 22} {yy + 10} v9 h10 m-5 -5 l5 5 -5 5" fill="none" stroke="{AMBER}" stroke-width="2" '
               f'stroke-linecap="round" stroke-linejoin="round"/>')
         f.lines(fx + 44, yy + 24, res, 13.5, INK, weight=700, lh=20)

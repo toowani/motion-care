@@ -100,7 +100,7 @@ def at_a_glance():
     f = Fig(W, TOP + 4 * PITCH + 106 + 20)
     f.text(32, 54, "켜 두면 차가 알아서, 힘들면 버튼 하나", 30, INK, weight=800)
     f.text(32, 90, "뒷좌석 아이(4–13세)를 태운 가족 차 · 운전자가 한 번 켜 두면 주행 내내 뒤에서 계산", 17.5, SUB)
-    panel(f, 20, "① 차가 알아서", "켜 두기만 하면", AUTO, AUTO_T, AUTO_BG, [
+    panel(f, 20, "① 차내 자동화", "켜 두기만 하면", AUTO, AUTO_T, AUTO_BG, [
         {"icons": ["child", "rise"], "fg": RISK, "bg": RISK_T, "title": "아이 멀미 위험 오름", "tfg": RISK,
          "sub": "흔들림 · 더위로 멀미 지수 계산"},
         {"icons": ["screen", "bell"], "fg": WARN, "bg": WARN_T, "title": "화면 · 소리로 알림", "tfg": WARN,
