@@ -18,7 +18,7 @@
 
 <a href="docs/demo-script.md"><img src="docs/img/link_video.svg" height="40" alt="시연 콘티 · 영상은 촬영 예정"></a> <a href="https://github.com/toowani/motion-care/releases/latest/download/CRAVE_MotionCare_release.apk"><img src="docs/img/link_apk.svg" height="40" alt="APK 받기 · GitHub Releases"></a> <a href="#심사용-빠른-실행"><img src="docs/img/link_repo.svg" height="40" alt="실행 방법 · 에뮬레이터 4단계"></a>
 
-<sub><img src="docs/img/crave_logo.svg" width="16" align="absmiddle"> 현대자동차그룹 차량용 앱 개발 공모전 (Pleos Connect) · 팀 CRAVE</sub>
+<img src="docs/img/crave_logo.svg" width="22" align="absmiddle"> **현대자동차그룹 차량용 앱 개발 공모전 (Pleos Connect) · 팀 CRAVE**
 
 [1 멀미 조건](#1-우리가-판단한-멀미-조건) · [2 근거](#2-근거) · [3 멀미 지수](#3-멀미-지수-계산) · [4 구현 방법](#4-구현-방법) · [5 실제 구현](#5-실제-구현) · [6 가치](#6-가치) · [7 확장](#7-확장-가능성) · [팀](#팀-crave) · [8 부록](#8-부록-한계--실행-방법--문서)
 
@@ -195,13 +195,13 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 ## 7. 확장 가능성
 
-<img src="docs/img/slide_vision.jpg" width="100%" alt="승차감은 숫자로, 피드백은 주행으로: 천천히 가 주세요라고 들어 줄 운전자 없음 → 차가 재고·듣고·고쳐야 · 승차감 지수(부드럽게 1.65, 거칠게 2.58, 숫자 표시는 멀미 Zero와 겹침, 우리 몫은 누적량 D·개인 기준선) · 피드백 → 즉시 개선 순환(멀미 피드백 → 기준 학습 → 제어 변경 → 다시 측정)">
+<img src="docs/img/slide_vision.jpg" width="100%" alt="승차감은 숫자로, 피드백은 주행으로: 천천히 가 주세요라고 들어 줄 운전자 없음 → 차가 재고·듣고·고쳐야 · 승차감 지수(부드럽게 1.65, 거칠게 2.58, 우리 몫은 누적량 D·개인 기준선) · 피드백 → 즉시 개선 순환(멀미 피드백 → 기준 학습 → 제어 변경 → 다시 측정)">
 
-<img src="docs/img/extension_map.svg" width="100%" alt="같은 엔진(I·D·m·τ·P)에서 확장 4가지: ① 예측 음성 안내(멀미 Zero와 겹침, 엔진 계산 중, 앱에서 꺼 둠, 근거 Kuiper 외 2020, 동승 실험 뒤 켬) ② 휴게소 추천(제안 시점 3분 30초, 확장 LLM+POI 검색 API) ③ 가족 모드(아이마다 기준선, 엔진 코드 있음 · 앱에서 꺼 둠) ④ 승차감 정량 지표(멀미 Zero와 겹침, 차종 비교·택시 평가·업계 표준, 제안) · 겹치는 두 카드의 우리 몫: 누적량 D 기반 멀미 가능성 · 개인 기준선 τ · 앱 배포">
+<img src="docs/img/extension_map.svg" width="100%" alt="같은 엔진(I·D·m·τ·P)에서 확장 4가지: ① 예측 음성 안내(엔진 계산 중, 앱에서 꺼 둠, 근거 Kuiper 외 2020, 동승 실험 뒤 켬) ② 휴게소 추천(제안 시점 3분 30초, 확장 LLM+POI 검색 API) ③ 가족 모드(아이마다 기준선, 엔진 코드 있음 · 앱에서 꺼 둠) ④ 승차감 정량 지표(차종 비교·택시 평가·업계 표준, 제안) · 겹치는 두 카드의 우리 몫: 누적량 D 기반 멀미 가능성 · 개인 기준선 τ · 앱 배포">
 
 숨긴 화면 코드: [`android/app/src/main/kotlin/ai/motioncare/app/later/`](android/app/src/main/kotlin/ai/motioncare/app/later/README.md)
 
-### ① 예측 음성 안내 (회전 예고) · 멀미 Zero와 겹침
+### ① 예측 음성 안내 (회전 예고)
 
 <img src="docs/img/timeline_city.svg" width="100%" alt="엔진 안의 회전 예고: 도심 회전 4곳마다 예고 시점(엔진에서만 계산, 앱에서는 꺼 둠), 신호 대기 뒤 한 번 더 · 25초 · 418초는 회전 예고가 아니라 앱이 실제로 말하는 브레이크 안내">
 
@@ -215,7 +215,7 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 **대응 순서를 보여 주는 그림** · 검증 아님
 
-### ④ 승차감 정량 지표 · 멀미 Zero와 겹침
+### ④ 승차감 정량 지표
 
 <img src="docs/img/ride_quality_uses.svg" width="100%" alt="승차감 정량 지표: I와 D를 차종 비교, 택시·기사 평가(같은 노선끼리 비교), ISO 2631-1 형태의 업계 표준 지표로 활용">
 
@@ -333,4 +333,4 @@ cd android && ./gradlew :app:assembleRelease   # 서명된 APK → apk/ (클라�
 
 [기획서](docs/proposal.md) · [검증](docs/validation.md) · [확인 기록](docs/qa.md) · [제출 체크리스트](docs/submission.md) · [Pleos 문의 초안](docs/pleos-inquiry.md) · [시연 콘티](docs/demo-script.md) · [동승 조사](docs/ride-study.md) · [문헌 근거](research/literature.md) · [경쟁 조사](research/market.md)
 
-<sub>멀미를 실제로 막는지는 동승 조사로 확인할 단계입니다 ([동승 조사](docs/ride-study.md))</sub>
+<sub>멀미를 실제로 막는지는 동승 조사로 확인이 필요합니다.</sub>
