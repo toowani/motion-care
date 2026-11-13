@@ -22,6 +22,51 @@ INK, MUTED, LINE = cs.INK, cs.MUTED, cs.LINE
 CARD = cs.CARD
 FOOT = cs.FOOT
 BLUE, BAND = cs.BLUE, cs.BAND
+def low_tone_notes():
+    """Three note cards under the paper figure: figure source, limit, patent."""
+    cards = [
+        ("doc", "논문 그림 출처", [
+            "실제 차 실험 (Gu 외, 2025, Fig. 6, n=10)",
+            "(A) 머리받침 스피커로 양쪽 귀에 100 Hz",
+            "(B) 소리 1분 뒤 3분 주행, 같은 사람이 소리 있음 · 없음을 모두 받음",
+            "(C) 자세 흔들림 증가가 줄어듦",
+            "(D) 멀미 설문(MSAQ) 총점이 낮아짐",
+            "출처: Environ Health Prev Med 2025;30:22, doi:10.1265/ehpm.24-00247, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) · 원문 그림을 잘라 씀, 내용은 바꾸지 않음",
+        ]),
+        ("noentry", "한계", [
+            "연구는 흔들리기 전 재생만 확인했고, 흔들리는 중 재생 효과는 저자도 추가 연구가 필요하다고 썼습니다.",
+            "그래서 흔들림이 쌓일 때 · 버튼을 누를 때의 재생은 동승 조사로 확인할 항목입니다.",
+        ]),
+        ("lock", "특허 (2026-11-13 확인)", [
+            "나고야대는 ‘50–140 Hz · 70–85 dB 소리로 이석을 자극하는 장치’를 미국(US12023222B2) · 유럽(EP3804672B1) · 일본(JP7191400B2) · 중국(CN112243368B)에 등록했고, DENSO가 이 특허의 라이선스 옵션 비용을 냈습니다(논문 이해관계 공개).",
+            "Google Patents 패밀리 기준 한국 출원은 없고 PCT 국내 진입 기한(2020년 말)도 지나, 국내 사용은 이 특허에 걸리지 않는 것으로 봅니다(KIPRIS 직접 조회와 변리사 확인은 전). 해외 판매 차량에 넣으려면 라이선스가 필요합니다.",
+            "주파수가 시간에 따라 바뀌는 소리를 다룬 후속 출원(US20260007850A1 · EP4555983A1, 심사 중)은 고정 100 Hz인 멀미 케어와 청구항 1이 다릅니다.",
+            "sound spice®는 상표로 표기되며, 앱은 이 이름을 쓰지 않습니다.",
+        ]),
+    ]
+    size, lh, tx, tw_ = 13.5, 20, 96, 804
+    laid, H = [], 28
+    for ic, head, paras in cards:
+        wr = [wrap(p, size, tw_ - 14) for p in paras]
+        h = 62 + sum(len(w) for w in wr) * lh + (len(wr) - 1) * 6 + 10
+        laid.append((ic, head, wr, H, h))
+        H += h + 14
+    H += 14
+    s = Svg(960, H)
+    for ic, head, wr, y, h in laid:
+        s.card(28, y, 904, h)
+        s.icon(ic, 64, y + 34, BLUE, BAND, 20)
+        s.text(tx, y + 40, head, 17, INK, "start", 800)
+        yy = y + 72
+        for w in wr:
+            s.circle(tx + 3, yy - 4.5, 2.5, FOOT)
+            for ln in w:
+                s.text(tx + 14, yy, ln, size, INK if ln is w[0] and w is wr[0] and head == "논문 그림 출처" else MUTED)
+                yy += lh
+            yy += 6
+    s.save("low_tone_notes.svg", "저주파 소리 논문 그림 출처 · 한계 · 특허")
+
+
 TRACK = cs.TITLE_TRACKING
 
 # variable colours (same in every formula / diagram) -- semantic, kept
@@ -503,7 +548,11 @@ def emulator_checks():
     ]
     cols, gap, th = 5, 12, 104
     tw_ = (904 - (cols - 1) * gap) / cols
-    H = 28 + 2 * th + gap + 76
+    tone_txt = ("굽은 길 재생에서 출발 순간 AudioTrack(USAGE_MEDIA, 100 Hz, 8 kHz 모노)이 시작되고 1분 뒤 해제됨 · "
+                "멀미 완화 버튼을 누르면 다시 시작됨 · 실제 소리 크기(dBA)는 실차에서 잴 항목")
+    tone_lines = wrap(tone_txt, 13.5, 904 - 130)
+    note_h = 52 + len(tone_lines) * 19
+    H = 28 + 2 * th + gap + 76 + 14 + note_h
     s = Svg(960, H)
     for i, (kind, ic, label, detail) in enumerate(tiles):
         x, y = 28 + (i % cols) * (tw_ + gap), 28 + (i // cols) * (th + gap)
@@ -518,7 +567,15 @@ def emulator_checks():
     x = 28 + tw("Pleos Connect Emulator v2.1 · 10가지 점검", 14, True) + 14
     x += s.chip(x, y, "9가지 확인", LOW, LOW_T, LOW_T, 14, 30, bold=True, pad=12) + 8
     s.chip(x, y, "창문은 명령 수락까지 · 실제 움직임은 확인 필요", MID_INK, MID_T, MID_T, 13, 30, bold=True, pad=12)
-    s.save("emulator_checks.svg", "에뮬레이터 점검: 10가지 중 9가지 확인, 창문은 명령 수락까지")
+    # separately listed extra check (not one of the 10)
+    ny = y + 30 + 14
+    s.card(28, ny, 904, note_h, CARD, LINE, cs.RADIUS, 1)
+    s.icon("tone", 62, ny + 36, SLATE, SLATE_T, 20)
+    s.text(96, ny + 30, "저주파 소리 (2026-11-13, 같은 에뮬레이터, 따로 확인)", 15, INK, "start", 700)
+    s.status("ok", 912, ny + 26, 12)
+    for k, ln in enumerate(tone_lines):
+        s.text(96, ny + 54 + k * 19, ln, 13.5, MUTED)
+    s.save("emulator_checks.svg", "에뮬레이터 점검: 10가지 중 9가지 확인, 창문은 명령 수락까지 · 저주파 소리는 따로 확인")
 
 
 def theme_names():
@@ -946,7 +1003,7 @@ def remaining_work():
     s.save("remaining_work.svg", "남은 일")
 
 
-FIGS = [low_tone, evidence, two_values, scenario_cards, emulator_checks, theme_names, map_elements, phone_vs_car,
+FIGS = [low_tone, low_tone_notes, evidence, two_values, scenario_cards, emulator_checks, theme_names, map_elements, phone_vs_car,
         market_compare, target, mau_funnel, retention_revenue, b2b_targets, ride_quality_uses, limits, dev_env, remaining_work]
 
 if __name__ == "__main__":

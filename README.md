@@ -1,12 +1,12 @@
 # 🤢 멀미 케어
 
-### 멀미 케어는 차량 주행 중 예고없는 움직임, 흔들림 누적, 실내 환경 때문에 사람마다 다르게 나타나는 멀미를 저주파, 환기, 음성 안내를 통해 해결하며, 그 순간을 기록해 멀미 기준을 학습하는 개인화된 Pleos 차량용 앱입니다.
+### 멀미 케어는 차량 주행 중 예고없는 움직임, 흔들림 누적, 실내 환경 때문에<br>사람마다 다르게 나타나는 멀미를<br>저주파, 환기, 음성 안내를 통해 해결하며,<br>그 순간을 기록해 멀미 기준을 학습하는<br>개인화된 Pleos 차량용 앱입니다.
 
 **알려 주는 데서 멈추지 않습니다.**
 
 <img src="docs/img/explainer.webp" width="100%" alt="멀미 케어 필름 (25초, 가족이 겪는 순서): 굽은 산길 → 뒷좌석 아이 '속이 울렁거려…' → 센터 화면의 몽글이와 '브레이크 부드럽게' 알림, 차가 운전자에게 '뒷좌석이 흔들려요. 브레이크를 부드럽게 밟아 주세요.' → 운전자가 브레이크를 부드럽게 → 송풍구에서 바깥 공기 '바깥 공기로 바꾸고 온도를 조금 낮출게요.' → '그래도 어지러워…' → 멀미 완화 버튼 한 번 → '창문 열고 환기할게요. 먼 곳을 보세요.' → 창문으로 바람, 아이 '이제 좀 살 것 같아' → 멀미 케어">
 
-<sub>앱 화면·음성은 실제 녹화 · 차 안 장면은 Kling 2.5 Turbo AI 생성 · 영상은 저주파 소리를 넣기 전에 만들었습니다</sub>
+<sub>앱 화면·음성은 실제 녹화 · 차 안 장면은 Kling 2.5 Turbo AI 생성</sub>
 
 <img src="docs/img/at_a_glance.svg" width="100%" alt="차 신호로 먼저, 힘들면 버튼 하나 · 멀미하는 동승자 누구나. 왼쪽 ① 차가 먼저(켜 두기만 하면): 멀미 위험 계산(핸들·속도·실내 온도) → 저주파 소리 1분(출발할 때·흔들릴 때) + 바깥 공기·온도 낮춤(외기 순환·22°C) + 운전자 음성 안내(“브레이크 부드럽게”) → 실내가 나아지면 다시 계산. 오른쪽 ② 버튼 하나(그래도 힘들면): 멀미 완화 버튼 → 자동 조치(저주파·환기·음성 안내) → 그 순간을 기록 → 내 멀미 기준 학습 → 링이 내 기준으로">
 
@@ -91,11 +91,7 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 <img src="docs/img/paper_fig6_vehicle.png" width="100%" alt="Gu 외(2025) Fig. 6, 실제 차 실험: (A) 머리받침에 단 스피커 2개를 양쪽 귀에서 10 cm 거리에 두고 100 Hz 소리를 들려줌 (B) 소리 없음 1분 또는 100 Hz 1분 → 차 3분 주행 → 자세 흔들림 측정과 멀미 설문(MSAQ), 같은 사람이 두 조건을 120분 넘게 쉬고 모두 받음 (C) 자세 흔들림 증가가 100 Hz 쪽에서 작음 (D) MSAQ 총점·위장·중추·졸림 관련 점수가 100 Hz 쪽에서 낮음, 말초는 차이 없음, n=10">
 
-<sub>논문 그림: 실제 차 실험 (Gu 외, 2025, Fig. 6, n=10). (A) 머리받침 스피커로 양쪽 귀에 100 Hz · (B) 소리 1분 뒤 3분 주행, 같은 사람이 소리 있음 · 없음을 모두 받음 · (C) 자세 흔들림 증가가 줄어듦 · (D) 멀미 설문(MSAQ) 총점이 낮아짐. 출처: Environ Health Prev Med 2025;30:22, [doi:10.1265/ehpm.24-00247](https://doi.org/10.1265/ehpm.24-00247), [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) · 원문 그림을 잘라 씀, 내용은 바꾸지 않음.</sub>
-
-<sub>한계: 연구는 흔들리기 **전** 재생만 확인했고, 흔들리는 **중** 재생 효과는 저자도 추가 연구가 필요하다고 썼습니다. 그래서 흔들림이 쌓일 때 · 버튼을 누를 때의 재생은 동승 조사로 확인할 항목입니다. </sub>
-
-<sub>특허 (2026-11-13 확인): 나고야대는 '50–140 Hz · 70–85 dB 소리로 이석을 자극하는 장치'를 미국(US12023222B2)·유럽(EP3804672B1)·일본(JP7191400B2)·중국(CN112243368B)에 등록했고, DENSO가 이 특허의 라이선스 옵션 비용을 냈습니다(논문 이해관계 공개). Google Patents 패밀리 기준 한국 출원은 없고 PCT 국내 진입 기한(2020년 말)도 지나, 국내 사용은 이 특허에 걸리지 않는 것으로 봅니다(KIPRIS 직접 조회와 변리사 확인은 전). 해외 판매 차량에 넣으려면 라이선스가 필요합니다. 주파수가 시간에 따라 바뀌는 소리를 다룬 후속 출원(US20260007850A1·EP4555983A1, 심사 중)은 고정 100 Hz인 멀미 케어와 청구항 1이 다릅니다. sound spice®는 상표로 표기되며, 앱은 이 이름을 쓰지 않습니다.</sub>
+<img src="docs/img/low_tone_notes.svg" width="100%" alt="논문 그림 출처(Gu 외, 2025, Fig. 6, CC BY 4.0), 한계(흔들리는 중 재생은 동승 조사로 확인), 특허 확인(2026-11-13)">
 
 ## 5. 구현 방법
 
@@ -107,9 +103,9 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 <img src="docs/img/validation_ladder.svg" width="100%" alt="3단계 점검 (계산 동작 · 시뮬레이션 현실성 · SDK 연결) · 멀미 예측 정확도 검증은 아님: ① 계산 동작: 실제 도로 시나리오 시뮬레이션 점검 10/10 통과(도로 4곳 · 주행 6회) ② 시뮬레이션 현실성: 실제 주행 데이터 비교(comma2k19) 가속도 0.97배(기준 0.5–2배, 고속도로 45초) ③ SDK 연결: Pleos 에뮬레이터(실제 SDK) 9가지 기능 확인, 창문은 명령 수락까지 (v2.1 · API 34)">
 
-<sub>검증은 시뮬레이션 · 에뮬레이터까지입니다. 실제 동승자가 탄 주행 데이터는 아직 없어, 멀미 가능성의 정확도는 확인 전입니다 · 다음 단계: [동승 조사](docs/ride-study.md)</sub>
-
 ### 도로 4곳 · 주행 6회 (OpenStreetMap)
+
+<sub>OpenStreetMap: 누구나 고치고 쓰는 오픈 지도 데이터 (© OpenStreetMap contributors)</sub>
 
 <img src="docs/img/scenario_cards.svg" width="100%" alt="실제 도로 4곳: 도심 3.7 km(회전 4·신호 정지 6, 부드럽게·거칠게), 굽은 길 5.2 km(커브 52곳, 부드럽게·거칠게), 고속도로 17.0 km(13.0분), 나들이길 37.4 km(34.7분) → 1초 간격 가상 센서 값(속도·진행 방향·실내 온도) · 핸들 각도는 시나리오에 없음(에뮬레이터에서만 확인)">
 
@@ -137,8 +133,6 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 <img src="docs/img/relief_sequence.svg" width="100%" alt="멀미 완화 버튼(지도·분석·한 화면 모드 어디서나): 1 저주파 100 Hz 1분(AudioTrack, 차 스피커) 2 뒷창문 20%(Vehicle Window) 3 바깥 공기+22°C(Vehicle HVAC) 4 '낮은 소리 틀고 환기할게요. 먼 곳을 보세요.'(TextToSpeech) 5 누른 순간 D → 내 기준선 τ(주행마다 첫 누름만, D ≥ 5일 때, 최근 30개, 차 한 대에 기준 하나) · 창문·공조를 못 쓸 때 대신 하는 일: 창문 불가(거절·뒷창문 없음·4초 무응답) → 화면+음성 안내, 공조 꺼짐 → 그대로, 20초 안 다시 누름 → '환기 중이에요'만">
 
-<sub>저주파 소리 · 창문 · 공조 · 음성이 함께 움직입니다. 순서와 못 쓸 때의 대응은 [2절](#그래도-힘들면-멀미-완화-버튼-하나).</sub>
-
 ### ④ 흔들림이 커지면 차가 소리와 공기를 바꿈
 
 <img src="docs/img/closed_loop.svg" width="100%" alt="닫힌 고리 동작 확인(조치 → 실내 값 → 다시 계산, 멀미 감소 효과가 아님 · 시뮬레이션 실내 모델): 굽은 길(26°C, 내기순환 출발)에서 19초에 외기 전환·22°C, 환경 계수 m 0.84 → 0.99, 실내 온도 26 → 22°C / 앱 없으면 m 0.825에 머묾">
@@ -153,19 +147,13 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 <img src="docs/img/nav_front.svg" width="100%" alt="Pleos 내비가 앞 화면이어도 주행 지킴이가 뒤에서 계산·공조·음성 안내를 계속 · 지도 위 알림 카드는 Pleos 홈이 시스템 앱 알림만 띄워 Pleos 협의">
 
-**한 화면 모드** · 앱 폭 900 dp 미만
-
 ### ⑦ 설정 한 곳에서
 
 <img src="docs/img/ui_r6_settings_callouts.jpg" width="100%" alt="설정: 1 아이콘 테마 4종(주행 중 변경 잠금), 2 소리 안내, 3 공조 자동 조절(바깥 공기·22°C), 4 시연 패널(시연용, 실제 제품에는 없음)">
 
-<sub>설정에는 "저주파 소리" 켜기 · 끄기가 "소리 안내"와 "공조 자동 조절" 사이에 더 있습니다 (위 화면은 추가 전 녹화).</sub>
-
 ### 검증 결과
 
 <img src="docs/img/scenario_bars.svg" width="100%" alt="도로 4곳 · 주행 6회의 평균 흔들림 지수(막대)와 최댓값(세로선), 알림 켜진 시간: 고속도로 0.36(0 / 13분), 도심 부드럽게 0.68(1.6 / 8.8분), 도심 거칠게 1.07(6.7 / 8.2분), 나들이길 0.76(9.7 / 34.7분), 굽은 길 부드럽게 1.65(7.5 / 7.9분), 굽은 길 거칠게 2.58(5.9 / 6.2분) · 굽은 길은 길 모양(커브 52곳)이 커서 부드럽게 달려도 높음 · 주의 0.9 · 높음 1.5는 시뮬레이션에 맞춘 출발값(문헌값 아님)">
-
-<sub>굽은 길은 부드럽게 달려도 지수가 높습니다. 운전 방식보다 길 모양이 크게 작용하기 때문입니다. 주의 $0.9$ · 높음 $1.5$는 문헌값이 아니라 시뮬레이션에 맞춘 출발값이고, 동승 조사로 보정합니다.</sub>
 
 <img src="docs/img/timeline_winding.svg" width="100%" alt="굽은 길 거칠게: 흔들림 지수, 주의·높음 기준선, 19초 브레이크 안내·공조(주의 단계 진입), 31초 공조 재요청은 엔진 출력만(앱은 5분 안 반복 생략)">
 
@@ -174,8 +162,6 @@ DOI와 한계: [research/literature.md](research/literature.md)
 ### 에뮬레이터에서 확인한 것
 
 <img src="docs/img/emulator_checks.svg" width="100%" alt="Pleos Connect Emulator v2.1 10가지 점검 중 9가지 확인: 완화 버튼 학습, 공조 닫힌 고리, 공조 꺼짐, 핸들 각도, Pleos 음성, 내비 다음 회전, 내비 앞 화면, 한 화면 모드, 지도 탭 · 창문은 명령 수락까지(뒷창 위치 2), 실제 움직임은 확인 필요">
-
-저주파 소리는 같은 에뮬레이터에서 따로 확인했습니다 (2026-11-13): 굽은 길 재생에서 출발 순간 `AudioTrack`(USAGE_MEDIA, 100 Hz, 8 kHz 모노)이 시작되고 1분 뒤 해제됨, 멀미 완화 버튼을 누르면 다시 시작됨. 실제 소리 크기(dBA)는 실차에서 잴 항목입니다.
 
 고친 버그: [docs/qa.md](docs/qa.md) · 숫자: [docs/validation.md](docs/validation.md)
 
@@ -195,8 +181,6 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 <img src="docs/img/market_compare.svg" width="100%" alt="기능 비교(저주파 소리 = 핵심 기술, 차 신호, 미리 계산, 공기·바람 = 조치, 장비 없음, 사람별 기준 = 개인 학습, 상태): Apple Motion Cues·Google Motion Assist·Citroën Seetroën·현대차 스무스 모드(양산), 현대모비스(시범), JLR·VW·Bentley(연구), holoride(파산), Mercedes·BMW(특허), DENSO·나고야대(100 Hz 소리 연구, 저주파 소리만 있음), 멀미 Zero(현대차·기아 2026 아이디어 페스티벌 최우수상, 임직원 팀, 2026-10-19 공개, OTA 차량 기능: 차 신호·미리 보여 주기·장비 없음, 공기·바람과 사람별 기준은 공개 자료 기준 보도에 없음), 멀미 케어(여섯 가지 모두, 시제품 · 미리 계산은 핸들 각도로 1–2초이고 화면 예고는 확장, 사람별 기준은 멀미 가능성 표시에 반영) · 겹침: 차 신호·움직임 미리 보여 주기·하드웨어 추가 없음 · 다름: 공조·창문을 실제로 조작하는 앱, 버튼 기록 기반 기준, Pleos 앱 마켓 배포">
 
-<sub>저주파 소리 열은 이번에 넣었습니다. 같은 100 Hz 소리를 차에 넣는 일은 연구를 후원한 DENSO와 나고야대가 준비 중이라는 보도가 있습니다 (sound spice®, 공식 발표는 확인 못 함). 우리 차이는 차 신호로 재생 때를 잡고, 환기 · 음성 안내 · 개인 기준 학습과 한 앱으로 묶어 Pleos 앱 마켓으로 배포한다는 점입니다.</sub>
-
 [기획서 4절](docs/proposal.md) · [research/market.md](research/market.md)
 
 ### MAU · Retention · 수익
@@ -210,8 +194,6 @@ DOI와 한계: [research/literature.md](research/literature.md)
 ### 확장 대상
 
 <img src="docs/img/b2b_targets.svg" width="100%" alt="확장 대상: 택시·호출 약 25만 대, 통학 차량 약 4만 대, 자율주행 시범운행지구 42곳, Pleos MiniApp·계기판(Pleos 협의 후)">
-
-[협의 문의 초안](docs/pleos-inquiry.md)
 
 ---
 
@@ -234,8 +216,6 @@ DOI와 한계: [research/literature.md](research/literature.md)
 ### ③ 개인 맞춤 · 아이별 (가족 모드)
 
 <img src="docs/img/family.svg" width="100%" alt="같은 나들이길에서 두 아이의 기준선(민준 τ 24.9, 서연 τ 35.9)과 도달 시점(29.3분, 31.4분)">
-
-**대응 순서를 보여 주는 그림** · 검증 아님
 
 ### ④ 승차감 정량 지표
 
@@ -263,7 +243,9 @@ adb install -r CRAVE_MotionCare_release.apk
 adb shell am start --user 10 -n ai.motioncare.app/.MainActivity
 ```
 
-APK는 [Releases](https://github.com/toowani/motion-care/releases/latest/download/CRAVE_MotionCare_release.apk)에서 바로 받을 수 있습니다 (공모전 시뮬레이터용 빌드). 직접 빌드하려면 아래 "키와 서명"의 `android/local.properties`를 채운 뒤 빌드합니다.
+APK는 [Releases](https://github.com/toowani/motion-care/releases/latest/download/CRAVE_MotionCare_release.apk)에서 바로 받을 수 있습니다 (공모전 시뮬레이터용 빌드).
+
+직접 빌드하려면 아래 "키와 서명"의 `android/local.properties`를 채운 뒤 빌드합니다.
 
 ### 한계
 
@@ -347,6 +329,6 @@ cd android && ./gradlew :app:assembleRelease   # 서명된 APK → apk/ (클라�
 
 ### 문서
 
-[기획서](docs/proposal.md) · [검증](docs/validation.md) · [확인 기록](docs/qa.md) · [제출 체크리스트](docs/submission.md) · [Pleos 문의 초안](docs/pleos-inquiry.md) · [시연 콘티](docs/demo-script.md) · [동승 조사](docs/ride-study.md) · [문헌 근거](research/literature.md) · [경쟁 조사](research/market.md)
+[기획서](docs/proposal.md) · [검증](docs/validation.md) · [확인 기록](docs/qa.md) · [제출 체크리스트](docs/submission.md) · [시연 콘티](docs/demo-script.md) · [동승 조사](docs/ride-study.md) · [문헌 근거](research/literature.md) · [경쟁 조사](research/market.md)
 
 <sub>멀미를 실제로 막는지는 동승 조사로 확인이 필요합니다.</sub>

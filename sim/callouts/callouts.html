@@ -34,15 +34,17 @@ const SETS = {
     [1336, 94, '멀미 완화 버튼', '어느 탭에서나'],
     [1310, 780, '시연 패널', '시연용 · 실제 제품에는 없음'],
   ]},
-  settings: { img: 'ui_r6_settings.jpg', cols: 4, marks: [
-    [1059, 352, '아이콘 테마 4종', '주행 중 변경 잠금'],
-    [1445, 546, '소리 안내', '질문 · 위험 안내'],
-    [1445, 607, '공조 자동 조절', '바깥 공기 · 22°C'],
-    [1445, 668, '시연 패널', '시연용 · 실제 제품에는 없음'],
+  // settings: capture after the low-frequency-tone row was added (raw: settings_lowtone_raw.png, credit line painted out)
+  settings: { img: 'ui_r7_settings_lowtone.jpg', dir: '', cols: 5, marks: [
+    [1059, 306, '아이콘 테마 4종', '주행 중 변경 잠금'],
+    [1445, 485, '소리 안내', '질문 · 위험 안내'],
+    [1445, 546, '저주파 소리', '100 Hz · 켜기 · 끄기'],
+    [1445, 606, '공조 자동 조절', '바깥 공기 · 22°C'],
+    [1445, 667, '시연 패널', '시연용 · 제품 없음'],
   ]},
 };
 const set = SETS[new URLSearchParams(location.search).get('s') || 'analysis'];
-document.getElementById('img').src = '../../docs/img/' + set.img;
+document.getElementById('img').src = (set.dir ?? '../../docs/img/') + set.img;
 const k = 912 / 1600, shot = document.getElementById('shot'), lg = document.getElementById('legend');
 lg.style.setProperty('--cols', set.cols);
 set.marks.forEach(([x, y, t, s], i) => {

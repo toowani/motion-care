@@ -378,6 +378,7 @@ def family():
     legend(s, 70, 56, [("누적 흔들림 D", DOSE, None), ("민준 τ × m", KIDS["민준"][0], KIDS["민준"][1]), ("서연 τ × m", KIDS["서연"][0], KIDS["서연"][1])])
     if hits.get("민준") is not None and hits.get("서연") is not None:
         s.text(930, 56, f"민준(멀미 기록 10번, 약함)에게 {mmss(hits['서연'] - hits['민준'])} 먼저 대응", 12, MUTED, "end")
+    s.text(30, 358, "대응 순서를 보여 주는 그림 · 검증 아님", 12.5, MUTED, weight=600)
     s.save("family.svg")
 
 
