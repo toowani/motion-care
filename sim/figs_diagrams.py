@@ -55,6 +55,7 @@ COND_T = ["#DBEAFE", "#EDE9FE", "#CCFBF1", "#FFEDD5"]
 # line icons on a 24x24 grid (stroke 2, round caps)
 ICONS = {
     "steering": '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/><path d="M3.2 11h6.4M14.4 11h6.4M12 14.5V21"/>',
+    "tone": '<path d="M3 9.5h3L10 6v12l-4-3.5H3z"/><path d="M13 12c1.2-3.5 2.3-3.5 3.5 0s2.3 3.5 3.5 0"/>',
     "wave": '<path d="M2 12c1.7-5 3.3-5 5 0s3.3 5 5 0 3.3-5 5 0 2.5 3.5 5 1.5"/>',
     "child": '<circle cx="12" cy="5.5" r="2.8"/><path d="M12 8.5v7M7.5 11.5h9M12 15.5l-3.2 5.5M12 15.5l3.2 5.5"/>',
     "thermo": '<path d="M10 4.5a2 2 0 0 1 4 0V14a4 4 0 1 1-4 0z"/><path d="M12 9v8"/>',
@@ -264,7 +265,7 @@ def conditions():
         ("예고 없는 움직임", ["몸의 느낌과", "예상이 어긋남"], "steering", ["핸들 각도", "방향지시등 · 다음 회전"],
          ["핸들 각도로", "흔들림 계산을", "1–2초 앞당김"]),
         ("느린 흔들림 누적", ["약 0.03–0.25 Hz", "흔들림이 쌓임"], "wave", ["속도", "진행 방향"],
-         ["흔들림 지수 {I}", "누적량 {D}"]),
+         ["{I} · {D} 계산", "→ 저주파 소리 1분"]),
         ("덥고 답답한 실내", ["덥고 내기순환이", "길수록 쉬움"], "thermo", ["실내 온도", "내기순환"],
          ["외기 전환", "온도 낮춤"]),
         ("사람마다 다른 기준", ["같은 흔들림에도", "사람마다 다른 반응"], "person_slider", ["멀미 완화 버튼을", "누른 순간"],
@@ -488,10 +489,10 @@ def engine_parity():
 
 
 def sdk_map():
-    f = Fig(960, 560)
+    f = Fig(960, 640)
     lanes = [(28, 360, "읽기 · 1초마다", LAYER["car"]), (420, 200, "계산", LAYER["calc"]), (652, 280, "행동", LAYER["out"])]
     for x, w, title, (ink, bg) in lanes:
-        f.rect(x, 26, w, 456, CARD, LINE)
+        f.rect(x, 26, w, 536, CARD, LINE)
         f.text(x + w / 2, 56, title, 17, ink, "middle", 800)
     sdk_ink, sdk_bg = LAYER["sdk"]
 
@@ -523,7 +524,8 @@ def sdk_map():
         f.chip(452, 188 + j * 46, "{" + tok + "}  " + lab, INK, V[key][1], 13.5, 36, w=136, stroke=V[key][0], weight=700)
     f.text(520, 436, "식은 3절", 12.5, FOOT, "middle")
     y = 74
-    for name, use, tag, dash in [("Vehicle · HVAC", "외기 · 22°C", None, None),
+    for name, use, tag, dash in [("AudioTrack · 차 스피커", "저주파 100 Hz 1분", "USAGE_MEDIA", None),
+                                 ("Vehicle · HVAC", "외기 · 22°C", None, None),
                                  ("Vehicle · Window", "뒷창문 20%", "CONTROL_CAR_WINDOWS", None),
                                  ("TextToSpeech", "안내 한 줄", "HYBRID", None),
                                  ("SpeechToText", "확장 기능 답", "확장", "5 4")]:
@@ -532,8 +534,8 @@ def sdk_map():
         f.arrow([(xa - 2, 270), (xa + 26, 270)], FOOT, 3, head=12)
     # closed loop: what the car did changes what it reports next second
     out_ink = LAYER["out"][0]
-    f.arrow([(792, 484), (792, 522), (208, 522), (208, 488)], out_ink, 2.5, dash="8 6", head=12)
-    f.chip(500, 507, "닫힌 고리 · 바뀐 실내 온도 · 환기가 다시 계산으로", out_ink, LAYER["out"][1], 14, 30, anchor="middle",
+    f.arrow([(792, 564), (792, 602), (208, 602), (208, 568)], out_ink, 2.5, dash="8 6", head=12)
+    f.chip(500, 587, "닫힌 고리 · 바뀐 실내 온도 · 환기가 다시 계산으로", out_ink, LAYER["out"][1], 14, 30, anchor="middle",
            weight=700)
     f.save("sdk_map.svg")
 
@@ -599,7 +601,7 @@ def real_or_sim():
 
 
 def relief_sequence():
-    f = Fig(960, 500)
+    f = Fig(960, 600)
     # button
     f.rect(28, 186, 196, 72, ORANGE, None, 36)
     f.text(126, 230, "멀미 완화", 22, WHITE, "middle", 700)
@@ -607,20 +609,21 @@ def relief_sequence():
     f.text(126, 302, "어디서나", 12.5, FOOT, "middle")
     # steps
     sx, sw, sh, gap = 268, 368, 84, 12
-    ys = [36 + i * (sh + gap) for i in range(4)]
+    ys = [36 + i * (sh + gap) for i in range(5)]
     f.line(224, 222, 246, 222, FOOT, 2)
-    f.line(246, ys[0] + sh / 2, 246, ys[3] + sh / 2, FOOT, 2)
+    f.line(246, ys[0] + sh / 2, 246, ys[4] + sh / 2, FOOT, 2)
     for y in ys:
         f.arrow([(246, y + sh / 2), (sx - 2, y + sh / 2)], FOOT, 2, head=8)
     out_ink, out_bg = LAYER["out"]
     sdk_ink, sdk_bg = LAYER["sdk"]
-    data = [("window", "뒷창문 조금 (전체의 20%)", "Vehicle Window"),
+    data = [("tone", "저주파 100 Hz 1분 (차 스피커)", "AudioTrack"),
+            ("window", "뒷창문 조금 (전체의 20%)", "Vehicle Window"),
             ("wind", "바깥 공기 + 22°C", "Vehicle HVAC"),
             ("speaker", None, "TextToSpeech"),
             ("database", "누른 순간 {D} → 내 기준선 {tau}", "앱 안 · 수식 ⑤")]
     for i, (ic, act, sdk) in enumerate(data):
         y = ys[i]
-        inapp = i == 3
+        inapp = i == 4
         f.rect(sx, y, sw, sh, LAYER["calc"][1] if inapp else CARD, None if inapp else LINE, cs.RADIUS_SM + 4)
         f.num(sx + 24, y + sh / 2, i + 1, GRAD, 13, 14)
         f.icon(sx + 70, y + sh / 2, ic, LAYER["calc"][0] if inapp else out_ink, WHITE if inapp else out_bg)
@@ -630,18 +633,18 @@ def relief_sequence():
             bx, by, bw, bh = sx + 102, y + 12, 250, 40
             f.add(f'<path d="M{bx + 10} {by} h{bw - 20} a10 10 0 0 1 10 10 v{bh - 20} a10 10 0 0 1 -10 10 h-{bw - 44} l-10 8 v-8 h-{14} '
                   f'a10 10 0 0 1 -10 -10 v-{bh - 20} a10 10 0 0 1 10 -10 z" fill="{WHITE}" stroke="{LINE2}" stroke-width="1"/>')
-            f.text(bx + bw / 2, by + 17, "“창문 열고 환기할게요.", 13, INK, "middle", 700)
+            f.text(bx + bw / 2, by + 17, "“낮은 소리 틀고 환기할게요.", 13, INK, "middle", 700)
             f.text(bx + bw / 2, by + 33, "먼 곳을 보세요.”", 13, INK, "middle", 700)
         f.chip(sx + 104 if act else sx + 250, y + (48 if act else 56), sdk, BLUE, WHITE if inapp else BAND, 12, 24, pad=10,
                family=None)
-    f.text(sx, 430, "④ 학습: 주행마다 첫 누름만 · {D} ≥ 5일 때 · 최근 30개 · 차 한 대에 기준 하나 (아이별은 확장 ③)", 12.5, MUTED, weight=700)
-    f.chip(sx, 448, "pleos.car.permission.CONTROL_CAR_WINDOWS", sdk_ink, sdk_bg, 12.5, 30, pad=14, family=MONO)
+    f.text(sx, 526, "⑤ 학습: 주행마다 첫 누름만 · {D} ≥ 5일 때 · 최근 30개 · 차 한 대에 기준 하나 (아이별은 확장 ③)", 12.5, MUTED, weight=700)
+    f.chip(sx, 544, "pleos.car.permission.CONTROL_CAR_WINDOWS", sdk_ink, sdk_bg, 12.5, 30, pad=14, family=MONO)
     # fallbacks
     fx, fw = 676, 256
-    f.text(fx, 32, "창문 · 공조를 못 쓸 때 대신 하는 일", 14, AMBER, weight=800)
-    falls = [(44, 132, "창문을 못 열면", ["거절 · 뒷창문 없음 · 4초 무응답", "터널 · 대기질 나쁨 (확장 예정)"], ["화면 + 음성으로 부탁", "“창문을 조금 열어 주세요”"]),
-             (190, 88, "공조가 꺼져 있으면", None, ["공조는 그대로 두고", "창문 · 음성만 진행"]),
-             (292, 88, "20초 안에 다시 누르면", None, ["화면에 “환기 중이에요”만", "같은 조치는 반복 안 함"])]
+    f.text(fx, 128, "창문 · 공조를 못 쓸 때 대신 하는 일", 14, AMBER, weight=800)
+    falls = [(140, 132, "창문을 못 열면", ["거절 · 뒷창문 없음 · 4초 무응답", "터널 · 대기질 나쁨 (확장 예정)"], ["화면 + 음성으로 부탁", "“창문을 조금 열어 주세요”"]),
+             (286, 88, "공조가 꺼져 있으면", None, ["공조는 그대로 두고", "창문 · 음성만 진행"]),
+             (388, 88, "20초 안에 다시 누르면", None, ["화면에 “환기 중이에요”만", "같은 조치는 반복 안 함"])]
     for i, (top, h, cond, sub, res) in enumerate(falls):
         f.rect(fx, top, fw, h, "#FFFBEB", cs.MID, cs.RADIUS_SM + 4, 1.2, "6 4")
         f.text(fx + 16, top + 26, cond, 14.5, AMBER, weight=700)
@@ -653,7 +656,7 @@ def relief_sequence():
         f.add(f'<path d="M{fx + 22} {yy + 10} v9 h10 m-5 -5 l5 5 -5 5" fill="none" stroke="{AMBER}" stroke-width="2" '
               f'stroke-linecap="round" stroke-linejoin="round"/>')
         f.lines(fx + 44, yy + 24, res, 13.5, INK, weight=700, lh=20)
-        f.arrow([(sx + sw + 2, ys[i] + sh / 2), (fx - 2, top + (h / 2 if i else 42))], cs.MID, 1.8, "5 4", head=8)
+        f.arrow([(sx + sw + 2, ys[i + 1] + sh / 2), (fx - 2, top + (h / 2 if i else 42))], cs.MID, 1.8, "5 4", head=8)
     f.save("relief_sequence.svg")
 
 

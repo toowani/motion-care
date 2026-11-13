@@ -15,6 +15,10 @@ class Settings(context: Context) {
     var lightCueOn: Boolean
         get() = prefs.getBoolean("light", true)
         set(v) = prefs.edit().putBoolean("light", v).apply()
+    /** 100 Hz minute at departure, at the caution stage and on 멀미 완화 ([LowTone]). */
+    var lowToneOn: Boolean
+        get() = prefs.getBoolean("lowTone", true)
+        set(v) = prefs.edit().putBoolean("lowTone", v).apply()
     var autoClimateOn: Boolean
         get() = prefs.getBoolean("climate", true)
         set(v) = prefs.edit().putBoolean("climate", v).apply()

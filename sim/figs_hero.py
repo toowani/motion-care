@@ -98,16 +98,16 @@ def panel(f, x0, head, sub, accent, tint, bg, steps, joins, back):
 def at_a_glance():
     W = 1000
     f = Fig(W, TOP + 4 * PITCH + 106 + 20)
-    f.text(32, 54, "켜 두면 차가 알아서, 힘들면 버튼 하나", 30, INK, weight=800)
-    f.text(32, 90, "뒷좌석 아이(4–13세)를 태운 가족 차 · 운전자가 한 번 켜 두면 주행 내내 뒤에서 계산", 17.5, SUB)
-    panel(f, 20, "① 차내 자동화", "켜 두기만 하면", AUTO, AUTO_T, AUTO_BG, [
-        {"icons": ["child", "rise"], "fg": RISK, "bg": RISK_T, "title": "아이 멀미 위험 오름", "tfg": RISK,
-         "sub": "흔들림 · 더위로 멀미 지수 계산"},
-        {"icons": ["screen", "bell"], "fg": WARN, "bg": WARN_T, "title": "화면 · 소리로 알림", "tfg": WARN,
-         "sub": "주의 단계에 들어서면"},
+    f.text(32, 54, "차 신호로 먼저, 힘들면 버튼 하나", 30, INK, weight=800)
+    f.text(32, 90, "멀미하는 동승자 누구나 · 한 번 켜 두면 주행 내내 뒤에서 계산 · 저주파 · 환기 · 음성 안내", 17.5, SUB)
+    panel(f, 20, "① 차가 먼저", "켜 두기만 하면", AUTO, AUTO_T, AUTO_BG, [
+        {"icons": ["steering", "rise"], "fg": RISK, "bg": RISK_T, "title": "멀미 위험 계산", "tfg": RISK,
+         "sub": "핸들 · 속도 · 실내 온도"},
+        {"icons": ["tone"], "fg": AUTO, "bg": AUTO_T, "title": "저주파 소리 1분",
+         "sub": "출발할 때 · 흔들릴 때"},
         {"icons": ["wind", "thermo"], "fg": AUTO, "bg": AUTO_T, "title": "바깥 공기 · 온도 낮춤",
          "sub": "같은 순간 외기 순환 · 22°C"},
-        {"icons": ["steering", "speech"], "fg": AUTO, "bg": AUTO_T, "title": "운전자에게 권고",
+        {"icons": ["speech"], "fg": AUTO, "bg": AUTO_T, "title": "운전자 음성 안내",
          "sub": "“브레이크 부드럽게”"},
     ], ["→", "+", "+"], "실내가 나아지면 다시 계산")
     # centre: the app
@@ -115,16 +115,16 @@ def at_a_glance():
     app_icon(f, cx, 400, 96)
     f.text(cx, 476, "멀미 케어", 20, INK, "middle", 800)
     f.text(cx, 500, "Pleos 차량 앱", 14.5, SUB, "middle")
-    panel(f, W - 20 - PW, "② 버튼 하나", "아이가 힘들어하면", CALM, CALM_T, CALM_BG, [
+    panel(f, W - 20 - PW, "② 버튼 하나", "그래도 힘들면", CALM, CALM_T, CALM_BG, [
         {"icons": ["hand"], "fg": WHITE, "bg": BTN, "button": True, "title": "“멀미 완화” 버튼", "tfg": BTN,
          "sub": "화면에서 한 번 누름"},
-        {"icons": ["carwin", "wind", "speaker"], "fg": CALM, "bg": CALM_T, "title": "자동 조치",
-         "sub": "창문 · 환기 · 음성 안내"},
-        {"icons": ["bookmark"], "fg": CALM, "bg": CALM_T, "title": "그 순간을 기억",
+        {"icons": ["tone", "carwin", "speaker"], "fg": CALM, "bg": CALM_T, "title": "자동 조치",
+         "sub": "저주파 · 환기 · 음성 안내"},
+        {"icons": ["bookmark"], "fg": CALM, "bg": CALM_T, "title": "그 순간을 기록",
          "sub": "누른 순간 흔들림 기록"},
-        {"icons": ["person_slider"], "fg": CALM, "bg": CALM_T, "title": "개인 기준 맞춤",
+        {"icons": ["person_slider"], "fg": CALM, "bg": CALM_T, "title": "내 멀미 기준 학습",
          "sub": "버튼 기록으로 기준선 학습"},
-    ], ["→", "→", "→"], "링이 우리 아이 기준으로")
+    ], ["→", "→", "→"], "링이 내 기준으로")
     f.save("at_a_glance.svg")
 
 

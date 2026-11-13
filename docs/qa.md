@@ -1,6 +1,20 @@
 # 에뮬레이터 확인 기록
 
 
+## 확인 완료 (11.13 · 저주파 소리)
+
+`LowTone.kt`: 100 Hz 순음 1분(1초 파형 60번 반복, 앞뒤 2초 페이드), `AudioTrack` USAGE_MEDIA, 재생 중 다른 소리 덕킹. 디버그 빌드, Pleos Connect Emulator v2.1.
+
+| 확인 | 결과 |
+|---|---|
+| 굽은 길 · 거칠게를 처음부터 재생 (출발 트리거) | `dumpsys audio`에 `AudioTrack ... USAGE_MEDIA ... state:started ... sampleRate=8000` |
+| 1분 뒤 | 같은 앱의 재생기 사라짐 (해제), 오디오 포커스 반납 |
+| 멀미 완화 버튼 | 다시 `state:started` |
+| `:core:test` · `:app:lintDebug` · `:app:assembleDebug` | 통과. 새 lint 경고는 기존 `Settings`와 같은 `UseKtx` 스타일 경고뿐 |
+
+- 처음 실행 때 위치 권한 창이 재생을 막음 → 권한을 주고 다시 실행
+- 남은 것: 실제 소리 크기(귀 위치 dBA)는 실차에서 소음계로 재고 `LowTone.LEVEL`을 맞춤. 노트북 스피커로는 100 Hz가 잘 안 들림
+
 ## 확인 완료 (11.8 · 링 색 = 표정)
 
 - 첫 경고(브레이크 안내) 때 표정은 노랑인데 링은 초록이던 문제: 링 길이는 그대로 멀미 가능성, 색은 표정(`Mood`)을 따름 (`ui/RiskRing.kt` `mood`, `MoodIconView`가 그릴 때 넘김)

@@ -69,6 +69,7 @@ class SettingsPanel(
         section(content, "차가 도와주는 방법", null)
         val toggles = context.card()
         toggles.addView(toggle("소리 안내", "질문과 위험 안내를 소리로", settings.voiceOn) { settings.voiceOn = it })
+        toggles.addView(toggle("저주파 소리", "출발·흔들림·멀미 완화 때 100 Hz 1분", settings.lowToneOn) { settings.lowToneOn = it })
         toggles.addView(toggle("공조 자동 조절", "위험할 때 바깥 공기·22°C", settings.autoClimateOn) { settings.autoClimateOn = it })
         toggles.addView(toggle("시연 패널", "시나리오 재생 버튼 (시연용)", settings.demoPanelOn) { settings.demoPanelOn = it })
         content.addView(toggles, lp(MATCH_PARENT, WRAP_CONTENT, 0f, context.dp(6)))

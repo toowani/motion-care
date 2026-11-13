@@ -80,6 +80,7 @@ class TripService : Service() {
     private lateinit var vehicle: Vehicle
     private lateinit var hvac: HvacController
     private lateinit var window: WindowController
+    private lateinit var tone: LowTone
     private lateinit var navi: NaviGuide
     private var ui: TripUi? = null
     /** False when the service could not become a foreground service; the screen then unbinds. */
@@ -105,6 +106,8 @@ class TripService : Service() {
     private var reliefCount = 0
     private var lastReliefAt = Long.MIN_VALUE / 2
     private var learnedThisTrip = false
+    /** The departure minute of the 100 Hz tone has been offered this trip. */
+    private var departToned = false
     private var airCount = 0
     private var peakMood = Mood.CALM
     /** Seconds of this trip spent moving (live) or played (replay); a parked car does not count. */
@@ -165,6 +168,7 @@ class TripService : Service() {
         vehicle = Vehicle(this).also { runCatching { it.initialize() } }
         hvac = HvacController(vehicle, ::note)
         window = WindowController(vehicle, ::note)
+        tone = LowTone(this, ::note)
         navi = NaviGuide(this, ::note).also { it.start() }
         ready = true
         startLive()   // follow the car from the start; demo replays can replace this
@@ -186,6 +190,7 @@ class TripService : Service() {
         main.removeCallbacksAndMessages(null)
         stopSource()
         if (ready) {
+            tone.stop()
             voice.release()
             navi.release()
             runCatching { vehicle.release() }
@@ -387,8 +392,8 @@ class TripService : Service() {
     }
 
     /**
-     * "멀미 완화", at once: the rear windows open a little (or the passenger is asked to open one),
-     * fresh air and a cooler set point, one short spoken line. The first press of a trip also records
+     * "멀미 완화", at once: one minute of the 100 Hz tone ([LowTone]), the rear windows open a little
+     * (or the passenger is asked to open one), fresh air and a cooler set point, one short spoken line. The first press of a trip also records
      * this dose as the passenger's own feedback point. The rest-stop offer that followed is parked in
      * [ai.motioncare.app.later.RestStopOffer].
      */
@@ -403,12 +408,13 @@ class TripService : Service() {
         action("창문 열고 환기해요", card = false)
         note("멀미 완화 ${reliefCount}번째")
         learnFromRelief()
+        val toned = settings.lowToneOn && tone.play()
         val trip = source
         window.openRearALittle(onDone = {
-            say("창문 열고 환기할게요. 먼 곳을 보세요.")
+            say(if (toned) "낮은 소리 틀고 환기할게요. 먼 곳을 보세요." else "창문 열고 환기할게요. 먼 곳을 보세요.")
             if (source === trip) action("창문 열고 환기했어요", card = false)
         }, onDenied = {
-            say("환기할게요. 창문을 조금 열어 주세요. 먼 곳을 보세요.")
+            say(if (toned) "낮은 소리 틀게요. 창문을 조금 열어 주세요. 먼 곳을 보세요." else "환기할게요. 창문을 조금 열어 주세요. 먼 곳을 보세요.")
             if (source === trip) action("창문을 조금 열어 주세요", card = false)
         })
         if (settings.autoClimateOn) {
@@ -490,6 +496,11 @@ class TripService : Service() {
             val kids = taus.map { (n, tau) -> n to safeP(sicknessProbability(params, out.dose, tau, out.m)) }
             // the weakest child has the lowest tau, hence the highest probability
             val risk = Risk(kids.maxOfOrNull { it.second } ?: safeP(sicknessProbability(params, out.dose, selfTau, out.m)), kids)
+            // the study played the tone right before the shaking: start the minute as the car pulls away
+            if (!departToned && sample.speed > 3.0 / 3.6) {
+                departToned = true
+                if (settings.lowToneOn && tone.play()) { say("출발해요. 멀미를 덜어 주는 낮은 소리를 1분 틀게요."); action("저주파 소리 1분", card = false) }
+            }
             mood = Mood.shown(out.state, risk.p)
             peakMood = maxOf(peakMood, mood)
             // driving again: the finished trip gives the screen back to the live one (its questions stay open)
@@ -534,8 +545,11 @@ class TripService : Service() {
     private fun act(a: Action, sample: Sample, cabin: SimulatedCabin?) {
         if (a == Action.CUE_LEFT || a == Action.CUE_RIGHT) { Log.i(TAG, "t=${sample.t.toInt()}s engine cue $a (not played)"); return }
         if (a == Action.SUGGEST_REST_STOP) { Log.i(TAG, "t=${sample.t.toInt()}s engine rest stop (not offered)"); return }
-        say(Voice.phrase(a))
-        note("t=${sample.t.toInt()}s  ${Voice.phrase(a)}")
+        // caution reached: the 100 Hz minute starts with the fresh air (LowTone, Nagoya Univ. study)
+        val toned = a == Action.HVAC_FRESH && settings.lowToneOn && tone.play()
+        val line = if (toned) Voice.TONE_LINE else Voice.phrase(a)
+        say(line)
+        note("t=${sample.t.toInt()}s  $line")
         if (a == Action.TTS_DRIVER) action(DRIVER_LINE)
         if (a == Action.HVAC_FRESH) {
             if (settings.autoClimateOn) {
@@ -581,6 +595,7 @@ class TripService : Service() {
         lastFreshAt = Double.NEGATIVE_INFINITY
         reliefCount = 0; airCount = 0; peakMood = Mood.CALM; driveS = 0.0
         learnedThisTrip = false
+        departToned = false
         moved = false; stillSince = null
         mood = Mood.CALM
         lastProbabilities = emptyList()
@@ -658,6 +673,7 @@ class TripService : Service() {
     private fun stopSource() {
         // a replay borrowed the driver's climate settings: give them back
         if (::hvac.isInitialized && source != null && source !== live) hvac.restore()
+        if (::tone.isInitialized) tone.stop()
         source?.stop()
         source = null
         live = null
