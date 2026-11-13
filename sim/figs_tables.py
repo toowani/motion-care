@@ -639,25 +639,26 @@ def phone_vs_car():
 def market_compare():
     # Y = yes, N = no, H = partly / research.  Source: research/market.md
     # 멀미 Zero: 공개 자료(HMG 스토리 · 뉴데일리 · EBN, 2026.10) 기준. N = 보도에 없음.
-    feats = ["차 신호", "미리 계산", "공기 · 바람", "장비 없음", "사람별 기준"]
-    lead = {2: "조치", 4: "개인 학습"}   # our lead differentiator columns
+    feats = ["저주파 소리", "차 신호", "미리 계산", "공기 · 바람", "장비 없음", "사람별 기준"]
+    lead = {0: "핵심 기술", 3: "조치", 5: "개인 학습"}   # our lead differentiator columns
     rows = [
-        ("Apple Motion Cues", "iOS 18, 2024", "NNNYN", "양산"),
-        ("Google Motion Assist · KineStop", "2026 · 2018", "NNNYN", "양산"),
-        ("Citroën Seetroën 안경", "2018", "NNNNN", "양산"),
-        ("현대차 스무스 모드", "아이오닉 6, 2025", "YNNYN", "양산"),
-        ("현대모비스 멀미 저감", "2023", "YNYNH", "시범"),
-        ("JLR 웰니스 점수", "2018 · 2020", "YNNNY", "연구"),
-        ("VW · Bentley 연구", "Diels 외, 2023", "YHNYN", "연구"),
-        ("holoride", "2022", "YNNNN", "파산"),
-        ("Mercedes · BMW", "바람 · 천장 화면", "YNHYN", "특허"),
-        ("멀미 Zero", "2026 사내 공모 최우수상", "YYNYN", "사내 수상"),
-        ("멀미 케어", "Pleos Connect", "YYYYY", "시제품"),
+        ("Apple Motion Cues", "iOS 18, 2024", "NNNNYN", "양산"),
+        ("Google Motion Assist · KineStop", "2026 · 2018", "NNNNYN", "양산"),
+        ("Citroën Seetroën 안경", "2018", "NNNNNN", "양산"),
+        ("현대차 스무스 모드", "아이오닉 6, 2025", "NYNNYN", "양산"),
+        ("현대모비스 멀미 저감", "2023", "NYNYNH", "시범"),
+        ("JLR 웰니스 점수", "2018 · 2020", "NYNNNY", "연구"),
+        ("VW · Bentley 연구", "Diels 외, 2023", "NYHNYN", "연구"),
+        ("holoride", "2022", "NYNNNN", "파산"),
+        ("Mercedes · BMW", "바람 · 천장 화면", "NYNHYN", "특허"),
+        ("DENSO · 나고야대", "100 Hz, 2025", "YNNNNN", "연구"),
+        ("멀미 Zero", "2026 사내 공모 최우수상", "NYYNYN", "사내 수상"),
+        ("멀미 케어", "Pleos Connect", "YYYYYY", "시제품"),
     ]
-    name_w, x_f, fw, x_s = 300, 340, 104, 880
+    name_w, x_f, fw, x_s = 300, 352, 86, 898
     rh, y0 = 46, 92
     t_end = y0 + len(rows) * rh
-    H = t_end + 44 + 126
+    H = t_end + 44 + 148
     s = Svg(960, H)
     for i, (name, *_r) in enumerate(rows):
         y = y0 + i * rh
@@ -678,15 +679,15 @@ def market_compare():
     for i, (name, when, marks, state) in enumerate(rows):
         y = y0 + i * rh
         ours = name == "멀미 케어"
-        s.text(46, y + 20, name, 14.5, C_CAR if ours else INK, "start", 700)
-        s.text(46 + tw(name, 14.5, True) + 10, y + 20, when, 12, MUTED)
+        s.text(40, y + 20, name, 14.5, C_CAR if ours else INK, "start", 700)
+        s.text(40 + tw(name, 14.5, True) + 8, y + 20, when, 12, MUTED)
         for j, mk in enumerate(marks):
             cx, cy = x_f + j * fw + fw / 2, y + rh / 2 - 4
             if mk == "Y":
                 s.circle(cx, cy, 11, C_CAR if ours else LOW)
                 s.path(f"M{cx - 5} {cy}l3.5 3.5 6.5-7", "#FFFFFF", 2.2)
-                if ours and j in (1, 4):      # qualified ticks, explained in the footnote
-                    s.text(cx + 15, cy - 3, "¹" if j == 1 else "²", 14, C_CAR, "start", 700)
+                if ours and j in (2, 5):      # qualified ticks, explained in the footnote
+                    s.text(cx + 15, cy - 3, "¹" if j == 2 else "²", 14, C_CAR, "start", 700)
             elif mk == "H":
                 s.circle(cx, cy, 10, "#FFFFFF", MID, 2)
                 s.path(f"M{cx} {cy - 9}A9 9 0 0 1 {cx} {cy + 9}z", MID, 0.1, MID)
@@ -694,7 +695,7 @@ def market_compare():
                 s.circle(cx, cy, 4, "#CDD3E0")
         col = {"양산": (LOW, LOW_T, LOW_T), "시제품": ("#FFFFFF", s.grad(), None),
                "사내 수상": (MID_INK, "#FFFFFF", MID)}.get(state, (MUTED, GREY_T, GREY_T))
-        s.chip(x_s, y + rh / 2 - 16, state, col[0], col[1], col[2], 12.5, 24, bold=True, anchor="middle")
+        s.chip(x_s, y + rh / 2 - 16, state, col[0], col[1], col[2], 12, 24, bold=True, anchor="middle", pad=8)
     # legend
     y = t_end + 18
     cx = 46
@@ -714,10 +715,12 @@ def market_compare():
     s.rich(46, y + 22, [("겹침", MID_INK, "bold"),
                         "  차 신호(조향각 · 가속도), 움직임을 조명 · 뒷좌석 화면 테두리로 미리 보여 줌, 하드웨어 추가 없음"], 12.5, fill=MUTED)
     s.rich(46, y + 44, [("다름", C_CAR, "bold"),
-                        "  멀미 케어는 공조 · 창문을 실제로 조작하는 앱(조치), 멀미 완화 버튼 기록 기반 기준(개인 학습),"], 12.5, fill=MUTED)
+                        "  멀미 케어는 차 신호로 때를 잡아 저주파 소리를 틀고 공조 · 창문을 실제로 조작하는 앱(조치), 버튼 기록 기반 기준(개인 학습),"], 12.5, fill=MUTED)
     s.rich(46 + tw("다름", 12.5, True) + 6, y + 66, ["Pleos 앱 마켓으로 어느 Pleos 차에나 배포 · 출처: 현대자동차그룹 스토리 · 뉴데일리 · EBN (2026.10)"], 12.5, fill=MUTED)
     s.rich(46, y + 88, [("¹", C_CAR, "bold"), " 미리 계산: 핸들 각도로 1–2초 앞당김 (화면 · 음성 회전 예고는 확장)   ",
                         ("²", C_CAR, "bold"), " 사람별 기준: 멀미 가능성 표시에 반영 (알림 시점은 같음)"], 12.5, fill=MUTED)
+    s.rich(46, y + 110, [("DENSO · 나고야대", INK, "bold"),
+                         "  100 Hz 소리 1분 연구(Gu 외, 2025) · 특허 미국 · 유럽 · 일본 · 중국 등록 · 차량 적용은 보도만, 공식 발표 확인 못 함"], 12.5, fill=MUTED)
     s.save("market_compare.svg", "다른 멀미 대응 서비스와 기능 비교")
 
 
