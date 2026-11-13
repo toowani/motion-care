@@ -47,11 +47,13 @@ C_BIZ, C_BIZ_T = BLUE, BAND
 GREY, GREY_T = FOOT, cs.CARD_ALT
 
 # condition badge colours (as in conditions.svg)
-COND = {1: (V_I, V_I_T), 2: (V_D, V_D_T), 3: (V_M, V_M_T), 4: (V_TAU, V_TAU_T)}
+COND = {1: (V_I, V_I_T), 2: (V_D, V_D_T), 3: (V_M, V_M_T), 4: (V_TAU, V_TAU_T), "핵심": (BLUE, BAND)}
 
 # ---------------------------------------------------------------- icons (24x24, stroke 2)
 ICONS = {
     "speaker": "M4 9h4l5-4v14l-5-4H4z M16 9a4 4 0 0 1 0 6 M18.5 6.5a7.5 7.5 0 0 1 0 11",
+    "hand": "M9 12.5V5a1.6 1.6 0 0 1 3.2 0v6 M12.2 10.5V9a1.6 1.6 0 0 1 3.2 0v2 M15.4 11a1.6 1.6 0 0 1 3.2 0v3.5a6.5 6.5 0 0 1-6.5 6.5h-.6a6 6 0 0 1-5-2.6l-2.4-3.6a1.6 1.6 0 0 1 2.6-1.8L9 15",
+    "tone": "M3 9.5h3L10 6v12l-4-3.5H3z M13 12c1.2-3.5 2.3-3.5 3.5 0s2.3 3.5 3.5 0",
     "wave": "M2 12c2.5-6 5-6 7.5 0s5 6 7.5 0c1.2-3 3-4 5-3",
     "wind": "M3 8h10a3 3 0 1 0-3-3 M3 12h15a3 3 0 1 1-3 3 M3 16h7",
     "child": "M9.5 5a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0 M12 8.5v6.5 M7.5 11.5l4.5-1.5 4.5 1.5 M9 21l3-6 3 6",
@@ -311,12 +313,14 @@ def load():
 # ---------------------------------------------------------------- figures
 def evidence():
     rows = [
+        ("핵심", "tone", "100 Hz 소리 1분 → 흔들림 뒤 자세 흔들림 · 멀미 설문 점수 감소", "Gu 외, 2025 (나고야대)",
+         "흔들리기 직전 양쪽 귀 · 80–85 dBZ · 그네 · 주행 시뮬레이터 · 실제 차 · 주행 중 재생 효과는 미검증"),
         (1, "speaker", "1초 전 음성 예고 → 멀미 점수 감소", "Kuiper 외, 2020", "확장 ① 예측 음성의 근거 · 앱에서는 꺼 둠"),
         (2, "wave", "0.5 Hz 미만 옆 흔들림이 멀미와 가장 잘 맞음", "Turner & Griffin, 1999", None),
         (2, "wave", "누적량 형태", "ISO 2631-1", "수직 흔들림 기준 → 수평에 응용"),
         (3, "wind", "바람 → 멀미 감소", "D'Amour 외, 2017",
          "실험실, 화면이 일으킨 멀미 · 공조 계수 두 값은 출발값, 동승 조사로 보정"),
-        (4, "child", "4–13세에서 가장 흔함", "Huppert 외, 2019", None),
+        (4, "child", "4–13세에서 가장 흔함 → 효과가 가장 클 것으로 봄", "Huppert 외, 2019", None),
         (4, "seat", "뒤쪽 좌석일수록 흔들림 · 멀미 증가", "Turner & Griffin, 1999", "버스 · 코치 조사 → 승용차 뒷좌석은 유추"),
     ]
     rh, gap, y0 = 58, 10, 28
@@ -327,7 +331,7 @@ def evidence():
         col, tint = COND[n]
         s.card(28, y, 904, rh)
         s.circle(64, y + rh / 2, 18, col)
-        s.text(64, y + rh / 2 + 6, str(n), 17, "#FFFFFF", "middle", 700)
+        s.text(64, y + rh / 2 + (4.5 if n == "핵심" else 6), str(n), 11.5 if n == "핵심" else 17, "#FFFFFF", "middle", 700)
         s.icon(ic, 116, y + rh / 2, col, tint, 20)
         if sub:
             s.text(150, y + 25, txt, 15, INK, "start", 700)
@@ -336,6 +340,46 @@ def evidence():
             s.text(150, y + rh / 2 + 5.5, txt, 15, INK, "start", 700)
         s.chip(912, y + rh / 2 - 13, cite, MUTED, "#FFFFFF", LINE, 12, 26, anchor="end")
     s.save("evidence.svg", "조건별 근거")
+
+
+def low_tone():
+    """Core technique: the Nagoya 100 Hz study (left) and when the app plays it from car signals (right)."""
+    s = Svg(960, 470)
+    s.title("핵심 기술: 차 신호로 때를 잡는 저주파 소리", 28, 48, 22)
+    # left: the study
+    s.card(28, 72, 420, 330)
+    s.icon("tone", 66, 110, "#FFFFFF", s.grad(), 22)
+    s.text(100, 106, "나고야대 연구", 17, INK, "start", 800)
+    s.text(100, 126, "Gu 외, 2025 · Environ Health Prev Med 30:22", 12.5, SUBT)
+    conds = ["100 Hz 순음", "1분", "양쪽 귀", "80–85 dBZ"]
+    x = 48
+    for c in conds:
+        x += s.chip(x, 148, c, BLUE, BAND, BAND, 13, 28, bold=True) + 8
+    s.text(48, 202, "흔들리기 직전에 들려주면", 15, INK, "start", 700)
+    res = [("그네 · 주행 시뮬레이터 · 실제 차", "자세 흔들림 감소"), ("주행 시뮬레이터", "심박 변이(자율신경) 개선"),
+           ("실제 차, 책 읽기", "멀미 설문(MSAQ) 점수 감소"), ("생쥐", "효과 120분 이상 유지")]
+    for j, (where, what) in enumerate(res):
+        yy = 232 + j * 40
+        s.status("ok", 58, yy - 5, 9)
+        s.text(76, yy, what, 14.5, INK, "start", 700)
+        s.text(76, yy + 17, where, 12.5, SUBT)
+    # right: when the app plays it
+    s.card(468, 72, 464, 330)
+    s.text(490, 106, "멀미 케어가 소리를 트는 때", 17, INK, "start", 800)
+    s.text(490, 126, "차가 보내는 신호로 판단 · 한 번에 1분, 차 스피커", 12.5, SUBT)
+    when = [("power", "출발할 때", "속도 3 km/h를 처음 넘는 순간 · 연구와 같은 ‘흔들리기 전’"),
+            ("wave", "흔들림이 쌓일 때", "흔들림 지수 I가 주의 기준을 10초 넘게 넘으면 · 외기 · 음성 안내와 함께 · 5분 간격"),
+            ("hand", "멀미 완화 버튼", "창문 환기 · 음성 안내와 함께")]
+    for j, (ic, head, sub) in enumerate(when):
+        yy = 150 + j * 80
+        s.icon(ic, 510, yy + 16, BLUE, BAND, 20)
+        s.text(544, yy + 12, head, 15.5, INK, "start", 700)
+        for k, ln in enumerate(wrap(sub, 12.5, 370)):
+            s.text(544, yy + 32 + k * 17, ln, 12.5, SUBT)
+    # limits
+    s.glyph("info", 46, 432, SUBT, 20)
+    s.text(70, 437, "주행 중 재생 효과는 연구가 확인하지 않음 · 귀 위치 소리 크기는 차종별 보정 필요 · 연구는 DENSO 후원, 관련 특허 있음", 13.5, SUBT)
+    s.save("low_tone.svg", "핵심 기술: 차 신호로 때를 잡는 저주파 소리")
 
 
 def two_values():
@@ -556,12 +600,13 @@ def map_elements():
 
 def phone_vs_car():
     rows = [
+        ("저주파 소리", ("person", "직접 찾아 틀어야 함"), ("tone", "차 신호로 때를 잡아 차 스피커로 1분")),
         ("흔들림을 먼저 계산", ("clock", "폰 센서로 뒤늦게"), ("steering", "핸들 각도로 1–2초 먼저")),
         ("실내 온도 · 환기", ("x", "불가"), ("loop", "읽고 바꾸고, 다시 계산")),
         ("창문 열기", ("x", "불가"), ("window", "버튼 하나로 뒷창문 조금")),
         ("매 주행 실행", ("person", "사람이 켜야 함"), ("power", "앱을 한 번 열면 화면을 닫아도 계속", "시동 자동 시작은 Pleos 협의 후")),
     ]
-    s = Svg(960, 430)
+    s = Svg(960, 510)
     lx, lw, mx, mw, rx_, rw = 28, 318, 362, 236, 614, 318
     s.rect(lx, 28, lw, 56, GREY_T, cs.RADIUS)
     s.icon("phone", lx + 40, 56, GREY, "#FFFFFF", 18)
@@ -687,10 +732,10 @@ ICONS.update({
 def target():
     s = Svg(960, 332)
     s.icon("family", 62, 62, "#FFFFFF", s.grad(), 30)
-    s.text(110, 72, "어린 자녀(4–13세)를 둔 가족 운전자", 28, INK, "start", 800)
-    why = [("child", ["4–13세가", "멀미에 가장 약함"], "Huppert 외, 2019"),
-           ("hush", ["아이는 참거나", "말로 표현하기 어려움"], "그래서 차가 먼저 알아차려야 함"),
-           ("sprout", ["아이가 자라", "또 다른 가족을 꾸림"], "현대와 함께하는 새로운 가족")]
+    s.text(110, 72, "멀미하는 동승자를 태우는 운전자", 28, INK, "start", 800)
+    why = [("person", ["승객 46%가", "차멀미를 겪음"], "5개국 4,479명 (Schmidt 외, 2020)"),
+           ("hush", ["동승자는 다음", "움직임을 모름"], "운전자보다 동승자가 더 멀미함"),
+           ("child", ["효과는 아이에게", "가장 클 것"], "4–13세가 가장 약함 (Huppert 외, 2019)")]
     cw = (904 - 2 * 16) / 3
     for i, (ic, rows, note) in enumerate(why):
         x = 28 + i * (cw + 16)
@@ -700,27 +745,27 @@ def target():
             s.text(x + 80, 150 + j * 24, r, 18, INK, "start", 700)
         s.text(x + 22, 208, note, 13.5, SUBT)
     s.glyph("turn", 46, 260, C_BIZ, 22)
-    s.text(70, 266, "2차 확대", 15, C_BIZ, "start", 700)
-    s.text(70 + tw("2차 확대", 15, True) + 14, 266, "멀미하는 성인 동승자", 18, INK, "start", 700)
+    s.text(70, 266, "같은 엔진으로", 15, C_BIZ, "start", 700)
+    s.text(70 + tw("같은 엔진으로", 15, True) + 14, 266, "택시 · 통학 차량 · 자율주행 승객", 18, INK, "start", 700)
     s.glyph("info", 46, 300, SUBT, 20)
-    s.text(70, 305, "멀미 완화 버튼은 보호자가 누름 → 학습은 보호자가 아이 증상을 알아챌 때만 쌓임", 14, SUBT)
-    s.save("target.svg", "타깃: 어린 자녀(4–13세)를 둔 가족 운전자")
+    s.text(70, 305, "멀미 완화 버튼은 본인이나 동승자가 누름 → 누른 순간이 그 차의 멀미 기준으로 쌓임 (지금은 차 한 대에 기준 하나)", 14, SUBT)
+    s.save("target.svg", "타깃: 멀미하는 동승자를 태우는 운전자")
 
 
 def mau_funnel():
     cars = 71775 + 79335
     steps = [
         ("Pleos 탑재 차종 2025년 판매", "그랜저 + 아반떼 · 당시 Pleos 미탑재, 근사치", None, None, 1.0),
-        ("× 18세 이하 자녀 가구", "4–13세 자녀 가구는 이보다 적음", "20.3%", None, 0.203),
+        ("× 멀미하는 동승자를 태우는 차", "승객 차멀미 경험 46%(Schmidt 외, 2020)로 대신함", "46%", "가정", 0.46),
         ("× 설치율", None, "10%", "가정", 0.10),
-        ("× 월 사용", "아이를 태운 달", "60%", "가정", 0.60),
+        ("× 월 사용", "멀미하는 사람을 태운 달", "60%", "가정", 0.60),
     ]
     vals, v = [], cars
     for *_, f in steps:
         v *= f
         vals.append(v)
     mau = vals[-1]
-    assert 1750 < mau < 1900, mau
+    assert 4100 < mau < 4250, mau
     s = Svg(960, 428)
     s.title("출시 1년 예상 MAU", 28, 50)
     y = 76
@@ -737,13 +782,13 @@ def mau_funnel():
         y += 66
     s.rect(28, y + 6, 592, 56, s.grad(), cs.RADIUS)
     s.text(48, y + 41, "출시 1년 예상 MAU", 17, "#FFFFFF", "start", 700)
-    s.text(600, y + 43, "≈ 1,800명", 24, "#FFFFFF", "end", 800)
+    s.text(600, y + 43, "≈ 4,200명", 24, "#FFFFFF", "end", 800)
     rx_, rw = 652, 280
     s.card(rx_, 76, rw, 324)
     s.glyph("info", rx_ + 30, 108, SUBT, 22)
     s.text(rx_ + 50, 114, "읽는 법", 16, INK, "start", 700)
-    notes = [("1,800명", "탑재 차종의 2025년 판매(당시 Pleos 미탑재)를 1년 탑재량으로 본 근사치"),
-             ("약 560명", "2026.9 말까지 실제 깔린 차만 세면"),
+    notes = [("4,200명", "탑재 차종의 2025년 판매(당시 Pleos 미탑재)를 1년 탑재량으로 본 근사치"),
+             ("1,400 ~ 9,700명", "설치 5% × 월 사용 40% (보수) ~ 20% × 70% (낙관)"),
              ("차량 2천만 대", "Pleos Connect 2030 적용 목표 (현대차그룹, 2026.4.30) · 차종이 늘수록 커짐")]
     yy = 150
     for big, why in notes:
@@ -759,7 +804,7 @@ def retention_revenue():
     s.card(28, 28, 442, 328)
     s.text(48, 62, "다시 쓰게 하는 고리 (Retention)", 17, INK, "start", 700)
     pw = 196
-    nodes = [(249, 108, "멀미 완화 버튼 누름"), (362, 214, "누른 순간 흔들림 기록"), (136, 214, "우리 아이 기준선 갱신")]
+    nodes = [(249, 108, "멀미 완화 버튼 누름"), (362, 214, "누른 순간 흔들림 기록"), (136, 214, "내 기준선 갱신")]
     for x, y, lab in nodes:
         s.rect(x - pw / 2, y - 22, pw, 44, BAND, 22)
         s.text(x, y + 5.5, lab, 15, C_BIZ, "middle", 700)
@@ -898,7 +943,7 @@ def remaining_work():
     s.save("remaining_work.svg", "남은 일")
 
 
-FIGS = [evidence, two_values, scenario_cards, emulator_checks, theme_names, map_elements, phone_vs_car,
+FIGS = [low_tone, evidence, two_values, scenario_cards, emulator_checks, theme_names, map_elements, phone_vs_car,
         market_compare, target, mau_funnel, retention_revenue, b2b_targets, ride_quality_uses, limits, dev_env, remaining_work]
 
 if __name__ == "__main__":

@@ -163,6 +163,9 @@ class Voice(private val context: Context, private val log: (String) -> Unit) {
         fun isYes(answer: String) = answer.trim().let { yes.containsMatchIn(it) && !no.containsMatchIn(it) }
         fun isNo(answer: String) = no.containsMatchIn(answer.trim())
 
+        /** Said instead of the HVAC_FRESH line when the 100 Hz minute starts with it. */
+        const val TONE_LINE = "바깥 공기로 바꾸고, 멀미를 덜어 주는 낮은 소리를 1분 틀게요."
+
         fun phrase(a: Action): String = when (a) {
             Action.CUE_LEFT -> "곧 왼쪽으로 돌아요."
             Action.CUE_RIGHT -> "곧 오른쪽으로 돌아요."

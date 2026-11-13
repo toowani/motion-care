@@ -34,6 +34,9 @@
 - **Mercedes-Benz 특허** (바람·LED 조명으로 움직임 감각), **BMW 특허** (천장 화면에 차 움직임과 맞는 영상) — 특허 단계, 기사 기준.
   - [EVXL (Mercedes)](https://evxl.co/2026/03/02/mercedes-benz-patents-anti-motion-sickness), [BMWBLOG](https://www.bmwblog.com/2024/01/19/bmw-7-series-theater-screen-aims-to-combat-motion-sickness-in-cars)
 
+- **DENSO · 나고야대 100 Hz 소리 (sound spice®)** — 나고야대 연구(Gu 외, 2025)를 DENSO가 후원했고 저자 일부가 관련 특허 발명자. 2차 보도에서는 차량 인포테인먼트에 넣는 작업을 함께 한다고 함. DENSO 공식 발표·제품·특허 번호는 확인 못 함 (2026-11-13). 멀미 케어와 같은 소리를 쓰므로 상용화 전 특허·상표 확인 필요. 우리 차이: 차 신호로 재생 때를 잡고 환기·음성 안내·개인 기준 학습과 한 앱으로 묶음.
+  - [J-STAGE 원문](https://www.jstage.jst.go.jp/article/ehpm/30/0/30_24-00247/_html/-char/en), [Earth.com](https://www.earth.com/news/unique-new-sound-therapy-reduces-motion-sickness-without-medication), [112.ua](https://112.ua/en/comu-vodiiv-nudit-v-elektromobilah-ta-so-z-cim-robiti-68650)
+
 ### 연구 프로토타입
 
 - **Diels, C., Dugenetet, P., Brietzke, A. & Pham Xuan, R. (2023).** Design strategies to alleviate motion sickness in rear seat passengers – a test track study. IEEE ITSC 2023. Bentley·Volkswagen 후원.
@@ -44,7 +47,7 @@
 ### 결론
 
 - "원인을 차가 직접 줄이는 첫 시도"는 틀림. 스무스 모드(양산), 현대모비스·JLR(시범·연구)이 이미 있음.
-- 찾지 못한 것: 차에 이미 있는 신호(방향지시등·내비·공조)만으로 예고와 공조를 한 고리로 묶고, 가족 중 가장 약한 사람 기준으로 맞추는 양산 서비스. 다만 모든 서비스를 다 본 것은 아니므로 "조사한 범위에서"라고 씀.
+- 찾지 못한 것: 차에 이미 있는 신호(핸들 각도·속도·공조)로 저주파 소리를 틀 때를 잡고, 환기·음성 안내와 한 고리로 묶고, 버튼 기록으로 사람마다 기준을 학습하는 양산 서비스. 다만 모든 서비스를 다 본 것은 아니므로 "조사한 범위에서"라고 씀.
 
 ## 2. Pleos·Pleos Connect
 
