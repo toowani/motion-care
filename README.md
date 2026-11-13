@@ -20,7 +20,7 @@
 
 <img src="docs/img/crave_logo.svg" width="22" align="absmiddle"> **현대자동차그룹 차량용 앱 개발 공모전 (Pleos Connect) · 팀 CRAVE**
 
-[1 멀미 조건](#1-우리가-판단한-멀미-조건) · [2 근거](#2-근거) · [3 멀미 지수](#3-멀미-지수-계산) · [4 구현 방법](#4-구현-방법) · [5 실제 구현](#5-실제-구현) · [6 가치](#6-가치) · [7 확장](#7-확장-가능성) · [팀](#팀-crave) · [8 부록](#8-부록-한계--실행-방법--문서)
+[1 멀미 조건](#1-우리가-판단한-멀미-조건) · [2 근거](#2-근거) · [3 멀미 지수](#3-멀미-지수-계산) · [4 구현 방법](#4-구현-방법) · [5 실제 구현](#5-실제-구현) · [6 가치](#6-가치) · [7 확장](#7-확장-가능성) · [8 부록](#8-부록-한계--실행-방법--문서)
 
 ---
 
@@ -218,12 +218,6 @@ DOI와 한계: [research/literature.md](research/literature.md)
 ### ④ 승차감 정량 지표
 
 <img src="docs/img/ride_quality_uses.svg" width="100%" alt="승차감 정량 지표: I와 D를 차종 비교, 택시·기사 평가(같은 노선끼리 비교), ISO 2631-1 형태의 업계 표준 지표로 활용">
-
----
-
-## 팀 CRAVE
-
-<p align="center"><img src="docs/img/slide_team.jpg" width="860" alt="팀 CRAVE: 팀원(대표) GIST EECS 3학년 · 모두의 창업 1R · 모의창업 GSS · 자율주행 연구실 인턴 · Cambridge 여름학기 / 팀원 GIST EECS 3학년 · I-Corps 2022 · Google ML Bootcamp 4기 · 지능표현추론 연구실 인턴 · UC Berkeley 여름학기 · KAIST 여름학기 / 팀원 GIST EECS 3학년 · 뉴로모픽 연구실 인턴 · Boston University 여름학기 / 팀원 GIST EECS 3학년 · 로보틱스 연구실 인턴 · Cambridge 여름학기 / CRAVE Think Crazy, Act Brave, 교내 창업동아리 출신"></p>
 
 ---
 
