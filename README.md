@@ -199,7 +199,7 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 <img src="docs/img/slide_vision.jpg" width="100%" alt="승차감은 숫자로, 피드백은 주행으로: 천천히 가 주세요라고 들어 줄 운전자 없음 → 차가 재고·듣고·고쳐야 · 승차감 지수(부드럽게 1.65, 거칠게 2.58, 우리 몫은 누적량 D·개인 기준선) · 피드백 → 즉시 개선 순환(멀미 피드백 → 기준 학습 → 제어 변경 → 다시 측정)">
 
-<img src="docs/img/extension_map.svg" width="100%" alt="같은 엔진(I·D·m·τ·P)에서 확장 4가지: ① 예측 음성 안내(엔진 계산 중, 앱에서 꺼 둠, 근거 Kuiper 외 2020, 동승 실험 뒤 켬) ② 휴게소 추천(제안 시점 3분 30초, 확장 LLM+POI 검색 API) ③ 가족 모드(아이마다 기준선, 엔진 코드 있음 · 앱에서 꺼 둠) ④ 승차감 정량 지표(차종 비교·택시 평가·업계 표준, 제안) · 겹치는 두 카드의 우리 몫: 누적량 D 기반 멀미 가능성 · 개인 기준선 τ · 앱 배포">
+<img src="docs/img/extension_map.svg" width="100%" alt="같은 엔진(I·D·m·τ·P)에서 확장 3가지: ① 예측 음성 안내(엔진 계산 중, 앱에서 꺼 둠, 근거 Kuiper 외 2020, 동승 실험 뒤 켬) ② 휴게소 추천(제안 시점 3분 30초, 확장 LLM+POI 검색 API) ③ 승차감 정량 지표(차종 비교·택시 평가·업계 표준, 제안) · 겹치는 두 카드의 우리 몫: 누적량 D 기반 멀미 가능성 · 개인 기준선 τ · 앱 배포">
 
 숨긴 화면 코드: [`android/app/src/main/kotlin/ai/motioncare/app/later/`](android/app/src/main/kotlin/ai/motioncare/app/later/README.md)
 
@@ -211,11 +211,7 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 <img src="docs/img/rest_stop_flow.svg" width="100%" alt="흔들림 많음이 길게 이어지면 → 엔진이 제안 시점 계산(굽은 길 거칠게 3분 30초) → 확장: LLM에 남은 경로·멀미 가능성 P·동승자 → 들를 곳 한 줄 추천 → NaviHelper 경유지 · 질문 코드는 보관, POI 검색 API 필요">
 
-### ③ 개인 맞춤 · 아이별 (가족 모드)
-
-<img src="docs/img/family.svg" width="100%" alt="같은 나들이길에서 두 아이의 기준선(민준 τ 24.9, 서연 τ 35.9)과 도달 시점(29.3분, 31.4분)">
-
-### ④ 승차감 정량 지표
+### ③ 승차감 정량 지표
 
 <img src="docs/img/ride_quality_uses.svg" width="100%" alt="승차감 정량 지표: I와 D를 차종 비교, 택시·기사 평가(같은 노선끼리 비교), ISO 2631-1 형태의 업계 표준 지표로 활용">
 

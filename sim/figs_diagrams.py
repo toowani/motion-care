@@ -637,7 +637,7 @@ def relief_sequence():
             f.text(bx + bw / 2, by + 33, "먼 곳을 보세요.”", 13, INK, "middle", 700)
         f.chip(sx + 104 if act else sx + 250, y + (48 if act else 56), sdk, BLUE, WHITE if inapp else BAND, 12, 24, pad=10,
                family=None)
-    f.text(sx, 526, "⑤ 학습: 주행마다 첫 누름만 · {D} ≥ 5일 때 · 최근 30개 · 차 한 대에 기준 하나 (아이별은 확장 ③)", 12.5, MUTED, weight=700)
+    f.text(sx, 526, "⑤ 학습: 주행마다 첫 누름만 · {D} ≥ 5일 때 · 최근 30개 · 차 한 대에 기준 하나", 12.5, MUTED, weight=700)
     f.chip(sx, 544, "pleos.car.permission.CONTROL_CAR_WINDOWS", sdk_ink, sdk_bg, 12.5, 30, pad=14, family=MONO)
     # fallbacks
     fx, fw = 676, 256
@@ -677,7 +677,7 @@ def extension_map():
     ci, cb = LAYER["calc"]
     h, y1, y2 = 190, 64, 266
     hx, hy, hw, hh = 392, (y1 + y2 + h) / 2 - 41, 176, 82
-    for cx, cy in [(368, y1 + h / 2), (592, y1 + h / 2), (368, y2 + h / 2), (592, y2 + h / 2)]:
+    for cx, cy in [(368, y1 + h / 2), (592, y1 + h / 2), (368, y2 + h / 2)]:
         f.line(hx + hw / 2, hy + hh / 2, cx, cy, "#B9CCF3", 2)
     f.rect(hx, hy, hw, hh, cb, "#B9CCF3", cs.RADIUS, 1)
     f.text(hx + hw / 2, hy + 32, "같은 엔진", 16, ci, "middle", 800)
@@ -689,9 +689,7 @@ def extension_map():
          "근거: 1초 전 음성 예고 → 멀미 감소 (Kuiper 외, 2020)", "동승 실험 뒤 켬", True),
         (592, y1, "coffee", "휴게소 추천", f"제안 시점 계산 (굽은 길 거칠게 {_rest_stop_mmss()})", ["run", ("idea", "확장 · LLM + POI 검색 API")],
          "질문 코드는 보관", None, False),
-        (28, y2, "family", "가족 모드", "아이마다 기준선, 가장 낮은 아이 먼저", [("run", "엔진 코드 있음"), ("off", "앱에서 꺼 둠")],
-         None, None, False),
-        (592, y2, "gauge", "승차감 정량 지표", "{I} · {D}를 승차감 숫자로", ["idea"], None, None, True),
+        (28, y2, "gauge", "승차감 정량 지표", "{I} · {D}를 승차감 숫자로", ["idea"], None, None, True),
     ]
     for i, (x, y, ic, title, line1, sts, note, tag, overlap) in enumerate(cards):
         w = 340
@@ -711,7 +709,7 @@ def extension_map():
             f.text(x + 18, y + 126, note, 12.5, MUTED)
         if tag:
             f.chip(x + 18, y + 134, tag, MUTED, WHITE, 12, 22, pad=10, stroke=LINE2)
-        if i == 3:
+        if i == 2:
             cx = x + 18
             for u in ("차종 비교", "택시 · 기사 평가", "업계 표준"):
                 cx += f.chip(cx, y + 120, u, INK, WHITE, 12.5, 26, pad=10, stroke=LINE) + 8
