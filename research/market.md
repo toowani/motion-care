@@ -34,7 +34,11 @@
 - **Mercedes-Benz 특허** (바람·LED 조명으로 움직임 감각), **BMW 특허** (천장 화면에 차 움직임과 맞는 영상) — 특허 단계, 기사 기준.
   - [EVXL (Mercedes)](https://evxl.co/2026/03/02/mercedes-benz-patents-anti-motion-sickness), [BMWBLOG](https://www.bmwblog.com/2024/01/19/bmw-7-series-theater-screen-aims-to-combat-motion-sickness-in-cars)
 
-- **DENSO · 나고야대 100 Hz 소리 (sound spice®)** — 나고야대 연구(Gu 외, 2025)를 DENSO가 후원했고 저자 일부가 관련 특허 발명자. 2차 보도에서는 차량 인포테인먼트에 넣는 작업을 함께 한다고 함. DENSO 공식 발표·제품·특허 번호는 확인 못 함 (2026-11-13). 멀미 케어와 같은 소리를 쓰므로 상용화 전 특허·상표 확인 필요. 우리 차이: 차 신호로 재생 때를 잡고 환기·음성 안내·개인 기준 학습과 한 앱으로 묶음.
+- **DENSO · 나고야대 100 Hz 소리 (sound spice®)** — 나고야대 연구(Gu 외, 2025)를 DENSO가 후원했고(저자 2명이 DENSO 소속), 2차 보도에서는 차량 인포테인먼트에 넣는 작업을 함께 한다고 함. DENSO 공식 발표·제품은 확인 못 함.
+  - **특허 (2026-11-13, Google Patents·논문 이해관계 공개로 확인)**: 나고야대는 '50–140 Hz · 70–85 dB 소리로 이석을 자극하는 장치'를 미국(US12023222B2)·유럽(EP3804672B1)·일본(JP7191400B2)·중국(CN112243368B)에 등록했고, DENSO가 이 특허의 라이선스 옵션 비용을 냈습니다(논문 이해관계 공개). Google Patents 패밀리 기준 한국 출원은 없고 PCT 국내 진입 기한(2020년 말)도 지나, 국내 사용은 이 특허에 걸리지 않는 것으로 봅니다(KIPRIS 직접 조회와 변리사 확인은 전). 해외 판매 차량에 넣으려면 라이선스가 필요합니다. 주파수가 시간에 따라 바뀌는 소리를 다룬 후속 출원(US20260007850A1·EP4555983A1, 심사 중)은 고정 100 Hz인 멀미 케어와 청구항 1이 다릅니다. sound spice®는 상표로 표기되며, 앱은 이 이름을 쓰지 않습니다.
+  - US12023222B2 청구항 1: 제어 장치가 70–85 dB, 50–140 Hz 소리를 정해 이석으로 전정 기능을 활성화하고 소리 발생 장치가 내는 장치. 만료 2041-10-28(미국). [Google Patents](https://patents.google.com/patent/US12023222B2/en)
+  - US20260007850A1 청구항 1: 주파수가 시간에 따라 바뀌는 소리 자극. 청구항 7: 멀미 자극을 받는 중임을 감지해 그동안 소리를 냄(청구항 1에 종속). [Google Patents](https://patents.google.com/patent/US20260007850A1/en)
+  - 우리 차이: 차 신호로 재생 때를 잡고 환기·음성 안내·개인 기준 학습과 한 앱으로 묶음.
   - [J-STAGE 원문](https://www.jstage.jst.go.jp/article/ehpm/30/0/30_24-00247/_html/-char/en), [Earth.com](https://www.earth.com/news/unique-new-sound-therapy-reduces-motion-sickness-without-medication), [112.ua](https://112.ua/en/comu-vodiiv-nudit-v-elektromobilah-ta-so-z-cim-robiti-68650)
 
 ### 연구 프로토타입
