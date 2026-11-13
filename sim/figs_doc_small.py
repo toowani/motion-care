@@ -145,7 +145,7 @@ def fig3():
         dict(icon="dashboard", head="Virtual Console 접속", paras=[
             (None, "adb forward tcp:8088 tcp:8088 후 http://127.0.0.1:8088/ (Emulation Controls 검색창에 항목 이름 입력)")]),
         dict(icon="seat", head="콘솔에 있는 다른 신호", paras=[
-            (None, "Seat Occupancy(뒷좌석 탑승), Window Position, Steering Angle도 있음 → 가족 모드 자동 제안, 환기 파라미터에 활용 가능")]),
+            (None, "Seat Occupancy(뒷좌석 탑승), Window Position, Steering Angle도 있음 → 환기 파라미터에 활용 가능")]),
     ]
     y = cards(s, y, items)
     finish(s, y, 3, "11.1 결과: G1 통과, 속도와 위치는 추가 확인, Virtual Console 접속 방법, 활용 가능한 추가 신호")
@@ -167,19 +167,16 @@ def fig4():
         dict(icon="route", head="RestStopOffer.kt", mono=True, paras=[
             ("Parked", "rest-stop question \"가까운 휴게소에 들를까요?\" (voice + buttons, 응 → nearest demo rest stop as a waypoint), asked on the engine's SUGGEST_REST_STOP and 6 s after 멀미 완화"),
             ("Used by", "TripService.act, TripService.relief")]),
-        dict(icon="family", head="FamilyViews.kt", mono=True, paras=[
-            ("Parked", "FamilyBars (per-child bars), familyCard, familyChip + FamilyIcon (가족 모드 button), FamilyProfilesCard (settings 가족 프로필), cueStylePicker (settings 회전 예고 방식)"),
-            ("Used by", "HomeView, SettingsPanel")]),
     ]
     y = cards(s, y, items)
     y += 2
     s.card(M, y, W - 2 * M, 66, cs.CARD_ALT)
     s.icon("check", 62, y + 33, BLUE, BAND, 18)
-    ls = wrap("Engine side unchanged: android/core and sim/engine.py still plan turn cues, family thresholds and rest stops (SUGGEST_REST_STOP); the sim checks still cover them.", SZ, 800)
+    ls = wrap("Engine side unchanged: android/core and sim/engine.py still plan turn cues and rest stops (SUGGEST_REST_STOP); the sim checks still cover them.", SZ, 800)
     for i, ln in enumerate(ls):
         s.text(96, y + 29 + i * LH, ln, SZ, MUTED)
     y += 66
-    finish(s, y, 4, "Parked UI files: TurnCue, CueBubble, RestStopOffer, FamilyViews, what each parks and who used it")
+    finish(s, y, 4, "Parked UI files: TurnCue, CueBubble, RestStopOffer, what each parks and who used it")
 
 
 def fig5():
@@ -187,35 +184,28 @@ def fig5():
     y = header(s, "Still in place", "Logic stays outside this folder")
     y += 4
     items = [
-        dict(icon="family", head="TripService", mono=True, paras=[
-            (None, "family mode (toggleFamily, FamilyMonitor alert, post-trip \"오늘 OO 괜찮았어요?\", rear-seat suggestion) behind FAMILY_UI = false"),
+        dict(icon="bell", head="TripService", mono=True, paras=[
             (None, "reportSick / recordSick (old \"멀미 났어\")")]),
         dict(icon="route", head="NaviGuide.addRestStop", mono=True, paras=[
             (None, "and its demo rest-stop list (Navi.kt); Voice.phrase(SUGGEST_REST_STOP)")]),
         dict(icon="gear", head="Settings · ProfileStore", mono=True, paras=[
-            (None, "Settings.cueStyle, Settings.lightCueOn; ProfileStore.load/save (children)")]),
+            (None, "Settings.cueStyle, Settings.lightCueOn; ProfileStore.load/save")]),
         dict(icon="palette", head="MoodTheme.cueLine", mono=True, paras=[
             (None, "stays in the theme API (each theme's turn sentence); moving it would break the theme interface, so it is simply not called")]),
-        dict(icon="phone", head="TripUi", mono=True, paras=[
-            (None, "onFamily / onFamilyProbabilities are still sent; MainActivity ignores them")]),
     ]
     y = cards(s, y, items)
-    finish(s, y, 5, "Logic still in place outside later/: TripService family mode, NaviGuide rest stop, Settings and ProfileStore, MoodTheme.cueLine, TripUi callbacks")
+    finish(s, y, 5, "Logic still in place outside later/: TripService reportSick, NaviGuide rest stop, Settings and ProfileStore, MoodTheme.cueLine")
 
 
 def fig6():
     s = Svg(W, 10)
-    y = header(s, "Re-enabling", "Three switches to turn the UI back on")
+    y = header(s, "Re-enabling", "Two switches to turn the UI back on")
     y += 4
     items = [
         dict(icon="bell", head="Turn cues", chip="TripService.act", paras=[
             ("1", "replace the early return for cues with TurnCueSound(settings, navi, ::say).play(line) and LightCue(vehicle, ::note); call start() in onCreate, release() in onDestroy"),
             ("2", "add a CueBubble under MapPanel's character; call show(left) on a cue, follow(s.nextTurnM) per sample"),
             ("3", "add cueStylePicker back to settings and a cue tile/marker if wanted")]),
-        dict(icon="family", head="Family", chip="FAMILY_UI = true", paras=[
-            ("1", "put familyChip in HomeView's top bar (toggle → toggleFamily, repaint with paintFamilyChip)"),
-            ("2", "show familyCard(FamilyBars) in 분석 and feed it from onFamilyProbabilities"),
-            ("3", "add FamilyProfilesCard to SettingsPanel")]),
         dict(icon="route", head="Rest stop", chip="RestStopOffer", paras=[
             ("1", "in TripService create RestStopOffer(…) (constructor call below; for replays, keep the last sample's lat/lon and return that when live is null)"),
             ("2", "call reset() in startTripState"),
@@ -223,7 +213,7 @@ def fig6():
             ("4", "main.postDelayed({ if (source === trip) offer() }, RestStopOffer.DELAY_AFTER_RELIEF_MS) in both relief window callbacks")]),
     ]
     y = cards(s, y, items)
-    finish(s, y, 6, "Re-enabling steps for turn cues, family mode and the rest-stop offer")
+    finish(s, y, 6, "Re-enabling steps for turn cues and the rest-stop offer")
 
 
 for f in (fig1, fig2, fig3, fig4, fig5, fig6):

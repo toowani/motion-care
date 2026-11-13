@@ -761,7 +761,7 @@ def repo_structure():
         (1, "MainActivity", "화면만", APPC, "file"),
         (1, "ui/", "지도 · 분석 탭, 한 화면 모드, 설정", APPC, "folder"),
         (1, "theme/", "아이콘 테마 4종 (Canvas)", APPC, "folder"),
-        (1, "later/", "숨긴 기능 (회전 예고 · 가족 모드 · 휴게소 질문)", APPC, "folder"),
+        (1, "later/", "숨긴 기능 (회전 예고 · 휴게소 질문)", APPC, "folder"),
         (0, "sim/", "시나리오 생성 · 기준 엔진 · 점검 · 실제 데이터 비교 · README 그래프", SIM, "folder"),
         (0, "shared/", "params.json · test_vectors.csv", SIM, "folder"),
         (0, "docs/", "기획서 · 검증 · 확인 기록 · 이미지", DOC, "folder"),

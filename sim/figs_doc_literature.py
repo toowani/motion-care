@@ -47,12 +47,6 @@ P = {
               "82명을 4개 집단(바람, 진동, 바람+진동, 대조)에 무작위 배정, 1인칭 자전거 영상 15분",
               "!바람은 멀미를 유의하게 줄였고, 좌석 진동은 효과 없음",
               "~시각 유발 멀미 연구라 차량 멀미에는 근거 수준을 낮춰 표현"]),
-    "6": ("6", "Huppert, Grill & Brandt (2019)", "Journal of Neurology 266(Suppl 1), 65–73 · Survey of motion sickness susceptibility in children and adolescents aged 3 months to 18 years",
-          "가족 모드 · 타깃(아이 있는 가족)", "child", [
-              "독일 인구 기반 설문 2건, 부모 3,285명이 아이 5,041명 응답",
-              "!6개월–18세 조사에서 9.2%가 멀미 취약",
-              "4–13세에 가장 흔하고 사춘기 이후 감소하는 역U자형",
-              "1세 이후 발생하면 어릴수록 심하고 6–9세에서 가장 심함 · 1세 미만 첫 발생은 극히 드묾(2명)"]),
     "8": ("8", "Gu 외 (2025, 나고야대)", "Environ Health Prev Med 30, 22 · Just 1-min exposure to a pure tone at 100 Hz with daily exposable sound pressure levels may improve motion sickness",
           "핵심 기술: 저주파 소리 (LowTone.kt)", "tone", [
               "생쥐 속귀 조직 실험으로 고른 100 Hz 순음을 80–85 dBZ(60.9–65.9 dBA)로 1분, 양쪽 귀에, 흔들리기 직전에 재생",
@@ -149,7 +143,6 @@ def params_fig():
         ("환경 계수 gammaT, gammaV", "0.04 /°C, 0.15", "5 (바람 효과의 방향), 크기는 가정", ("as", "방향만 근거, 크기는 가정")),
         ("예고 시점", "말 2 s + 준비 3 s", "4는 1초 전 예고로도 효과", ("ok", "근거 있음 (우리는 더 여유 있게)")),
         ("개인 기준선 수축 tauPriorN", "5", "적은 표본에서의 수축 추정 (방법론)", ("na", "—")),
-        ("뒷좌석 우선", "뒷좌석 탑승 시 가족 모드 제안", "1: 뒤쪽일수록 흔들림·멀미 증가", ("ok", "근거 있음")),
     ]
     sz, lh = 13.5, 19
     laid, y = [], 28 + 52 + 36
@@ -191,7 +184,6 @@ def sentences_fig():
         ("steering", "운전자는 다음 움직임을 예측하기 때문에 멀미를 덜 한다. 실험에서도 움직임을 미리 알려 주는 음성만으로 멀미가 줄었다", "Kuiper 외, 2020"),
         ("bus", "버스 승객 3천여 명 조사에서 멀미는 운전 방식과 0.5 Hz 미만의 옆 흔들림에 좌우됐다. 우리 앱이 차량 데이터로 이 느린 흔들림을 계산하는 이유다", "Turner & Griffin, 1999"),
         ("wind", "얼굴로 오는 바람은 멀미를 줄인다. 차가 직접 공조를 바꿀 수 있는 이유가 여기에 있다", "D'Amour 외, 2017"),
-        ("child", "아이의 멀미는 4–13세에 가장 흔하다. 멀미 케어의 효과가 아이에게 가장 클 것으로 보는 이유다", "Huppert 외, 2019"),
         ("tone", "100 Hz 소리를 1분 들려주면 뒤이은 흔들림에서 멀미가 줄었다. 차는 언제 흔들릴지 알기 때문에 그 때를 잡아 소리를 틀 수 있다", "Gu 외, 2025"),
     ]
     y, laid = 28 + 50, []
@@ -210,13 +202,13 @@ def sentences_fig():
             s.text(104, ty, ln, 15, INK)
             ty += 22
         s.chip(914, yy + h / 2 - 13, c, BLUE, BAND, BAND, 12.5, 26, bold=True, anchor="end")
-    s.save("doc_literature_6.svg", "기획서에 쓸 문장 초안 다섯 개")
+    s.save("doc_literature_6.svg", "기획서에 쓸 문장 초안 네 개")
 
 
 if __name__ == "__main__":
     papers_fig("doc_literature_1.svg", "핵심 근거 1–3: 버스 조사, 옆 흔들림 가중, ISO 누적량", ["1", "2", "3"], banner)
     papers_fig("doc_literature_2.svg", "핵심 근거 4, 4a: 예고 음성 실험", ["4", "4a"])
-    papers_fig("doc_literature_3.svg", "핵심 근거 5–6: 바람, 아이 멀미", ["5", "6"])
+    papers_fig("doc_literature_3.svg", "핵심 근거 5: 바람", ["5"])
     papers_fig("doc_literature_4.svg", "핵심 근거 8, 7: 100 Hz 저주파 소리, 차멀미 국제 설문", ["8", "7"])
     params_fig()
     sentences_fig()

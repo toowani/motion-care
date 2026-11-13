@@ -49,7 +49,7 @@
 
 ### 바뀐 식
 
-<img src="../docs/img/doc_market_6.svg" width="100%" alt="MAU 계산: 탑재 15만 1,110대 × 가족 차량 20.3% × 설치율 10% × 월 사용 60% = 약 1,840 (1년), 현재 45,911대 기준 약 559, 초안 약 7,200에서 약 1,800으로 낮춤">
+<img src="../docs/img/doc_market_6.svg" width="100%" alt="MAU 계산: 탑재 15만 1,110대 × 자녀 가구 20.3% × 설치율 10% × 월 사용 60% = 약 1,840 (1년), 현재 45,911대 기준 약 559, 초안 약 7,200에서 약 1,800으로 낮춤">
 
 ### 탑재 차량
 
@@ -58,9 +58,9 @@
 - [현대차그룹 아반떼 보도자료 2026.8.5](https://www.hyundaimotorgroup.com/ko/news/hyundai-motor-company-all-new-avante), [현대차 2025 실적](https://www.hyundaimotorgroup.com/ko/news/hyundai-motor-company-sales-4138180-units-2025)
 - 월간 실적: [5월](https://www.hyundaimotorgroup.com/ko/news/hyundai-motor-company-may-2026-sales), [6월](https://www.hyundaimotorgroup.com/ko/news/hyundai-motor-company-june-2026-sales), [7월](https://www.hyundaimotorgroup.com/ko/news/hyundai-motor-company-july-2026-sales), [8월](https://www.hyundaimotorgroup.com/ko/news/hyundai-motor-company-august-2026-sales), [9월](https://www.hyundaimotorgroup.com/ko/news/hyundai-motor-company-september-2026-sales)
 
-### 가족 차량 비율·설치율·월 사용률
+### 자녀 가구 비율·설치율·월 사용률
 
-<img src="../docs/img/doc_market_8.svg" width="100%" alt="가족 차량 비율 20.3%(통계청 2024, 18세 이하 자녀 가구)와 한계, 설치율 10%·월 사용 60%는 공개 통계가 없어 가정(컨슈머인사이트 AI 서비스 이용 경험률 9% 참고), 출시 후 앱 마켓 통계로 교체">
+<img src="../docs/img/doc_market_8.svg" width="100%" alt="자녀 가구 비율 20.3%(통계청 2024, 18세 이하 자녀 가구)와 한계, 설치율 10%·월 사용 60%는 공개 통계가 없어 가정(컨슈머인사이트 AI 서비스 이용 경험률 9% 참고), 출시 후 앱 마켓 통계로 교체">
 
 - [통계청 2024 인구주택총조사(등록센서스) 보도자료, 2025.7.29](https://kostat.go.kr/board.es?mid=a10301020100&bid=203&act=view&list_no=437767) (PDF 91쪽 표 70)
 - [컨슈머인사이트 2026.2.12](https://www.consumerinsight.co.kr/autoinsight/abview?no=3859&id=pr4_list)
