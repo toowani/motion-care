@@ -15,8 +15,7 @@ HI = BLUE          # keyword colour (brand blue)
 
 def one_liner():
     s = Svg(W, H)
-    s.add(cs.kicker(48, 56, "멀미 케어"))
-    size, lh, y = 27, 50, 118
+    size, lh, y = 27, 50, 84
     lines = [
         ["차량 주행 중 ", ("예고 없는 움직임", HI, "bold"), ", ", ("흔들림 누적", HI, "bold"), ", ", ("실내 환경", HI, "bold"), " 때문에"],
         ["사람마다 다르게 나타나는 멀미를"],

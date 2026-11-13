@@ -10,7 +10,7 @@
 
 <img src="docs/img/demo.webp" width="100%" alt="처음에 캐릭터(몽글이)를 크게 보여 준 뒤 오른쪽 위로 이동, 캐릭터를 크게 키워 표시 · 북악스카이웨이 실제 도로 경로를 시뮬레이션으로 재생 (Pleos 에뮬레이터, 2배속, 말랑 3D 친구 몽글이): 캐릭터 표정과 둘레 링이 노랑 → 빨강, 멀미 완화 버튼 → 창문 열고 환기했어요">
 
-<a href="docs/demo-script.md"><img src="docs/img/link_video.svg" height="40" alt="시연 콘티"></a> <a href="https://github.com/toowani/motion-care/releases/latest/download/CRAVE_MotionCare_release.apk"><img src="docs/img/link_apk.svg" height="40" alt="APK 받기 · GitHub Releases"></a> <a href="#심사용-빠른-실행"><img src="docs/img/link_repo.svg" height="40" alt="실행 방법 · 에뮬레이터 4단계"></a>
+<a href="https://github.com/toowani/motion-care/releases/latest/download/CRAVE_MotionCare_release.apk"><img src="docs/img/link_apk.svg" height="40" alt="APK 받기 · GitHub Releases"></a> <a href="#심사용-빠른-실행"><img src="docs/img/link_repo.svg" height="40" alt="실행 방법 · 에뮬레이터 4단계"></a>
 
 <img src="docs/img/crave_logo.svg" width="22" align="absmiddle"> **현대자동차그룹 차량용 앱 개발 공모전 (Pleos Connect) · 팀 CRAVE**
 
@@ -319,6 +319,6 @@ cd android && ./gradlew :app:assembleRelease   # 서명된 APK → apk/ (클라�
 
 ### 문서
 
-[기획서](docs/proposal.md) · [검증](docs/validation.md) · [확인 기록](docs/qa.md) · [제출 체크리스트](docs/submission.md) · [시연 콘티](docs/demo-script.md) · [동승 조사](docs/ride-study.md) · [문헌 근거](research/literature.md) · [경쟁 조사](research/market.md)
+[기획서](docs/proposal.md) · [검증](docs/validation.md) · [확인 기록](docs/qa.md) · [동승 조사](docs/ride-study.md) · [문헌 근거](research/literature.md) · [경쟁 조사](research/market.md)
 
 <sub>멀미를 실제로 막는지는 동승 조사로 확인이 필요합니다.</sub>
