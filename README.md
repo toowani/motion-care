@@ -60,8 +60,6 @@ DOI와 한계: [research/literature.md](research/literature.md)
 
 <img src="docs/img/f_prob.png" width="100%" alt="P = 1 / (1 + e^{−(D − τ m)/s}) — 멀미 가능성 P 식: 누적 흔들림 D가 개인 기준선 τ·m을 넘을수록 S자로 커지고 25%·50%에서 분석 게이지 단계가 바뀜 (알림 시점은 바꾸지 않음)">
 
-<sub>$P$는 확률이 아니라 보정 전 점수입니다.</sub>
-
 <details>
 <summary>전체 수식 (가속도 · 핸들 각도 · 흔들림 지수 · 알림 기준선 · 예고 시점)</summary>
 

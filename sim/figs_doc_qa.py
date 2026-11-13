@@ -1,0 +1,517 @@
+"""Figures for docs/qa.md (emulator check log) as minimal-text infographics.
+
+    python3 sim/figs_doc_qa.py      # writes docs/img/doc_qa_<n>.svg  (then sim/embed_font.py)
+
+Every block draws onto an Svg; each figure is measured in a dry run, then drawn.
+Inline `^{..}` makes a superscript; backticks are stripped (monospace is not needed in figures).
+"""
+import re
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import crave_style as cs
+import figs_tables as ft
+from figs_tables import Svg, tw, esc, INK, MUTED, LINE, CARD, BLUE, BAND, FOOT, LOW, MID, HIGH
+
+X0, W = 28, 904
+SZ, LH = 13.5, 19.5
+
+
+def clean(t):
+    return t.replace("`", "")
+
+
+def width(line, size, bold=False):
+    return tw(re.sub(r"\^\{(.*?)\}", r"\1", line), size, bold)
+
+
+def wrap(text, size, w, bold=False):
+    """Word wrap; a word wider than w is broken by characters."""
+    out, cur = [], ""
+    for wd in clean(text).split(" "):
+        t = (cur + " " + wd).strip()
+        if width(t, size, bold) <= w:
+            cur = t
+            continue
+        if cur:
+            out.append(cur)
+            cur = ""
+        while width(wd, size, bold) > w:
+            k = len(wd)
+            while k > 1 and width(wd[:k], size, bold) > w:
+                k -= 1
+            out.append(wd[:k])
+            wd = wd[k:]
+        cur = wd
+    if cur:
+        out.append(cur)
+    return out or [""]
+
+
+def sup(line, size):
+    segs = []
+    for i, p in enumerate(re.split(r"\^\{(.*?)\}", line)):
+        if i % 2:
+            segs.append(f'<tspan baseline-shift="super" font-size="{size * 0.7:.1f}">{esc(p)}</tspan>')
+        else:
+            segs.append(f"<tspan>{esc(p)}</tspan>")
+    return "".join(segs)
+
+
+def put(s, x, y, line, size=SZ, fill=INK, weight=400, anchor="start"):
+    if "^{" not in line:
+        s.text(x, y, line, size, fill, anchor, weight)
+        return
+    s.add(f'<text x="{x:.1f}" y="{y:.1f}" font-size="{size}" fill="{fill}" font-weight="{weight}">{sup(line, size)}</text>')
+
+
+# ------------------------------------------------------------------ blocks
+def para(text, color=MUTED, icon=None, bold=False):
+    def b(s, y):
+        x = X0 + 4
+        if icon:
+            s.icon(icon, X0 + 22, y + 22, BLUE, BAND, 16)
+            x = X0 + 52
+        ls = wrap(text, 14.5, X0 + W - 4 - x, bold)
+        yy = y + 17
+        for ln in ls:
+            put(s, x, yy, ln, 14.5, color, 700 if bold else 400)
+            yy += LH + 1
+        return max(yy - 2, y + 44 if icon else 0) + 10
+    return b
+
+
+def table(heads, widths, rows):
+    def b(s, y):
+        pad, hh = 11, 32
+        cells = [[wrap(c, SZ, w - 20, i == 0) for i, (c, w) in enumerate(zip(r, widths))] for r in rows]
+        rh = [max(len(c) for c in r) * LH + 2 * pad - 3 for r in cells]
+        total = hh + sum(rh)
+        s.card(X0, y, W, total)
+        s.rect(X0 + 1, y + 1, W - 2, hh, BAND, 15)
+        s.rect(X0 + 1, y + hh - 12, W - 2, 12, BAND)
+        x = X0
+        for h, w in zip(heads, widths):
+            s.text(x + 12, y + 21, h, 13.5, BLUE, "start", 800)
+            x += w
+        yy = y + hh
+        for ri, (r, h) in enumerate(zip(cells, rh)):
+            if ri:
+                s.line(X0 + 8, yy, X0 + W - 8, yy, LINE, 1)
+            x = X0
+            for ci, (c, w) in enumerate(zip(r, widths)):
+                ty = yy + pad + 13
+                for ln in c:
+                    put(s, x + 12, ty, ln, SZ, INK if ci == 0 else (MUTED if ci == len(r) - 1 else INK), 700 if ci == 0 else 400)
+                    ty += LH
+                x += w
+            yy += h
+        return y + total + 14
+    return b
+
+
+def bullets(items, head=None, kind="dot"):
+    """kind: dot (plain) | fix (green check) | open (yellow, not done) | ok"""
+    def b(s, y):
+        x = X0 + 40
+        tw_ = X0 + W - 16 - x
+        laid = []
+        for it in items:
+            lead, rest = it if isinstance(it, tuple) else ("", it)
+            full = (lead + " " + rest).strip() if lead else rest
+            laid.append((lead, wrap(full, SZ, tw_)))
+        h = 18 + (38 if head else 0) + sum(len(w) * LH + 8 for _, w in laid)
+        s.card(X0, y, W, h)
+        yy = y + 18
+        if head:
+            col = {"fix": LOW, "open": ft.MID_INK}.get(kind, BLUE)
+            s.rect(X0 + 16, yy - 4, 5, 20, col, 2)
+            s.text(X0 + 30, yy + 12, head, 15.5, INK, "start", 800)
+            yy += 38
+        for lead, ls in laid:
+            cy = yy + 8
+            if kind == "fix":
+                s.status("ok", X0 + 24, cy, 8)
+            elif kind == "open":
+                s.circle(X0 + 24, cy, 8, "#FFFFFF", MID, 2)
+                s.text(X0 + 24, cy + 5, "!", 13, ft.MID_INK, "middle", 800)
+            else:
+                s.circle(X0 + 24, cy, 3.5, BLUE)
+            for i, ln in enumerate(ls):
+                if i == 0 and lead and ln.startswith(lead):
+                    s.add(f'<text x="{x:.1f}" y="{yy + 13:.1f}" font-size="{SZ}" fill="{MUTED}"><tspan fill="{INK}" font-weight="800">{esc(lead)}</tspan>'
+                          f'<tspan> </tspan>{sup(ln[len(lead):].strip(), SZ)}</text>')
+                else:
+                    put(s, x, yy + 13, ln, SZ, MUTED)
+                yy += LH
+            yy += 8
+        return y + h + 14
+    return b
+
+
+def chips(items):
+    """Row of file/identifier chips (wraps)."""
+    def b(s, y):
+        x, yy = X0 + 2, y
+        for it in items:
+            w = tw(clean(it), 13, False) + 22
+            if x + w > X0 + W:
+                x, yy = X0 + 2, yy + 32
+            s.chip(x, yy, clean(it), INK, BAND, BAND, 13, 26, pad=11)
+            x += w + 8
+        return yy + 40
+    return b
+
+
+def figure(n, alt, blocks):
+    def run(s):
+        y = 22
+        for bl in blocks:
+            y = bl(s, y)
+        return y
+    H = int(run(Svg(960, 10))) + 8
+    s = Svg(960, H)
+    run(s)
+    s.save(f"doc_qa_{n}.svg", alt)
+
+
+# ------------------------------------------------------------------ content
+def build():
+    n = 0
+
+    def F(alt, *blocks):
+        nonlocal n
+        n += 1
+        figure(n, alt, list(blocks))
+
+    # 1  11.13 low tone
+    F("저주파 소리 에뮬레이터 확인 (11.13)",
+      para("LowTone.kt: 100 Hz 순음 1분 (1초 파형 60번 반복, 앞뒤 2초 페이드), AudioTrack USAGE_MEDIA, 재생 중 다른 소리 덕킹. 디버그 빌드, Pleos Connect Emulator v2.1.", icon="tone"),
+      table(["확인", "결과"], [300, 604], [
+          ["굽은 길 · 거칠게를 처음부터 재생 (출발 트리거)", "dumpsys audio에 AudioTrack ... USAGE_MEDIA ... state:started ... sampleRate=8000"],
+          ["1분 뒤", "같은 앱의 재생기 사라짐 (해제), 오디오 포커스 반납"],
+          ["멀미 완화 버튼", "다시 state:started"],
+          [":core:test · :app:lintDebug · :app:assembleDebug", "통과. 새 lint 경고는 기존 Settings와 같은 UseKtx 스타일 경고뿐"],
+      ]),
+      bullets(["처음 실행 때 위치 권한 창이 재생을 막음 → 권한을 주고 다시 실행"], "겪은 일"),
+      bullets(["실제 소리 크기(귀 위치 dBA)는 실차에서 소음계로 재고 LowTone.LEVEL을 맞춤. 노트북 스피커로는 100 Hz가 잘 안 들림"], "남은 것", "open"))
+
+    # 2  11.8 ring colour
+    F("링 색 = 표정 (11.8)",
+      bullets([
+          ("문제:", "첫 경고(브레이크 안내) 때 표정은 노랑인데 링은 초록. 링 길이는 그대로 멀미 가능성, 색은 표정(Mood)을 따름 (ui/RiskRing.kt mood, MoodIconView가 그릴 때 넘김)"),
+          ("에뮬레이터 확인:", "굽은 길 재생 16초 브레이크 안내 = 노란 표정 + 노란 링, 멀미 완화 = 빨간 표정 + 빨간 링"),
+          ("캐릭터:", "가상 아이돌 테마는 Higgsfield로 만든 표정 3장 (res/drawable-nodpi/lumi_*.webp)"),
+      ], "링 색을 표정에 맞춤"),
+      para("다시 찍음", MUTED, bold=True),
+      chips(["demo.webp", "gif_compact.webp", "ui_r6_map.jpg", "ui_r6_relief.jpg", "explainer.webp"]))
+
+    # 3  11.1
+    F("에뮬레이터 확인 항목과 결과 (11.1)",
+      table(["항목", "결과"], [250, 654], [
+          ["재생 모드 · 굽은 길 거칠게", "지수 상승 → \"멀미 위험\" → 음성 안내 → 공조 외기 · 22°C 설정 성공 (차량 공조 바 22.0° 표시)"],
+          ["실차 신호 · 방향지시등", "Virtual Console \"Blink left\" → \"곧 왼쪽으로 돌아요\""],
+          ["실차 신호 · 실내 온도, 내기/외기", "수신 (19.1°C, 외기)"],
+          ["Pleos TTS / STT", "클라이언트 키로 서버 연결됨 (권한 pleos.car.permission.TTS_SERVICE, STT_SERVICE 필요)"],
+          ["NaviHelper", "연결됨"],
+      ]))
+
+    # 4  11.2
+    F("확인하며 고친 것 (11.2)",
+      table(["항목", "결과", "확인하며 고친 것"], [120, 420, 364], [
+          ["가족 모드", "\"가족 모드\" → \"굽은 길 · 거칠게\" → t=78초 \"민준 기준선 도달 (확률 0.51)\" + 음성 안내", "공조 외기 안내가 주의→높음 상승 때마다 반복되던 것을 5분에 한 번으로"],
+          ["휴게소", "높음 3분 지속(t=198초) → \"휴게소에 들를까요?\" → 응 → 내비 앱에 경유지 \"서울만남의광장휴게소\" 요청 도착", "권한 pleos.car.permission.NAVI_ROUTE_SEARCH 누락 추가. 음성 인식 실패 시 화면 응/아니 버튼으로 대체"],
+          ["정차 후 질문", "\"정지\" → \"오늘 민준 괜찮았어요?\" → 살짝 / 서연 괜찮음 → \"기준선 갱신: 민준 26.0, 서연 37.5\"", "가족 모드 버튼 글자가 길어지면 \"정지\"가 화면 밖으로 밀리던 것을 가로 스크롤로"],
+          ["뒷좌석 탑승", "Virtual Console Seat Occupancy › Rear left = Occupied → \"뒷좌석에 탑승자가 있어요. 가족 모드를 켤까요?\" → 응 → 가족 모드 켜짐", "리스너 하나를 두 좌석에 등록하면 SDK가 마지막 좌석만 알려 줌 → 좌석마다 리스너"],
+          ["속도 · 위치", "시나리오 좌표를 adb emu geo fix로 1초마다 입력 → 화면 42 km/h, 지수 상승, \"뒷좌석이 흔들리고 있어요\" 안내", "에뮬레이터 위치는 속도 · 방향을 0으로 보내므로 연속 위치에서 계산. 250 km/h를 넘는 위치 점프는 무시"],
+          ["NaviHelper 다음 회전", "requestRoute로 판교역 경로 요청 → \"내비 다음 회전: 왼쪽 80 m\" (TBT 수신)", "에뮬레이터 네트워크가 꺼져 있으면 경로 탐색 실패: 설정 › 연결 › Wi-Fi › AndroidWifi 연결 필요"],
+      ]))
+
+    # 5  11.2 afternoon
+    F("무드등 · 편안한 길 · 시연 영상 확인 (11.2 오후)",
+      table(["항목", "결과"], [150, 754], [
+          ["무드등 예고", "방향지시등 → \"곧 왼쪽으로 돌아요\" + 무드등 호박색(255, 160, 0) 밝기 100% → 0% → 100% → 원래 흰색 70%로 복귀 (차량 VHAL 로그 set ambient lights color, Virtual Console AMBIENT 표시)"],
+          ["무드등 영역", "에뮬레이터는 실내 전체가 무드등 한 구역(ROW_1_LEFT+…+ROW_2_RIGHT)이라 좌우를 나눌 수 없음 → 두 번 깜빡임으로 대신. 좌우 구역이 나뉜 차에서는 도는 쪽만 켜지도록 구현"],
+          ["\"편안한 길\" 요청", "가족 모드를 켜자 changeRouteOption(COMFORTABLE) 호출이 오류 없이 끝남 (\"경로 옵션: 편안한 길\"). 진행 중인 경로가 없어 경로가 실제로 바뀌는지는 미확인"],
+          ["시연 영상", "52초 v1 녹화 · 편집 (../멀미케어_시연_v1.mp4, 저장소 밖). 소리 없음: 에뮬레이터 화면 녹화는 음성을 담지 못함"],
+      ]))
+
+    # 6  11.2 evening
+    F("새 화면 확인과 리뷰로 고친 것 (11.2 저녁)",
+      table(["항목", "결과"], [190, 714], [
+          ["첫 실행", "환영 문구 + 테마 4종 미리보기 → 테마 선택 → \"완료\"로 홈"],
+          ["실시간 신호 자동 시작", "앱을 켜자마자 실차 신호 수신, 뒷좌석 탑승 → 홈 화면 안 큰 버튼으로 가족 모드 제안"],
+          ["테마별 음성", "루미 테마에서 방향지시등 → \"루미가 먼저 알려 줄게요. 곧 왼쪽으로 돌아요!\" + 무드등"],
+          ["가족 모드 막대", "굽은 길 거칠게: 민준 막대가 먼저 \"위험\", 아이콘 \"위험 · 같이 쉬어 가요\""],
+          ["정차 후 질문", "\"정지\" → 아이마다 홈 화면 안 버튼(괜찮음/살짝/심함) → 기준선 갱신"],
+          ["멀미 났어", "아이가 둘이면 \"누가 멀미가 나요?\" → 고른 아이로 기록. 누적량이 5 미만이면 학습하지 않음"],
+          ["시연 패널 끔", "그래프 대신 \"이번 주행\" 요약과 멀미 줄이는 습관"],
+      ]),
+      bullets([
+          "권한을 허용한 뒤에도 실시간 신호가 멈춰 있던 문제 → 허용 후 다시 시작",
+          "음성 질문 타이머가 화면이 닫힌 뒤 대화상자를 띄워 앱이 죽을 수 있던 문제 → 종료 시 타이머 정리, 질문마다 번호",
+          "주행 중 가족 모드를 켜고 꺼도 반영되지 않던 문제 → 즉시 반영",
+          "시연 패널을 끄면 정차 후 질문이 영영 나오지 않던 문제 → 1분 정차 시 자동으로 주행 종료",
+          "주행 중 시스템 대화상자 → 홈 화면 안 큰 버튼, 주행 중 테마 · 프로필 변경 잠금 (Car UX Restrictions)",
+          "낮/밤 전환 때 화면이 다시 만들어져 주행 기록이 사라지던 문제 → configChanges",
+          "설정 화면이 열려 있는 동안 뒤의 홈 화면이 계속 그려지던 문제 → 숨김",
+          "빌드 폴더를 iCloud가 복사해 dex 병합이 깨지던 문제 → build.nosync",
+      ], "리뷰 워크플로로 찾아 고친 것 (독립 리뷰 3개 + 반박 검증)", "fix"))
+
+    # 7  11.2 background service
+    F("백그라운드 서비스 확인 (11.2)",
+      table(["항목", "결과"], [190, 714], [
+          ["포그라운드 서비스", "TripService가 위치 유형 포그라운드 서비스로 실행 (dumpsys: isForeground=true, types=location)"],
+          ["내비를 앞에 둔 채 동작", "굽은 길 재생 중 내비로 전환 → 공조 외기 · 22°C, 가족 모드 경고, 휴게소 질문이 그대로 일어남"],
+          ["질문이 카드로", "화면에 떠 있던 질문이 내비로 바꾸자 알림 카드(응/아니)로 옮겨 감 → 알림 센터에서 \"응\" → 가족 모드 켜짐"],
+          ["돌아오면 이어서", "앱으로 돌아오면 그동안의 그래프 · 기록이 이어지고, 대기 중인 질문이 화면 버튼으로 돌아옴"],
+          ["분석 탭", "그래프와 이벤트 기록이 \"분석\" 탭으로 이동, 기본 화면은 가족 막대와 주행 요약"],
+          ["시연 정지", "정차 후 질문(민준 → 서연)이 끝까지 이어지고, 다시 실차 신호를 따라감"],
+          ["Pleos 헤드업 알림", "홈의 알림 서비스가 시스템 앱 알림만 지도 위에 띄움 (isSystemImportantNotification) → 이 앱의 카드는 알림 센터로만 감"],
+          ["Pleos MiniApp", "홈 왼쪽 아래 카드(음악 · 공기압 · 주행 정보)는 앱 위젯 기반 MiniApp. 에뮬레이터에는 시스템 MiniApp만 있고 추가 메뉴가 없어, 다른 앱 등록 가능 여부는 미확인"],
+      ]),
+      bullets([
+          "선택 권한(마이크 · 알림)을 거절하면 권한 요청이 반복되던 문제",
+          "서비스 시작 실패 시 반쯤 만들어진 서비스",
+          "내비로 바꾸거나 설정을 열 때 질문이 사라지던 문제",
+          "새 질문이 앞 질문(정차 후 질문 묶음 포함)을 지우던 문제",
+          "\"싫어\"가 \"응\"으로 들리던 음성 판정",
+      ], "리뷰 워크플로(2개 관점 + 반박 검증)로 확인된 지적 9개 중 고친 것", "fix"))
+
+    # 8  11.2 night team meeting
+    F("팀 회의 의견 반영과 확인 (11.2 밤)",
+      para("팀 회의(디스코드)에서 나온 의견을 반영해 고친 것과 확인 결과", icon="family"),
+      table(["회의 의견", "바꾼 것", "에뮬레이터 확인"], [160, 420, 324], [
+          ["내비 음성과 겹치면 시끄럽다", "예고 방식 선택(알림음 기본 / 캐릭터 목소리 / 무드등만). 목소리 모드여도 내비가 300 m 안의 회전을 안내 중이면 알림음으로", "알림음 모드에서 방향지시등 → 알림음만 (turn cue tone played=true), 음성 없음"],
+          ["무드등 깜빡임이 눈부시다", "도는 쪽 60% 밝기, 반대쪽은 원래 밝기의 절반, 사이 박자는 원래 밝기 (완전히 꺼지지 않음)", "코드 반영 (이전 회차에서 색 · 밝기 변경과 복귀는 차량 로그로 확인)"],
+          ["내비 화면을 다 가리면 안 된다", "앱 폭이 900 dp보다 좁으면 표정 카드만 남는 한 화면 모드. 가로 고정을 풀고 resizeableActivity", "am task resize로 앱 창을 좁히자 표정 카드만 남음, 되돌리면 원래 화면"],
+          ["지도 위에 캐릭터가 보이면 좋겠다", "\"지도\" 탭 시제품 (OpenStreetMap, 차 위치 · 지나온 길 · 캐릭터 배지 · 다음 회전)", "굽은 길 재생 중 지도와 캐릭터가 편안 → 위험으로 바뀜 (docs/img/demo.webp)"],
+          ["회전을 GPS보다 빨리 잡자", "핸들 각도로 방향을 앞당기는 SteeringYaw (자전거 모델 + GPS 보정, 단위 테스트 5개). 3초 넘게 갱신이 없으면 GPS만 씀", "Virtual Console 핸들 540° → 앱이 -540 수신"],
+          ["README는 글보다 그림으로", "회의 순서(조건 → 근거 → 지수 → 구현 방법 → 실제 구현 → 확장)로 README 재구성, 맨 위에 시연 GIF", "GitHub에서 확인"],
+          ["MiniApp · 계기판 가능 여부", "팀이 결정 (문의 초안은 삭제함)", "—"],
+      ]),
+      bullets([
+          ("핸들 각도 권한 누락:", "lint가 pleos.car.permission.CAR_DRIVE 누락을 알려 줌. 권한이 없으면 핸들 리스너가 조용히 실패하므로 매니페스트에 추가."),
+          ("핸들 각도 부호:", "Pleos는 오른쪽 회전을 음수로 보냄 (Virtual Console 오른쪽 540° → -540). 엔진은 오른쪽 = 방향 증가(양수)로 계산하므로 받을 때 부호를 뒤집음."),
+          ("오래된 핸들 값:", "마지막 값을 계속 쓰던 것을 3초가 지나면 버리도록."),
+      ], "확인하며 고친 것", "fix"))
+
+    # 9  11.2 night real map
+    F("실제 도로 지도와 새 캐릭터 (11.2 밤)",
+      para("팀장 의견: \"지도가 아파트를 뚫고 지나간다, 실제 내비와 통합된 느낌이 필요하다, 캐릭터(특히 아이돌)를 더 고퀄리티로\"", icon="map"),
+      table(["바꾼 것", "에뮬레이터 확인"], [530, 374], [
+          ["시나리오 6개를 실제 도로로: OSRM 경로(sim/routes/, OpenStreetMap)를 따라 생성. 회전 예고 · 방향지시등은 실제 교차로 회전에서", "도심은 강남역 → 테헤란로 → 언주로, 굽은 길은 북악스카이웨이 커브를 그대로 따라감. 점검 10개 통과, Kotlin 테스트 300샘플 일치"],
+          ["지도 탭을 Pleos 내비 모양으로: 진행 방향이 위인 기울어진 지도, 파란 경로선, 회전 안내 카드, 도착 바, 속도, 캐릭터 위젯과 회전 예고 말풍선", "도심 · 굽은 길 재생에서 확인 (docs/img/demo.webp)"],
+          ["지도 엔진: WebGL이 있으면 MapLibre(3D 건물), 없으면 OpenLayers 2D 벡터, 둘 다 안 되면 Leaflet 래스터", "에뮬레이터 WebView(Pleos WebView 131)는 WebGL이 없어 OpenLayers로 동작 (map engine: openlayers)"],
+          ["캐릭터 4종 새로 그림 (디자인 → 아트 디렉터 비평 → 수정 → Kotlin 이식). 루미는 헤드셋 마이크 · 포니테일 · 손가락 하트 · 무대 조명의 아이돌로, 부릉이는 Cars와 겹치지 않게 헤드라이트 눈으로", "설정 화면 4종 × 3표정이 브라우저 미리보기와 같게 그려짐"],
+          ["NaviHelper updateOccupiedRegion (내비에 앱 영역 알리기)", "SecurityException: This API is only allowed for system apps → Pleos 문의 초안에 추가"],
+      ]),
+      bullets([
+          ("지도가 차를 못 따라감:", "OpenLayers가 화면의 몇 배 크기 캔버스를 2배 해상도로 매 프레임 다시 그려, 10초 넘게 차 아이콘이 멈춤. 해상도 1배, 캔버스 축소, 줌은 정수 단계, 회전은 바뀔 때만 → 약 34 fps."),
+          ("도착 시간이 신호 대기마다 15분씩 흔들림:", "주행 평균 속도로 계산하던 것을, 시연은 시나리오 시간표(정차 포함)로 계산."),
+          ("지도 스타일을 못 받으면 빈 화면:", "MapLibre · OpenLayers 모두 스타일 실패 · 20초 시간 초과 때 Leaflet으로 넘어가게."),
+          ("앱 영역 알림이 연결 전에 사라짐:", "NaviHelper 연결 전 요청은 보관했다가 연결되면 보냄."),
+          ("시뮬레이터 옆 가속도 과대:", "속도는 반경 10 m로 제한한 곡률로, 방향 열은 더 급한 실제 곡률로 계산되어 엔진이 스타일 한도의 약 2배 옆 가속도를 봄 → 같은 곡률을 쓰고 도심 모서리 반경은 매끄럽게 하는 폭으로 맞춤."),
+          ("다음 회전 거리:", "방향지시등 시작점(회전 8 m 전)까지 재던 것을 회전 지점까지로."),
+          ("에뮬레이터 자체 서비스:", "keystore2, vold, systemui가 한 번 죽으며 앱도 같이 내려감. 앱 문제는 아님."),
+          ("지도 위쪽 빈 띠:", "기울인 지도의 원근 소실선이 패널 안에 있어 위쪽 30–100 px가 비던 것을, 소실선을 패널 위로 옮겨 해결."),
+          ("뒷좌석 질문이 한 번만 나옴:", "가족 모드를 끄면 다음 뒷좌석 탑승 때 다시 묻도록."),
+      ], "확인하며 고친 것", "fix"),
+      bullets([
+          "방향지시등을 켜면 Pleos 사각지대 카메라 창이 앱을 가려, 방향지시등 예고는 화면에 안 보이고 소리 · 무드등으로만 전달됨 (README ③에 적음)",
+          "알림 센터의 질문 카드 글자가 어두운 배경에 어두운 회색이라 잘 안 보임",
+          "질문 카드는 20초 뒤 사라짐 (질문은 앱 안에 남아 있음)",
+          "에뮬레이터에서 Pleos 음성 인식이 ON_DEVICE_ENGINE_ERROR로 실패 → 화면 버튼으로 답함",
+      ], "스크린샷을 다시 찍으며 본 남은 문제 (이번에 고치지 않음)", "open"))
+
+    # 10 11.2 night glance screen
+    F("한눈에 보는 화면 (11.2 밤)",
+      para("팀장 의견: \"운전자 · 동승자는 내비를 쓰느라 앱 글씨를 열심히 읽지 않는다\", \"내비 모드에는 멀미 가능성을\", \"줄바꿈이 어색하다\"", icon="gauge"),
+      table(["바꾼 것", "확인"], [560, 344], [
+          ["지도 탭 캐릭터 위젯: \"멀미 가능성 N%\"만 (25% 아래 초록, 50% 아래 주황, 그 위 빨강)", "굽은 길 재생에서 14% → 78%로 오름"],
+          ["분석 탭: \"흔들림 지수 / 멀미 가능성\" 전환 토글, 한 번에 하나", "가족 모드에서 민준 · 서연 선과 50% 알림선"],
+          ["주행 탭 오른쪽: 멀미 가능성 게이지, 픽토그램 숫자 타일 4개, 두꺼운 아이별 막대, 2×2 습관 타일", "가족 모드 굽은 길에서 게이지 53%, 민준 53% · 서연 11%"],
+          ["한국어 줄바꿈: API 33 이상에서 어절 단위 줄바꿈(LINE_BREAK_WORD_STYLE_PHRASE), 질문은 문장마다 줄을 나눔", "\"가족 모드를 켤까요?\"가 \"켤까 / 요?\"로 끊기지 않음"],
+          ["앱 아이콘: 처음엔 팀 CRAVE 로고였으나, 팀장 의견으로 앱 주제에 맞는 전용 아이콘을 새로 만들고 CRAVE 로고는 설정 맨 아래 크레딧 줄과 README로 옮김", "앱 목록에서 확인"],
+      ]),
+      bullets([
+          ("표정 \"위험\" 옆에 게이지 \"3% 편안\":", "흔들림 지수와 멀미 가능성이 같은 단계 이름을 써서 모순처럼 보임 → 멀미 가능성은 낮음 · 보통 · 높음으로, 지도 위젯은 멀미 가능성만."),
+          ("말풍선:", "\"곧\"이 줄 끝에 홀로 남음 → 문장마다 줄바꿈. 도착 카드 \"목적지에 도착…\" 잘림 → \"도착\", 도착 바 \"0m\" 숨김."),
+          ("분석 기록 오류 코드:", "ON_DEVICE_ENGINE_ERROR → \"음성 인식이 안 돼요 · 버튼으로 답해 주세요\"."),
+          ("한 화면 모드:", "뒤 캐릭터 제목이 작게 남음 → 높이 고정으로 자동 크기 회복."),
+      ], "스크린샷을 다시 찍으며 고친 것", "fix"),
+      bullets([
+          ("실차 주행이 끝나도 멀미 가능성이 이어짐:", "누적량은 엔진을 새로 만들어야 0이 되는데, 실차 모드는 주행이 끝나도 같은 엔진을 썼음. 주행 끝마다 엔진 · 가족 모니터 · 그래프를 새로 시작."),
+          ("아이콘 경로 데이터 앞의 잘못된 문자:", "SVG 변환 때 섞인 g를 지움."),
+          ("아이가 3명 이상이면 주행 탭이 넘침:", "그때는 습관 타일 대신 아이별 막대를 보여 줌."),
+      ], "리뷰로 찾아 고친 것", "fix"),
+      bullets(["Pleos 하단 바의 앱 아이콘은 런처 캐시 때문에 옛 아이콘이 남음 (앱 목록은 새 로고)"], "남은 것", "open"))
+
+    # 11 11.2 night icon, split screen
+    F("앱 아이콘, 실제 내비와 화면 나누기 (11.2 밤)",
+      table(["바꾼 것", "확인"], [520, 384], [
+          ["앱 아이콘: 웃는 얼굴 도로 시안을 거쳐, 팀장 의견으로 처음의 자동차 아이콘(웃는 얼굴 + 바람 + 잎)으로 되돌림", "앱 목록에서 확인"],
+          ["CRAVE 로고: 설정 맨 아래 크레딧 줄 \"만든 팀 CRAVE\"", "설정 화면 맨 아래"],
+          ["실제 Pleos 내비와 화면 나누기 GIF", "화면 가운데 손잡이를 끌면 왼쪽 멀미 케어(한 화면 모드), 오른쪽 실제 내비(판교역 경로 안내, 회전 안내 80m, 도착 10:00)"],
+          ["GIF 만들기 (11.3에 바꿈: 아래 \"GIF 촬영 방법\")", "장면 사이 겹치기는 없앰, 반복 지점에만 0.4초"],
+      ]),
+      bullets([
+          "am task resize로 창만 줄이면 옆이 빈 화면으로 남음. Pleos의 실제 화면 나누기는 가운데 손잡이를 끄는 동작.",
+          "Pleos 하단 바의 앱 아이콘은 처음 설치 때 아이콘을 기억해, System UI를 다시 시작해도 옛 아이콘이 남음. 앱 목록과 새로 설치한 기기에는 새 아이콘.",
+      ], "알아 둔 것"))
+
+    # 12 11.3 self found: map jank + screen/behaviour tables
+    F("지도 버벅임 개선 (11.3)",
+      para("사용자 의견: \"지도 주행 GIF가 버벅이고 중간에 어색한 전환이 있다\", 그리고 틀은 그대로 두고 바로 고칠 수 있는 것을 스스로 찾기. 빌드 :core:test :app:lintDebug :app:installDebug 통과, lint 오류 0개, DrawAllocation 경고 0개.", icon="search"),
+      table(["문제", "고친 것", "확인"], [310, 330, 264], [
+          ["에뮬레이터는 WebGL이 없어 OpenLayers가 1916 px 캔버스를 매 프레임 다시 그림 → 초당 약 2번만 그려짐", "지도는 가끔만 다시 그리고, 사이는 CSS로 미끄러지게", "굽은 길 · 거칠게 2배속 20초: 바뀌는 프레임 초당 약 12 → 39–42, 가장 긴 멈춤 0.30초 → 0.07초"],
+          ["줌이 한 번에 바뀌며 화면이 튐, 줌인 때 지도 끝이 보임", "줌을 약 0.7초에 걸쳐, 올라갈 때 45 · 80 km/h, 내려갈 때 38 · 70 km/h", "30초 녹화에서 0.2초 넘는 멈춤은 녹화 시작 1.4초 안에만"],
+          ["급커브에서 지도가 확 돎", "지도 회전은 초당 25° 이하", "북악스카이웨이 재생"],
+          ["늦게 온 샘플에 차가 멈춤, 새 시나리오가 첫 샘플 전에 빈 지도", "샘플을 정해진 시간표로, 첫 위치를 바로 그림", "지도 박자가 고르게"],
+      ]))
+
+    F("화면과 동작 개선 12건 (11.3)",
+      table(["문제", "고친 것", "확인"], [270, 340, 294], [
+          ["표정과 게이지가 같은 말을 써서 헷갈림", "표정 카드 \"지금 흔들림\"(잔잔 · 흔들림 · 흔들림 많음), 게이지 25% 아래면 표정은 주황까지만, 최고 흔들림 타일은 표정이 보인 단계만", "docs/img/ui_1_drive.jpg"],
+          ["게이지 원호가 제목과 떨어지고 가족 모드에서 크기가 다름", "원호를 제목 바로 아래, 두 모드 같은 크기, %는 원호 안", "주행 탭 두 모드"],
+          ["탭 위치가 탭마다 다름, 지도에서 질문이 지도 폭을 줄임", "탭은 머리 줄 같은 자리, 지도 질문은 지도 위 카드", "uiautomator 덤프로 세 탭 같은 좌표"],
+          ["한 화면 모드에 숫자가 없음", "색이 바뀌는 % 알약 (\"민준 17%\" → \"민준 26%\")", "docs/img/gif_compact.webp"],
+          ["회전 말풍선이 긴 글, 지도 카드에 \"…\" 잘림", "화살표 + 거리 (30 m 안이면 \"곧\"), 지나면 사라짐, 지도 카드도 엔진과 같은 회전 데이터", "docs/img/ui_14_map.jpg, docs/img/gif_turn_cue.webp"],
+          ["정지해도 휴게소 질문이 남음", "정지 → 바로 지움 (12초 뒤에도 안 돌아옴). 가족 모드면 \"오늘 민준 괜찮았어요?\"만 남김", "에뮬레이터"],
+          ["질문 음성이 대기 중에 먼저 나옴, 카드 질문이 남음", "화면에 뜰 때만 말함, 카드와 함께 사라짐. 위치를 모르면 휴게소 경유지를 넣지 않음", "에뮬레이터"],
+          ["정차 후 질문 동안 타일이 0으로", "끝난 주행 숫자 유지 (4분 · 15 · 1 · 많음, 74% · 25%), 마지막 답 뒤 0", "에뮬레이터"],
+          ["공조가 꺼져 있어도 외기 · 22°C를 시도", "바꾸지 않고 \"공조 꺼짐 · 창문 조금\", 공기 바꿈 0. 켜져 있으면 바꾸고 정지하면 처음 값(내기 · 26°C)으로", "Virtual Console 공조 전원 끔 / 켬. 에뮬레이터는 공조 전원을 줄 단위로 읽어 차가 알려 준 구역으로 읽음"],
+          ["시연 버튼이 무엇을 재생 중인지 안 보임, 이름 \"가족 귀성\"", "재생 중인 버튼을 채움, \"가족 나들이\", 가족 버튼 \"가족 모드\" + 아이콘", "주행 탭"],
+          ["주행 시간이 서 있는 동안에도 늘어남", "움직일 때만 셈", "대기 화면 0분"],
+          ["설정 설명 두 줄, 좁은 화면에서 테마 카드가 넘침", "설명 한 줄, 좁으면 테마 카드 한 줄에 하나, 스위치 색", "화면 나누기 상태의 설정"],
+      ]))
+
+    F("뒷좌석 탑승 값 뒤집힘과 시연 재생 옵션 (11.3)",
+      bullets([
+          "Virtual Console: Occupied = 2, Empty = 1 (VHAL: 1 빈 좌석, 2 탑승)",
+          "Vehicle SDK 2.3.2는 값 == 1을 true로 넘김 → true가 빈 좌석",
+          "좌석 원래 값을 읽으려면 CONTROL_CAR_SEATS 권한 필요 → SDK 리스너 값을 뒤집어 씀",
+          ("확인:", "뒷좌석 모두 빈 좌석 → 질문 없음 · Rear left Occupied → 질문 한 번 · 정지 → 다시 안 물음"),
+      ], "뒷좌석 탑승 값 뒤집힘"),
+      bullets([
+          "건너뛴 구간은 소리 없이 엔진만 계산 (가족 나들이 880초까지 샘플 880개, 누적량 12.4)",
+          "앱이 이미 열려 있으면 Pleos 런처가 옵션을 넘기지 않음 → 먼저 am force-stop --user 10 ai.motioncare.app",
+          "디버그 빌드에서만 지도 WebView 원격 검사 (프레임 측정용)",
+          "옵션은 --user 10과 함께 (아래 명령)",
+      ], "시연 재생 옵션 (디버그 빌드)"))
+
+    F("GIF 촬영 방법 (11.3)",
+      bullets([
+          "디버그 재생 옵션으로 원하는 순간부터 2배속 재생, 끊지 않고 한 번에 녹화",
+          "녹화 프레임 간격이 고르지 않음 → 일정한 30 fps로 맞춘 뒤 15 fps로 (demo.webp는 20 fps)",
+          "겹치기(크로스페이드)는 gif_turn_cue.webp · gif_compact.webp의 반복 지점에만 0.4초. demo.webp는 겹치기 없이 지도가 넓게 줌아웃되기 직전(17.75초)에서 끊음",
+          "원본에서 잰 가장 긴 프레임 간격: demo.webp 38 ms, gif_turn_cue.webp 36 ms, gif_compact.webp 82 ms (모두 150 ms 아래)",
+          "15 fps GIF는 프레임 시간이 0.06 / 0.07초로 번갈아 나옴 (GIF는 1/100초 단위). demo.webp는 20 fps로 바꿔 모든 프레임이 0.05초 (355장, 멈춘 프레임 0)",
+          "gif_compact.webp의 하얀 장면: 손잡이를 끄는 동안 Pleos가 앱을 흐리게 그림, 겹치기 아님",
+          "크기: demo.webp 12.3 MB (20 fps · 64색, 목표보다 큼), gif_turn_cue.webp는 4 MB 아래로 맞추려 420 px",
+      ]))
+
+    F("시뮬레이터와 엔진 (11.3 같은 회차)",
+      bullets([
+          ("회전 예고:", "다음 회전 거리가 -1이 되거나 20 m 넘게 늘면 다시 준비 (방향지시등을 켜 둔 채여도). 회전 40 m 앞에서 3초 넘게 섰다가 출발하면 한 번 더"),
+          ("커브 예고:", "굽은 길 커브 예고 25곳 (\"왼쪽 커브\", 커브 시작 3–7초 전)"),
+          ("지수:", "처음 60초도 60으로 나눔"),
+          ("테스트 벡터:", "세 구간 2,162개 샘플, 파이썬과 Kotlin 오차 2×10^{-6} 이하"),
+      ]))
+
+    F("README 움직이는 그림 크기 (11.3)",
+      bullets([
+          "README의 움직이는 그림을 다른 이미지처럼 본문 폭 가득 (width=\"100%\") 표시",
+          "840 px 폭의 GIF는 지도 장면이 26 MB가 되어, 같은 화질에 훨씬 가벼운 애니메이션 WebP로 바꿈",
+          "6개 모두 840 px · 20 fps · 전체 색상, 1.4–7.4 MB (지도 장면 7.2 · 7.4 MB)",
+          "반복 지점에만 0.4초 겹치기, 장면 중간 끊김 없음",
+          "회전 예고 그림은 1280 px 원본이 작아 2560 px로 다시 녹화 (도심, 봉은사로 우회전)",
+      ]))
+
+    # 13 11.3 team lead meeting
+    F("팀장 회의 결정 1-8 반영 (11.3)",
+      para("결정 1–8 반영 (불가능 판정이 난 항목은 제외). 빌드 :core:test :app:lintDebug :app:installDebug 통과, lint 오류 0개, sim/prototype.py 점검 10개 통과. sim/ · shared/ · android/core는 바꾸지 않음.", icon="check"),
+      table(["결정", "바꾼 것", "확인 (에뮬레이터)"], [130, 510, 264], [
+          ["1. 회전 예고 숨김", "엔진은 예고 시점을 그대로 계산, 앱은 소리 · 음성 · 무드등 · 지도 말풍선 · 횟수 · 그래프 표시를 모두 안 함. 설정의 \"회전 예고 방식\", 무드등 예고 스위치, 회전 예고 타일, 다음 회전 칩 제거", "재생 중 logcat \"engine cue ... (not played)\" 32줄, 알림음 · 무드등 줄 없음"],
+          ["2. 가족 모드는 화면에서만 숨김", "가족 모드 버튼, 뒷좌석 → 가족 모드 질문, 아이별 막대 · 그래프 선, 정차 후 \"오늘 OO 괜찮았어요?\", 설정 가족 프로필 없음 (TripService의 FAMILY_UI = false). 시연 버튼 \"가족 나들이\" → \"나들이길\"", "설정 · 분석 탭에 가족 요소 없음"],
+          ["3. 탭 두 개 (지도 기본)", "주행 탭 제거. 지도 = 첫 화면, 분석 = 게이지 + 타일 4개(주행 시간 · 공기 바꿈 · 완화 버튼 · 최고 흔들림) + 그래프 토글 · 기록 + 습관 타일. 넓은 화면은 질문을 탭 위에 띄우고, 차가 한 일은 위쪽 알약", "앱을 열면 지도 탭. 한 화면 모드(표정 카드 · % 알약 · 속도 · 실내 칩) 그대로"],
+          ["4. 멀미 완화 버튼", "\"멀미 났어\" 대신 위쪽 큰 주황(#EA580C) 버튼. 한 번에 뒷창문 20% (Vehicle Window), 외기 · 온도 낮춤, 음성 한 줄, 6초 뒤 휴게소 질문. 창문 거절 · 없음 · 4초 무응답이면 \"창문을 조금 열어 주세요\". 누른 순간 누적량을 기본 프로필 \"나\"에 학습 기록(주행마다 첫 누름, 누적량 5 이상), 누른 횟수 타일, 20초 안 다시 누름 무시. 권한 pleos.car.permission.CONTROL_CAR_WINDOWS", "창문 ROW_1/2_LEFT/RIGHT 범위 0–10, 뒷창문 2개 위치 2 확인 응답. \"누적량 29.1 · 기준 29.9\" 기록. 휴게소 질문 6초 뒤. 공조가 꺼져 있어 공조는 안 바뀜 (기존 경로)"],
+          ["5. 지도 캐릭터 위젯", "112 → 168, 원을 멀미 가능성 색으로 채움 (25% 아래 초록 · 25–50% 노랑 · 50% 이상 빨강), % 숫자 없음", "처음 초록 → 오르면 빨강"],
+          ["6. 색 하나로", "테마 4종의 세 단계, 게이지 · 그래프 · 표정 색을 #16A34A / #EAB308 / #DC2626 (흰 바탕 글자용 노랑 #A16207). 몽글이 · 부릉이 · 루미 무대 조명도 초록 · 노랑 · 빨강", "설정 테마 4종 모두 초록 · 노랑 · 빨강"],
+          ["7. Pleos 스타일 아이콘", "진회색(#363636) 사각 + 흰색 단색 웃는 자동차 · 잎사귀, 적응형 + 단색(monochrome) 아이콘", "Pleos 앱 목록에서 내비게이션 · 전화 · 차량 설정과 같은 색과 굵기"],
+          ["8. 지도 줌 고정", "주행 중 줌 17 고정 (속도 · 커브로 바뀌지 않음), 2D/3D 버튼은 그대로", "고속도로 93 km/h에서도 줌 17"],
+      ]))
+
+    F("숨긴 화면 코드 보관과 확인하며 남은 것 (11.3)",
+      para("보관 폴더 android/app/src/main/kotlin/ai/motioncare/app/later/ (패키지 ai.motioncare.app.later, 앱과 함께 컴파일)", icon="doc"),
+      table(["파일", "내용"], [200, 704], [
+          ["TurnCue.kt", "알림음 · 테마 목소리 · 무드등 예고"],
+          ["CueBubble.kt", "지도 말풍선"],
+          ["FamilyViews.kt", "아이별 막대 · 가족 카드 · 가족 모드 버튼 · 설정 가족 프로필 · 회전 예고 방식 선택"],
+          ["폴더의 README.md", "다시 켜는 방법과 폴더 밖에 남은 것 (MoodTheme.cueLine, 가족 로직, \"멀미 났어\" 기록 코드)"],
+      ]),
+      bullets([
+          ("창문 움직임:", "차는 명령을 받고 위치 2를 돌려줬지만, Virtual Console /vehicle/body는 모든 창문 0 (dds_ready.window_position = false, 창문 연결 꺼짐) → 움직임은 못 봄"),
+          ("아래 작업 표시줄 아이콘:", "앱 목록은 새 아이콘, 아래 작업 표시줄 칸은 옛 청록 아이콘이 남음. 앱 · 홈(ai.umos.homescreen) · SystemUI를 다시 띄워도 그대로 → 시스템 캐시로 봄. 버전 코드를 올리거나 지우고 다시 설치하면 바뀔 것으로 예상 (둘 다 하지 않음: 버전 코드는 프로젝트 설정, 지우면 앱 데이터가 사라짐)"),
+          ("대비 (작음):", "부릉이 빨강 단계의 분홍 하트가 잘 안 보임, 깔끔한 기본 노랑 원 위 흰 얼굴은 아이콘 크기에서 읽힘"),
+          ("분석 기록 한 줄:", "공조가 꺼진 채 완화 버튼을 누르면 기록에 \"완화: 공조 공조 꺼짐 · 창문 조금\"처럼 \"공조\"가 두 번 나옴 (화면 문구만, 코드 미수정)"),
+          ("학습 기록:", "시연 재생 중 누름도 \"나\"의 기록으로 셈. 누르기 전에는 출발값 30"),
+      ], "확인하며 남은 것", "open"))
+
+    F("README 그림 정리 (11.3)",
+      bullets([
+          ("새로 찍음:", "demo.webp (굽은 길 3배속, 멀미 완화 → 휴게소 질문, 840 px · 15 fps · 4.1 MB), ui_r6_map, ui_r6_relief, ui_r6_rest, ui_r6_analysis, ui_r6_compact, ui_r6_settings, theme_gallery, ui_16_icon"),
+          ("그래프 다시 만듦 (python3 sim/readme_figures.py):", "how_it_works.svg (가운데 \"Pleos SDK\" 열), architecture.svg (쉬운 말), index_flow.svg, timeline_*.svg · scenario_bars.svg (초록 · 노랑 · 빨강), timeline_city.svg · family.svg (확장 절로)"),
+          ("새로 찍음 (공조 장면, 지금 화면):", "gif_fresh_air.webp"),
+          ("옛 화면이 남아 README에 \"이전 회차 화면\"으로 표시:", "ui_12_card.jpg"),
+          ("더 이상 README에 안 쓰는 옛 그림:", "ui_1_drive, ui_1_welcome, ui_2_rear_prompt, ui_3_turn_cue, ui_7_post_trip, ui_8_learned, ui_9_settings, ui_10_rest_stop, ui_11_analysis, ui_14_map, ui_15_analysis_risk, gif_turn_cue, gif_family, gif_compact, gif_themes"),
+      ]))
+
+    # 14 11.4
+    F("팀 회의 2 결정 A-G 반영 (11.4)",
+      para("결정 A–G 반영. 빌드 :core:test :app:lintDebug :app:installDebug 통과, lint 오류 0개, sim/prototype.py 점검 10개 통과. 엔진(android/core, sim/engine.py)은 바꾸지 않음.", icon="check"),
+      table(["결정", "바꾼 것", "확인 (에뮬레이터)"], [130, 510, 264], [
+          ["A. 이름", "\"멀미 케어\"로 확정, 부제 \"멀미 지수로 높이는 탑승 쾌적함\". README · 문서에서 \"(가칭)\" 뺌", "—"],
+          ["B. 팀 표기", "\"팀 CRAVE\"만 (README · 기획서 · 문의 초안), CRAVE 로고와 설정 \"만든 팀 CRAVE\"는 그대로", "—"],
+          ["C. 캐릭터 링", "지도 위젯의 꽉 찬 색 원 → 흰 원 + 굵은 링. 링은 멀미 가능성만큼 12시부터 시계 방향으로 차오르고, 회색 바탕(#E5E7EB), 색은 Ui.RISK_* (25% · 50%). ui/RiskRing.kt, MoodIconView.ring (부드럽게 따라감), 테마 4종이 같은 링을 그림. 설정 미리보기는 0.15 · 0.4 · 0.8", "굽은 길 재생: 초록 일부 → 빨강 약 85%. 설정 테마 카드 4종 × 3단계 (겹침 · 잘림 없음). 한 화면 모드 표정 카드: 빨강 약 67% = \"멀미 가능성 67%\""],
+          ["D. 휴게소는 확장으로", "엔진은 SUGGEST_REST_STOP을 그대로 계획, 앱은 로그만 (\"engine rest stop (not offered)\"). 멀미 완화 뒤 휴게소 질문 없음. 질문 코드는 later/RestStopOffer.kt", "로그 \"t=105s engine rest stop (not offered)\", 재생 중과 멀미 완화 12초 뒤까지 질문 없음. 멀미 완화: \"누적량 32.3 · 기준 30.6\", 뒷창문 ROW_2_LEFT · ROW_2_RIGHT 위치 2"],
+          ["E · F. README", "맨 위를 제목 · 부제 · 팀 · 시연 · 동작 두 줄 · 다른 점 세 줄로 줄임. \"확장 가능성\" 절 새로 (예측 음성 안내 · 휴게소 추천 · 아이별 · 승차감 지표)", "GitHub API로 수식 렌더 확인"],
+          ["G. 지나온 길 지움", "세 지도 엔진 모두 차 뒤의 길(회색 지난 선 · 파란 흔적)을 그리지 않음, 시연 · 실차 모드 모두. MapLibre는 경로 · 흰 테두리 그라데이션을 차 뒤에서 투명하게, OpenLayers · Leaflet은 다시 그릴 때마다 차 앞부분만 남김", "OpenLayers(에뮬레이터)에서 차 앞 파란 길만. MapLibre · Leaflet은 화면으로 못 봄 (WebGL 없음)"],
+      ]),
+      bullets([
+          ("차 뒤에 파란 토막:", "OpenLayers는 지도 전체를 다시 그릴 때만 경로를 차 위치에서 잘랐고, 사이에 차가 움직여 최대 약 70 px 토막이 남음 → 새 위치가 올 때마다 자름 (MapPanel.kt OpenLayers ENG.move)"),
+      ], "확인하며 고친 것", "fix"),
+      bullets([
+          ("멀미 완화의 외기 · 온도:", "에뮬레이터 공조가 꺼져 있어 \"공조가 꺼져 있어 바꾸지 않았어요\" (기존 동작)"),
+          ("음성 한 줄:", "로그에 남지 않아 소리는 확인 못 함 (같은 창문 응답 콜백에서 말함)"),
+      ], "확인 못 한 것", "open"),
+      bullets([
+          ("다시 찍음 (11.4 02:56):", "demo.webp, ui_r6_map.jpg, ui_r6_relief.jpg, ui_r6_compact.jpg, ui_r6_settings.jpg, theme_gallery.jpg, gif_themes.webp, gif_compact.webp. ui_r6_analysis.jpg는 휴게소 질문 카드가 남아 있어 03:02에 다시 찍음"),
+          ("README에서 뺀 것:", "ui_r6_rest.jpg, ui_12_card.jpg, gif_fresh_air.webp, closed_loop.svg"),
+          ("그래프 다시 만듦:", "how_it_works.svg · index_flow.svg · architecture.svg · timeline_winding.svg (휴게소 표시 뺌)"),
+      ], "README 그림 다시 찍음"))
+
+    # 15 remaining
+    F("남은 확인",
+      bullets([
+          ("회전 예고 · 가족 모드:", "관련 확인 항목은 화면에서 숨기며 뺌 (11.3 팀장 회의)"),
+          ("창문이 실제로 열리는지:", "창문 연결이 되는 환경에서 다시 확인"),
+          ("옛 화면 그림:", "ui_1_welcome만 남음 (README에서는 빼 둠)"),
+          ("실차 모드 경로선:", "NaviHelper가 경로 좌표를 주지 않음 → 지도 탭은 차 위치만. Pleos 문의 항목."),
+          ("헤드업 알림:", "Pleos 홈은 시스템 앱 알림만 지도 위에 띄움 → 알림 카드는 알림 센터로만. Pleos 문의 항목."),
+          ("도심 회전 뒤 지도 멈춤:", "도심 · 거칠게에서 회전 뒤 지도가 새 방향으로 도는 동안 0.2–0.43초 멈춤이 30초에 13–33번. 굽은 길 · 나들이길은 매끄러움."),
+      ], None, "open"))
+
+    # 16 known issue
+    F("알려진 문제: 에뮬레이터가 꺼짐 (11.2)",
+      bullets([
+          ("현상:", "로그에 Failed to find ColorBuffer가 보이지만 매 부팅 때 나오는 경고. 실제로는 Wait for emulator ... to shutdown gracefully → 스냅샷 저장 → 종료 순서로 바깥에서 종료 요청을 받고 꺼짐. 차 안(logcat)에는 종료 기록 없음."),
+          ("원인:", "에뮬레이터를 띄운 셸(터미널 탭, 도구의 백그라운드 작업)이 끝나면 그 자식 프로세스인 에뮬레이터도 종료 신호를 받음. Virtual Console을 닫아도 똑같이 꺼졌고, nohup ... &로 띄우자 계속 켜져 있었음."),
+          ("해결:", "nohup ... & disown으로 띄우거나, Android Studio › Device Manager › Pleos_Connect_v2_1 › Cold Boot Now로 켬 (명령은 아래)."),
+      ], "원인 확인 (11.2)"))
+    return n
+
+
+if __name__ == "__main__":
+    print(build(), "figures")

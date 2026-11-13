@@ -33,7 +33,7 @@ window.F = {
   tex: String.raw`\cP{P} = \frac{1}{1 + e^{-(\cD{D} - \cT{\tau}\,\cM{m})/\cK{s}}}`,
   side: `<div class="cap">누적량이 기준선(<span class="v" style="font-size:15px;color:#EA580C">τ</span>·<span class="v" style="font-size:15px;color:#0D9488">m</span>)을 넘을수록 커짐</div>` + sc,
   legend: [
-    { v: 'P', tex: String.raw`\cP{P}`, text: '멀미 가능성', sub: '25% · 50%에서 단계가 바뀜' },
+    { v: 'P', tex: String.raw`\cP{P}`, text: '멀미 가능성', sub: '25% · 50%에서 단계가 바뀜 · 확률이 아니라 보정 전 점수' },
     { v: 'D', tex: String.raw`\cD{D}`, text: '누적 흔들림' },
     { v: 'T', tex: String.raw`\cT{\tau}`, text: '개인 기준선', sub: '멀미 완화 버튼을 누른 순간의 누적량으로 학습' },
     { v: 'T', tex: String.raw`\cT{\tau_0}`, text: '출발값', sub: '버튼을 누르기 전', k: '30' },
