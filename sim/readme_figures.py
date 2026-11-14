@@ -387,22 +387,23 @@ def real_vs_sim():
     real = rows["comma2k19 실제 고속도로 (45초)"]
     sim = rows["시뮬 C 고속도로 (같은 45초)"]
     n = int(real["seconds"])
-    s = Svg(960, 280)
-    s.title(30, 30, f"현실성 점검 · 실제 고속도로(comma2k19, 공개 데이터)와 시뮬 고속도로, 같은 {n}초", 16)
+    s = Svg(960, 304)
+    s.title(30, 30, "현실성 점검", 16)
+    s.text(30, 54, "공개된 고속도로 주행 데이터와 시뮬레이션 비교", 14, INK, weight=700)
     metrics = [("상위 5% 앞뒤 가속도 (m/s²)", "p95_ax", 1.5), ("평균 흔들림 지수 I", "mean_index", 1.0), ("평균 속도 (km/h)", "mean_speed_kmh", 100)]
     for i, (label, key, vmax) in enumerate(metrics):
         x = 40 + i * 310
-        s.text(x, 70, label, 13, INK, weight=700)
+        s.text(x, 94, label, 13, INK, weight=700)
         for j, (name, r, color) in enumerate([("실제", real, INK), ("시뮬", sim, INDEX)]):
             v = float(r[key])
-            y = 92 + j * 52
+            y = 116 + j * 52
             s.text(x, y + 22, name, 13, MUTED)
             s.rect(x + 44, y + 6, 220 * v / vmax, 26, color, 6)
             s.text(x + 50 + 220 * v / vmax, y + 25, f"{v:g}", 13, INK)
     ax = float(sim["p95_ax"]) / float(real["p95_ax"])
-    s.text(40, 230, f"같은 {n}초: 앞뒤 가속도 시뮬 {ax:.2f}배, 평균 지수 {float(real['mean_index']):.2f} vs "
+    s.text(40, 254, f"{n}초 구간의 비교 결과: 앞뒤 가속도 시뮬 {ax:.2f}배, 평균 지수 {float(real['mean_index']):.2f} vs "
            f"{float(sim['mean_index']):.2f} · 둘 다 주의 기준({P['thetaCaution']}) 아래", 13, MUTED)
-    s.text(40, 252, "옆 가속도: 비교 불가 (실제 구간이 직선)", 13, MUTED)
+    s.text(40, 276, "옆 가속도: 비교 불가 (실제 구간이 직선)", 13, MUTED)
     s.save("real_vs_sim.svg")
 
 

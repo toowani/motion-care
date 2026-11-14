@@ -7,7 +7,7 @@
 <circle cx="116.0" cy="57.0" r="20" fill="#E7EFFF"/>
 <g transform="translate(105.1 46.1) scale(0.909)" fill="none" stroke="#1F62DA" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5h3L10 6v12l-4-3.5H3z M13 12c1.2-3.5 2.3-3.5 3.5 0s2.3 3.5 3.5 0"/></g>
 <text x="150.0" y="53.0" font-size="15" fill="#0F1838" text-anchor="start" font-weight="700">100 Hz 소리 1분 → 흔들림 뒤 자세 흔들림 · 멀미 설문 점수 감소</text>
-<text x="150.0" y="73.0" font-size="12.5" fill="#4A5470" text-anchor="start" font-weight="400">흔들리기 직전 양쪽 귀 · 80–85 dBZ · 그네 · 주행 시뮬레이터 · 실제 차 · 주행 중 재생 효과는 미검증</text>
+<text x="150.0" y="73.0" font-size="12.5" fill="#4A5470" text-anchor="start" font-weight="400">주행 중 재생 효과는 미검증</text>
 <rect x="773.7" y="44.0" width="138.3" height="26.0" rx="13.0" fill="#FFFFFF" stroke="#E6EAF2" stroke-width="1"/>
 <text x="842.8" y="61.3" font-size="12" fill="#4A5470" text-anchor="middle" font-weight="400">Gu 외, 2025 (나고야대)</text>
 <rect x="28.0" y="96.0" width="904.0" height="58.0" rx="16" fill="#F6F8FC" stroke="#E6EAF2" stroke-width="1"/>
